@@ -2481,16 +2481,16 @@ class quiz_attempt {
      * Check a page access to see if is an out of sequence access.
      *
      * @param  int $page page number.
-     * @return boolean false is is an out of sequence access, true otherwise.
+     * @return boolean false if is an out of sequence access, true otherwise.
      * @since Moodle 3.1
      */
     public function check_page_access($page) {
-        if ($this->get_currentpage() != $page) {
-            if ($this->get_navigation_method() == QUIZ_NAVMETHOD_SEQ && $this->get_currentpage() > $page) {
-                return false;
-            }
+        if ($this->get_navigation_method() != QUIZ_NAVMETHOD_SEQ) {
+            return true; // No restriction.
         }
-        return true;
+
+        // Sequential access: allow access to the summary, current page or next page.
+        return $page == -1 || $page == $this->get_currentpage() || $page == $this->get_currentpage() + 1;
     }
 
     /**
