@@ -42,7 +42,7 @@ class mod_quiz_attempt_testcase extends advanced_testcase {
      * @param string $layout layout to set. Like quiz attempt.layout. E.g. '1,2,0,3,4,0,'.
      * @return quiz_attempt the new quiz_attempt object
      */
-    protected function create_quiz_and_attempt_with_layout($layout) {
+    protected function create_quiz_and_attempt_with_layout($layout, $navmethod = QUIZ_NAVMETHOD_FREE) {
         $this->resetAfterTest(true);
 
         // Make a user to do the quiz.
@@ -51,7 +51,7 @@ class mod_quiz_attempt_testcase extends advanced_testcase {
         // Make a quiz.
         $quizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_quiz');
         $quiz = $quizgenerator->create_instance(['course' => $course->id,
-            'grade' => 100.0, 'sumgrades' => 2, 'layout' => $layout]);
+            'grade' => 100.0, 'sumgrades' => 2, 'layout' => $layout, 'navmethod' => $navmethod]);
 
         $quizobj = quiz::create($quiz->id, $user->id);
 
@@ -367,5 +367,58 @@ class mod_quiz_attempt_testcase extends advanced_testcase {
         $quba = question_engine::load_questions_usage_by_activity($student1attempt->uniqueid);
         $step = $quba->get_question_attempt(1)->get_step(0);
         $this->assertEquals($student1->id, $step->get_user_id());
+    }
+
+    /**
+     * Test check_page_access function
+     */
+    public function test_check_page_access() {
+        $timenow = time();
+
+        // Free navigation.
+        $attempt = $this->create_quiz_and_attempt_with_layout('1,0,2,0,3,0,4,0,5,0', QUIZ_NAVMETHOD_FREE);
+
+        // Check access.
+        $this->assertEquals(true, $attempt->check_page_access(4));
+        $this->assertEquals(true, $attempt->check_page_access(3));
+        $this->assertEquals(true, $attempt->check_page_access(2));
+        $this->assertEquals(true, $attempt->check_page_access(1));
+        $this->assertEquals(true, $attempt->check_page_access(0));
+        $this->assertEquals(true, $attempt->check_page_access(2));
+
+        // Access page 2.
+        $attempt->set_currentpage(2);
+        $attempt = quiz_attempt::create($attempt->get_attempt()->id);
+
+        // Check access.
+        $this->assertEquals(true, $attempt->check_page_access(0));
+        $this->assertEquals(true, $attempt->check_page_access(1));
+        $this->assertEquals(true, $attempt->check_page_access(2));
+        $this->assertEquals(true, $attempt->check_page_access(3));
+        $this->assertEquals(true, $attempt->check_page_access(4));
+
+        // Sequential navigation.
+        $attempt = $this->create_quiz_and_attempt_with_layout('1,0,2,0,3,0,4,0,5,0', QUIZ_NAVMETHOD_SEQ);
+
+        // Check access.
+        $this->assertEquals(true, $attempt->check_page_access(0));
+        $this->assertEquals(true, $attempt->check_page_access(1));
+        $this->assertEquals(false, $attempt->check_page_access(2));
+        $this->assertEquals(false, $attempt->check_page_access(3));
+        $this->assertEquals(false, $attempt->check_page_access(4));
+
+        // Access page 1.
+        $attempt->set_currentpage(1);
+        $attempt = quiz_attempt::create($attempt->get_attempt()->id);
+        $this->assertEquals(true, $attempt->check_page_access(1));
+
+        // Access page 2.
+        $attempt->set_currentpage(2);
+        $attempt = quiz_attempt::create($attempt->get_attempt()->id);
+        $this->assertEquals(true, $attempt->check_page_access(2));
+
+        $this->assertEquals(true, $attempt->check_page_access(3));
+        $this->assertEquals(false, $attempt->check_page_access(4));
+        $this->assertEquals(false, $attempt->check_page_access(1));
     }
 }
