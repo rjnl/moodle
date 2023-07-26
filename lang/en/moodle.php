@@ -2227,6 +2227,7 @@ $string['time'] = 'Time';
 $string['timecreated'] = 'Time created';
 $string['timecreatedcourse'] = 'Course time created';
 $string['timezone'] = 'Timezone';
+$string['timezonefordate'] = 'Timezone: {$a}';
 $string['to'] = 'To';
 $string['tocreatenewaccount'] = 'Skip to create new account';
 $string['tocontent'] = 'To item "{$a}"';
