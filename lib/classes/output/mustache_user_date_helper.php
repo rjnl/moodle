@@ -51,13 +51,27 @@ class mustache_user_date_helper {
      * @return string
      */
     public function transform($args, Mustache_LambdaHelper $helper) {
+        global $CFG;
+
         // Split the text into an array of variables.
-        list($timestamp, $format) = explode(',', $args, 2);
-        $timestamp = trim($timestamp);
-        $format = trim($format);
+        $result = explode(',', $args, 3);
+        $timestamp = trim($result[0]);
+        $format = trim($result[1]);
+
+        $plaintexttimezone = false;
+
+        // This 3rd argument is optional, so it may not be passed.
+        if (isset($result[2])) {
+            $plaintexttimezone = trim($result[2]) === 'true' ? true : false;
+        }
 
         $timestamp = $helper->render($timestamp);
         $format = $helper->render($format);
+
+        if ($plaintexttimezone && isset($CFG->showtimezoneindates) && $CFG->showtimezoneindates) {
+           return userdate($timestamp, $format, 99, true, true, false)
+            . ' (' . get_string('timezonefordate', 'moodle', usertimezone()) . ')';
+        }
 
         return userdate($timestamp, $format);
     }

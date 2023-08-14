@@ -2314,11 +2314,34 @@ function format_time($totalsecs, $str = null) {
  * @param bool $fixday If true (default) then the leading zero from %d is removed.
  *        If false then the leading zero is maintained.
  * @param bool $fixhour If true (default) then the leading zero from %I is removed.
+* @param bool|null $showtimezone If true then show timezone. If false then do not show timezone.
+ *        If null (default) then use the global $CFG->showtimezoneindates value, if set.
  * @return string the formatted date/time.
  */
-function userdate($date, $format = '', $timezone = 99, $fixday = true, $fixhour = true) {
+function userdate($date, $format = '', $timezone = 99, $fixday = true, $fixhour = true, $showtimezone = null) {
+    global $CFG, $OUTPUT;
+
     $calendartype = \core_calendar\type_factory::get_calendar_instance();
-    return $calendartype->timestamp_to_date_string($date, $format, $timezone, $fixday, $fixhour);
+
+    // Should we show the timezone?
+    // $showtimezone takes precedence, otherwise use the global setting.
+    if ($showtimezone === null) {
+        $showtimezone = isset($CFG->showtimezoneindates) ? $CFG->showtimezoneindates : false;
+    }
+
+
+
+    $formatteddate = $calendartype->timestamp_to_date_string($date, $format, $timezone, $fixday, $fixhour);
+
+    // It only makes sense to show the timezone when the datetime contains a time component.
+    $timepattern = '/%H|%I|%M|%r|%R|%T|%X/';
+    if ($showtimezone && ($format == '' || preg_match($timepattern, $format))) {
+        $formatteddate .= ' <span data-toggle="tooltip" title="' . get_string('timezonefordate', 'moodle', usertimezone()) . '">'
+        . $OUTPUT->pix_icon('e/insert_time', '')
+        . '</span>';
+    }
+
+    return $formatteddate;
 }
 
 /**

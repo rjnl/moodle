@@ -284,7 +284,7 @@
                                                 <div class="mb-1 line-height-3 text-truncate">{{fullname}}</div>
                                                 <div class="line-height-3">
                                                     {{#latestpostid}}
-                                                        <a href="{{{discussion.urls.viewlatest}}}" title="{{#userdate}}{{discussion.times.modified}},{{#str}}strftimerecentfull{{/str}}{{/userdate}}">
+                                                        <a href="{{{discussion.urls.viewlatest}}}" title="{{#userdate}}{{discussion.times.modified}},{{#str}}strftimerecentfull{{/str}}, true{{/userdate}}">
                                                             {{< core/time_element }}
                                                                 {{$elementid}}modified-{{discussion.id}}{{/elementid}}
                                                                 {{$timestampval}}{{discussion.times.modified}}{{/timestampval}}
