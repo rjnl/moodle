@@ -32,7 +32,7 @@ require_once($CFG->dirroot.'/mod/lti/servicelib.php');
 
 // TODO: Switch to core oauthlib once implemented - MDL-30149.
 use mod_lti\service_exception_handler;
-use moodle\mod\lti as lti;
+use moodle\ltix as lti;
 use ltiservice_basicoutcomes\local\service\basicoutcomes;
 
 $rawbody = file_get_contents("php://input");

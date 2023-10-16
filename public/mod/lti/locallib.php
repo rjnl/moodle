@@ -52,7 +52,7 @@ defined('MOODLE_INTERNAL') || die;
 
 // TODO: Switch to core oauthlib once implemented - MDL-30149.
 use mod_lti\helper;
-use moodle\mod\lti as lti;
+use moodle\ltix as lti;
 use Firebase\JWT\JWT;
 use Firebase\JWT\JWK;
 use Firebase\JWT\Key;
@@ -60,10 +60,10 @@ use mod_lti\local\ltiopenid\jwks_helper;
 use mod_lti\local\ltiopenid\registration_helper;
 
 global $CFG;
-require_once($CFG->dirroot.'/mod/lti/OAuth.php');
+require_once($CFG->dirroot.'/ltix/OAuth.php');
 require_once($CFG->libdir.'/weblib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
-require_once($CFG->dirroot . '/mod/lti/TrivialStore.php');
+require_once($CFG->dirroot . '/ltix/TrivialStore.php');
 
 define('LTI_URL_DOMAIN_REGEX', '/(?:https?:\/\/)?(?:www\.)?([^\/]+)(?:\/|$)/i');
 
@@ -2960,7 +2960,7 @@ function lti_log_request($rawbody) {
     if ($tempdir = make_temp_directory('mod_lti', false)) {
         if ($tempfile = tempnam($tempdir, 'mod_lti_request'.date('YmdHis'))) {
             $content  = "Request Headers:\n";
-            foreach (moodle\mod\lti\OAuthUtil::get_headers() as $header => $value) {
+            foreach (moodle\ltix\OAuthUtil::get_headers() as $header => $value) {
                 $content .= "$header: $value\n";
             }
             $content .= "Request Body:\n";

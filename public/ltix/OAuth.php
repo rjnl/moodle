@@ -57,11 +57,11 @@
 /**
  * This file contains the OAuth 1.0a implementation used for support for LTI 1.1.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright moodle
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace moodle\mod\lti;//Using a namespace as the basicLTI module imports classes with the same names
+namespace moodle\ltix;//Using a namespace as the basicLTI module imports classes with the same names
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -761,7 +761,7 @@ class OAuthUtil {
     public static function urlencode_rfc3986($input) {
         if (is_array($input)) {
             return array_map(array(
-                'moodle\mod\lti\OAuthUtil',
+                'moodle\ltix\OAuthUtil',
                 'urlencode_rfc3986'
             ), $input);
         } else {
