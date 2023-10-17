@@ -26,6 +26,7 @@
 require_once('../../config.php');
 require_once($CFG->dirroot.'/mod/lti/lib.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once($CFG->dirroot.'/ltix/constants.php');
 
 $courseid = required_param('course', PARAM_INT);
 $instanceid = optional_param('instanceid', 0, PARAM_INT);
