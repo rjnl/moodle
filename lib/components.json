@@ -97,6 +97,7 @@
         "iso6392": null,
         "langconfig": null,
         "license": null,
+        "ltix": "public/ltix",
         "mathslib": null,
         "media": "public/media",
         "message": "public/message",
