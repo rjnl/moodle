@@ -79,6 +79,7 @@ $toolproxiesurl = $toolproxiesurl->out();
 
 if ($ADMIN->fulltree) {
     require_once($CFG->dirroot.'/mod/lti/locallib.php');
+    require_once($CFG->dirroot.'/ltix/constants.php');
 
     $configuredtoolshtml = '';
     $pendingtoolshtml = '';

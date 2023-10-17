@@ -16,6 +16,10 @@
 
 namespace core_ltix;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once($CFG->dirroot . '/ltix/constants.php');
+
 use core_component;
 use core_text;
 use curl;

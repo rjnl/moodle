@@ -25,6 +25,7 @@
 
 require_once('../../config.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once($CFG->dirroot.'/ltix/constants.php');
 
 $top = optional_param('top', 0, PARAM_INT);
 $msg = optional_param('lti_msg', '', PARAM_TEXT);
