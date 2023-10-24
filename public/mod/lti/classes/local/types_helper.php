@@ -43,7 +43,7 @@ class types_helper {
             return [];
         }
 
-        return \core_ltix\types_helper::get_lti_types_by_course($courseid, $userid, $coursevisible);
+        return \core_ltix\types_helper::get_lti_types_by_course($courseid, $coursevisible);
     }
 
     /**
