@@ -21,13 +21,8 @@
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use core_ltix\local\ltiopenid\jwks_helper;
-
-define('NO_DEBUG_DISPLAY', true);
-define('NO_MOODLE_COOKIES', true);
+use core_ltix\helper;
 
 require_once(__DIR__ . '/../../config.php');
 
-@header('Content-Type: application/json; charset=utf-8');
-
-echo json_encode(jwks_helper::get_jwks(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+helper::get_certs_endpoint();

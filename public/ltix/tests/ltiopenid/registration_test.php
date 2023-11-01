@@ -32,7 +32,7 @@
 // of the Universitat Politecnica de Catalunya http://www.upc.edu
 // Contact info: Marc Alier Forment granludo @ gmail.com or marc.alier @ upc.edu.
 
-namespace core_ltix\ltiopenid;
+namespace core_ltix\local\ltiopenid;
 
 /**
  * OpenId LTI Registration library tests
