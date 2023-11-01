@@ -26,11 +26,6 @@
 
 namespace core_ltix\local\ltiservice;
 
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-use core_ltix\local\ltiservice\service_helper;
-
 /**
  * The core_ltix\local\ltiservice\resource_base class.
  *

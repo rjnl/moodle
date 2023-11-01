@@ -49,7 +49,7 @@ class core_ltix_generator extends testing_module_generator {
         if (!isset($config['serviceoffered'])) {
             $config['serviceoffered'] = '';
         }
-        \core_ltix\tool_helper::add_tool_proxy((object) $config);
+        \core_ltix\helper::add_tool_proxy((object) $config);
     }
 
     /**

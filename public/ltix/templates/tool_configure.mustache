@@ -1,0 +1,93 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template core_ltix/tool_configure
+
+    This template provides the layout for the external tool configuration page in the
+    LTI module.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    *
+
+    Example context (json):
+    {
+        "configuremanualurl":"https://some.tool.example/ltix/typessettings.php?sesskey=OKl37bHflL&amp;returnto=toolconfigure",
+        "managetoolsurl":"https://some.tool.example/admin/settings.php?section=modsettinglti",
+        "managetoolproxiesurl":"https://some.tool.example/ltix/toolproxies.php"
+    }
+
+}}
+<h2>{{#str}} manage_external_tools, core_ltix {{/str}}</h2>
+<div id="main-content-container">
+    <div id="registration-form-container" aria-live="polite">
+        <div id="registration-feedback-container" aria-live="polite"></div>
+        <div id="registration-choice-container" class="centered-menu">
+            <div class="card card-block">
+                <p class="lead">{{#str}} autoaddtype, core_ltix {{/str}}</p>
+                <form class="form-inline justify-content-center" id="add-tool-form">
+                    <div class="control-group">
+                        <input name="url"
+                            class="form-control"
+                            type="url"
+                            id="tool-url"
+                            placeholder="{{#str}} toolurlplaceholder, core_ltix {{/str}}"
+                            required>
+                        <button id="tool-create-button" type="submit" class="btn btn-success">
+                            <span class="btn-text">{{#str}} add_ltiadv, core_ltix {{/str}}</span>
+                            <span class="btn-loader">
+                                {{> core_ltix/loader }}
+                            </span>
+                        </button>
+                        <button id="tool-createltilegacy-button" type="button" class="btn btn-warning">
+                            <span class="btn-text">{{#str}} add_ltilegacy, core_ltix {{/str}}</span>
+                            <span class="btn-loader">
+                                {{> core_ltix/loader }}
+                            </span>
+                        </button>
+                    </div>
+                </form>
+                <p>{{#str}} manuallyaddtype, core_ltix, {{{configuremanualurl}}} {{/str}}</p>
+                <p><a href="{{{ managetoolsurl }}}">{{#str}} manage_tools, core_ltix {{/str}}</a><br/><a href="{{{ managetoolproxiesurl}}}">{{#str}} manage_tool_proxies, core_ltix {{/str}}</a></p>
+            </div>
+        </div>
+        <div id="cartridge-registration-container" aria-live="polite" class="hidden">
+            {{> core_ltix/cartridge_registration_form }}
+        </div>
+        <div id="external-registration-container" aria-live="polite" class="hidden">
+            {{> core_ltix/external_registration }}
+        </div>
+    </div>
+
+    <div id="tool-list-container" class="loading">
+        <h3>{{#str}} tooltypes, core_ltix {{/str}}</h3>
+        <div id="tool-list-loader-container">
+            {{> core_ltix/loader }}
+        </div>
+        {{> core_ltix/tool_list }}
+    </div>
+</div>
+{{#js}}
+    require(['core_ltix/tool_configure_controller'], function(controller) {
+        controller.init();
+    });
+{{/js}}

@@ -35,10 +35,15 @@
 namespace core_ltix\form;
 
 use moodleform;
+
+defined('MOODLE_INTERNAL') || die;
+
+require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->dirroot.'/ltix/constants.php');
 /**
  * LTI Edit Form
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2009 Marc Alier, Jordi Piguillem, Nikolas Galanis
  *  marc.alier@upc.edu
  * @copyright  2009 Universitat Politecnica de Catalunya http://www.upc.edu
@@ -234,7 +239,7 @@ class edit_types extends moodleform {
             $records = $DB->get_records('course_categories', [], 'sortorder, id', 'id,parent,name');
             // Convert array of objects to two dimentional array.
             $tree = $this->lti_build_category_tree(array_map(fn($record) => (array)$record, $records));
-            $mform->addElement('html', $OUTPUT->render_from_template('mod_lti/categorynode', ['nodes' => $tree]));
+            $mform->addElement('html', $OUTPUT->render_from_template('core_ltix/categorynode', ['nodes' => $tree]));
             $mform->addElement('hidden', 'lti_coursecategories');
             $mform->setType('lti_coursecategories', PARAM_TEXT);
         }
