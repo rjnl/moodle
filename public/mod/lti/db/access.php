@@ -56,16 +56,6 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
-    // The ability to create or edit tool configurations for particular courses.
-    'mod/lti:addcoursetool' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-
     // The ability to a preconfigured instance to the course.
     'mod/lti:addpreconfiguredinstance' => array(
         'captype' => 'write',
@@ -91,16 +81,22 @@ $capabilities = array(
 $deprecatedcapabilities = [
     // The ability to add a manual instance (i.e. not from a preconfigured tool) to the course.
     'mod/lti:addmanualinstance' => [
-        'message' => 'Manual instance configuration is deprecated. Please create a course tool (mod/lti:addcoursetool) and ensure '.
+        'message' => 'Manual instance configuration is deprecated. Please create a course tool (moodle/ltix:addcoursetool) and ensure '.
             'users are able to add an instance of the course tool via the activity chooser (mod/lti:addpreconfiguredinstance).'
     ],
     'mod/lti:manage' => [
         'replacement' => 'moodle/ltix:manage',
-        'mssage' => 'This capability should not be used anymore, please use moodle/ltix:manage instead.',
-
+        'message' => 'This capability has been replaced by an equivalent core capability as part of moving large parts of mod_lti'.
+            ' to core.'
     ],
     'mod/lti:admin' => [
         'replacement' => 'moodle/ltix:admin',
-        'message' => 'This capability should not be used anymore, please use moodle/ltix:admin instead.'
+        'message' => 'This capability has been replaced by an equivalent core capability as part of moving large parts of mod_lti'.
+            ' to core.'
+    ],
+    'mod/lti:addcoursetool' => [
+        'replacement' => 'moodle/ltix:addcoursetool',
+        'message' => 'This capability has been replaced by an equivalent core capability as part of moving large parts of mod_lti'.
+            ' to core.'
     ],
 ];

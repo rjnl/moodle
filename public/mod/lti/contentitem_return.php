@@ -75,7 +75,7 @@ $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
 require_sesskey();
 require_capability('moodle/course:manageactivities', $context);
-require_capability('mod/lti:addcoursetool', $context);
+require_capability('moodle/ltix:addcoursetool', $context);
 
 $redirecturl = null;
 $returndata = null;

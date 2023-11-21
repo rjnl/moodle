@@ -58,7 +58,7 @@ Feature: Manage course tools
   Scenario: Viewing course tools without the capability to add/edit but having the capability to use
     Given the following "role capability" exists:
       | role                             | editingteacher |
-      | mod/lti:addcoursetool            | prohibit       |
+      | moodle/ltix:addcoursetool        | prohibit       |
       | mod/lti:addpreconfiguredinstance | allow          |
     And the following "mod_lti > course tools" exist:
       | name      | description         | baseurl                  | course |
@@ -70,7 +70,7 @@ Feature: Manage course tools
   Scenario: Viewing course tools with the capability to add/edit and without the capability to use
     Given the following "role capability" exists:
       | role                             | editingteacher |
-      | mod/lti:addcoursetool            | allow          |
+      | moodle/ltix:addcoursetool        | allow          |
       | mod/lti:addpreconfiguredinstance | prohibit       |
     And the following "mod_lti > course tools" exist:
       | name      | description         | baseurl                  | course |
@@ -207,7 +207,7 @@ Feature: Manage course tools
 
     When the following "role capability" exists:
       | role                             | editingteacher |
-      | mod/lti:addcoursetool            | prohibit       |
+      | moodle/ltix:addcoursetool        | prohibit       |
     And I am on "Course 1" course homepage with editing mode on
     And I navigate to "LTI External tools" in current page administration
     Then the "Don't show in activity chooser" "field" should be disabled
@@ -243,7 +243,7 @@ Feature: Manage course tools
 
     When the following "role capability" exists:
       | role                             | editingteacher |
-      | mod/lti:addcoursetool            | prohibit       |
+      | moodle/ltix:addcoursetool        | prohibit       |
     And I am on "Course 1" course homepage with editing mode on
     And I navigate to "LTI External tools" in current page administration
     Then the "Don't show in activity chooser" "field" should be disabled
