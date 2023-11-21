@@ -175,7 +175,7 @@ class course_external_tools_list extends system_report {
                 $label = $coursevisible ? get_string('dontshowinactivitychooser', 'mod_lti')
                     : get_string('showinactivitychooser', 'mod_lti');
 
-                $disabled = !has_capability('mod/lti:addcoursetool', \context_course::instance($courseid));
+                $disabled = !has_capability('moodle/ltix:addcoursetool', \context_course::instance($courseid));
 
                 return $renderer->render_from_template('core/toggle', [
                     'id' => 'showinactivitychooser-toggle-' . $row->id,
@@ -209,7 +209,7 @@ class course_external_tools_list extends system_report {
                 }
 
                 // Lock actions when the user can't add course tools.
-                if (!has_capability('mod/lti:addcoursetool', \context_course::instance($row->course))) {
+                if (!has_capability('moodle/ltix:addcoursetool', \context_course::instance($row->course))) {
                     return \html_writer::div(
                         \html_writer::div(
                             $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'mod_lti')

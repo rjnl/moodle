@@ -64,7 +64,7 @@ class delete_course_tool_type extends external_api {
 
         $context = \context_course::instance($course);
         self::validate_context($context);
-        require_capability('mod/lti:addcoursetool', $context);
+        require_capability('moodle/ltix:addcoursetool', $context);
 
         \core_ltix\helper::delete_type($tooltypeid);
         return true;

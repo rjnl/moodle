@@ -45,7 +45,7 @@ class course_tools_page implements \renderable {
         $context = \context_course::instance($courseid);
 
         // Page intro, zero state and 'add new' button.
-        $canadd = has_capability('mod/lti:addcoursetool', $context);
+        $canadd = has_capability('moodle/ltix:addcoursetool', $context);
         $sql = 'SELECT COUNT(1)
                   FROM {lti_types} tt
                  WHERE tt.course IN(:siteid, :courseid)

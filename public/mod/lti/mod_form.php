@@ -110,9 +110,9 @@ class mod_lti_mod_form extends moodleform_mod {
         // Since 'mod/lti:addmanualinstance' capability is deprecated, determining which users may have had access to the certain
         // form fields (the manual config fields) isn't straightforward. Users without 'mod/lti:addmanualinstance' would have only
         // been permitted to edit the basic instance fields (name, etc.), so care must be taken not to display the config fields to
-        // these users. Users who can add/edit course tools (mod/lti:addcoursetool) are able to view tool information anyway, via
+        // these users. Users who can add/edit course tools (moodle/ltix:addcoursetool) are able to view tool information anyway, via
         // the tool definitions, so this capability is used as a replacement, to control access to these tool config fields.
-        $canviewmanualconfig = has_capability('mod/lti:addcoursetool', $this->context);
+        $canviewmanualconfig = has_capability('moodle/ltix:addcoursetool', $this->context);
         $showtypes = has_capability('mod/lti:addpreconfiguredinstance', $this->context);
 
         if ($manualinstance && !$canviewmanualconfig) {

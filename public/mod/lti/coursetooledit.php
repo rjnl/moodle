@@ -33,7 +33,7 @@ $typeid = optional_param('typeid', null, PARAM_INT);
 
 // Permissions etc.
 require_login($courseid, false);
-require_capability('mod/lti:addcoursetool', context_course::instance($courseid));
+require_capability('moodle/ltix:addcoursetool', context_course::instance($courseid));
 if (!empty($typeid)) {
     $type = \core_ltix\helper::get_type_type_config($typeid);
     if ($type->course != $courseid || $type->course == get_site()->id) {

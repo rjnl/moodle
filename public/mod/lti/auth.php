@@ -127,7 +127,7 @@ if ($ok) {
         require_login($course);
         $context = context_course::instance($courseid);
         require_capability('moodle/course:manageactivities', $context);
-        require_capability('mod/lti:addcoursetool', $context);
+        require_capability('moodle/ltix:addcoursetool', $context);
         // Set the return URL. We send the launch container along to help us avoid frames-within-frames when the user returns.
         $returnurlparams = [
             'course' => $courseid,

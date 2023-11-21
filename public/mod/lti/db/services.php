@@ -150,7 +150,7 @@ $functions = array(
         'classname'     => 'mod_lti\external\delete_course_tool_type',
         'description'   => 'Delete a course tool type',
         'type'          => 'write',
-        'capabilities'  => 'mod/lti:addcoursetool',
+        'capabilities'  => 'moodle/ltix:addcoursetool',
         'ajax'          => true
     ),
 
@@ -158,7 +158,7 @@ $functions = array(
         'classname'     => 'mod_lti\external\toggle_showinactivitychooser',
         'description'   => 'Toggle showinactivitychooser for a tool type in a course',
         'type'          => 'write',
-        'capabilities'  => 'mod/lti:addcoursetool',
+        'capabilities'  => 'moodle/ltix:addcoursetool',
         'ajax'          => true
     ),
 
