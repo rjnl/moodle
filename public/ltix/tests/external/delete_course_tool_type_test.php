@@ -14,25 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\external;
-
-use core_external\external_api;
+namespace core_ltix\external;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
+require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
-require_once($CFG->dirroot . '/mod/lti/tests/mod_lti_testcase.php');
+use core_external\external_api;
 
 /**
  * PHPUnit tests for delete_course_tool_type external function.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_lti\external\delete_course_tool_type
  */
-final class delete_course_tool_type_test extends \mod_lti_testcase {
+final class delete_course_tool_type_test extends \core_ltix\lti_testcase {
 
     /**
      * Test delete_course_tool() for a course tool.

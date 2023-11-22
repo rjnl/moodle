@@ -63,3 +63,7 @@ define('LTI_ACCESS_TOKEN_LIFE', 3600);
 
 // Standard prefix for JWT claims.
 define('LTI_JWT_CLAIM_PREFIX', 'https://purl.imsglobal.org/spec/lti');
+
+define('LTI_ITEM_TYPE', 'mod');
+define('LTI_ITEM_MODULE', 'lti');
+define('LTI_SOURCE', 'mod/lti');

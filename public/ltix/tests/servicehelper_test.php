@@ -14,13 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot.'/mod/lti/servicelib.php');
+namespace core_ltix;
+use core_ltix\local\ltiservice\service_helper;
 
 /**
  * Tests for servicelib.php
@@ -31,15 +26,15 @@ require_once($CFG->dirroot.'/mod/lti/servicelib.php');
  */
 final class servicelib_test extends \basic_testcase {
     /**
-     * Test that lti_parse_message_id never fails with good and bad XML.
+     * Test that parse_message_id never fails with good and bad XML.
      *
      * @dataProvider message_id_provider
      * @param mixed $expected Expected message ID.
      * @param string $xml XML to parse.
      */
-    public function test_lti_parse_message_id($expected, $xml): void {
+    public function test_parse_message_id($expected, $xml): void {
         $xml = simplexml_load_string($xml);
-        $this->assertEquals($expected, lti_parse_message_id($xml));
+        $this->assertEquals($expected, service_helper::parse_message_id($xml));
     }
 
     /**

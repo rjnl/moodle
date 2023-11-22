@@ -14,25 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\external;
+namespace core_ltix\external;
 
 use core_external\external_api;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/mod/lti/tests/mod_lti_testcase.php');
+use core_ltix\lti_testcase;
 
 /**
  * PHPUnit tests for get_tool_types_and_proxies_count external function.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @author     Andrew Madden <andrewmadden@catalyst-au.net>
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class get_tool_types_and_proxies_count_test extends \mod_lti_testcase {
+final class get_tool_types_and_proxies_count_test extends lti_testcase {
 
     /**
      * This method runs before every test.
@@ -52,8 +47,8 @@ final class get_tool_types_and_proxies_count_test extends \mod_lti_testcase {
             $this->generate_tool_type($i, $proxy->id);
         }
 
-        $data = \mod_lti\external\get_tool_types_and_proxies_count::execute(0, false);
-        $data = external_api::clean_returnvalue(\mod_lti\external\get_tool_types_and_proxies_count::execute_returns(), $data);
+        $data = \core_ltix\external\get_tool_types_and_proxies_count::execute(0, false);
+        $data = external_api::clean_returnvalue(\core_ltix\external\get_tool_types_and_proxies_count::execute_returns(), $data);
 
         $this->assertEquals(20, $data['count']);
     }
@@ -62,8 +57,8 @@ final class get_tool_types_and_proxies_count_test extends \mod_lti_testcase {
      * Test get_tool_types_and_proxies_count returns the correct number.
      */
     public function test_mod_lti_get_tool_types_and_proxies_count_with_no_tools_configured(): void {
-        $data = \mod_lti\external\get_tool_types_and_proxies_count::execute(0, false);
-        $data = external_api::clean_returnvalue(\mod_lti\external\get_tool_types_and_proxies_count::execute_returns(), $data);
+        $data = \core_ltix\external\get_tool_types_and_proxies_count::execute(0, false);
+        $data = external_api::clean_returnvalue(\core_ltix\external\get_tool_types_and_proxies_count::execute_returns(), $data);
 
         $this->assertEquals(0, $data['count']);
     }

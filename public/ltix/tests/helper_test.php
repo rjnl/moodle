@@ -34,8 +34,6 @@
 
 namespace core_ltix;
 
-use lti_testcase;
-
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -694,109 +692,6 @@ class helper_test extends lti_testcase {
 
         $this->expectException(\moodle_exception::class);
         helper::load_cartridge('http://example.com/mocked/empty/response', []);
-    }
-
-    /**
-     * Test fetching tool types for a given course and user.
-     *
-     * @covers ::get_lti_types_by_course
-     * @return void.
-     */
-    public function test_get_lti_types_by_course(): void {
-        $this->resetAfterTest();
-
-        $coursecat1 = $this->getDataGenerator()->create_category();
-        $coursecat2 = $this->getDataGenerator()->create_category();
-        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
-        $course2 = $this->getDataGenerator()->create_course(['category' => $coursecat2->id]);
-
-        // Create the following tool types for testing:
-        // - Site tool configured as "Do not show" (LTI_COURSEVISIBLE_NO).
-        // - Site tool configured as "Show as a preconfigured tool only" (LTI_COURSEVISIBLE_PRECONFIGURED).
-        // - Site tool configured as "Show as a preconfigured tool and in the activity chooser" (LTI_COURSEVISIBLE_ACTIVITYCHOOSER).
-        // - Course tool which, by default, is configured as LTI_COURSEVISIBLE_ACTIVITYCHOOSER).
-        // - Site tool configured to "Show as a preconfigured tool and in the activity chooser" but restricted to a category.
-
-        /** @var \core_ltix_generator $ltigenerator */
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
-        $ltigenerator->create_tool_types([
-            'name' => 'site tool do not show',
-            'baseurl' => 'http://example.com/tool/1',
-            'coursevisible' => LTI_COURSEVISIBLE_NO,
-            'state' => LTI_TOOL_STATE_CONFIGURED
-        ]);
-        $ltigenerator->create_tool_types([
-            'name' => 'site tool preconfigured only',
-            'baseurl' => 'http://example.com/tool/2',
-            'coursevisible' => LTI_COURSEVISIBLE_PRECONFIGURED,
-            'state' => LTI_TOOL_STATE_CONFIGURED
-        ]);
-        $ltigenerator->create_tool_types([
-            'name' => 'site tool preconfigured and activity chooser',
-            'baseurl' => 'http://example.com/tool/3',
-            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
-            'state' => LTI_TOOL_STATE_CONFIGURED
-        ]);
-        $ltigenerator->create_course_tool_types([
-            'name' => 'course tool preconfigured and activity chooser',
-            'baseurl' => 'http://example.com/tool/4',
-            'course' => $course->id
-        ]);
-        $ltigenerator->create_tool_types([
-            'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
-            'baseurl' => 'http://example.com/tool/5',
-            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
-            'state' => LTI_TOOL_STATE_CONFIGURED,
-            'lti_coursecategories' => $coursecat2->id
-        ]);
-
-        // Request using the default 'coursevisible' param will include all tools except the one configured as "Do not show" and
-        // the tool restricted to category 2.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id);
-        $this->assertCount(3, $coursetooltypes);
-        $expected = [
-            'http://example.com/tool/2',
-            'http://example.com/tool/3',
-            'http://example.com/tool/4',
-        ];
-        sort($expected);
-        $actual = array_column($coursetooltypes, 'baseurl');
-        sort($actual);
-        $this->assertEquals($expected, $actual);
-
-        // Request for only those tools configured to show in the activity chooser.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
-        $this->assertCount(2, $coursetooltypes);
-        $expected = [
-            'http://example.com/tool/3',
-            'http://example.com/tool/4',
-        ];
-        sort($expected);
-        $actual = array_column($coursetooltypes, 'baseurl');
-        sort($actual);
-        $this->assertEquals($expected, $actual);
-
-        // Request for only those tools configured to show as a preconfigured tool.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_PRECONFIGURED]);
-        $this->assertCount(1, $coursetooltypes);
-        $expected = [
-            'http://example.com/tool/2',
-        ];
-        $actual = array_column($coursetooltypes, 'baseurl');
-        $this->assertEquals($expected, $actual);
-
-        // Request for course2 (course category 2).
-        $coursetooltypes = helper::get_lti_types_by_course($course2->id);
-        $this->assertCount(3, $coursetooltypes);
-        $expected = [
-            'http://example.com/tool/2',
-            'http://example.com/tool/3',
-            'http://example.com/tool/5',
-        ];
-        sort($expected);
-        $actual = array_column($coursetooltypes, 'baseurl');
-        sort($actual);
-        $this->assertEquals($expected, $actual);
     }
 
     /**

@@ -13,8 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use core_ltix\tool_helper;
-use core_ltix\types_helper;
+
+namespace core_ltix;
+
+use core_ltix\helper;
+use stdClass;
 
 /**
  * Abstract base testcase for lti unit tests.
@@ -24,7 +27,7 @@ use core_ltix\types_helper;
  * @copyright  2020 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class lti_testcase extends advanced_testcase {
+abstract class lti_testcase extends \externallib_advanced_testcase {
 
     /**
      * Generate a tool type.
@@ -45,7 +48,7 @@ abstract class lti_testcase extends advanced_testcase {
         $config = new stdClass();
         $config->lti_coursevisible = LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
 
-        $type->id = types_helper::add_type($type, $config);
+        $type->id = helper::add_type($type, $config);
         return $type;
     }
 
@@ -63,22 +66,22 @@ abstract class lti_testcase extends advanced_testcase {
             $registrationurl = $this->getExternalTestFileUrl("/proxy$uniqueid.html");
         }
 
-        $duplicates = tool_helper::get_tool_proxies_from_registration_url($registrationurl);
+        $duplicates = helper::get_tool_proxies_from_registration_url($registrationurl);
         if (!empty($duplicates)) {
-            throw new moodle_exception('duplicateregurl', 'core_ltix');
+            throw new \moodle_exception('duplicateregurl', 'core_ltix');
         }
 
         $config = new stdClass();
         $config->lti_registrationurl = $registrationurl;
         $config->lti_registrationname = $name;
 
-        $id = tool_helper::add_tool_proxy($config);
-        $toolproxy = tool_helper::get_tool_proxy($id);
+        $id = helper::add_tool_proxy($config);
+        $toolproxy = helper::get_tool_proxy($id);
 
         // Pending makes more sense than configured as the first state, since
         // the next step is to register, which requires the state be pending.
         $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
-        tool_helper::update_tool_proxy($toolproxy);
+        helper::update_tool_proxy($toolproxy);
 
         return $toolproxy;
     }

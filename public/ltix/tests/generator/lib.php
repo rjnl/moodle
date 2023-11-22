@@ -96,7 +96,7 @@ class core_ltix_generator extends testing_module_generator {
 
         ['type' => $type, 'config' => $config] = $this->get_type_and_config_from_data($data);
 
-        return \core_ltix\types_helper::add_type(type: $type, config: $config);
+        return \core_ltix\helper::add_type(type: $type, config: $config);
     }
 
     /**
@@ -138,8 +138,8 @@ class core_ltix_generator extends testing_module_generator {
 
         ['type' => $type, 'config' => $config] = $this->get_type_and_config_from_data($type);
 
-        \core_ltix\types_helper::load_type_if_cartridge($config);
-        return \core_ltix\types_helper::add_type(type: $type, config: $config);
+        \core_ltix\helper::load_type_if_cartridge($config);
+        return \core_ltix\helper::add_type(type: $type, config: $config);
     }
 
 }

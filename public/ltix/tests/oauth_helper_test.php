@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \core_ltix\oauth_helper
  */
-class oauth_helper_test extends \lti_testcase {
+class oauth_helper_test extends lti_testcase {
 
     /**
      * Test lti_get_jwt_message_type_mapping().
@@ -486,7 +486,7 @@ MwIDAQAB
 
         $config->lti_keytype = LTI_RSA_KEY;
 
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         oauth_helper::verify_jwt_signature($typeid, '', 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4g' .
             'RG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.POstGetfAytaZS82wHcjoTyoqhMyxXiWdR7Nn7A29DNSl0EiXLdwJ6xC6AfgZWF1bOs' .
@@ -515,7 +515,7 @@ MwIDAQAB
 
         $config->lti_keytype = LTI_JWK_KEYSET;
 
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $jwt = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjU3YzExNzdkMmQ1M2EwMjFjNzM';
         $jwt .= '3NTY0OTFjMTM3YjE3In0.eyJpc3MiOiJnclJvbkd3RTd1WjRwZ28iLCJzdWIiOiJnclJvb';
@@ -552,7 +552,7 @@ MwIDAQAB
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
         $config = new \stdClass();
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $this->expectExceptionMessage(get_string('errorincorrectconsumerkey', 'core_ltix'));
         oauth_helper::verify_jwt_signature($typeid, '', '');
@@ -575,7 +575,7 @@ MwIDAQAB
 
         $config = new \stdClass();
         $config->lti_keytype = LTI_RSA_KEY;
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $this->expectExceptionMessage('No public key configured');
         oauth_helper::verify_jwt_signature($typeid, 'consumerkey', '');
@@ -598,7 +598,7 @@ MwIDAQAB
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
         $config = new \stdClass();
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $params = [];
         $params['roles'] = 'urn:lti:role:ims/lis/testrole,' .
@@ -655,7 +655,7 @@ MwIDAQAB
 -----END PUBLIC KEY-----';
         $config->lti_keytype = LTI_RSA_KEY;
 
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $params = oauth_helper::convert_from_jwt($typeid, 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwib' .
             'mFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMiwiaXNzIjoic3NvLmV4YW1wbGUuY29tIn0.XURVvEb5ueAvFsn-S9EB' .
@@ -687,11 +687,11 @@ MwIDAQAB
 
         $config = new \stdClass();
 
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $scopes = ['lti_some_scope', 'lti_another_scope'];
 
-        types_helper::new_access_token($typeid, $scopes);
+        helper::new_access_token($typeid, $scopes);
 
         $token = $DB->get_records('lti_access_tokens');
         $this->assertEquals(1, count($token));
@@ -726,7 +726,7 @@ MwIDAQAB
         $data = new \stdClass();
         $data->lti_contentitem = true;
 
-        $typeid = types_helper::add_type($type, $data);
+        $typeid = helper::add_type($type, $data);
 
         $this->expectExceptionMessage('JWT security not supported with LTI 2');
         oauth_helper::verify_jwt_signature($typeid, '', '');

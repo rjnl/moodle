@@ -14,18 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\external;
+namespace core_ltix\external;
 
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
 /**
  * External function for fetching the count of all tool types and proxies.
@@ -40,7 +34,6 @@ class get_tool_types_and_proxies_count extends external_api {
     /**
      * Get parameter definition for get_tool_types_and_proxies_count().
      *
-     * @deprecated since Moodle 4.4
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
@@ -55,34 +48,36 @@ class get_tool_types_and_proxies_count extends external_api {
     /**
      * Get count of every tool type and tool proxy.
      *
-     * @deprecated since Moodle 4.4
      * @param int $toolproxyid The tool proxy id
      * @param bool $orphanedonly Whether to get orphaned proxies only.
      * @return array
      */
     public static function execute($toolproxyid, $orphanedonly): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_types_and_proxies_count instead.',
-                  DEBUG_DEVELOPER);
-        return \core_ltix\external\get_tool_types_and_proxies_count::execute($toolproxyid, $orphanedonly);
+        $params = self::validate_parameters(self::execute_parameters(),
+            [
+                'toolproxyid' => $toolproxyid,
+                'orphanedonly' => $orphanedonly,
+            ]);
+        $toolproxyid = $params['toolproxyid'];
+        $orphanedonly = $params['orphanedonly'];
+
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('moodle/site:config', $context);
+
+        return [
+            'count' => \core_ltix\helper::get_lti_types_and_proxies_count($orphanedonly, $toolproxyid),
+        ];
     }
 
     /**
      * Get return definition for get_tool_types_and_proxies_count.
      *
-     * @deprecated since Moodle 4.4
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'count' => new external_value(PARAM_INT, 'Total number of tool types and proxies', VALUE_REQUIRED),
         ]);
-    }
-
-    /**
-     * Mark the function as deprecated.
-     * @return bool
-     */
-    public static function execute_is_deprecated() {
-        return true;
     }
 }
