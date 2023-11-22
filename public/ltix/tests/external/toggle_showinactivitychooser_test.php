@@ -14,25 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\external;
+namespace core_ltix\external;
 
 use core_external\external_api;
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-
-require_once($CFG->dirroot . '/mod/lti/tests/mod_lti_testcase.php');
+use core_ltix\lti_testcase;
 
 /**
  * PHPUnit tests for toggle_showinactivitychooser external function.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Ilya Tregubov <ilya.a.tregubov@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_lti\external\toggle_showinactivitychooser
  */
-final class toggle_showinactivitychooser_test extends \mod_lti_testcase {
+final class toggle_showinactivitychooser_test extends lti_testcase {
 
     /**
      * Test toggle_showinactivitychooser for course tool.

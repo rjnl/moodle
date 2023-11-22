@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\external;
+namespace core_ltix\external;
 
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -34,7 +34,6 @@ class get_tool_types_and_proxies extends external_api {
     /**
      * Get parameter definition for get_tool_types_and_proxies().
      *
-     * @deprecated since Moodle 4.4
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
@@ -71,7 +70,6 @@ class get_tool_types_and_proxies extends external_api {
     /**
      * Get data for all tool types and tool proxies.
      *
-     * @deprecated since Moodle 4.4
      * @param int $toolproxyid The tool proxy id
      * @param bool $orphanedonly Whether to get orphaned proxies only.
      * @param int $limit How many elements to return if using pagination.
@@ -79,31 +77,42 @@ class get_tool_types_and_proxies extends external_api {
      * @return array
      */
     public static function execute($toolproxyid, $orphanedonly, $limit, $offset): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_types_and_proxies instead.',
-                  DEBUG_DEVELOPER);
-        return \core_ltix\external\get_tool_types_and_proxies::execute($toolproxyid, $orphanedonly, $limit, $offset);
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'toolproxyid' => $toolproxyid,
+            'orphanedonly' => $orphanedonly,
+            'limit' => $limit,
+            'offset' => $offset,
+        ]);
+        $toolproxyid = $params['toolproxyid'] !== null ? $params['toolproxyid'] : 0;
+        $orphanedonly = $params['orphanedonly'] !== null ? $params['orphanedonly'] : false;
+        $limit = $params['limit'] !== null ? $params['limit'] : 0;
+        $offset = $params['offset'] !== null ? $params['offset'] : 0;
+
+        $context = \context_system::instance();
+        self::validate_context($context);
+        require_capability('moodle/site:config', $context);
+
+        [$proxies, $types] = \core_ltix\helper::get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
+
+        return [
+            'types' => $types,
+            'proxies' => $proxies,
+            'limit' => $limit,
+            'offset' => $offset,
+        ];
     }
 
     /**
      * Get return definition for get_tool_types_and_proxies.
      *
-     * @deprecated since Moodle 4.4
      * @return external_single_structure
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'types' => \core_ltix\external::tool_type_return_structure(),
-            'proxies' => \core_ltix\external::tool_proxy_return_structure(),
+            'types' => \core_ltix\external::get_tool_types_returns(),
+            'proxies' => \core_ltix\external::get_tool_proxies_returns(),
             'limit' => new external_value(PARAM_INT, 'Limit of how many tool types to show', VALUE_OPTIONAL),
             'offset' => new external_value(PARAM_INT, 'Offset of tool types', VALUE_OPTIONAL),
         ]);
-    }
-
-   /**
-     * Mark the function as deprecated.
-     * @return bool
-     */
-    public static function execute_is_deprecated() {
-        return true;
     }
 }

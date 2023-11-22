@@ -30,11 +30,11 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
-require_once($CFG->dirroot . '/ltix/OAuthBody.php');
 
 // TODO: Switch to core oauthlib once implemented - MDL-30149.
 use moodle\ltix as lti;
 use stdClass;
+use core_ltix\oauth_helper;
 
 
 /**
@@ -411,7 +411,7 @@ abstract class service_base {
 
         $ok = true;
         $toolproxy = null;
-        $consumerkey = lti\get_oauth_key_from_headers($typeid, $scopes);
+        $consumerkey = \core_ltix\oauth_helper::get_oauth_key_from_headers($typeid, $scopes);
         if ($consumerkey === false) {
             $ok = $this->is_unsigned();
         } else {
@@ -467,7 +467,7 @@ abstract class service_base {
                   'Please use service_base::check_tool() instead.', DEBUG_DEVELOPER);
         $ok = false;
         $toolproxy = null;
-        $consumerkey = lti\get_oauth_key_from_headers();
+        $consumerkey = \core_ltix\oauth_helper::get_oauth_key_from_headers();
         if (empty($toolproxyguid)) {
             $toolproxyguid = $consumerkey;
         }
@@ -506,7 +506,7 @@ abstract class service_base {
                   'Please use service_base::check_tool() instead.', DEBUG_DEVELOPER);
         $ok = false;
         $tool = null;
-        $consumerkey = lti\get_oauth_key_from_headers();
+        $consumerkey = \core_ltix\oauth_helper::get_oauth_key_from_headers();
         if (empty($typeid)) {
             return $ok;
         } else if ($this->is_allowed_in_context($typeid, $courseid)) {
@@ -536,7 +536,7 @@ abstract class service_base {
         $ok = true;
         try {
             // TODO: Switch to core oauthlib once implemented - MDL-30149.
-            lti\handle_oauth_body_post($consumerkey, $secret, $body);
+            oauth_helper::handle_oauth_body_post($consumerkey, $secret, $body);
         } catch (\Exception $e) {
             debugging($e->getMessage() . "\n");
             $ok = false;

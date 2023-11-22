@@ -30,6 +30,12 @@ use Firebase\JWT\Key;
 use moodle\ltix as lti;
 use moodle_exception;
 use stdClass;
+use OAuthUtil;
+use OAuthException;
+use OAuthserver;
+use OAuthRequest;
+use OAuthSignatureMethod_HMAC_SHA1;
+use TrivialOAuthDataStore;
 
 /**
  * Helper class specifically dealing with LTI OAuth.
@@ -784,4 +790,95 @@ class oauth_helper {
         return '';
     }
 
+    /**
+     *
+     * @param int $typeid LTI type ID.
+     * @param string[] $scopes  Array of scopes which give permission for the current request.
+     *
+     * @return string|int|boolean  The OAuth consumer key, the LTI type ID for the validated bearer token,
+                                 true for requests not requiring a scope, otherwise false.
+    */
+    public static function get_oauth_key_from_headers($typeid = null, $scopes = null) {
+        global $DB;
+
+        $now = time();
+
+        $requestheaders = OAuthUtil::get_headers();
+
+        if (isset($requestheaders['Authorization'])) {
+            if (substr($requestheaders['Authorization'], 0, 6) == "OAuth ") {
+                $headerparameters = OAuthUtil::split_header($requestheaders['Authorization']);
+
+                return format_string($headerparameters['oauth_consumer_key']);
+            } else if (empty($scopes)) {
+                return true;
+            } else if (substr($requestheaders['Authorization'], 0, 7) == 'Bearer ') {
+                $tokenvalue = trim(substr($requestheaders['Authorization'], 7));
+                $conditions = array('token' => $tokenvalue);
+                if (!empty($typeid)) {
+                    $conditions['typeid'] = intval($typeid);
+                }
+                $token = $DB->get_record('lti_access_tokens', $conditions);
+                if ($token) {
+                    // Log token access.
+                    $DB->set_field('lti_access_tokens', 'lastaccess', $now, array('id' => $token->id));
+                    $permittedscopes = json_decode($token->scope);
+                    if ((intval($token->validuntil) > $now) && !empty(array_intersect($scopes, $permittedscopes))) {
+                        return intval($token->typeid);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static function handle_oauth_body_post($oauthconsumerkey, $oauthconsumersecret, $body, $requestheaders = null) {
+
+        if ($requestheaders == null) {
+            $requestheaders = OAuthUtil::get_headers();
+        }
+
+        // Must reject application/x-www-form-urlencoded.
+        if (isset($requestheaders['Content-type'])) {
+            if ($requestheaders['Content-type'] == 'application/x-www-form-urlencoded' ) {
+                throw new OAuthException("OAuth request body signing must not use application/x-www-form-urlencoded");
+            }
+        }
+
+        if (isset($requestheaders['Authorization']) && (substr($requestheaders['Authorization'], 0, 6) == "OAuth ")) {
+            $headerparameters = OAuthUtil::split_header($requestheaders['Authorization']);
+            $oauthbodyhash = $headerparameters['oauth_body_hash'];
+        }
+
+        if ( ! isset($oauthbodyhash)  ) {
+            throw new OAuthException("OAuth request body signing requires oauth_body_hash body");
+        }
+
+        // Verify the message signature.
+        $store = new TrivialOAuthDataStore();
+        $store->add_consumer($oauthconsumerkey, $oauthconsumersecret);
+
+        $server = new OAuthServer($store);
+
+        $method = new OAuthSignatureMethod_HMAC_SHA1();
+        $server->add_signature_method($method);
+        $request = OAuthRequest::from_request();
+
+        try {
+            $server->verify_request($request);
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            throw new OAuthException("OAuth signature failed: " . $message);
+        }
+
+        $postdata = $body;
+
+        $hash = base64_encode(sha1($postdata, true));
+
+        if ( $hash != $oauthbodyhash ) {
+            throw new OAuthException("OAuth oauth_body_hash mismatch");
+        }
+
+        return $postdata;
+    }
 }

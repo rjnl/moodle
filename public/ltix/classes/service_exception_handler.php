@@ -14,27 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Exception handler for LTI services
- *
- * @package   mod_lti
- * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace core_ltix;
 
-namespace mod_lti;
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__.'/../locallib.php');
-require_once(__DIR__.'/../servicelib.php');
+use core_ltix\local\ltiservice\service_helper;
 
 /**
  * Handles exceptions when handling incoming LTI messages.
  *
  * Ensures that LTI always returns a XML message that can be consumed by the caller.
  *
- * @package   mod_lti
+ * @package   core_ltix
  * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -108,7 +97,7 @@ class service_exception_handler {
         $type = str_replace('Request', 'Response', $this->type);
 
         // Build the appropriate xml.
-        $response = lti_get_response_xml('failure', $message, $this->id, $type);
+        $response = service_helper::get_response_xml('failure', $message, $this->id, $type);
 
         $xml = $response->asXML();
 

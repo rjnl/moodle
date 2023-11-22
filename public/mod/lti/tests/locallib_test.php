@@ -49,14 +49,12 @@
 namespace mod_lti;
 
 use mod_lti_external;
-use mod_lti_testcase;
 
 defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 require_once($CFG->dirroot . '/mod/lti/servicelib.php');
-require_once($CFG->dirroot . '/mod/lti/tests/mod_lti_testcase.php');
 
 /**
  * Local library tests
@@ -65,96 +63,7 @@ require_once($CFG->dirroot . '/mod/lti/tests/mod_lti_testcase.php');
  * @copyright  Copyright (c) 2012 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class locallib_test extends mod_lti_testcase {
-
-    /**
-     * Tests for lti_build_content_item_selection_request().
-     */
-    public function test_lti_build_content_item_selection_request(): void {
-        $this->resetAfterTest();
-
-        $this->setAdminUser();
-        // Create a tool proxy.
-        $proxy = mod_lti_external::create_tool_proxy('Test proxy', $this->getExternalTestFileUrl('/test.html'), array(), array());
-
-        // Create a tool type, associated with that proxy.
-        $type = new \stdClass();
-        $data = new \stdClass();
-        $data->lti_contentitem = true;
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
-        $type->name = "Test tool";
-        $type->description = "Example description";
-        $type->toolproxyid = $proxy->id;
-        $type->baseurl = $this->getExternalTestFileUrl('/test.html');
-
-        $typeid = \core_ltix\helper::add_type($type, $data);
-
-        $typeconfig = \core_ltix\helper::get_type_config($typeid);
-
-        $course = $this->getDataGenerator()->create_course();
-        $returnurl = new \moodle_url('/');
-
-        // Default parameters.
-        $result = \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl);
-        $this->assertNotEmpty($result);
-        $this->assertNotEmpty($result->params);
-        $this->assertNotEmpty($result->url);
-        $params = $result->params;
-        $url = $result->url;
-        $this->assertEquals($typeconfig['toolurl'], $url);
-        $this->assertEquals('ContentItemSelectionRequest', $params['lti_message_type']);
-        $this->assertEquals(LTI_VERSION_1, $params['lti_version']);
-        $this->assertEquals('application/vnd.ims.lti.v1.ltilink', $params['accept_media_types']);
-        $this->assertEquals('frame,iframe,window', $params['accept_presentation_document_targets']);
-        $this->assertEquals($returnurl->out(false), $params['content_item_return_url']);
-        $this->assertEquals('false', $params['accept_unsigned']);
-        $this->assertEquals('true', $params['accept_multiple']);
-        $this->assertEquals('false', $params['accept_copy_advice']);
-        $this->assertEquals('false', $params['auto_create']);
-        $this->assertEquals($type->name, $params['title']);
-        $this->assertFalse(isset($params['resource_link_id']));
-        $this->assertFalse(isset($params['resource_link_title']));
-        $this->assertFalse(isset($params['resource_link_description']));
-        $this->assertFalse(isset($params['launch_presentation_return_url']));
-        $this->assertFalse(isset($params['lis_result_sourcedid']));
-        $this->assertEquals($params['tool_consumer_instance_guid'], 'www.example.com');
-
-        // Custom parameters.
-        $title = 'My custom title';
-        $text = 'This is the tool description';
-        $mediatypes = ['image/*', 'video/*'];
-        $targets = ['embed', 'iframe'];
-        $result = \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, $title, $text, $mediatypes, $targets,
-            true, true, true, true, true);
-        $this->assertNotEmpty($result);
-        $this->assertNotEmpty($result->params);
-        $this->assertNotEmpty($result->url);
-        $params = $result->params;
-        $this->assertEquals(implode(',', $mediatypes), $params['accept_media_types']);
-        $this->assertEquals(implode(',', $targets), $params['accept_presentation_document_targets']);
-        $this->assertEquals('true', $params['accept_unsigned']);
-        $this->assertEquals('true', $params['accept_multiple']);
-        $this->assertEquals('true', $params['accept_copy_advice']);
-        $this->assertEquals('true', $params['auto_create']);
-        $this->assertEquals($title, $params['title']);
-        $this->assertEquals($text, $params['text']);
-
-        // Invalid flag values.
-        $result = \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, $title, $text, $mediatypes, $targets,
-            'aa', -1, 0, 1, 0xabc);
-        $this->assertNotEmpty($result);
-        $this->assertNotEmpty($result->params);
-        $this->assertNotEmpty($result->url);
-        $params = $result->params;
-        $this->assertEquals(implode(',', $mediatypes), $params['accept_media_types']);
-        $this->assertEquals(implode(',', $targets), $params['accept_presentation_document_targets']);
-        $this->assertEquals('false', $params['accept_unsigned']);
-        $this->assertEquals('false', $params['accept_multiple']);
-        $this->assertEquals('false', $params['accept_copy_advice']);
-        $this->assertEquals('false', $params['auto_create']);
-        $this->assertEquals($title, $params['title']);
-        $this->assertEquals($text, $params['text']);
-    }
+final class locallib_test extends \externallib_advanced_testcase {
 
     /**
      * @covers core_ltix\helper::get_launch_data()

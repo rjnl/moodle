@@ -538,7 +538,7 @@ function lti_grade_item_update($basiclti, $grades = null) {
     require_once($CFG->libdir.'/gradelib.php');
     require_once($CFG->dirroot.'/mod/lti/servicelib.php');
 
-    if (!lti_accepts_grades($basiclti)) {
+    if (!core_ltix\local\ltiservice\service_helper::accepts_grades($basiclti)) {
         return 0;
     }
 
@@ -576,7 +576,7 @@ function lti_update_grades($basiclti, $userid=0, $nullifnone=true) {
     global $CFG;
     require_once($CFG->dirroot.'/mod/lti/servicelib.php');
     // LTI doesn't have its own grade table so the only thing to do is update the grade item.
-    if (lti_accepts_grades($basiclti)) {
+    if (core_ltix\local\ltiservice\service_helper::accepts_grades($basiclti)) {
         lti_grade_item_update($basiclti);
     }
 }

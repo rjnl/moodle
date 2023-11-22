@@ -31,8 +31,9 @@ require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once($CFG->dirroot.'/mod/lti/servicelib.php');
 
 // TODO: Switch to core oauthlib once implemented - MDL-30149.
-use mod_lti\service_exception_handler;
-use moodle\ltix as lti;
+use core_ltix\service_exception_handler;
+use core_ltix\local\ltiservice\service_helper;
+use core_ltix\oauth_helper;
 use ltixservice_basicoutcomes\local\service\basicoutcomes;
 
 $rawbody = file_get_contents("php://input");
@@ -51,7 +52,7 @@ $ok = true;
 $type = null;
 $toolproxy = false;
 
-$consumerkey = lti\get_oauth_key_from_headers(null, array(basicoutcomes::SCOPE_BASIC_OUTCOMES));
+$consumerkey = oauth_helper::get_oauth_key_from_headers(null, array(basicoutcomes::SCOPE_BASIC_OUTCOMES));
 if ($consumerkey === false) {
     throw new Exception('Missing or invalid consumer key or access token.');
 } else if (is_string($consumerkey)) {
@@ -63,7 +64,7 @@ if ($consumerkey === false) {
     } else {
         $secrets = \core_ltix\helper::get_shared_secrets_by_key($consumerkey);
     }
-    $sharedsecret = lti_verify_message($consumerkey, \core_ltix\helper::get_shared_secrets_by_key($consumerkey), $rawbody);
+    $sharedsecret = service_helper::verify_message($consumerkey, \core_ltix\helper::get_shared_secrets_by_key($consumerkey), $rawbody);
     if ($sharedsecret === false) {
         throw new Exception('Message signature not valid');
     }
@@ -81,29 +82,29 @@ foreach ($body->children() as $child) {
 }
 
 // We know more about the message, update error handler to send better errors.
-$errorhandler->set_message_id(lti_parse_message_id($xml));
+$errorhandler->set_message_id(service_helper::parse_message_id($xml));
 $errorhandler->set_message_type($messagetype);
 
 switch ($messagetype) {
     case 'replaceResultRequest':
-        $parsed = lti_parse_grade_replace_message($xml);
+        $parsed = service_helper::parse_grade_replace_message($xml);
 
         $ltiinstance = $DB->get_record('lti', array('id' => $parsed->instanceid));
 
-        if (!lti_accepts_grades($ltiinstance)) {
+        if (!service_helper::accepts_grades($ltiinstance)) {
             throw new Exception('Tool does not accept grades');
         }
 
-        lti_verify_sourcedid($ltiinstance, $parsed);
-        lti_set_session_user($parsed->userid);
+        service_helper::verify_sourcedid($ltiinstance, $parsed);
+        service_helper::set_session_user($parsed->userid);
 
-        $gradestatus = lti_update_grade($ltiinstance, $parsed->userid, $parsed->launchid, $parsed->gradeval);
+        $gradestatus = service_helper::update_grade($ltiinstance, $parsed->userid, $parsed->launchid, $parsed->gradeval);
 
         if (!$gradestatus) {
             throw new Exception('Grade replace response');
         }
 
-        $responsexml = lti_get_response_xml(
+        $responsexml = service_helper::get_response_xml(
                 'success',
                 'Grade replace response',
                 $parsed->messageid,
@@ -115,11 +116,11 @@ switch ($messagetype) {
         break;
 
     case 'readResultRequest':
-        $parsed = lti_parse_grade_read_message($xml);
+        $parsed = service_helper::parse_grade_read_message($xml);
 
         $ltiinstance = $DB->get_record('lti', array('id' => $parsed->instanceid));
 
-        if (!lti_accepts_grades($ltiinstance)) {
+        if (!service_helper::accepts_grades($ltiinstance)) {
             throw new Exception('Tool does not accept grades');
         }
 
@@ -127,11 +128,11 @@ switch ($messagetype) {
         $context = context_course::instance($ltiinstance->course);
         $PAGE->set_context($context);
 
-        lti_verify_sourcedid($ltiinstance, $parsed);
+        service_helper::verify_sourcedid($ltiinstance, $parsed);
 
-        $grade = lti_read_grade($ltiinstance, $parsed->userid);
+        $grade = service_helper::read_grade($ltiinstance, $parsed->userid);
 
-        $responsexml = lti_get_response_xml(
+        $responsexml = service_helper::get_response_xml(
                 'success',  // Empty grade is also 'success'.
                 'Result read',
                 $parsed->messageid,
@@ -148,24 +149,24 @@ switch ($messagetype) {
         break;
 
     case 'deleteResultRequest':
-        $parsed = lti_parse_grade_delete_message($xml);
+        $parsed = service_helper::parse_grade_delete_message($xml);
 
         $ltiinstance = $DB->get_record('lti', array('id' => $parsed->instanceid));
 
-        if (!lti_accepts_grades($ltiinstance)) {
+        if (!service_helper::accepts_grades($ltiinstance)) {
             throw new Exception('Tool does not accept grades');
         }
 
-        lti_verify_sourcedid($ltiinstance, $parsed);
-        lti_set_session_user($parsed->userid);
+        service_helper::verify_sourcedid($ltiinstance, $parsed);
+        service_helper::set_session_user($parsed->userid);
 
-        $gradestatus = lti_delete_grade($ltiinstance, $parsed->userid);
+        $gradestatus = service_helper::delete_grade($ltiinstance, $parsed->userid);
 
         if (!$gradestatus) {
             throw new Exception('Grade delete request');
         }
 
-        $responsexml = lti_get_response_xml(
+        $responsexml = service_helper::get_response_xml(
                 'success',
                 'Grade delete request',
                 $parsed->messageid,
@@ -183,7 +184,7 @@ switch ($messagetype) {
         $data = new stdClass();
         $data->body = $rawbody;
         $data->xml = $xml;
-        $data->messageid = lti_parse_message_id($xml);
+        $data->messageid = service_helper::parse_message_id($xml);
         $data->messagetype = $messagetype;
         $data->consumerkey = $consumerkey;
         $data->sharedsecret = $sharedsecret;
@@ -194,7 +195,7 @@ switch ($messagetype) {
         $eventdata['other']['consumerkey'] = $consumerkey;
 
         // Before firing the event, allow subplugins a chance to handle.
-        if (lti_extend_lti_services($data)) {
+        if (core_ltix\local\ltiservice\service_helper::extend_lti_services($data)) {
             break;
         }
 
@@ -212,10 +213,10 @@ switch ($messagetype) {
         }
 
         if (!$ltiwebservicehandled) {
-            $responsexml = lti_get_response_xml(
+            $responsexml = service_helper::get_response_xml(
                 'unsupported',
                 'unsupported',
-                 lti_parse_message_id($xml),
+                 service_helper::parse_message_id($xml),
                  $messagetype
             );
 
