@@ -34,10 +34,13 @@
 
 namespace core_ltix;
 
+use lti_testcase;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/ltix/constants.php');
+require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
 /**
  * Tool helper tests.
@@ -48,7 +51,7 @@ require_once($CFG->dirroot . '/ltix/constants.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \core_ltix\tool_helper
  */
-class tool_helper_test extends \advanced_testcase {
+class helper_test extends lti_testcase {
 
     /**
      * @covers ::lti_split_parameters()
@@ -56,11 +59,11 @@ class tool_helper_test extends \advanced_testcase {
      * Test the split parameters function
      */
     public function test_split_parameters(): void {
-        $this->assertEquals(tool_helper::split_parameters(''), array());
-        $this->assertEquals(tool_helper::split_parameters('a=1'), array('a' => '1'));
-        $this->assertEquals(tool_helper::split_parameters("a=1\nb=2"), array('a' => '1', 'b' => '2'));
-        $this->assertEquals(tool_helper::split_parameters("a=1\n\rb=2"), array('a' => '1', 'b' => '2'));
-        $this->assertEquals(tool_helper::split_parameters("a=1\r\nb=2"), array('a' => '1', 'b' => '2'));
+        $this->assertEquals(helper::split_parameters(''), array());
+        $this->assertEquals(helper::split_parameters('a=1'), array('a' => '1'));
+        $this->assertEquals(helper::split_parameters("a=1\nb=2"), array('a' => '1', 'b' => '2'));
+        $this->assertEquals(helper::split_parameters("a=1\n\rb=2"), array('a' => '1', 'b' => '2'));
+        $this->assertEquals(helper::split_parameters("a=1\r\nb=2"), array('a' => '1', 'b' => '2'));
     }
 
     public function test_split_custom_parameters(): void {
@@ -70,21 +73,21 @@ class tool_helper_test extends \advanced_testcase {
         $tool->enabledcapability = '';
         $tool->parameter = '';
         $tool->ltiversion = 'LTI-1p0';
-        $this->assertEquals(tool_helper::split_custom_parameters(null, $tool, array(), "x=1\ny=2", false),
+        $this->assertEquals(helper::split_custom_parameters(null, $tool, array(), "x=1\ny=2", false),
             array('custom_x' => '1', 'custom_y' => '2'));
 
         // Check params with caps.
-        $this->assertEquals(tool_helper::split_custom_parameters(null, $tool, array(), "X=1", true),
+        $this->assertEquals(helper::split_custom_parameters(null, $tool, array(), "X=1", true),
             array('custom_x' => '1', 'custom_X' => '1'));
 
         // Removed repeat of previous test with a semicolon separator.
 
-        $this->assertEquals(tool_helper::split_custom_parameters(null, $tool, array(), 'Review:Chapter=1.2.56', true),
+        $this->assertEquals(helper::split_custom_parameters(null, $tool, array(), 'Review:Chapter=1.2.56', true),
             array(
                 'custom_review_chapter' => '1.2.56',
                 'custom_Review:Chapter' => '1.2.56'));
 
-        $this->assertEquals(tool_helper::split_custom_parameters(null, $tool, array(),
+        $this->assertEquals(helper::split_custom_parameters(null, $tool, array(),
             'Complex!@#$^*(){}[]KEY=Complex!@#$^*;(){}[]½Value', true),
             array(
                 'custom_complex____________key' => 'Complex!@#$^*;(){}[]½Value',
@@ -94,7 +97,7 @@ class tool_helper_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user(array('middlename' => 'SOMETHING'));
         $this->setUser($user);
         $this->assertEquals(array('custom_x' => '1', 'custom_y' => 'SOMETHING'),
-            tool_helper::split_custom_parameters(null, $tool, array(), "x=1\ny=\$Person.name.middle", false));
+            helper::split_custom_parameters(null, $tool, array(), "x=1\ny=\$Person.name.middle", false));
     }
 
     /**
@@ -133,7 +136,7 @@ class tool_helper_test extends \advanced_testcase {
 
         $contentitems = json_encode($contentitems);
 
-        $json = tool_helper::convert_content_items($contentitems);
+        $json = helper::convert_content_items($contentitems);
 
         $jsondecode = json_decode($json);
 
@@ -194,7 +197,7 @@ class tool_helper_test extends \advanced_testcase {
         $type->baseurl = "http://example.com";
         $config = new \stdClass();
         $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $contentitems = [];
         $contentitems[] = [
@@ -209,9 +212,9 @@ class tool_helper_test extends \advanced_testcase {
             'frame' => []
         ];
         $contentitemsjson13 = json_encode($contentitems);
-        $json11 = tool_helper::convert_content_items($contentitemsjson13);
+        $json11 = helper::convert_content_items($contentitemsjson13);
 
-        $config = tool_helper::tool_configuration_from_content_item($typeid,
+        $config = helper::tool_configuration_from_content_item($typeid,
             'ContentItemSelection',
             $type->ltiversion,
             'ConsumerKey',
@@ -240,7 +243,7 @@ class tool_helper_test extends \advanced_testcase {
         $type->baseurl = "http://example.com";
         $config = new \stdClass();
         $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $contentitems = [];
         $contentitems[] = [
@@ -258,9 +261,9 @@ class tool_helper_test extends \advanced_testcase {
             'frame' => []
         ];
         $contentitemsjson13 = json_encode($contentitems);
-        $json11 = tool_helper::convert_content_items($contentitemsjson13);
+        $json11 = helper::convert_content_items($contentitemsjson13);
 
-        $config = tool_helper::tool_configuration_from_content_item($typeid,
+        $config = helper::tool_configuration_from_content_item($typeid,
             'ContentItemSelection',
             $type->ltiversion,
             'ConsumerKey',
@@ -284,7 +287,7 @@ class tool_helper_test extends \advanced_testcase {
         $type->baseurl = "http://example.com";
         $config = new \stdClass();
         $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $contentitems = [];
         $contentitems[] = [
@@ -300,9 +303,9 @@ class tool_helper_test extends \advanced_testcase {
             'frame' => []
         ];
         $contentitemsjson13 = json_encode($contentitems);
-        $json11 = tool_helper::convert_content_items($contentitemsjson13);
+        $json11 = helper::convert_content_items($contentitemsjson13);
 
-        $config = tool_helper::tool_configuration_from_content_item($typeid,
+        $config = helper::tool_configuration_from_content_item($typeid,
             'ContentItemSelection',
             $type->ltiversion,
             'ConsumerKey',
@@ -330,7 +333,7 @@ class tool_helper_test extends \advanced_testcase {
         $type->baseurl = "http://example.com";
         $config = new \stdClass();
         $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $contentitems = [];
         $contentitems[] = [
@@ -360,9 +363,9 @@ class tool_helper_test extends \advanced_testcase {
             'frame' => []
         ];
         $contentitemsjson13 = json_encode($contentitems);
-        $json11 = tool_helper::convert_content_items($contentitemsjson13);
+        $json11 = helper::convert_content_items($contentitemsjson13);
 
-        $config = tool_helper::tool_configuration_from_content_item($typeid,
+        $config = helper::tool_configuration_from_content_item($typeid,
             'ContentItemSelection',
             $type->ltiversion,
             'ConsumerKey',
@@ -392,7 +395,7 @@ class tool_helper_test extends \advanced_testcase {
         $type->name = "Test tool";
         $type->baseurl = "http://example.com";
         $config = new \stdClass();
-        $typeid = types_helper::add_type($type, $config);
+        $typeid = helper::add_type($type, $config);
 
         $contentitems = [];
         $contentitems[] = [
@@ -407,9 +410,9 @@ class tool_helper_test extends \advanced_testcase {
             'frame' => []
         ];
         $contentitemsjson13 = json_encode($contentitems);
-        $json11 = tool_helper::convert_content_items($contentitemsjson13);
+        $json11 = helper::convert_content_items($contentitemsjson13);
 
-        $config = tool_helper::tool_configuration_from_content_item($typeid,
+        $config = helper::tool_configuration_from_content_item($typeid,
             'ContentItemSelection',
             $type->ltiversion,
             'ConsumerKey',
@@ -423,9 +426,9 @@ class tool_helper_test extends \advanced_testcase {
     }
 
     public function test_ensure_url_is_https(): void {
-        $this->assertEquals('https://moodle.org', tool_helper::ensure_url_is_https('http://moodle.org'));
-        $this->assertEquals('https://moodle.org', tool_helper::ensure_url_is_https('moodle.org'));
-        $this->assertEquals('https://moodle.org', tool_helper::ensure_url_is_https('https://moodle.org'));
+        $this->assertEquals('https://moodle.org', helper::ensure_url_is_https('http://moodle.org'));
+        $this->assertEquals('https://moodle.org', helper::ensure_url_is_https('moodle.org'));
+        $this->assertEquals('https://moodle.org', helper::ensure_url_is_https('https://moodle.org'));
     }
 
     /**
@@ -433,15 +436,15 @@ class tool_helper_test extends \advanced_testcase {
      */
     public function test_get_url_thumbprint(): void {
         // Note: trailing and double slash are expected right now.  Must evaluate if it must be removed at some point.
-        $this->assertEquals('moodle.org/', tool_helper::get_url_thumbprint('http://MOODLE.ORG'));
-        $this->assertEquals('moodle.org/', tool_helper::get_url_thumbprint('http://www.moodle.org'));
-        $this->assertEquals('moodle.org/', tool_helper::get_url_thumbprint('https://www.moodle.org'));
-        $this->assertEquals('moodle.org/', tool_helper::get_url_thumbprint('moodle.org'));
-        $this->assertEquals('moodle.org//this/is/moodle', tool_helper::get_url_thumbprint('http://moodle.org/this/is/moodle'));
-        $this->assertEquals('moodle.org//this/is/moodle', tool_helper::get_url_thumbprint('https://moodle.org/this/is/moodle'));
-        $this->assertEquals('moodle.org//this/is/moodle', tool_helper::get_url_thumbprint('moodle.org/this/is/moodle'));
-        $this->assertEquals('moodle.org//this/is/moodle', tool_helper::get_url_thumbprint('moodle.org/this/is/moodle?'));
-        $this->assertEquals('moodle.org//this/is/moodle?foo=bar', tool_helper::get_url_thumbprint('moodle.org/this/is/moodle?foo=bar'));
+        $this->assertEquals('moodle.org/', helper::get_url_thumbprint('http://MOODLE.ORG'));
+        $this->assertEquals('moodle.org/', helper::get_url_thumbprint('http://www.moodle.org'));
+        $this->assertEquals('moodle.org/', helper::get_url_thumbprint('https://www.moodle.org'));
+        $this->assertEquals('moodle.org/', helper::get_url_thumbprint('moodle.org'));
+        $this->assertEquals('moodle.org//this/is/moodle', helper::get_url_thumbprint('http://moodle.org/this/is/moodle'));
+        $this->assertEquals('moodle.org//this/is/moodle', helper::get_url_thumbprint('https://moodle.org/this/is/moodle'));
+        $this->assertEquals('moodle.org//this/is/moodle', helper::get_url_thumbprint('moodle.org/this/is/moodle'));
+        $this->assertEquals('moodle.org//this/is/moodle', helper::get_url_thumbprint('moodle.org/this/is/moodle?'));
+        $this->assertEquals('moodle.org//this/is/moodle?foo=bar', helper::get_url_thumbprint('moodle.org/this/is/moodle?foo=bar'));
     }
 
     /**
@@ -551,7 +554,7 @@ class tool_helper_test extends \advanced_testcase {
      * @param array $tools The pool of tools to match the URL with.
      */
     public function test_get_best_tool_by_url($url, $expected, $tools): void {
-        $actual = tool_helper::get_best_tool_by_url($url, $tools, null);
+        $actual = helper::get_best_tool_by_url($url, $tools, null);
         $this->assertSame($expected, $actual);
     }
 
@@ -584,7 +587,7 @@ class tool_helper_test extends \advanced_testcase {
             'state' => LTI_TOOL_STATE_CONFIGURED
         ]);
 
-        $records = tool_helper::get_tools_by_domain('example.com', LTI_TOOL_STATE_CONFIGURED);
+        $records = helper::get_tools_by_domain('example.com', LTI_TOOL_STATE_CONFIGURED);
         $this->assertCount(1, $records);
         $this->assertEmpty(array_diff(
             ['https://example.com/i/am/?where=here'],
@@ -640,7 +643,7 @@ class tool_helper_test extends \advanced_testcase {
         ]);
 
         // Get tool types for domain 'exampleone' in course 1 and verify only the one result under course category 1 is included.
-        $records = tool_helper::get_tools_by_domain('exampleone.com', LTI_TOOL_STATE_CONFIGURED, $course1->id);
+        $records = helper::get_tools_by_domain('exampleone.com', LTI_TOOL_STATE_CONFIGURED, $course1->id);
         $this->assertCount(1, $records);
         $this->assertEmpty(array_diff(
             ['https://exampleone.com/tool/1'],
@@ -648,7 +651,7 @@ class tool_helper_test extends \advanced_testcase {
         ));
 
         // Get tool types for domain 'exampleone' in course 2 and verify only the one result under course category 2 is included.
-        $records = tool_helper::get_tools_by_domain('exampleone.com', LTI_TOOL_STATE_CONFIGURED, $course2->id);
+        $records = helper::get_tools_by_domain('exampleone.com', LTI_TOOL_STATE_CONFIGURED, $course2->id);
         $this->assertCount(1, $records);
         $this->assertEmpty(array_diff(
             ['https://exampleone.com/tool/2'],
@@ -656,7 +659,7 @@ class tool_helper_test extends \advanced_testcase {
         ));
 
         // Get tool types for domain 'exampletwo' in course 1 and verify that no results are found.
-        $records = tool_helper::get_tools_by_domain('exampletwo.com', LTI_TOOL_STATE_CONFIGURED, $course1->id);
+        $records = helper::get_tools_by_domain('exampletwo.com', LTI_TOOL_STATE_CONFIGURED, $course1->id);
         $this->assertCount(0, $records);
     }
 
@@ -671,12 +674,12 @@ class tool_helper_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $course->originalcourseid = $parentcourse->id;
         $DB->update_record('course', $course);
-        $this->assertEquals(tool_helper::get_course_history($parentparentcourse), []);
-        $this->assertEquals(tool_helper::get_course_history($parentcourse), [$parentparentcourse->id]);
-        $this->assertEquals(tool_helper::get_course_history($course), [$parentcourse->id, $parentparentcourse->id]);
+        $this->assertEquals(helper::get_course_history($parentparentcourse), []);
+        $this->assertEquals(helper::get_course_history($parentcourse), [$parentparentcourse->id]);
+        $this->assertEquals(helper::get_course_history($course), [$parentcourse->id, $parentparentcourse->id]);
         $course->originalcourseid = 38903;
         $DB->update_record('course', $course);
-        $this->assertEquals(tool_helper::get_course_history($course), [38903]);
+        $this->assertEquals(helper::get_course_history($course), [38903]);
     }
 
     /**
@@ -690,7 +693,356 @@ class tool_helper_test extends \advanced_testcase {
         \curl::mock_response('');
 
         $this->expectException(\moodle_exception::class);
-        tool_helper::load_cartridge('http://example.com/mocked/empty/response', []);
+        helper::load_cartridge('http://example.com/mocked/empty/response', []);
     }
 
+    /**
+     * Test fetching tool types for a given course and user.
+     *
+     * @covers ::get_lti_types_by_course
+     * @return void.
+     */
+    public function test_get_lti_types_by_course(): void {
+        $this->resetAfterTest();
+
+        $coursecat1 = $this->getDataGenerator()->create_category();
+        $coursecat2 = $this->getDataGenerator()->create_category();
+        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
+        $course2 = $this->getDataGenerator()->create_course(['category' => $coursecat2->id]);
+
+        // Create the following tool types for testing:
+        // - Site tool configured as "Do not show" (LTI_COURSEVISIBLE_NO).
+        // - Site tool configured as "Show as a preconfigured tool only" (LTI_COURSEVISIBLE_PRECONFIGURED).
+        // - Site tool configured as "Show as a preconfigured tool and in the activity chooser" (LTI_COURSEVISIBLE_ACTIVITYCHOOSER).
+        // - Course tool which, by default, is configured as LTI_COURSEVISIBLE_ACTIVITYCHOOSER).
+        // - Site tool configured to "Show as a preconfigured tool and in the activity chooser" but restricted to a category.
+
+        /** @var \core_ltix_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+        $ltigenerator->create_tool_types([
+            'name' => 'site tool do not show',
+            'baseurl' => 'http://example.com/tool/1',
+            'coursevisible' => LTI_COURSEVISIBLE_NO,
+            'state' => LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured only',
+            'baseurl' => 'http://example.com/tool/2',
+            'coursevisible' => LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser',
+            'baseurl' => 'http://example.com/tool/3',
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $ltigenerator->create_course_tool_types([
+            'name' => 'course tool preconfigured and activity chooser',
+            'baseurl' => 'http://example.com/tool/4',
+            'course' => $course->id
+        ]);
+        $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
+            'baseurl' => 'http://example.com/tool/5',
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat2->id
+        ]);
+
+        // Request using the default 'coursevisible' param will include all tools except the one configured as "Do not show" and
+        // the tool restricted to category 2.
+        $coursetooltypes = helper::get_lti_types_by_course($course->id);
+        $this->assertCount(3, $coursetooltypes);
+        $expected = [
+            'http://example.com/tool/2',
+            'http://example.com/tool/3',
+            'http://example.com/tool/4',
+        ];
+        sort($expected);
+        $actual = array_column($coursetooltypes, 'baseurl');
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+
+        // Request for only those tools configured to show in the activity chooser.
+        $coursetooltypes = helper::get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
+        $this->assertCount(2, $coursetooltypes);
+        $expected = [
+            'http://example.com/tool/3',
+            'http://example.com/tool/4',
+        ];
+        sort($expected);
+        $actual = array_column($coursetooltypes, 'baseurl');
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+
+        // Request for only those tools configured to show as a preconfigured tool.
+        $coursetooltypes = helper::get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_PRECONFIGURED]);
+        $this->assertCount(1, $coursetooltypes);
+        $expected = [
+            'http://example.com/tool/2',
+        ];
+        $actual = array_column($coursetooltypes, 'baseurl');
+        $this->assertEquals($expected, $actual);
+
+        // Request for course2 (course category 2).
+        $coursetooltypes = helper::get_lti_types_by_course($course2->id);
+        $this->assertCount(3, $coursetooltypes);
+        $expected = [
+            'http://example.com/tool/2',
+            'http://example.com/tool/3',
+            'http://example.com/tool/5',
+        ];
+        sort($expected);
+        $actual = array_column($coursetooltypes, 'baseurl');
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+    }
+
+    /**
+     * Test fetching tool types for a given course and user.
+     *
+     * @covers ::override_type_showinactivitychooser
+     * @return void.
+     */
+    public function test_override_type_showinactivitychooser(): void {
+        $this->resetAfterTest();
+
+        global $DB;
+        $coursecat1 = $this->getDataGenerator()->create_category();
+        $coursecat2 = $this->getDataGenerator()->create_category();
+        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
+        $course2 = $this->getDataGenerator()->create_course(['category' => $coursecat2->id]);
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $teacher2 = $this->getDataGenerator()->create_and_enrol($course2, 'editingteacher');
+        $context =  \core\context\course::instance($course->id);
+
+        $this->setUser($teacher);
+
+        /*
+            Create the following tool types for testing:
+            | tooltype | coursevisible                     | restrictedtocategory |
+            | site     | LTI_COURSEVISIBLE_NO              |                      |
+            | site     | LTI_COURSEVISIBLE_PRECONFIGURED   |                      |
+            | site     | LTI_COURSEVISIBLE_ACTIVITYCHOOSER | yes                  |
+            | site     | LTI_COURSEVISIBLE_ACTIVITYCHOOSER | yes                  |
+            | course   | LTI_COURSEVISIBLE_ACTIVITYCHOOSER |                      |
+        */
+
+        /** @var \core_ltix_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+        $tool1id = $ltigenerator->create_tool_types([
+            'name' => 'site tool do not show',
+            'baseurl' => 'http://example.com/tool/1',
+            'coursevisible' => LTI_COURSEVISIBLE_NO,
+            'state' => LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $tool2id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured only',
+            'baseurl' => 'http://example.com/tool/2',
+            'coursevisible' => LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $tool3id = $ltigenerator->create_course_tool_types([
+            'name' => 'course tool preconfigured and activity chooser',
+            'baseurl' => 'http://example.com/tool/3',
+            'course' => $course->id
+        ]);
+        $tool4id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
+            'baseurl' => 'http://example.com/tool/4',
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat2->id
+        ]);
+        $tool5id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, restricted to category 1',
+            'baseurl' => 'http://example.com/tool/5',
+            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat1->id
+        ]);
+
+        // LTI_COURSEVISIBLE_NO can't be updated.
+        $result = helper::override_type_showinactivitychooser($tool1id, $course->id, $context, true);
+        $this->assertFalse($result);
+
+        // Tool not exist.
+        $result = helper::override_type_showinactivitychooser($tool5id + 1, $course->id, $context, false);
+        $this->assertFalse($result);
+
+        $result = helper::override_type_showinactivitychooser($tool2id, $course->id, $context, true);
+        $this->assertTrue($result);
+        $coursevisibleoverriden = $DB->get_field('lti_coursevisible', 'coursevisible',
+            ['typeid' => $tool2id, 'courseid' => $course->id]);
+        $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $coursevisibleoverriden);
+
+        $result = helper::override_type_showinactivitychooser($tool3id, $course->id, $context, false);
+        $this->assertTrue($result);
+        $coursevisible = $DB->get_field('lti_types', 'coursevisible', ['id' => $tool3id]);
+        $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $coursevisible);
+
+        // Restricted category no allowed.
+        $this->expectException('moodle_exception');
+        $this->expectExceptionMessage('You are not allowed to change this setting for this tool.');
+        helper::override_type_showinactivitychooser($tool4id, $course->id, $context, false);
+
+        // Restricted category allowed.
+        $result = helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
+        $this->assertTrue($result);
+        $coursevisibleoverriden = $DB->get_field('lti_coursevisible', 'coursevisible',
+            ['typeid' => $tool5id, 'courseid' => $course->id]);
+        $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $coursevisibleoverriden);
+
+        $this->setUser($teacher2);
+        $this->expectException(\required_capability_exception::class);
+        helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
+    }
+
+    /**
+     * Tests prepare_type_for_save's handling of the "Force SSL" configuration.
+     */
+    public function test_prepare_type_for_save_forcessl(): void {
+        $type = new \stdClass();
+        $config = new \stdClass();
+
+        // Try when the forcessl config property is not set.
+        helper::prepare_type_for_save($type, $config);
+        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertEquals(0, $config->lti_forcessl);
+        $this->assertEquals(0, $type->forcessl);
+
+        // Try when forcessl config property is set.
+        $config->lti_forcessl = 1;
+        helper::prepare_type_for_save($type, $config);
+        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertEquals(1, $config->lti_forcessl);
+        $this->assertEquals(1, $type->forcessl);
+
+        // Try when forcessl config property is set to 0.
+        $config->lti_forcessl = 0;
+        helper::prepare_type_for_save($type, $config);
+        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertEquals(0, $config->lti_forcessl);
+        $this->assertEquals(0, $type->forcessl);
+    }
+
+    /**
+     * Tests load_type_from_cartridge and lti_load_type_if_cartridge
+     */
+    public function test_load_type_from_cartridge(): void {
+        $type = new \stdClass();
+        $type->lti_toolurl = $this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml');
+
+        helper::load_type_if_cartridge($type);
+
+        $this->assertEquals('Example tool', $type->lti_typename);
+        $this->assertEquals('Example tool description', $type->lti_description);
+        $this->assertEquals('http://www.example.com/lti/provider.php', $type->lti_toolurl);
+        $this->assertEquals('http://download.moodle.org/unittest/test.jpg', $type->lti_icon);
+        $this->assertEquals('https://download.moodle.org/unittest/test.jpg', $type->lti_secureicon);
+    }
+
+    /**
+     * Test get_lti_types_and_proxies with no limit or offset.
+     */
+    public function test_get_lti_types_and_proxies_with_no_limit(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->generate_tool_types_and_proxies(10);
+        list($proxies, $types) = helper::get_lti_types_and_proxies();
+
+        $this->assertCount(10, $proxies);
+        $this->assertCount(10, $types);
+    }
+
+    /**
+     * Test get_lti_types_and_proxies with limits.
+     */
+    public function test_get_lti_types_and_proxies_with_limit(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->generate_tool_types_and_proxies(10);
+
+        // Get the middle 10 data sets (of 20 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(10, 5);
+
+        $this->assertCount(5, $proxies);
+        $this->assertCount(5, $types);
+
+        // Get the last 5 data sets with large limit (of 20 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(50, 15);
+
+        $this->assertCount(0, $proxies);
+        $this->assertCount(5, $types);
+
+        // Get the last 13 data sets with large limit (of 20 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(50, 7);
+
+        $this->assertCount(3, $proxies);
+        $this->assertCount(10, $types);
+    }
+
+    /**
+     * Test get_lti_types_and_proxies with limits and only fetching orphaned proxies.
+     */
+    public function test_get_lti_types_and_proxies_with_limit_and_orphaned_proxies(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->generate_tool_types_and_proxies(10, 5);
+
+        // Get the first 10 data sets (of 15 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(10, 0, true);
+
+        $this->assertCount(5, $proxies);
+        $this->assertCount(5, $types);
+
+        // Get the middle 10 data sets with large limit (of 15 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(10, 2, true);
+
+        $this->assertCount(3, $proxies);
+        $this->assertCount(7, $types);
+
+        // Get the last 5 data sets with large limit (of 15 total).
+        list($proxies, $types) = helper::get_lti_types_and_proxies(50, 10, true);
+
+        $this->assertCount(0, $proxies);
+        $this->assertCount(5, $types);
+    }
+
+    /**
+     * Test get_lti_types_and_proxies_count.
+     */
+    public function test_get_lti_types_and_proxies_count_with_no_filters(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->generate_tool_types_and_proxies(10, 5);
+
+        $totalcount = helper::get_lti_types_and_proxies_count();
+        $this->assertEquals(25, $totalcount); // 10 types, 15 proxies.
+    }
+
+    /**
+     * Test get_lti_types_and_proxies_count only counting orphaned proxies.
+     */
+    public function test_get_lti_types_and_proxies_count_with_only_orphaned_proxies(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $this->generate_tool_types_and_proxies(10, 5);
+
+        $orphanedcount = helper::get_lti_types_and_proxies_count(true);
+        $this->assertEquals(15, $orphanedcount); // 10 types, 5 proxies.
+    }
+
+    /**
+     * Test get_lti_types_and_proxies_count only matching tool type with toolproxyid.
+     */
+    public function test_get_lti_types_and_proxies_count_type_with_proxyid(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        ['proxies' => $proxies, 'types' => $types] = $this->generate_tool_types_and_proxies(10, 5);
+
+        $countwithproxyid = helper::get_lti_types_and_proxies_count(false, $proxies[0]->id);
+        $this->assertEquals(16, $countwithproxyid); // 1 type, 15 proxies.
+    }
 }
