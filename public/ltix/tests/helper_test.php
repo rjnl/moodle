@@ -1045,4 +1045,380 @@ class helper_test extends lti_testcase {
         $countwithproxyid = helper::get_lti_types_and_proxies_count(false, $proxies[0]->id);
         $this->assertEquals(16, $countwithproxyid); // 1 type, 15 proxies.
     }
+
+    /**
+     * Verify that lti_build_request does handle resource_link_id as expected
+     */
+    public function test_lti_buid_request_resource_link_id(): void {
+        $this->resetAfterTest();
+
+        self::setUser($this->getDataGenerator()->create_user());
+        $course   = $this->getDataGenerator()->create_course();
+        $instance = $this->getDataGenerator()->create_module('lti', array(
+            'intro'       => "<p>This</p>\nhas\r\n<p>some</p>\nnew\n\rlines",
+            'introformat' => FORMAT_HTML,
+            'course'      => $course->id,
+        ));
+
+        $typeconfig = array(
+            'acceptgrades'     => 1,
+            'forcessl'         => 0,
+            'sendname'         => 2,
+            'sendemailaddr'    => 2,
+            'customparameters' => '',
+        );
+
+        // Normal call, we expect $instance->id to be used as resource_link_id.
+        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $this->assertSame($instance->id, $params['resource_link_id']);
+
+        // If there is a resource_link_id set, it gets precedence.
+        $instance->resource_link_id = $instance->id + 99;
+        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $this->assertSame($instance->resource_link_id, $params['resource_link_id']);
+
+        // With none set, resource_link_id is not set either.
+        unset($instance->id);
+        unset($instance->resource_link_id);
+        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $this->assertArrayNotHasKey('resource_link_id', $params);
+    }
+
+    /**
+     * Test lti_build_request's resource_link_description and ensure
+     * that the newlines in the description are correct.
+     */
+    public function test_lti_build_request_description(): void {
+        $this->resetAfterTest();
+
+        self::setUser($this->getDataGenerator()->create_user());
+        $course   = $this->getDataGenerator()->create_course();
+        $instance = $this->getDataGenerator()->create_module('lti', array(
+            'intro'       => "<p>This</p>\nhas\r\n<p>some</p>\nnew\n\rlines",
+            'introformat' => FORMAT_HTML,
+            'course'      => $course->id,
+        ));
+
+        $typeconfig = array(
+            'acceptgrades'     => 1,
+            'forcessl'         => 0,
+            'sendname'         => 2,
+            'sendemailaddr'    => 2,
+            'customparameters' => '',
+        );
+
+        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+
+        $ncount = substr_count($params['resource_link_description'], "\n");
+        $this->assertGreaterThan(0, $ncount);
+
+        $rcount = substr_count($params['resource_link_description'], "\r");
+        $this->assertGreaterThan(0, $rcount);
+
+        $this->assertEquals($ncount, $rcount, 'The number of \n characters should be the same as the number of \r characters');
+
+        $rncount = substr_count($params['resource_link_description'], "\r\n");
+        $this->assertGreaterThan(0, $rncount);
+
+        $this->assertEquals($ncount, $rncount, 'All newline characters should be a combination of \r\n');
+    }
+
+    /**
+     * Tests lti_load_tool_from_cartridge and lti_load_tool_if_cartridge
+     */
+    public function test_lti_load_tool_from_cartridge(): void {
+        $lti = new \stdClass();
+        $lti->toolurl = $this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml');
+
+        \core_ltix\helper::load_tool_if_cartridge($lti);
+
+        $this->assertEquals('Example tool', $lti->name);
+        $this->assertEquals('Example tool description', $lti->intro);
+        $this->assertEquals('http://www.example.com/lti/provider.php', $lti->toolurl);
+        $this->assertEquals('https://www.example.com/lti/provider.php', $lti->securetoolurl);
+        $this->assertEquals('http://download.moodle.org/unittest/test.jpg', $lti->icon);
+        $this->assertEquals('https://download.moodle.org/unittest/test.jpg', $lti->secureicon);
+    }
+    /**
+     * Test for lti_build_content_item_selection_request() with nonexistent tool type ID parameter.
+     */
+    public function test_lti_build_content_item_selection_request_invalid_tooltype(): void {
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $returnurl = new \moodle_url('/');
+
+        // Should throw Exception on non-existent tool type.
+        $this->expectException('moodle_exception');
+        \core_ltix\helper::build_content_item_selection_request(1, $course, $returnurl);
+    }
+
+    /**
+     * Test for lti_build_content_item_selection_request() with invalid media types parameter.
+     */
+    public function test_lti_build_content_item_selection_request_invalid_mediatypes(): void {
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
+        // Create a tool type, associated with that proxy.
+        $type = new \stdClass();
+        $data = new \stdClass();
+        $data->lti_contentitem = true;
+        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->name = "Test tool";
+        $type->description = "Example description";
+        $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+
+        $typeid = \core_ltix\helper::add_type($type, $data);
+        $course = $this->getDataGenerator()->create_course();
+        $returnurl = new \moodle_url('/');
+
+        // Should throw coding_exception on non-array media types.
+        $mediatypes = 'image/*,video/*';
+        $this->expectException('coding_exception');
+        \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', $mediatypes);
+    }
+
+    /**
+     * Test for lti_build_content_item_selection_request() with invalid presentation targets parameter.
+     */
+    public function test_lti_build_content_item_selection_request_invalid_presentationtargets(): void {
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
+        // Create a tool type, associated with that proxy.
+        $type = new \stdClass();
+        $data = new \stdClass();
+        $data->lti_contentitem = true;
+        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->name = "Test tool";
+        $type->description = "Example description";
+        $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+
+        $typeid = \core_ltix\helper::add_type($type, $data);
+        $course = $this->getDataGenerator()->create_course();
+        $returnurl = new \moodle_url('/');
+
+        // Should throw coding_exception on non-array presentation targets.
+        $targets = 'frame,iframe';
+        $this->expectException('coding_exception');
+        \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', [], $targets);
+    }
+
+    /**
+     * Test lti_build_standard_message().
+     */
+    public function test_lti_build_standard_message_institution_name_set(): void {
+        global $CFG;
+
+        $this->resetAfterTest();
+
+        $CFG->mod_lti_institution_name = 'some institution name lols';
+
+        $course   = $this->getDataGenerator()->create_course();
+        $instance = $this->getDataGenerator()->create_module('lti',
+            [
+                'course' => $course->id,
+            ]
+        );
+
+        $message = \core_ltix\helper::build_standard_message($instance, '2', LTI_VERSION_1);
+
+        $this->assertEquals('moodle-2', $message['ext_lms']);
+        $this->assertEquals('moodle', $message['tool_consumer_info_product_family_code']);
+        $this->assertEquals(LTI_VERSION_1, $message['lti_version']);
+        $this->assertEquals('basic-lti-launch-request', $message['lti_message_type']);
+        $this->assertEquals('2', $message['tool_consumer_instance_guid']);
+        $this->assertEquals('some institution name lols', $message['tool_consumer_instance_name']);
+        $this->assertEquals('PHPUnit test site', $message['tool_consumer_instance_description']);
+    }
+
+    /**
+     * Test lti_build_standard_message().
+     */
+    public function test_lti_build_standard_message_institution_name_not_set(): void {
+        $this->resetAfterTest();
+
+        $course   = $this->getDataGenerator()->create_course();
+        $instance = $this->getDataGenerator()->create_module('lti',
+            [
+                'course' => $course->id,
+            ]
+        );
+
+        $message = \core_ltix\helper::build_standard_message($instance, '2', LTI_VERSION_2);
+
+        $this->assertEquals('moodle-2', $message['ext_lms']);
+        $this->assertEquals('moodle', $message['tool_consumer_info_product_family_code']);
+        $this->assertEquals(LTI_VERSION_2, $message['lti_version']);
+        $this->assertEquals('basic-lti-launch-request', $message['lti_message_type']);
+        $this->assertEquals('2', $message['tool_consumer_instance_guid']);
+        $this->assertEquals('phpunit', $message['tool_consumer_instance_name']);
+        $this->assertEquals('PHPUnit test site', $message['tool_consumer_instance_description']);
+    }
+
+    /**
+     * Test lti_get_permitted_service_scopes().
+     */
+    public function test_lti_get_permitted_service_scopes(): void {
+        $this->resetAfterTest();
+
+        $this->setAdminUser();
+
+        // Create a tool type, associated with that proxy.
+        $type = new \stdClass();
+        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->name = "Test tool";
+        $type->description = "Example description";
+        $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+
+        $typeconfig = new \stdClass();
+        $typeconfig->lti_acceptgrades = true;
+
+        $typeid = \core_ltix\helper::add_type($type, $typeconfig);
+
+        $tool = \core_ltix\helper::get_type($typeid);
+
+        $config = \core_ltix\helper::get_type_config($typeid);
+        $permittedscopes = \core_ltix\helper::get_permitted_service_scopes($tool, $config);
+
+        $expected = [
+            'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome'
+        ];
+        $this->assertEquals($expected, $permittedscopes);
+    }
+
+    /**
+     * Test lti_build_login_request().
+     */
+    public function test_lti_build_login_request(): void {
+        global $USER, $CFG;
+
+        $this->resetAfterTest();
+
+        $USER->id = 123456789;
+
+        $course   = $this->getDataGenerator()->create_course();
+        $instance = $this->getDataGenerator()->create_module('lti',
+            [
+                'course' => $course->id,
+            ]
+        );
+
+        $config = new \stdClass();
+        $config->lti_clientid = 'some-client-id';
+        $config->typeid = 'some-type-id';
+        $config->lti_toolurl = 'some-lti-tool-url';
+
+        $request = \core_ltix\helper::build_login_request($course->id, $instance->cmid, $instance, $config, 'basic-lti-launch-request');
+        $this->assertEquals($CFG->wwwroot, $request['iss']);
+        $this->assertEquals('http://some-lti-tool-url', $request['target_link_uri']);
+        $this->assertEquals(123456789, $request['login_hint']);
+        $this->assertTrue(strpos($request['lti_message_hint'], "\"cmid\":{$instance->cmid}") > 0);
+        $this->assertTrue(strpos($request['lti_message_hint'],  "\"launchid\":\"ltilaunch{$instance->id}_") > 0);
+        $this->assertEquals('some-client-id', $request['client_id']);
+        $this->assertEquals('some-type-id', $request['lti_deployment_id']);
+    }
+
+
+    /**
+     * Test the lti_get_ims_role helper function.
+     *
+     * @dataProvider lti_get_ims_role_provider
+     * @covers ::lti_get_ims_role()
+     *
+     * @param bool $islti2 whether the method is called with LTI 2.0 role names or not.
+     * @param string $rolename the name of the role (student, teacher, admin)
+     * @param null|string $switchedto the role to switch to, or false if not using the 'switch to' functionality.
+     * @param string $expected the expected role name.
+     */
+    public function test_lti_get_ims_role(bool $islti2, string $rolename, ?string $switchedto, string $expected): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $user = $rolename == 'admin' ? get_admin() : $this->getDataGenerator()->create_and_enrol($course, $rolename);
+
+        if ($switchedto) {
+            $this->setUser($user);
+            $role = $DB->get_record('role', array('shortname' => $switchedto));
+            role_switch($role->id, \context_course::instance($course->id));
+        }
+
+        $this->assertEquals($expected, \core_ltix\helper::get_ims_role($user, 0, $course->id, $islti2));
+    }
+
+    /**
+     * Data provider for testing lti_get_ims_role.
+     *
+     * @return array[] the test case data.
+     */
+    public static function lti_get_ims_role_provider(): array {
+        return [
+            'Student, LTI 1.1, no role switch' => [
+                'islti2' => false,
+                'rolename' => 'student',
+                'switchedto' => null,
+                'expected' => 'Learner'
+            ],
+            'Student, LTI 2.0, no role switch' => [
+                'islti2' => true,
+                'rolename' => 'student',
+                'switchedto' => null,
+                'expected' => 'Learner'
+            ],
+            'Teacher, LTI 1.1, no role switch' => [
+                'islti2' => false,
+                'rolename' => 'editingteacher',
+                'switchedto' => null,
+                'expected' => 'Instructor'
+            ],
+            'Teacher, LTI 2.0, no role switch' => [
+                'islti2' => true,
+                'rolename' => 'editingteacher',
+                'switchedto' => null,
+                'expected' => 'Instructor'
+            ],
+            'Admin, LTI 1.1, no role switch' => [
+                'islti2' => false,
+                'rolename' => 'admin',
+                'switchedto' => null,
+                'expected' => 'Instructor,urn:lti:sysrole:ims/lis/Administrator,urn:lti:instrole:ims/lis/Administrator'
+            ],
+            'Admin, LTI 2.0, no role switch' => [
+                'islti2' => true,
+                'rolename' => 'admin',
+                'switchedto' => null,
+                'expected' => 'Instructor,http://purl.imsglobal.org/vocab/lis/v2/person#Administrator'
+            ],
+            'Admin, LTI 1.1, role switch student' => [
+                'islti2' => false,
+                'rolename' => 'admin',
+                'switchedto' => 'student',
+                'expected' => 'Learner'
+            ],
+            'Admin, LTI 2.0, role switch student' => [
+                'islti2' => true,
+                'rolename' => 'admin',
+                'switchedto' => 'student',
+                'expected' => 'Learner'
+            ],
+            'Admin, LTI 1.1, role switch teacher' => [
+                'islti2' => false,
+                'rolename' => 'admin',
+                'switchedto' => 'editingteacher',
+                'expected' => 'Instructor'
+            ],
+            'Admin, LTI 2.0, role switch teacher' => [
+                'islti2' => true,
+                'rolename' => 'admin',
+                'switchedto' => 'editingteacher',
+                'expected' => 'Instructor'
+            ],
+        ];
+    }
+
 }
