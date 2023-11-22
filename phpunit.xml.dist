@@ -349,7 +349,9 @@
       <exclude>@root@public/sms/tests/fixtures</exclude>
     </testsuite>
     <testsuite name="core_ltix_testsuite">
-      <directory suffix="_test.php">public/ltix/tests</directory>
+      <directory suffix="_test.php">@root@public/ltix/tests</directory>
+      <exclude>@root@public/ltix/tests/classes</exclude>
+      <exclude>@root@public/ltix/tests/fixtures</exclude>
     </testsuite>
 
     <!--Plugin suites: use admin/tool/phpunit/cli/util.php to build phpunit.xml from
