@@ -25,9 +25,9 @@ Feature: Make an LTI only available to specific course categories
       | teacher1 | C2 | editingteacher |
       | teacher1 | C3 | editingteacher |
     And the following "mod_lti > tool types" exist:
-      | name            | description        | baseurl                                   | coursevisible | state | lti_coursecategories |
-      | Teaching Tool 1 | Tool 1 description | /mod/lti/tests/fixtures/tool_provider.php | 1             | 1     | catb                 |
-      | Teaching Tool 2 | Tool 2 description | /mod/lti/tests/fixtures/tool_provider.php | 2             | 1     | catca                |
+      | name            | description        | baseurl                                | coursevisible | state | lti_coursecategories |
+      | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | catb                 |
+      | Teaching Tool 2 | Tool 2 description | /ltix/tests/fixtures/tool_provider.php | 2             | 1     | catca                |
 
   Scenario: Tool is set to "Show as preconfigured tool when adding an external tool" on parent category
     Given I am on the "Course 2" course page logged in as teacher1
@@ -78,7 +78,7 @@ Feature: Make an LTI only available to specific course categories
     And I set the following fields to these values:
     | catcb | 0 |
     And the field "catb" matches value "1"
-    And I set the field "Tool URL" to local url "/mod/lti/tests/fixtures/tool_provider.php"
+    And I set the field "Tool URL" to local url "/ltix/tests/fixtures/tool_provider.php"
     And I press "Save changes"
     And I wait until the page is ready
     And I should see "Teaching Tool 3"
@@ -91,8 +91,8 @@ Feature: Make an LTI only available to specific course categories
   @javascript
   Scenario: Category restriction only shown for a site tool
     Given the following "mod_lti > tool types" exist:
-      | name            | baseurl                                   | coursevisible | state |
-      | Teaching Tool 1 | /mod/lti/tests/fixtures/tool_provider.php | 2             | 1     |
+      | name            | baseurl                                | coursevisible | state |
+      | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
     And the following "mod_lti > course tools" exist:
       | name          | description         | baseurl                  | course |
       | Course Tool 1 | Example description | https://example.com/tool | C1     |

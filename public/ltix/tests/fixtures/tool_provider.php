@@ -17,7 +17,7 @@
 /**
  * Testing fixture.
  *
- * @package   mod_lti
+ * @package   core_ltix
  * @copyright 2016 John Okely
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
