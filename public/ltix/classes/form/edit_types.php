@@ -32,28 +32,9 @@
 // of the Universitat Politecnica de Catalunya http://www.upc.edu
 // Contact info: Marc Alier Forment granludo @ gmail.com or marc.alier @ upc.edu.
 
-/**
- * This file defines de main basiclti configuration form
- *
- * @package mod_lti
- * @copyright  2009 Marc Alier, Jordi Piguillem, Nikolas Galanis
- *  marc.alier@upc.edu
- * @copyright  2009 Universitat Politecnica de Catalunya http://www.upc.edu
- * @author     Marc Alier
- * @author     Jordi Piguillem
- * @author     Nikolas Galanis
- * @author     Charles Severance
- * @author     Chris Scribner
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace core_ltix\form;
 
-defined('MOODLE_INTERNAL') || die;
-
-global $CFG;
-require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
-
+use moodleform;
 /**
  * LTI Edit Form
  *
@@ -63,13 +44,13 @@ require_once($CFG->dirroot.'/ltix/constants.php');
  * @copyright  2009 Universitat Politecnica de Catalunya http://www.upc.edu
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_lti_edit_types_form extends moodleform {
+class edit_types extends moodleform {
 
     /**
      * Define this form.
      */
     public function definition() {
-        global $CFG, $PAGE, $DB, $OUTPUT;
+        global $CFG, $DB, $OUTPUT;
 
         $mform    =& $this->_form;
 

@@ -15,20 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for core_ltix edit_form
- *
- * @package    core_ltix
- * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 4.3
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
-require_once($CFG->dirroot . '/mod/lti/edit_form.php');
-
-/**
  * Testing fixture.
  *
  * @package    core_ltix
@@ -36,7 +22,7 @@ require_once($CFG->dirroot . '/mod/lti/edit_form.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
  */
-class test_edit_form extends \mod_lti_edit_types_form {
+class test_edit_types_form extends \core_ltix\form\edit_types {
 
     /**
      * Expose the internal moodleform's MoodleQuickForm

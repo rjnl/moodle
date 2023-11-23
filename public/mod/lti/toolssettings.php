@@ -28,7 +28,6 @@
 
 require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->dirroot.'/mod/lti/edit_form.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
 
@@ -91,7 +90,7 @@ if (\core_ltix\helper::request_is_using_ssl() && !empty($type->lti_secureicon)) 
     $type->oldicon = $type->lti_icon;
 }
 
-$form = new mod_lti_edit_types_form($pageurl, (object)array('isadmin' => true, 'istool' => true));
+$form = new \core_ltix\form\edit_types($pageurl, (object)array('isadmin' => true, 'istool' => true));
 
 if ($data = $form->get_data()) {
     $type = new stdClass();

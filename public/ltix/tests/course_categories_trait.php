@@ -17,12 +17,12 @@
 /**
  * Helpers for restrict course categories unit tests.
  *
- * @package    mod_lti
+ * @package    core_lti
  * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
  */
-trait mod_lti_course_categories_trait {
+trait lti_course_categories_trait {
 
     /**
      * Setup course categories.
