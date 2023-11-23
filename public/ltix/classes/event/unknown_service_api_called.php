@@ -14,24 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * The mod_lti unknown service api called event.
- *
- * @package    mod_lti
- * @copyright  2013 Adrian Greeve <adrian@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace mod_lti\event;
-defined('MOODLE_INTERNAL') || die();
+namespace core_ltix\event;
 
 /**
- * The mod_lti unknown service api called event class.
+ * The core_ltix unknown service api called event class.
  *
  * Event for when something happens with an unknown lti service API call.
  *
- * @package    mod_lti
- * @since      Moodle 2.6
+ * @package    core_ltix
  * @copyright  2013 Adrian Greeve <adrian@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -85,17 +75,6 @@ class unknown_service_api_called extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('ltiunknownserviceapicall', 'mod_lti');
-    }
-
-    /**
-     * This event has been deprecated by core_ltix/event/unknown_service_api_called
-     *
-     * Events cannot be deprecated in the normal fashion as they must remain to support historical data.
-     *
-     * @return boolean
-     */
-    public static function is_deprecated() {
-        return true;
+        return get_string('ltiunknownserviceapicall', 'core_ltix');
     }
 }

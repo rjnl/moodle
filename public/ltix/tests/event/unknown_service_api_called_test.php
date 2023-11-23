@@ -14,12 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\event;
+namespace core_ltix\event;
+use core_ltix\event\unknown_service_api_called;
 
 /**
  * Unknown service API called event tests
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  Copyright (c) 2012 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,7 +30,7 @@ final class unknown_service_api_called_test extends \advanced_testcase {
      */
     public function test_create_event(): void {
         $event = unknown_service_api_called::create();
-        $this->assertInstanceOf('\mod_lti\event\unknown_service_api_called', $event);
+        $this->assertInstanceOf('\core_ltix\event\unknown_service_api_called', $event);
     }
 
     /*
