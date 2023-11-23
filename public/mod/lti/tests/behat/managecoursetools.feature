@@ -144,7 +144,7 @@ Feature: Manage course tools
     And I set the following fields to these values:
       | Tool name        | Test tool 1             |
       | Tool description | Test tool 1 description |
-    And I set the field "Tool URL" to local url "/mod/lti/tests/fixtures/ims_cartridge_basic_lti_link.xml"
+    And I set the field "Tool URL" to local url "/ltix/tests/fixtures/ims_cartridge_basic_lti_link.xml"
     And I press "Save changes"
     Then I should see "Test tool 1" in the "reportbuilder-table" "table"
     # The cartridge description, if set, overrides the description set in the type edit form (bug?).
@@ -159,10 +159,10 @@ Feature: Manage course tools
   @javascript
   Scenario: Site tool appearing in activity chooser according to settings
     Given the following "mod_lti > tool types" exist:
-      | name            | baseurl                                   | coursevisible | state |
-      | Teaching Tool 1 | /mod/lti/tests/fixtures/tool_provider.php | 2             | 1     |
-      | Teaching Tool 2 | /mod/lti/tests/fixtures/tool_provider.php | 1             | 1     |
-      | Teaching Tool 3 | /mod/lti/tests/fixtures/tool_provider.php | 0             | 1     |
+      | name            | baseurl                                | coursevisible | state |
+      | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
+      | Teaching Tool 2 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
+      | Teaching Tool 3 | /ltix/tests/fixtures/tool_provider.php | 0             | 1     |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 2 | C2        | 0        |
@@ -216,9 +216,9 @@ Feature: Manage course tools
   @javascript
   Scenario: Course tool appearing in activity chooser according to settings
     Given the following "mod_lti > course tools" exist:
-      | name          | baseurl                                   | course | coursevisible |
-      | Course Tool 1 | /mod/lti/tests/fixtures/tool_provider.php | C1     | 2             |
-      | Course Tool 2 | /mod/lti/tests/fixtures/tool_provider.php | C1     | 1             |
+      | name          | baseurl                                | course | coursevisible |
+      | Course Tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     | 2             |
+      | Course Tool 2 | /ltix/tests/fixtures/tool_provider.php | C1     | 1             |
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I open the activity chooser
@@ -252,9 +252,9 @@ Feature: Manage course tools
   @javascript
   Scenario: Site and course tools settings are preserved when backup and restore
     Given the following "mod_lti > tool types" exist:
-      | name            | baseurl                                   | coursevisible | state |
-      | Teaching Tool 1 | /mod/lti/tests/fixtures/tool_provider.php | 2             | 1     |
-      | Teaching Tool 2 | /mod/lti/tests/fixtures/tool_provider.php | 1             | 1     |
+      | name            | baseurl                                | coursevisible | state |
+      | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
+      | Teaching Tool 2 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
     And the following "mod_lti > course tools" exist:
       | name          | description         | baseurl                  | course |
       | Course Tool 1 | Example description | https://example.com/tool | C1     |

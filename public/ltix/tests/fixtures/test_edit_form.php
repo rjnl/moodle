@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for mod_lti edit_form
+ * Unit tests for core_ltix edit_form
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
@@ -31,7 +31,7 @@ require_once($CFG->dirroot . '/mod/lti/edit_form.php');
 /**
  * Testing fixture.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
