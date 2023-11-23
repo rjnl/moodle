@@ -205,7 +205,7 @@ switch ($messagetype) {
         $ltiwebservicehandled = false;
 
         try {
-            $event = \mod_lti\event\unknown_service_api_called::create($eventdata);
+            $event = \core_ltix\event\unknown_service_api_called::create($eventdata);
             $event->set_message_data($data);
             $event->trigger();
         } catch (Exception $e) {

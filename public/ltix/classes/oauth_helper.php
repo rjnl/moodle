@@ -803,11 +803,11 @@ class oauth_helper {
 
         $now = time();
 
-        $requestheaders = OAuthUtil::get_headers();
+        $requestheaders = \OAuthUtil::get_headers();
 
         if (isset($requestheaders['Authorization'])) {
             if (substr($requestheaders['Authorization'], 0, 6) == "OAuth ") {
-                $headerparameters = OAuthUtil::split_header($requestheaders['Authorization']);
+                $headerparameters = \OAuthUtil::split_header($requestheaders['Authorization']);
 
                 return format_string($headerparameters['oauth_consumer_key']);
             } else if (empty($scopes)) {
