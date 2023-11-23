@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Unit tests for mod_lti edit_form
+ * Unit tests for core_ltix edit_form
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
@@ -28,16 +28,16 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/course_categories_trait.php');
 
 /**
- * Unit tests for mod_lti edit_form
+ * Unit tests for core_ltix edit_form
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jackson D'Souza <jackson.dsouza@catalyst-eu.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since      Moodle 4.3
  */
-final class mod_lti_edit_types_form_test extends \advanced_testcase {
+final class lti_edit_types_form_test extends \advanced_testcase {
     // There are shared helpers for these tests in the helper course_categories_trait.
-    use \mod_lti_course_categories_trait;
+    use lti_course_categories_trait;
 
     /**
      * Tests the nested course categories JSON returned by public method mod_lti_edit_types_form::lti_build_category_tree().
@@ -47,12 +47,12 @@ final class mod_lti_edit_types_form_test extends \advanced_testcase {
     public function test_set_nested_categories(): void {
         global $CFG, $DB;
 
-        require_once($CFG->dirroot . '/ltix/tests/fixtures/test_edit_form.php');
+        require_once($CFG->dirroot . '/ltix/tests/fixtures/test_edit_types_form.php');
 
         $this->resetAfterTest(true);
         $this->setAdminUser();
 
-        $ltiform = new test_edit_form(null);
+        $ltiform = new test_edit_types_form(null);
         $ltiform->definition_after_data();
 
         // Setup fixture.

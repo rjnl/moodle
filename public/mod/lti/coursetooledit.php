@@ -25,7 +25,6 @@
 use core\output\notification;
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/mod/lti/edit_form.php');
 require_once($CFG->dirroot.'/mod/lti/lib.php');
 
 $courseid = required_param('course', PARAM_INT);
@@ -54,7 +53,7 @@ $PAGE->set_title($pageheading);
 $PAGE->set_secondary_active_tab('coursetools');
 $PAGE->add_body_class('limitedwidth');
 
-$form = new mod_lti_edit_types_form($url, (object)array('id' => $typeid, 'clientid' => $type->lti_clientid, 'iscoursetool' => true));
+$form = new \core_ltix\form\edit_types($url, (object)array('id' => $typeid, 'clientid' => $type->lti_clientid, 'iscoursetool' => true));
 if ($form->is_cancelled()) {
 
     redirect(new moodle_url('/mod/lti/coursetools.php', ['id' => $courseid]));
