@@ -3409,7 +3409,7 @@ class helper {
         if ($tempdir = make_temp_directory('mod_lti', false)) {
             if ($tempfile = tempnam($tempdir, 'mod_lti_request'.date('YmdHis'))) {
                 $content  = "Request Headers:\n";
-                foreach (moodle\ltix\OAuthUtil::get_headers() as $header => $value) {
+                foreach (\core_ltix\OAuthUtil::get_headers() as $header => $value) {
                     $content .= "$header: $value\n";
                 }
                 $content .= "Request Body:\n";

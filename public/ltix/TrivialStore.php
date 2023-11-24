@@ -43,7 +43,7 @@
  * @license http://www.apache.org/licenses/LICENSE-2.0
  */
 
-namespace moodle\ltix; // Using a namespace as the basicLTI module imports classes with the same names.
+namespace core_ltix; // Using a namespace as the basicLTI module imports classes with the same names.
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -70,7 +70,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
      *
      * @param string $consumerkey     Consumer key
      *
-     * @return moodle\ltix\OAuthConsumer  OAuthConsumer object
+     * @return core_ltix\OAuthConsumer  OAuthConsumer object
      */
     public function lookup_consumer($consumerkey) {
         if (strpos($consumerkey, "http://" ) === 0) {
@@ -87,11 +87,11 @@ class TrivialOAuthDataStore extends OAuthDataStore {
     /**
      * Create a dummy OAuthToken object for a consumer
      *
-     * @param moodle\ltix\OAuthConsumer $consumer     Consumer
+     * @param core_ltix\OAuthConsumer $consumer     Consumer
      * @param string $tokentype    Type of token
      * @param string $token        Token ID
      *
-     * @return moodle\ltix\OAuthToken OAuthToken object
+     * @return core_ltix\OAuthToken OAuthToken object
      */
     public function lookup_token($consumer, $tokentype, $token) {
         return new OAuthToken($consumer, '');
@@ -100,7 +100,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
     /**
      * Nonce values are not checked so just return a null
      *
-     * @param moodle\ltix\OAuthConsumer $consumer     Consumer
+     * @param core_ltix\OAuthConsumer $consumer     Consumer
      * @param string $token        Token ID
      * @param string $nonce        Nonce value
      * @param string $timestamp    Timestamp
@@ -117,7 +117,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
     /**
      * Tokens are not used so just return a null.
      *
-     * @param moodle\ltix\OAuthConsumer $consumer     Consumer
+     * @param core_ltix\OAuthConsumer $consumer     Consumer
      *
      * @return null
      */
@@ -129,7 +129,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
      * Tokens are not used so just return a null.
      *
      * @param string $token        Token ID
-     * @param moodle\ltix\OAuthConsumer $consumer     Consumer
+     * @param core_ltix\OAuthConsumer $consumer     Consumer
      *
      * @return null
      */

@@ -61,7 +61,7 @@
  * @copyright moodle
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace moodle\ltix;//Using a namespace as the basicLTI module imports classes with the same names
+namespace core_ltix;//Using a namespace as the basicLTI module imports classes with the same names
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -761,7 +761,7 @@ class OAuthUtil {
     public static function urlencode_rfc3986($input) {
         if (is_array($input)) {
             return array_map(array(
-                'moodle\ltix\OAuthUtil',
+                'core_ltix\OAuthUtil',
                 'urlencode_rfc3986'
             ), $input);
         } else {

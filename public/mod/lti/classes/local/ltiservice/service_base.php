@@ -31,8 +31,6 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
-// TODO: Switch to core oauthlib once implemented - MDL-30149.
-use moodle\ltix as lti;
 use stdClass;
 use core_ltix\oauth_helper;
 
