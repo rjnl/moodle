@@ -27,15 +27,13 @@ use Exception;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use moodle\ltix as lti;
 use moodle_exception;
 use stdClass;
-use OAuthUtil;
-use OAuthException;
-use OAuthserver;
-use OAuthRequest;
-use OAuthSignatureMethod_HMAC_SHA1;
-use TrivialOAuthDataStore;
+use core_ltix\OAuthException;
+use core_ltix\OAuthserver;
+use core_ltix\OAuthRequest;
+use core_ltix\OAuthSignatureMethod_HMAC_SHA1;
+use core_ltix\TrivialOAuthDataStore;
 
 /**
  * Helper class specifically dealing with LTI OAuth.
@@ -64,9 +62,9 @@ class oauth_helper {
         $testtoken = '';
 
         // TODO: Switch to core oauthlib once implemented - MDL-30149.
-        $hmacmethod = new lti\OAuthSignatureMethod_HMAC_SHA1();
-        $testconsumer = new lti\OAuthConsumer($oauthconsumerkey, $oauthconsumersecret, null);
-        $accreq = lti\OAuthRequest::from_consumer_and_token($testconsumer, $testtoken, $method, $endpoint, $parms);
+        $hmacmethod = new OAuthSignatureMethod_HMAC_SHA1();
+        $testconsumer = new OAuthConsumer($oauthconsumerkey, $oauthconsumersecret, null);
+        $accreq = OAuthRequest::from_consumer_and_token($testconsumer, $testtoken, $method, $endpoint, $parms);
         $accreq->sign_request($hmacmethod, $testconsumer, $testtoken);
 
         $newparms = $accreq->get_parameters();
@@ -113,16 +111,16 @@ class oauth_helper {
             throw new moodle_exception('errorincorrectconsumerkey', 'core_ltix');
         }
 
-        $store = new lti\TrivialOAuthDataStore();
+        $store = new TrivialOAuthDataStore();
         $store->add_consumer($key, $secret);
-        $server = new lti\OAuthServer($store);
-        $method = new lti\OAuthSignatureMethod_HMAC_SHA1();
+        $server = new OAuthServer($store);
+        $method = new OAuthSignatureMethod_HMAC_SHA1();
         $server->add_signature_method($method);
-        $request = lti\OAuthRequest::from_request();
+        $request = OAuthRequest::from_request();
         try {
             $server->verify_request($request);
-        } catch (lti\OAuthException $e) {
-            throw new lti\OAuthException("OAuth signature failed: " . $e->getMessage());
+        } catch (OAuthException $e) {
+            throw new OAuthException("OAuth signature failed: " . $e->getMessage());
         }
 
         return $tool;
@@ -803,11 +801,11 @@ class oauth_helper {
 
         $now = time();
 
-        $requestheaders = \OAuthUtil::get_headers();
+        $requestheaders = OAuthUtil::get_headers();
 
         if (isset($requestheaders['Authorization'])) {
             if (substr($requestheaders['Authorization'], 0, 6) == "OAuth ") {
-                $headerparameters = \OAuthUtil::split_header($requestheaders['Authorization']);
+                $headerparameters = OAuthUtil::split_header($requestheaders['Authorization']);
 
                 return format_string($headerparameters['oauth_consumer_key']);
             } else if (empty($scopes)) {

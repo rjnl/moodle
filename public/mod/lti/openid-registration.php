@@ -35,7 +35,7 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' or ($_SERVER['REQUEST_METHOD'] === 'GET')) {
     $doregister = $_SERVER['REQUEST_METHOD'] === 'POST';
     // Retrieve registration token from Bearer Authorization header.
-    $authheader = moodle\ltix\OAuthUtil::get_headers()['Authorization'] ?? '';
+    $authheader = core_ltix\OAuthUtil::get_headers()['Authorization'] ?? '';
     if (!($authheader && substr($authheader, 0, 7) == 'Bearer ')) {
         $message = 'missing_registration_token';
         $code = 401;

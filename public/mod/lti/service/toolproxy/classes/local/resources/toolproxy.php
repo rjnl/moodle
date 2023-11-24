@@ -31,9 +31,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/ltix/OAuth.php');
 require_once($CFG->dirroot . '/ltix/TrivialStore.php');
 
-// TODO: Switch to core oauthlib once implemented - MDL-30149.
-use moodle\ltix as lti;
-
 /**
  * A resource implementing the Tool Proxy.
  *
