@@ -27,6 +27,7 @@ $string['active'] = 'Active';
 $string['cleanaccesstokens'] = 'External tool removal of expired access tokens';
 $string['contentselected'] = 'Content selected';
 $string['courseactivitiesorresources'] = 'Course activities or resources';
+$string['courseexternaltools'] = 'LTI External tools';
 $string['courseinformation'] = 'Course information';
 $string['duplicateregurl'] = 'This registration URL is already in use';
 $string['errorincorrectconsumerkey'] = 'Consumer key is incorrect.';
