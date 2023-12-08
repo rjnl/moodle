@@ -776,7 +776,7 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
             $type->helplink = get_string('modulename_shortcut_link', 'lti');
         }
 
-        $iconurl = get_tool_type_icon_url($ltitype);
+        $iconurl = \core_ltix\helper::get_tool_type_icon_url($ltitype);
         $iconclass = '';
         if ($iconurl !== $OUTPUT->image_url('monologo', 'lti')->out()) {
             // Do not filter the icon if it is not the default LTI activity icon.
@@ -1584,19 +1584,10 @@ function lti_get_fqid($contexts, $id) {
  * @return string The url to the tool type's corresponding icon
  */
 function get_tool_type_icon_url(stdClass $type) {
-    global $OUTPUT;
-
-    $iconurl = $type->secureicon;
-
-    if (empty($iconurl)) {
-        $iconurl = $type->icon;
-    }
-
-    if (empty($iconurl)) {
-        $iconurl = $OUTPUT->image_url('monologo', 'lti')->out();
-    }
-
-    return $iconurl;
+    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_icon_url() instead.',
+        DEBUG_DEVELOPER);
+    
+    return \core_ltix\helper::get_tool_type_icon_url($type);
 }
 
 /**

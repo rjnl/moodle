@@ -3614,6 +3614,29 @@ class helper {
     }
 
     /**
+     * Returns the icon for the given tool type
+     *
+     * @param stdClass $type The tool type
+     *
+     * @return string The url to the tool type's corresponding icon
+     */
+    public static function get_tool_type_icon_url(stdClass $type) {
+        global $OUTPUT;
+
+        $iconurl = $type->secureicon;
+
+        if (empty($iconurl)) {
+            $iconurl = $type->icon;
+        }
+
+        if (empty($iconurl)) {
+            $iconurl = $OUTPUT->image_url('i/lti', 'core')->out();
+        }
+
+        return $iconurl;
+    }
+
+    /**
      * Returns the course url for the given tool type
      *
      * @param stdClass $type The tool type
@@ -3639,7 +3662,7 @@ class helper {
         $courseurl = self::get_tool_type_course_url($type);
 
         $urls = array(
-            'icon' => get_tool_type_icon_url($type),
+            'icon' => self::get_tool_type_icon_url($type),
             'edit' => self::get_tool_type_edit_url($type),
         );
 
@@ -3668,7 +3691,7 @@ class helper {
         global $OUTPUT;
 
         $urls = array(
-            'icon' => $OUTPUT->image_url('monologo', 'lti')->out(),
+            'icon' => $OUTPUT->image_url('i/lti', 'core')->out(),
             'edit' => self::get_tool_proxy_edit_url($proxy),
         );
 
