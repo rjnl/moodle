@@ -1718,5 +1718,17 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026013000.04);
     }
 
+    if ($oldversion < 2026020500.01) {
+        // Move mod_lti keys into new core lti config.
+        if (!empty(get_config('mod_lti', 'kid')) && !empty(get_config('mod_lti', 'privatekey'))) {
+            set_config('kid',  get_config('mod_lti', 'kid'), 'core_ltix');
+            set_config('privatekey',  get_config('mod_lti', 'privatekey'), 'core_ltix');
+            set_config('kid', null, 'mod_lti');
+            set_config('privatekey', null, 'mod_lti');
+        }
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026020500.01);
+    }
+
     return true;
 }

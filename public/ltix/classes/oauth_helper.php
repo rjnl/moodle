@@ -752,4 +752,36 @@ class oauth_helper {
         return $params;
     }
 
+    /**
+     * Verify key exists, creates them.
+     *
+     * @return \lang_string|string|void
+     */
+    public static function verify_private_key() {
+        $key = get_config('core_ltix', 'privatekey');
+
+        // If we already generated a valid key, no need to check.
+        if (empty($key)) {
+
+            // Create the private key.
+            $kid = bin2hex(openssl_random_pseudo_bytes(10));
+            set_config('kid', $kid, 'core_ltix');
+            $config = array(
+                "digest_alg" => "sha256",
+                "private_key_bits" => 2048,
+                "private_key_type" => OPENSSL_KEYTYPE_RSA,
+            );
+            $res = openssl_pkey_new($config);
+            openssl_pkey_export($res, $privatekey);
+
+            if (!empty($privatekey)) {
+                set_config('privatekey', $privatekey, 'core_ltix');
+            } else {
+                return get_string('opensslconfiginvalid', 'core_ltix');
+            }
+        }
+
+        return '';
+    }
+
 }

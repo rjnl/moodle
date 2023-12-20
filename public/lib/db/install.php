@@ -336,4 +336,7 @@ function xmldb_main_install() {
     // Create default core site admin presets.
     require_once($CFG->dirroot . '/admin/presets/classes/helper.php');
     \core_adminpresets\helper::create_default_presets();
+
+    // Create core lti keys.
+    \core_ltix\oauth_helper::verify_private_key();
 }
