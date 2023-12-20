@@ -100,7 +100,7 @@ function xmldb_lti_upgrade($oldversion) {
                  WHERE capability = :oldcapname
                    AND contextid != :sitecontextid
                    AND id NOT IN (SELECT rc.id
-                                    FROM {role_capabilities} rc
+                                    FROM (SELECT id, roleid, contextid, capability FROM {role_capabilities}) AS rc
                                     JOIN {role} r ON r.id = rc.roleid
                                    WHERE rc.capability = :newcapname2
                                      AND rc.contextid = :sitecontextid2)";
