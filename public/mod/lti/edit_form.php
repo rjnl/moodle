@@ -395,9 +395,7 @@ class mod_lti_edit_types_form extends moodleform {
 
         // LTI2 tools do not contain a ltiversion field.
         if (isset($data['lti_ltiversion']) && $data['lti_ltiversion'] == LTI_VERSION_1P3) {
-            require_once($CFG->dirroot . '/mod/lti/upgradelib.php');
-
-            $warning = mod_lti_verify_private_key();
+            $warning = \core_ltix\oauth_helper::verify_private_key();
             if (!empty($warning)) {
                 $errors['lti_ltiversion'] = $warning;
                 return $errors;
