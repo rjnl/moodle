@@ -95,7 +95,6 @@ $string['cancelled'] = 'Cancelled';
 $string['capabilities'] = 'Capabilities';
 $string['capabilitiesrequired'] = 'This tool requires access to the following data in order to activate:';
 $string['capabilities_help'] = 'Select those capabilities which you wish to offer to the tool provider.  More than one capability can be selected.';
-$string['cleanaccesstokens'] = 'External tool removal of expired access tokens';
 $string['click_to_continue'] = '<a href="{$a->link}" target="_top">Click to continue</a>';
 $string['clientidadmin'] = 'Client ID';
 $string['clientidadmin_help'] = 'The client ID is a unique value used to identify a tool. It is created automatically for each tool which uses the JWT security profile introduced in LTI 1.3 and should be part of the details passed to the tool provider so that they can configure the connection at their end.';
