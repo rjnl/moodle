@@ -24,6 +24,7 @@
  */
 
 $string['active'] = 'Active';
+$string['cleanaccesstokens'] = 'External tool removal of expired access tokens';
 $string['contentselected'] = 'Content selected';
 $string['courseactivitiesorresources'] = 'Course activities or resources';
 $string['courseinformation'] = 'Course information';

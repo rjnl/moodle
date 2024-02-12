@@ -17,11 +17,11 @@
 /**
  * A scheduled task for lti module.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_lti\task;
+namespace core_ltix\task;
 
 use core\task\scheduled_task;
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Class containing the scheduled task for lti module.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2018 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -42,7 +42,7 @@ class clean_access_tokens extends scheduled_task {
      * @return string
      */
     public function get_name() {
-        return get_string('cleanaccesstokens', 'mod_lti');
+        return get_string('cleanaccesstokens', 'core_ltix');
     }
 
     /**
