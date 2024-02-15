@@ -415,6 +415,9 @@ class backup_section_structure_step extends backup_structure_step {
         // attach local plugin structure to $section element, multiple allowed
         $this->add_plugin_structure('local', $section, true);
 
+        // Attach admin tool plugin structure to $section element, multiple allowed.
+        $this->add_plugin_structure('tool', $section, true);
+
         // Add nested elements for course_format_options table
         $formatoptions = new backup_nested_element('course_format_options', array('id'), array(
             'format', 'name', 'value'));
@@ -1698,6 +1701,9 @@ class backup_block_instance_structure_step extends backup_structure_step {
             $block->annotate_files('block_' . $this->task->get_blockname(), $filearea, null);
         }
 
+        // Attach admin tool plugin structure to $block.
+        $this->add_plugin_structure('tool', $block, true);
+
         // Return the root element (block)
         return $block;
     }
@@ -2562,6 +2568,9 @@ class backup_questions_structure_step extends backup_structure_step {
 
         // attach local plugin stucture to $question element, multiple allowed
         $this->add_plugin_structure('local', $question, true);
+
+        // Attach admin tool plugin stucture to $question element, multiple allowed.
+        $this->add_plugin_structure('tool', $question, true);
 
         $qhints = new backup_nested_element('question_hints');
 
