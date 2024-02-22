@@ -1597,6 +1597,9 @@ class restore_section_structure_step extends restore_structure_step {
         // Apply for 'local' plugins optional paths at section level
         $this->add_plugin_structure('local', $section);
 
+        // Apply for 'admin tool' plugins optional paths at section level.
+        $this->add_plugin_structure('tool', $section);
+
         return $paths;
     }
 
