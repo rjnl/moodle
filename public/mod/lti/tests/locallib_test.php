@@ -192,14 +192,14 @@ final class locallib_test extends \externallib_advanced_testcase {
     }
 
     /**
-     * Test for \core_ltix\helper::get_lti_types_by_course.
+     * Test for lti_get_lti_types_by_course.
      *
      * Note: This includes verification of the broken legacy behaviour in which the inclusion of course and site tools could be
      * controlled independently, based on the capabilities 'mod/lti:addmanualinstance' (to include course tools) and
      * 'mod/lti:addpreconfiguredinstance' (to include site tools). This behaviour is deprecated in 4.3 and all preconfigured tools
      * are controlled by the single capability 'mod/lti:addpreconfiguredinstance'.
      *
-     * @covers \core_ltix\helper::get_lti_types_by_course()
+     * @covers ::lti_get_lti_types_by_course()
      * @return void
      */
     public function test_lti_get_lti_types_by_course(): void {
@@ -256,7 +256,8 @@ final class locallib_test extends \externallib_advanced_testcase {
         $this->setUser($teacher); // Important: this deprecated method depends on the global user for cap checks.
 
         // Request using the default 'coursevisible' param will include all tools except the one configured as "Do not show".
-        $coursetooltypes = \core_ltix\helper::get_lti_types_by_course($course->id, $teacher->id);
+        $coursetooltypes = lti_get_lti_types_by_course($course->id);
+        $this->assertDebuggingCalled();
         $this->assertCount(3, $coursetooltypes);
         $this->assertEmpty(array_diff(
             ['http://example.com/tool/2', 'http://example.com/tool/3', 'http://example.com/tool/4'],
@@ -264,7 +265,8 @@ final class locallib_test extends \externallib_advanced_testcase {
         ));
 
         // Request for only those tools configured to show in the activity chooser for the teacher.
-        $coursetooltypes = \core_ltix\helper::get_lti_types_by_course($course->id, $teacher->id, [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
+        $coursetooltypes = lti_get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
+        $this->assertDebuggingCalled();
         $this->assertCount(2, $coursetooltypes);
         $this->assertEmpty(array_diff(
             ['http://example.com/tool/3', 'http://example.com/tool/4'],
@@ -272,7 +274,8 @@ final class locallib_test extends \externallib_advanced_testcase {
         ));
 
         // Request for only those tools configured to show as a preconfigured tool for the teacher.
-        $coursetooltypes = \core_ltix\helper::get_lti_types_by_course($course->id, $teacher->id, [LTI_COURSEVISIBLE_PRECONFIGURED]);
+        $coursetooltypes = lti_get_lti_types_by_course($course->id, [LTI_COURSEVISIBLE_PRECONFIGURED]);
+        $this->assertDebuggingCalled();
         $this->assertCount(1, $coursetooltypes);
         $this->assertEmpty(array_diff(
             ['http://example.com/tool/2'],
@@ -281,7 +284,8 @@ final class locallib_test extends \externallib_advanced_testcase {
 
         // Request for teacher2 in course2 (course category 2).
         $this->setUser($teacher2);
-        $coursetooltypes = \core_ltix\helper::get_lti_types_by_course($course2->id, $teacher2->id);
+        $coursetooltypes = lti_get_lti_types_by_course($course2->id);
+        $this->assertDebuggingCalled();
         $this->assertCount(3, $coursetooltypes);
         $this->assertEmpty(array_diff(
             ['http://example.com/tool/2', 'http://example.com/tool/3', 'http://example.com/tool/5'],
@@ -294,7 +298,8 @@ final class locallib_test extends \externallib_advanced_testcase {
         $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         assign_capability('mod/lti:addpreconfiguredinstance', CAP_PROHIBIT, $teacherrole->id,
             \core\context\course::instance($course->id));
-        $coursetooltypes = \core_ltix\helper::get_lti_types_by_course($course->id, $teacher->id);
+        $coursetooltypes = lti_get_lti_types_by_course($course->id);
+        $this->assertDebuggingCalled();
         $this->assertCount(0, $coursetooltypes);
         $this->unassignUserCapability('mod/lti:addpreconfiguredinstance', (\core\context\course::instance($course->id))->id,
             $teacherrole->id);
