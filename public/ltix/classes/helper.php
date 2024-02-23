@@ -1263,10 +1263,6 @@ class helper {
     public static function get_lti_types_by_course(int $courseid, int $userid, array $coursevisible = []): array {
         global $DB, $SITE;
 
-        if (!has_capability('mod/lti:addpreconfiguredinstance', \core\context\course::instance($courseid), $userid)) {
-            return [];
-        }
-
         if (empty($coursevisible)) {
             $coursevisible = [LTI_COURSEVISIBLE_PRECONFIGURED, LTI_COURSEVISIBLE_ACTIVITYCHOOSER];
         }

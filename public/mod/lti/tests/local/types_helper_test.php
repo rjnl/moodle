@@ -35,7 +35,7 @@
 namespace mod_lti\local;
 
 use core_ltix\lti_testcase;
-use core_ltix\helper;
+use mod_lti\local\types_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -114,7 +114,7 @@ final class helper_test extends lti_testcase {
 
         // Request using the default 'coursevisible' param will include all tools except the one configured as "Do not show" and
         // the tool restricted to category 2.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, $teacher->id);
+        $coursetooltypes = types_helper::get_lti_types_by_course($course->id, $teacher->id);
         $this->assertCount(3, $coursetooltypes);
         $expected = [
             'http://example.com/tool/2',
@@ -127,7 +127,7 @@ final class helper_test extends lti_testcase {
         $this->assertEquals($expected, $actual);
 
         // Request for only those tools configured to show in the activity chooser for the teacher.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, $teacher->id,
+        $coursetooltypes = types_helper::get_lti_types_by_course($course->id, $teacher->id,
             [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
         $this->assertCount(2, $coursetooltypes);
         $expected = [
@@ -140,7 +140,7 @@ final class helper_test extends lti_testcase {
         $this->assertEquals($expected, $actual);
 
         // Request for only those tools configured to show as a preconfigured tool for the teacher.
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, $teacher->id,
+        $coursetooltypes = types_helper::get_lti_types_by_course($course->id, $teacher->id,
             [LTI_COURSEVISIBLE_PRECONFIGURED]);
         $this->assertCount(1, $coursetooltypes);
         $expected = [
@@ -150,7 +150,7 @@ final class helper_test extends lti_testcase {
         $this->assertEquals($expected, $actual);
 
         // Request for teacher2 in course2 (course category 2).
-        $coursetooltypes = helper::get_lti_types_by_course($course2->id, $teacher2->id);
+        $coursetooltypes = types_helper::get_lti_types_by_course($course2->id, $teacher2->id);
         $this->assertCount(3, $coursetooltypes);
         $expected = [
             'http://example.com/tool/2',
@@ -166,7 +166,7 @@ final class helper_test extends lti_testcase {
         $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         assign_capability('mod/lti:addpreconfiguredinstance', CAP_PROHIBIT, $teacherrole->id,
             \core\context\course::instance($course->id));
-        $coursetooltypes = helper::get_lti_types_by_course($course->id, $teacher->id);
+        $coursetooltypes = types_helper::get_lti_types_by_course($course->id, $teacher->id);
         $this->assertCount(0, $coursetooltypes);
     }
 
