@@ -1727,15 +1727,6 @@ function xmldb_main_upgrade($oldversion) {
             set_config('privatekey', null, 'mod_lti');
         }
 
-        $servicetypes = ['basicoutcomes', 'gradebookservices', 'memberships', 'profile', 'toolproxy', 'toolsettings'];
-        foreach ($servicetypes as $type) {
-            $versionfile = $CFG->dirroot . "mod/lti/service/{$type}/version.php";
-
-            if (!file_exists($versionfile)) {
-                uninstall_plugin('ltiservice', $type);
-            }
-        }
-
         // Rename the ltiservice_gradebookservices table so that it's not removed during the uninstallation of that plugin.
         // This permits data migration to the replacement ltixservice_gradebookservices during that plugin's install.php.
 
@@ -1744,6 +1735,15 @@ function xmldb_main_upgrade($oldversion) {
 
         // Launch rename table for ltiservice_gradebookservices.
         $dbman->rename_table($table, 'tmp_ltiservice_gradebookservices');
+
+        $servicetypes = ['basicoutcomes', 'gradebookservices', 'memberships', 'profile', 'toolproxy', 'toolsettings'];
+        foreach ($servicetypes as $type) {
+            $versionfile = $CFG->dirroot . "mod/lti/service/{$type}/version.php";
+
+            if (!file_exists($versionfile)) {
+                uninstall_plugin('ltiservice', $type);
+            }
+        }
 
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2026020500.01);
