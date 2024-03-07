@@ -20,7 +20,7 @@ use core_ltix\local\ltiservice\service_helper;
 /**
  * Tests for servicelib.php
  *
- * @package   mod_lti
+ * @package   core_ltix
  * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

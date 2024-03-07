@@ -20,11 +20,13 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use core_ltix\external;
+use core_ltix\helper;
 
 /**
  * External function for fetching all tool types and proxies.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @author     Andrew Madden <andrewmadden@catalyst-au.net>
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -92,7 +94,7 @@ class get_tool_types_and_proxies extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        [$proxies, $types] = \core_ltix\helper::get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
+        [$proxies, $types] = helper::get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
 
         return [
             'types' => $types,
@@ -109,8 +111,8 @@ class get_tool_types_and_proxies extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'types' => \core_ltix\external::get_tool_types_returns(),
-            'proxies' => \core_ltix\external::get_tool_proxies_returns(),
+            'types' => external::get_tool_types_returns(),
+            'proxies' => external::get_tool_proxies_returns(),
             'limit' => new external_value(PARAM_INT, 'Limit of how many tool types to show', VALUE_OPTIONAL),
             'offset' => new external_value(PARAM_INT, 'Offset of tool types', VALUE_OPTIONAL),
         ]);

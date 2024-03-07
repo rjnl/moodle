@@ -43,18 +43,17 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Tool helper tests.
  *
+ * @coversDefaultClass \core_ltix\helper
  * @package    core_ltix
  * @author     Alex Morris <alex.morris@catalyst.net.nz>
  * @copyright  2023 onwards Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \core_ltix\tool_helper
  */
 class helper_test extends lti_testcase {
 
     /**
-     * @covers ::lti_split_parameters()
-     *
      * Test the split parameters function
+     * @covers ::split_parameters
      */
     public function test_split_parameters(): void {
         $this->assertEquals(helper::split_parameters(''), array());
@@ -64,6 +63,10 @@ class helper_test extends lti_testcase {
         $this->assertEquals(helper::split_parameters("a=1\r\nb=2"), array('a' => '1', 'b' => '2'));
     }
 
+    /**
+     * Test split_custom_parameters.
+     * @covers ::split_custom_parameters
+     */
     public function test_split_custom_parameters(): void {
         $this->resetAfterTest();
 
@@ -100,6 +103,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test convert_content_items().
+     * @covers ::convert_content_items
      */
     public function test_convert_content_items(): void {
         $contentitems = [];
@@ -185,6 +189,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test adding a single gradable item through content item.
+     * @covers ::tool_configuration_from_content_item
      */
     public function test_tool_configuration_from_content_item_single_gradable(): void {
         $this->resetAfterTest();
@@ -228,9 +233,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * @covers ::tool_configuration_from_content_item()
-     *
      * Test adding a single gradable item through content item with an empty subreview url.
+     * @covers ::tool_configuration_from_content_item
      */
     public function test_tool_configuration_from_content_item_single_gradable_subreview_default_emptyurl(): void {
         $this->resetAfterTest();
@@ -272,9 +276,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * @covers ::tool_configuration_from_content_item()
-     *
      * Test adding a single gradable item through content item.
+     * @covers ::tool_configuration_from_content_item
      */
     public function test_tool_configuration_from_content_item_single_gradable_subreview_default(): void {
         $this->resetAfterTest();
@@ -321,6 +324,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test adding multiple gradable items through content item.
+     * @covers ::tool_configuration_from_content_item
      */
     public function test_tool_configuration_from_content_item_multiple(): void {
         $this->resetAfterTest();
@@ -384,6 +388,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test adding a single non gradable item through content item.
+     * @covers ::tool_configuration_from_content_item
      */
     public function test_tool_configuration_from_content_item_single(): void {
         $this->resetAfterTest();
@@ -423,6 +428,10 @@ class helper_test extends lti_testcase {
 
     }
 
+    /**
+     * Test ensure_url_is_https().
+     * @covers ::ensure_url_is_https
+     */
     public function test_ensure_url_is_https(): void {
         $this->assertEquals('https://moodle.org', helper::ensure_url_is_https('http://moodle.org'));
         $this->assertEquals('https://moodle.org', helper::ensure_url_is_https('moodle.org'));
@@ -430,7 +439,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Test lti_get_url_thumbprint against various URLs
+     * Test lti_get_url_thumbprint against various URLs.
+     * @covers ::get_url_thumbprint
      */
     public function test_get_url_thumbprint(): void {
         // Note: trailing and double slash are expected right now.  Must evaluate if it must be removed at some point.
@@ -544,8 +554,9 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Test get_best_tool_by_url.
+     * Test get_best_tool_by_url().
      *
+     * @covers ::get_best_tool_by_url
      * @dataProvider get_best_tool_by_url_provider
      * @param string $url The URL to test.
      * @param object $expected The expected tool matching the URL.
@@ -557,9 +568,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * @covers ::get_tools_by_domain()
-     *
      * Test get_tools_by_domain.
+     * @covers ::get_tools_by_domain
      */
     public function test_get_tools_by_domain(): void {
         $this->resetAfterTest();
@@ -594,9 +604,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * @covers ::get_tools_by_domain()
-     *
-     * Test test_get_tools_by_domain_restrict_types_category.
+     * Test test_get_tools_by_domain using course category restrictions.
+     * @covers ::get_tools_by_domain
      */
     public function test_get_tools_by_domain_restrict_types_category(): void {
         $this->resetAfterTest();
@@ -661,6 +670,10 @@ class helper_test extends lti_testcase {
         $this->assertCount(0, $records);
     }
 
+    /**
+     * Test get_course_history().
+     * @covers ::get_course_history
+     */
     public function test_get_course_history(): void {
         global $DB;
         $this->resetAfterTest();
@@ -683,7 +696,7 @@ class helper_test extends lti_testcase {
     /**
      * Verify that empty curl responses lead to the proper moodle_exception, not to XML ValueError.
      *
-     * @covers ::load_cartridge()
+     * @covers ::load_cartridge
      */
     public function test_empty_response_load_cartridge(): void {
         // Mock the curl response to empty string, this is hardly
@@ -796,6 +809,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Tests prepare_type_for_save's handling of the "Force SSL" configuration.
+     * @covers ::prepare_type_for_save
      */
     public function test_prepare_type_for_save_forcessl(): void {
         $type = new \stdClass();
@@ -824,6 +838,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Tests load_type_from_cartridge and lti_load_type_if_cartridge
+     * @covers ::load_type_if_cartridge
      */
     public function test_load_type_from_cartridge(): void {
         $type = new \stdClass();
@@ -840,6 +855,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies with no limit or offset.
+     * @covers ::get_lti_types_and_proxies
      */
     public function test_get_lti_types_and_proxies_with_no_limit(): void {
         $this->resetAfterTest();
@@ -853,6 +869,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies with limits.
+     * @covers ::get_lti_types_and_proxies
      */
     public function test_get_lti_types_and_proxies_with_limit(): void {
         $this->resetAfterTest();
@@ -880,6 +897,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies with limits and only fetching orphaned proxies.
+     * @covers ::get_lti_types_and_proxies
      */
     public function test_get_lti_types_and_proxies_with_limit_and_orphaned_proxies(): void {
         $this->resetAfterTest();
@@ -907,6 +925,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies_count.
+     * @covers ::get_lti_types_and_proxies_count
      */
     public function test_get_lti_types_and_proxies_count_with_no_filters(): void {
         $this->resetAfterTest();
@@ -919,6 +938,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies_count only counting orphaned proxies.
+     * @covers ::get_lti_types_and_proxies_count
      */
     public function test_get_lti_types_and_proxies_count_with_only_orphaned_proxies(): void {
         $this->resetAfterTest();
@@ -931,6 +951,7 @@ class helper_test extends lti_testcase {
 
     /**
      * Test get_lti_types_and_proxies_count only matching tool type with toolproxyid.
+     * @covers ::get_lti_types_and_proxies_count
      */
     public function test_get_lti_types_and_proxies_count_type_with_proxyid(): void {
         $this->resetAfterTest();
@@ -942,9 +963,10 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Verify that lti_build_request does handle resource_link_id as expected
+     * Verify that build_request does handle resource_link_id as expected.
+     * @covers ::build_request
      */
-    public function test_lti_buid_request_resource_link_id(): void {
+    public function test_build_request_resource_link_id(): void {
         $this->resetAfterTest();
 
         self::setUser($this->getDataGenerator()->create_user());
@@ -964,26 +986,27 @@ class helper_test extends lti_testcase {
         );
 
         // Normal call, we expect $instance->id to be used as resource_link_id.
-        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $params = helper::build_request($instance, $typeconfig, $course, null);
         $this->assertSame($instance->id, $params['resource_link_id']);
 
         // If there is a resource_link_id set, it gets precedence.
         $instance->resource_link_id = $instance->id + 99;
-        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $params = helper::build_request($instance, $typeconfig, $course, null);
         $this->assertSame($instance->resource_link_id, $params['resource_link_id']);
 
         // With none set, resource_link_id is not set either.
         unset($instance->id);
         unset($instance->resource_link_id);
-        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $params = helper::build_request($instance, $typeconfig, $course, null);
         $this->assertArrayNotHasKey('resource_link_id', $params);
     }
 
     /**
      * Test lti_build_request's resource_link_description and ensure
      * that the newlines in the description are correct.
+     * @covers ::build_request
      */
-    public function test_lti_build_request_description(): void {
+    public function test_build_request_description(): void {
         $this->resetAfterTest();
 
         self::setUser($this->getDataGenerator()->create_user());
@@ -1002,7 +1025,7 @@ class helper_test extends lti_testcase {
             'customparameters' => '',
         );
 
-        $params = \core_ltix\helper::build_request($instance, $typeconfig, $course, null);
+        $params = helper::build_request($instance, $typeconfig, $course, null);
 
         $ncount = substr_count($params['resource_link_description'], "\n");
         $this->assertGreaterThan(0, $ncount);
@@ -1019,13 +1042,14 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Tests lti_load_tool_from_cartridge and lti_load_tool_if_cartridge
+     * Tests load_tool_from_cartridge and load_tool_if_cartridge.
+     * @covers ::load_tool_from_cartridge
      */
-    public function test_lti_load_tool_from_cartridge(): void {
+    public function test_load_tool_from_cartridge(): void {
         $lti = new \stdClass();
         $lti->toolurl = $this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml');
 
-        \core_ltix\helper::load_tool_if_cartridge($lti);
+        helper::load_tool_if_cartridge($lti);
 
         $this->assertEquals('Example tool', $lti->name);
         $this->assertEquals('Example tool description', $lti->intro);
@@ -1035,9 +1059,10 @@ class helper_test extends lti_testcase {
         $this->assertEquals('https://download.moodle.org/unittest/test.jpg', $lti->secureicon);
     }
     /**
-     * Test for lti_build_content_item_selection_request() with nonexistent tool type ID parameter.
+     * Test for build_content_item_selection_request() with nonexistent tool type ID parameter.
+     * @covers ::build_content_item_selection_request
      */
-    public function test_lti_build_content_item_selection_request_invalid_tooltype(): void {
+    public function test_build_content_item_selection_request_invalid_tooltype(): void {
         $this->resetAfterTest();
 
         $this->setAdminUser();
@@ -1046,13 +1071,14 @@ class helper_test extends lti_testcase {
 
         // Should throw Exception on non-existent tool type.
         $this->expectException('moodle_exception');
-        \core_ltix\helper::build_content_item_selection_request(1, $course, $returnurl);
+        helper::build_content_item_selection_request(1, $course, $returnurl);
     }
 
     /**
-     * Test for lti_build_content_item_selection_request() with invalid media types parameter.
+     * Test for build_content_item_selection_request() with invalid media types parameter.
+     * @covers ::build_content_item_selection_request
      */
-    public function test_lti_build_content_item_selection_request_invalid_mediatypes(): void {
+    public function test_build_content_item_selection_request_invalid_mediatypes(): void {
         $this->resetAfterTest();
 
         $this->setAdminUser();
@@ -1066,20 +1092,21 @@ class helper_test extends lti_testcase {
         $type->description = "Example description";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
-        $typeid = \core_ltix\helper::add_type($type, $data);
+        $typeid = helper::add_type($type, $data);
         $course = $this->getDataGenerator()->create_course();
         $returnurl = new \moodle_url('/');
 
         // Should throw coding_exception on non-array media types.
         $mediatypes = 'image/*,video/*';
         $this->expectException('coding_exception');
-        \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', $mediatypes);
+        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', $mediatypes);
     }
 
     /**
-     * Test for lti_build_content_item_selection_request() with invalid presentation targets parameter.
+     * Test for build_content_item_selection_request() with invalid presentation targets parameter.
+     * @covers ::build_content_item_selection_request
      */
-    public function test_lti_build_content_item_selection_request_invalid_presentationtargets(): void {
+    public function test_build_content_item_selection_request_invalid_presentationtargets(): void {
         $this->resetAfterTest();
 
         $this->setAdminUser();
@@ -1093,20 +1120,21 @@ class helper_test extends lti_testcase {
         $type->description = "Example description";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
-        $typeid = \core_ltix\helper::add_type($type, $data);
+        $typeid = helper::add_type($type, $data);
         $course = $this->getDataGenerator()->create_course();
         $returnurl = new \moodle_url('/');
 
         // Should throw coding_exception on non-array presentation targets.
         $targets = 'frame,iframe';
         $this->expectException('coding_exception');
-        \core_ltix\helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', [], $targets);
+        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', [], $targets);
     }
 
     /**
-     * Test lti_build_standard_message().
+     * Test build_standard_message() with institution name set.
+     * @covers ::build_standard_message
      */
-    public function test_lti_build_standard_message_institution_name_set(): void {
+    public function test_build_standard_message_institution_name_set(): void {
         global $CFG;
 
         $this->resetAfterTest();
@@ -1120,7 +1148,7 @@ class helper_test extends lti_testcase {
             ]
         );
 
-        $message = \core_ltix\helper::build_standard_message($instance, '2', LTI_VERSION_1);
+        $message = helper::build_standard_message($instance, '2', LTI_VERSION_1);
 
         $this->assertEquals('moodle-2', $message['ext_lms']);
         $this->assertEquals('moodle', $message['tool_consumer_info_product_family_code']);
@@ -1132,9 +1160,10 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Test lti_build_standard_message().
+     * Test build_standard_message() with institution name not set.
+     * @covers ::build_standard_message
      */
-    public function test_lti_build_standard_message_institution_name_not_set(): void {
+    public function test_build_standard_message_institution_name_not_set(): void {
         $this->resetAfterTest();
 
         $course   = $this->getDataGenerator()->create_course();
@@ -1144,7 +1173,7 @@ class helper_test extends lti_testcase {
             ]
         );
 
-        $message = \core_ltix\helper::build_standard_message($instance, '2', LTI_VERSION_2);
+        $message = helper::build_standard_message($instance, '2', LTI_VERSION_2);
 
         $this->assertEquals('moodle-2', $message['ext_lms']);
         $this->assertEquals('moodle', $message['tool_consumer_info_product_family_code']);
@@ -1156,9 +1185,10 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Test lti_get_permitted_service_scopes().
+     * Test get_permitted_service_scopes().
+     * @covers ::get_permitted_service_scopes
      */
-    public function test_lti_get_permitted_service_scopes(): void {
+    public function test_get_permitted_service_scopes(): void {
         $this->resetAfterTest();
 
         $this->setAdminUser();
@@ -1173,12 +1203,12 @@ class helper_test extends lti_testcase {
         $typeconfig = new \stdClass();
         $typeconfig->lti_acceptgrades = true;
 
-        $typeid = \core_ltix\helper::add_type($type, $typeconfig);
+        $typeid = helper::add_type($type, $typeconfig);
 
-        $tool = \core_ltix\helper::get_type($typeid);
+        $tool = helper::get_type($typeid);
 
-        $config = \core_ltix\helper::get_type_config($typeid);
-        $permittedscopes = \core_ltix\helper::get_permitted_service_scopes($tool, $config);
+        $config = helper::get_type_config($typeid);
+        $permittedscopes = helper::get_permitted_service_scopes($tool, $config);
 
         $expected = [
             'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome'
@@ -1187,7 +1217,8 @@ class helper_test extends lti_testcase {
     }
 
     /**
-     * Test lti_build_login_request().
+     * Test build_login_request().
+     * @covers ::build_login_request
      */
     public function test_lti_build_login_request(): void {
         global $USER, $CFG;
@@ -1208,7 +1239,7 @@ class helper_test extends lti_testcase {
         $config->typeid = 'some-type-id';
         $config->lti_toolurl = 'some-lti-tool-url';
 
-        $request = \core_ltix\helper::build_login_request($course->id, $instance->cmid, $instance, $config, 'basic-lti-launch-request');
+        $request = helper::build_login_request($course->id, $instance->cmid, $instance, $config, 'basic-lti-launch-request');
         $this->assertEquals($CFG->wwwroot, $request['iss']);
         $this->assertEquals('http://some-lti-tool-url', $request['target_link_uri']);
         $this->assertEquals(123456789, $request['login_hint']);
@@ -1220,17 +1251,16 @@ class helper_test extends lti_testcase {
 
 
     /**
-     * Test the lti_get_ims_role helper function.
+     * Test the get_ims_role() helper function.
      *
-     * @dataProvider lti_get_ims_role_provider
-     * @covers ::lti_get_ims_role()
-     *
+     * @covers ::get_ims_role
+     * @dataProvider get_ims_role_provider
      * @param bool $islti2 whether the method is called with LTI 2.0 role names or not.
      * @param string $rolename the name of the role (student, teacher, admin)
      * @param null|string $switchedto the role to switch to, or false if not using the 'switch to' functionality.
      * @param string $expected the expected role name.
      */
-    public function test_lti_get_ims_role(bool $islti2, string $rolename, ?string $switchedto, string $expected): void {
+    public function test_get_ims_role(bool $islti2, string $rolename, ?string $switchedto, string $expected): void {
         global $DB;
         $this->resetAfterTest();
 
@@ -1243,15 +1273,15 @@ class helper_test extends lti_testcase {
             role_switch($role->id, \context_course::instance($course->id));
         }
 
-        $this->assertEquals($expected, \core_ltix\helper::get_ims_role($user, 0, $course->id, $islti2));
+        $this->assertEquals($expected, helper::get_ims_role($user, 0, $course->id, $islti2));
     }
 
     /**
-     * Data provider for testing lti_get_ims_role.
+     * Data provider for testing get_ims_role.
      *
      * @return array[] the test case data.
      */
-    public static function lti_get_ims_role_provider(): array {
+    public static function get_ims_role_provider(): array {
         return [
             'Student, LTI 1.1, no role switch' => [
                 'islti2' => false,

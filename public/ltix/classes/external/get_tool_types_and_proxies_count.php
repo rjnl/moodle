@@ -20,11 +20,12 @@ use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
+use core_ltix\helper;
 
 /**
  * External function for fetching the count of all tool types and proxies.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @author     Andrew Madden <andrewmadden@catalyst-au.net>
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -66,7 +67,7 @@ class get_tool_types_and_proxies_count extends external_api {
         require_capability('moodle/site:config', $context);
 
         return [
-            'count' => \core_ltix\helper::get_lti_types_and_proxies_count($orphanedonly, $toolproxyid),
+            'count' => helper::get_lti_types_and_proxies_count($orphanedonly, $toolproxyid),
         ];
     }
 

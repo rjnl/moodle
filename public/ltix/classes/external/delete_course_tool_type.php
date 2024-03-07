@@ -19,11 +19,12 @@ namespace core_ltix\external;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
+use core_ltix\helper;
 
 /**
  * External function to delete a course tool type.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -61,7 +62,7 @@ class delete_course_tool_type extends external_api {
         self::validate_context($context);
         require_capability('moodle/ltix:addcoursetool', $context);
 
-        \core_ltix\helper::delete_type($tooltypeid);
+        helper::delete_type($tooltypeid);
         return true;
     }
 

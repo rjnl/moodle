@@ -17,11 +17,17 @@
 namespace core_ltix;
 
 use core_external\external_api;
+use core_external\external_description;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
 use core_external\external_value;
 use core_external\external_warnings;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/ltix/constants.php');
 
 /**
  * External tool external functions
@@ -29,7 +35,6 @@ use core_external\external_warnings;
  * @package    core_ltix
  * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 4.4
  */
 class external extends external_api {
 
@@ -110,7 +115,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function get_tool_proxies_parameters() {
         return new external_function_parameters(
@@ -125,8 +129,6 @@ class external extends external_api {
      *
      * @param bool $orphanedonly Retrieve only tool proxies that do not have a corresponding tool type
      * @return array of tool types
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function get_tool_proxies($orphanedonly) {
         $params = self::validate_parameters(self::get_tool_proxies_parameters(),
@@ -140,14 +142,13 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        return \core_ltix\helper::get_tool_proxies($orphanedonly);
+        return helper::get_tool_proxies($orphanedonly);
     }
 
     /**
      * Returns description of method result value.
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function get_tool_proxies_returns() {
         return new external_multiple_structure(
@@ -159,7 +160,6 @@ class external extends external_api {
      * Returns description of method parameters.
      *
      * @return external_function_parameters
-     * @since Moodle 3.0
      */
     public static function get_tool_launch_data_parameters() {
         return new external_function_parameters(
@@ -174,11 +174,9 @@ class external extends external_api {
      *
      * @param int $toolid the external tool instance id
      * @return array of warnings and launch data
-     * @since Moodle 3.0
-     * @throws moodle_exception
      */
     public static function get_tool_launch_data($toolid) {
-        global $DB, $CFG;
+        global $DB;
 
         $params = self::validate_parameters(self::get_tool_launch_data_parameters(),
                                             array(
@@ -196,7 +194,7 @@ class external extends external_api {
         require_capability('mod/lti:view', $context);
 
         $lti->cmid = $cm->id;
-        list($endpoint, $parms) = \core_ltix\helper::get_launch_data($lti);
+        list($endpoint, $parms) = helper::get_launch_data($lti);
 
         $parameters = array();
         foreach ($parms as $name => $value) {
@@ -216,8 +214,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.0
+     * @return external_description
      */
     public static function get_tool_launch_data_returns() {
         return new external_single_structure(
@@ -240,7 +237,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function create_tool_proxy_parameters() {
         return new external_function_parameters(
@@ -267,8 +263,6 @@ class external extends external_api {
      * @param string[] $capabilityoffered List of capabilities this tool proxy should be offered
      * @param string[] $serviceoffered List of services this tool proxy should be offered
      * @return object The new tool proxy
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function create_tool_proxy($name, $registrationurl, $capabilityoffered, $serviceoffered) {
         $params = self::validate_parameters(self::create_tool_proxy_parameters(),
@@ -288,7 +282,7 @@ class external extends external_api {
         require_capability('moodle/site:config', $context);
 
         // Can't create duplicate proxies with the same URL.
-        $duplicates = \core_ltix\helper::get_tool_proxies_from_registration_url($registrationurl);
+        $duplicates = helper::get_tool_proxies_from_registration_url($registrationurl);
         if (!empty($duplicates)) {
             throw new \moodle_exception('duplicateregurl', 'core_ltix');
         }
@@ -308,13 +302,13 @@ class external extends external_api {
             $config->lti_services = $serviceoffered;
         }
 
-        $id = \core_ltix\helper::add_tool_proxy($config);
-        $toolproxy = \core_ltix\helper::get_tool_proxy($id);
+        $id = helper::add_tool_proxy($config);
+        $toolproxy = helper::get_tool_proxy($id);
 
         // Pending makes more sense than configured as the first state, since
         // the next step is to register, which requires the state be pending.
         $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
-        \core_ltix\helper::update_tool_proxy($toolproxy);
+        helper::update_tool_proxy($toolproxy);
 
         return $toolproxy;
     }
@@ -322,8 +316,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function create_tool_proxy_returns() {
         return self::tool_proxy_return_structure();
@@ -333,7 +326,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function delete_tool_proxy_parameters() {
         return new external_function_parameters(
@@ -348,8 +340,6 @@ class external extends external_api {
      *
      * @param int $id the lti instance id
      * @return object The tool proxy
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function delete_tool_proxy($id) {
         $params = self::validate_parameters(self::delete_tool_proxy_parameters(),
@@ -362,9 +352,9 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $toolproxy = \core_ltix\helper::get_tool_proxy($id);
+        $toolproxy = helper::get_tool_proxy($id);
 
-        \core_ltix\helper::delete_tool_proxy($id);
+        helper::delete_tool_proxy($id);
 
         return $toolproxy;
     }
@@ -372,8 +362,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function delete_tool_proxy_returns() {
         return self::tool_proxy_return_structure();
@@ -383,7 +372,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.0
      */
     public static function get_tool_proxy_registration_request_parameters() {
         return new external_function_parameters(
@@ -398,8 +386,6 @@ class external extends external_api {
      *
      * @param int $id the lti instance id
      * @return array of registration parameters
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function get_tool_proxy_registration_request($id) {
         $params = self::validate_parameters(self::get_tool_proxy_registration_request_parameters(),
@@ -412,15 +398,14 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $toolproxy = \core_ltix\helper::get_tool_proxy($id);
-        return \core_ltix\helper::build_registration_request($toolproxy);
+        $toolproxy = helper::get_tool_proxy($id);
+        return helper::build_registration_request($toolproxy);
     }
 
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function get_tool_proxy_registration_request_returns() {
         return new external_function_parameters(
@@ -440,7 +425,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function get_tool_types_parameters() {
         return new external_function_parameters(
@@ -455,27 +439,24 @@ class external extends external_api {
      *
      * @param int $toolproxyid The tool proxy id
      * @return array of tool types
-     * @since Moodle 3.1
-     * @throws moodle_exception
+     * @throws \moodle_exception
      */
     public static function get_tool_types($toolproxyid) {
-        global $PAGE;
         $params = self::validate_parameters(self::get_tool_types_parameters(),
                                             array(
                                                 'toolproxyid' => $toolproxyid
                                             ));
         $toolproxyid = $params['toolproxyid'];
 
-        $types = array();
         $context = \context_system::instance();
 
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
         if (!empty($toolproxyid)) {
-            $types = \core_ltix\helper::get_lti_types_from_proxy_id($toolproxyid);
+            $types = helper::get_lti_types_from_proxy_id($toolproxyid);
         } else {
-            $types = \core_ltix\helper::get_lti_types();
+            $types = helper::get_lti_types();
         }
 
         return array_map("\core_ltix\helper::serialise_tool_type", array_values($types));
@@ -484,8 +465,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function get_tool_types_returns() {
         return new external_multiple_structure(
@@ -497,12 +477,11 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function create_tool_type_parameters() {
         return new external_function_parameters(
             array(
-                'cartridgeurl' => new external_value(PARAM_URL, 'URL to cardridge to load tool information', VALUE_DEFAULT, ''),
+                'cartridgeurl' => new external_value(PARAM_URL, 'URL to cartridge to load tool information', VALUE_DEFAULT, ''),
                 'key' => new external_value(PARAM_TEXT, 'Consumer key', VALUE_DEFAULT, ''),
                 'secret' => new external_value(PARAM_TEXT, 'Shared secret', VALUE_DEFAULT, ''),
             )
@@ -516,8 +495,7 @@ class external extends external_api {
      * @param string $key The consumer key to identify this consumer
      * @param string $secret The secret
      * @return array created tool type
-     * @since Moodle 3.1
-     * @throws moodle_exception If the tool type could not be created
+     * @throws \moodle_exception If the tool type could not be created
      */
     public static function create_tool_type($cartridgeurl, $key, $secret) {
         $params = self::validate_parameters(self::create_tool_type_parameters(),
@@ -554,17 +532,17 @@ class external extends external_api {
                 $data->lti_password = $secret;
             }
 
-            \core_ltix\helper::load_type_from_cartridge($cartridgeurl, $data);
+            helper::load_type_from_cartridge($cartridgeurl, $data);
             if (empty($data->lti_toolurl)) {
                 throw new \moodle_exception('unabletocreatetooltype', 'mod_lti');
             } else {
-                $id = \core_ltix\helper::add_type($type, $data);
+                $id = helper::add_type($type, $data);
             }
         }
 
         if (!empty($id)) {
-            $type = \core_ltix\helper::get_type($id);
-            return \core_ltix\helper::serialise_tool_type($type);
+            $type = helper::get_type($id);
+            return helper::serialise_tool_type($type);
         } else {
             throw new \moodle_exception('unabletocreatetooltype', 'mod_lti');
         }
@@ -573,8 +551,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function create_tool_type_returns() {
         return self::tool_type_return_structure();
@@ -584,7 +561,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function update_tool_type_parameters() {
         return new external_function_parameters(
@@ -605,8 +581,7 @@ class external extends external_api {
      * @param string $description The name of the tool type
      * @param int $state The state of the tool type
      * @return array updated tool type
-     * @since Moodle 3.1
-     * @throws moodle_exception
+     * @throws \moodle_exception
      */
     public static function update_tool_type($id, $name, $description, $state) {
         $params = self::validate_parameters(self::update_tool_type_parameters(),
@@ -625,7 +600,7 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $type = \core_ltix\helper::get_type($id);
+        $type = helper::get_type($id);
 
         if (empty($type)) {
             throw new \moodle_exception('unabletofindtooltype', 'mod_lti', '', array('id' => $id));
@@ -648,16 +623,15 @@ class external extends external_api {
             }
         }
 
-        \core_ltix\helper::update_type($type, new \stdClass());
+        helper::update_type($type, new \stdClass());
 
-        return \core_ltix\helper::serialise_tool_type($type);
+        return helper::serialise_tool_type($type);
     }
 
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function update_tool_type_returns() {
         return self::tool_type_return_structure();
@@ -667,7 +641,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function delete_tool_type_parameters() {
         return new external_function_parameters(
@@ -682,8 +655,6 @@ class external extends external_api {
      *
      * @param int $id The id of the tool type to be deleted
      * @return array deleted tool type
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function delete_tool_type($id) {
         $params = self::validate_parameters(self::delete_tool_type_parameters(),
@@ -696,16 +667,16 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $type = \core_ltix\helper::get_type($id);
+        $type = helper::get_type($id);
 
         if (!empty($type)) {
-            \core_ltix\helper::delete_type($id);
+            helper::delete_type($id);
 
             // If this is the last type for this proxy then remove the proxy
             // as well so that it isn't orphaned.
-            $types = \core_ltix\helper::get_lti_types_from_proxy_id($type->toolproxyid);
+            $types = helper::get_lti_types_from_proxy_id($type->toolproxyid);
             if (empty($types)) {
-                \core_ltix\helper::delete_tool_proxy($type->toolproxyid);
+                helper::delete_tool_proxy($type->toolproxyid);
             }
         }
 
@@ -715,8 +686,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function delete_tool_type_returns() {
         return new external_function_parameters(
@@ -730,7 +700,6 @@ class external extends external_api {
      * Returns description of method parameters
      *
      * @return external_function_parameters
-     * @since Moodle 3.1
      */
     public static function is_cartridge_parameters() {
         return new external_function_parameters(
@@ -745,8 +714,6 @@ class external extends external_api {
      *
      * @param string $url Url that may or may not be an xml cartridge
      * @return bool True if the url is for a cartridge.
-     * @since Moodle 3.1
-     * @throws moodle_exception
      */
     public static function is_cartridge($url) {
         $params = self::validate_parameters(self::is_cartridge_parameters(),
@@ -759,7 +726,7 @@ class external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $iscartridge = \core_ltix\helper::is_cartridge($url);
+        $iscartridge = helper::is_cartridge($url);
 
         return array('iscartridge' => $iscartridge);
     }
@@ -767,8 +734,7 @@ class external extends external_api {
     /**
      * Returns description of method result value
      *
-     * @return \core_external\external_description
-     * @since Moodle 3.1
+     * @return external_description
      */
     public static function is_cartridge_returns() {
         return new external_function_parameters(
