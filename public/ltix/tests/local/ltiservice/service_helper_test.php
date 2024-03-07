@@ -14,20 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace core_ltix;
-use core_ltix\local\ltiservice\service_helper;
+namespace core_ltix\local\ltiservice;
 
 /**
- * Tests for servicelib.php
+ * Tests for service_helper.
  *
+ * @coversDefaultClass \core_ltix\local\ltiservice\service_helper
  * @package   core_ltix
  * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class servicelib_test extends \basic_testcase {
+final class service_helper_test extends \basic_testcase {
     /**
      * Test that parse_message_id never fails with good and bad XML.
      *
+     * @covers ::parse_message_id
      * @dataProvider message_id_provider
      * @param mixed $expected Expected message ID.
      * @param string $xml XML to parse.
