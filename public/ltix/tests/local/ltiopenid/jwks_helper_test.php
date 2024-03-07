@@ -47,8 +47,8 @@ final class jwks_helper_test extends \advanced_testcase {
     /**
      * Test the fix_jwks_alg method with a range of inputs.
      *
-     * @dataProvider jwks_alg_provider
      * @covers ::fix_jwks_alg
+     * @dataProvider jwks_alg_provider
      * @param array $jwks the JWKS key set.
      * @param string $jwt the JWT.
      * @param array $expected the expected outputs/exceptions.
@@ -59,7 +59,7 @@ final class jwks_helper_test extends \advanced_testcase {
         if (isset($expected['exception'])) {
             $this->expectException($expected['exception']);
         }
-        $fixed = \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
+        $fixed = jwks_helper::fix_jwks_alg($jwks, $jwt);
         $this->assertEquals($expected['jwks'], $fixed);
     }
 
