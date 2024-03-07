@@ -17,15 +17,21 @@
 namespace core_ltix\external;
 
 use core_external\external_api;
+use core_ltix\helper;
 use core_ltix\lti_testcase;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
 /**
  * PHPUnit tests for toggle_showinactivitychooser external function.
  *
+ * @coversDefaultClass \core_ltix\external\toggle_showinactivitychooser
  * @package    core_ltix
  * @copyright  2023 Ilya Tregubov <ilya.a.tregubov@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_lti\external\toggle_showinactivitychooser
  */
 final class toggle_showinactivitychooser_test extends lti_testcase {
 
@@ -41,7 +47,7 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
-        $typeid = \core_ltix\helper::add_type(
+        $typeid = helper::add_type(
             (object) [
                 'state' => LTI_TOOL_STATE_CONFIGURED,
                 'course' => $course->id,
@@ -110,7 +116,7 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible2);
 
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
         $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 1',
             'baseurl' => 'http://example.com/tool/1',
@@ -127,7 +133,7 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
         $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible2);
 
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
         $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
             'baseurl' => 'http://example.com/tool/1',
@@ -140,7 +146,7 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $this->expectExceptionMessage('You are not allowed to change this setting for this tool.');
         toggle_showinactivitychooser::execute($tool->id, $course->id, true);
 
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
         $ltigenerator->create_tool_types([
             'name' => 'site tool dont show',
             'baseurl' => 'http://example.com/tool/1',

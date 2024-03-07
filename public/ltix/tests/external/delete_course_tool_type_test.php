@@ -16,22 +16,24 @@
 
 namespace core_ltix\external;
 
+use core_external\external_api;
+use core_ltix\helper;
+use core_ltix\lti_testcase;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
-use core_external\external_api;
-
 /**
  * PHPUnit tests for delete_course_tool_type external function.
  *
+ * @coversDefaultClass \core_ltix\external\delete_course_tool_type
  * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_lti\external\delete_course_tool_type
  */
-final class delete_course_tool_type_test extends \core_ltix\lti_testcase {
+final class delete_course_tool_type_test extends lti_testcase {
 
     /**
      * Test delete_course_tool() for a course tool.
@@ -44,7 +46,7 @@ final class delete_course_tool_type_test extends \core_ltix\lti_testcase {
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
-        $typeid = \core_ltix\helper::add_type(
+        $typeid = helper::add_type(
             (object) [
                 'state' => LTI_TOOL_STATE_CONFIGURED,
                 'course' => $course->id

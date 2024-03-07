@@ -16,8 +16,13 @@
 
 namespace core_ltix;
 
-use core_ltix\helper;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+
+require_once($CFG->dirroot . '/ltix/constants.php');
 
 /**
  * Abstract base testcase for lti unit tests.
@@ -27,7 +32,7 @@ use stdClass;
  * @copyright  2020 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class lti_testcase extends \externallib_advanced_testcase {
+abstract class lti_testcase extends \advanced_testcase {
 
     /**
      * Generate a tool type.

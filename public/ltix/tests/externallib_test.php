@@ -26,13 +26,13 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
 /**
- * External tool module external functions tests
+ * External tool external functions tests
  *
- * @package    mod_lti
+ * @coversDefaultClass \core_ltix\external
+ * @package    core_ltix
  * @category   external
  * @copyright  2015 Juan Leyva <juan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since      Moodle 3.0
  */
 class externallib_test extends lti_testcase {
 
@@ -45,6 +45,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test get_tool_proxies.
+     * @covers ::get_tool_proxies
      */
     public function test_get_tool_proxies(): void {
         // Create two tool proxies. One to associate with tool, and one to leave orphaned.
@@ -63,6 +64,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test get_tool_proxies with orphaned proxies only.
+     * @covers ::get_tool_proxies
      */
     public function test_get_orphaned_tool_proxies(): void {
         // Create two tool proxies. One to associate with tool, and one to leave orphaned.
@@ -82,6 +84,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_proxy.
+     * @covers ::create_tool_proxy
      */
     public function test_create_tool_proxy(): void {
         $this->setAdminUser();
@@ -97,6 +100,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_proxy with a duplicate url.
+     * @covers ::create_tool_proxy
      */
     public function test_create_tool_proxy_duplicateurl(): void {
         $this->setAdminUser();
@@ -108,6 +112,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_proxy for a user without the required capability.
+     * @covers ::create_tool_proxy
      */
     public function test_create_tool_proxy_without_capability(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -119,6 +124,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test delete_tool_proxy.
+     * @covers ::delete_tool_proxy
      */
     public function test_delete_tool_proxy(): void {
         $this->setAdminUser();
@@ -137,6 +143,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test get_tool_proxy_registration_request.
+     * @covers ::get_tool_proxy_registration_request
      */
     public function test_get_tool_proxy_registration_request(): void {
         $this->setAdminUser();
@@ -153,6 +160,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test get_tool_types.
+     * @covers ::get_tool_types
      */
     public function test_get_tool_types(): void {
         $this->setAdminUser();
@@ -167,7 +175,7 @@ class externallib_test extends lti_testcase {
         $type->description = "Example description";
         $type->toolproxyid = $proxy->id;
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
-        \core_ltix\helper::add_type($type, $data);
+        helper::add_type($type, $data);
 
         $types = external::get_tool_types($proxy->id);
         $types = external_api::clean_returnvalue(external::get_tool_types_returns(), $types);
@@ -180,6 +188,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_type.
+     * @covers ::create_tool_type
      */
     public function test_create_tool_type(): void {
         $this->setAdminUser();
@@ -189,9 +198,9 @@ class externallib_test extends lti_testcase {
         $this->assertEquals('Example tool', $type['name']);
         $this->assertEquals('Example tool description', $type['description']);
         $this->assertEquals('https://download.moodle.org/unittest/test.jpg', $type['urls']['icon']);
-        $typeentry = \core_ltix\helper::get_type($type['id']);
+        $typeentry = helper::get_type($type['id']);
         $this->assertEquals('http://www.example.com/lti/provider.php', $typeentry->baseurl);
-        $config = \core_ltix\helper::get_type_config($type['id']);
+        $config = helper::get_type_config($type['id']);
         $this->assertTrue(isset($config['sendname']));
         $this->assertTrue(isset($config['sendemailaddr']));
         $this->assertTrue(isset($config['acceptgrades']));
@@ -200,6 +209,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_type failure from non existent file.
+     * @covers ::create_tool_type
      */
     public function test_create_tool_type_nonexistant_file(): void {
         $this->expectException(\moodle_exception::class);
@@ -208,6 +218,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_type failure from xml that is not a cartridge.
+     * @covers ::create_tool_type
      */
     public function test_create_tool_type_bad_file(): void {
         $this->expectException(\moodle_exception::class);
@@ -216,6 +227,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test create_tool_type as a user without the required capability.
+     * @covers ::create_tool_type
      */
     public function test_create_tool_type_without_capability(): void {
         $course = $this->getDataGenerator()->create_course();
@@ -227,6 +239,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test update_tool_type.
+     * @covers ::update_tool_type
      */
     public function test_update_tool_type(): void {
         $this->setAdminUser();
@@ -243,26 +256,28 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test delete_tool_type for a user with the required capability.
+     * @covers ::delete_tool_type
      */
     public function test_delete_tool_type(): void {
         $this->setAdminUser();
         $type = external::create_tool_type($this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml'), '', '');
         $type = external_api::clean_returnvalue(external::create_tool_type_returns(), $type);
-        $this->assertNotEmpty(\core_ltix\helper::get_type($type['id']));
+        $this->assertNotEmpty(helper::get_type($type['id']));
 
         $type = external::delete_tool_type($type['id']);
         $type = external_api::clean_returnvalue(external::delete_tool_type_returns(), $type);
-        $this->assertEmpty(\core_ltix\helper::get_type($type['id']));
+        $this->assertEmpty(helper::get_type($type['id']));
     }
 
     /**
      * Test delete_tool_type for a user without the required capability.
+     * @covers ::delete_tool_type
      */
     public function test_delete_tool_type_without_capability(): void {
         $this->setAdminUser();
         $type = external::create_tool_type($this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml'), '', '');
         $type = external_api::clean_returnvalue(external::create_tool_type_returns(), $type);
-        $this->assertNotEmpty(\core_ltix\helper::get_type($type['id']));
+        $this->assertNotEmpty(helper::get_type($type['id']));
 
         $course = $this->getDataGenerator()->create_course();
         $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
@@ -273,6 +288,7 @@ class externallib_test extends lti_testcase {
 
     /**
      * Test is_cartridge.
+     * @covers ::is_cartridge
      */
     public function test_is_cartridge(): void {
         $this->setAdminUser();

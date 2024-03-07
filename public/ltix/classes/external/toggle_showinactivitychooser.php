@@ -16,9 +16,11 @@
 
 namespace core_ltix\external;
 
+use core\context\course;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
+use core_ltix\helper;
 
 /**
  * External function to toggle showinactivitychooser setting.
@@ -61,9 +63,9 @@ class toggle_showinactivitychooser extends external_api {
             'showinactivitychooser' => $showinactivitychooser,
         ]);
 
-        $context =  \core\context\course::instance($courseid);
+        $context =  course::instance($courseid);
         self::validate_context($context);
-        return \core_ltix\helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
+        return helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
             $showinactivitychooser);
     }
 
