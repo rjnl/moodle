@@ -19,7 +19,9 @@ namespace mod_lti\external;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
+use core_external\external_multiple_structure;
 use core_external\external_value;
+use core_ltix\external\structs;
 
 /**
  * External function for fetching all tool types and proxies.
@@ -92,8 +94,8 @@ class get_tool_types_and_proxies extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'types' => \core_ltix\external::tool_type_return_structure(),
-            'proxies' => \core_ltix\external::tool_proxy_return_structure(),
+            'types' => new external_multiple_structure(structs::tool_type_return_structure()),
+            'proxies' => new external_multiple_structure(structs::tool_proxy_return_structure()),
             'limit' => new external_value(PARAM_INT, 'Limit of how many tool types to show', VALUE_OPTIONAL),
             'offset' => new external_value(PARAM_INT, 'Offset of tool types', VALUE_OPTIONAL),
         ]);
