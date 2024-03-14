@@ -37,7 +37,9 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
 
     /**
      * Test toggle_showinactivitychooser for course tool.
+     *
      * @covers ::execute
+     * @return void
      */
     public function test_toggle_showinactivitychooser_course_tool(): void {
         global $DB;
@@ -79,7 +81,9 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
 
     /**
      * Test toggle_showinactivitychooser for site tool.
+     *
      * @covers ::execute
+     * @return void
      */
     public function test_toggle_showinactivitychooser_site_tool(): void {
         global $DB;
@@ -115,36 +119,75 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $actual = $DB->get_record_sql($sql, [$type->id, $course->id]);
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible2);
+    }
+
+    /**
+     * Test toggle_showinactivitychooser for tools restricted to course categories
+     *
+     * @covers ::execute
+     * @return void
+     */
+    public function test_toggle_showinactivitychooser_course_category_restricted_tools(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $coursecat1 = $this->getDataGenerator()->create_category();
+        $coursecat2 = $this->getDataGenerator()->create_category();
+        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
+        $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $this->setUser($editingteacher);
 
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
-        $ltigenerator->create_tool_types([
+
+        $tool1id = $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 1',
             'baseurl' => 'http://example.com/tool/1',
             'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'state' => LTI_TOOL_STATE_CONFIGURED,
             'lti_coursecategories' => $coursecat1->id
         ]);
-        $tool = $DB->get_record('lti_types', ['name' => 'site tool preconfigured and activity chooser, restricted to category 1']);
-        $result = toggle_showinactivitychooser::execute($tool->id, $course->id, false);
-        $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
-        $this->assertTrue($result);
-
-        $actual = $DB->get_record_sql($sql, [$tool->id, $course->id]);
-        $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
-        $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible2);
-
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
-        $ltigenerator->create_tool_types([
+        $tool2id = $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
             'baseurl' => 'http://example.com/tool/1',
             'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'state' => LTI_TOOL_STATE_CONFIGURED,
             'lti_coursecategories' => $coursecat2->id
         ]);
-        $tool = $DB->get_record('lti_types', ['name' => 'site tool preconfigured and activity chooser, restricted to category 2']);
-        $this->expectException('moodle_exception');
+
+        // Teacher in course 1, category 1 is allowed to toggle the coursevisible for the tool in category 1.
+        $result = toggle_showinactivitychooser::execute($tool1id, $course->id, false);
+        $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
+        $this->assertTrue($result);
+
+        $sql = "SELECT lt.coursevisible coursevisible1, lc.coursevisible AS coursevisible2
+                  FROM {lti_types} lt
+             LEFT JOIN {lti_coursevisible} lc ON lt.id = lc.typeid
+                 WHERE lt.id = ?
+                   AND lc.courseid = ?";
+        $actual = $DB->get_record_sql($sql, [$tool1id, $course->id]);
+        $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
+        $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible2);
+
+        // Teacher in course 1, category 1 is NOT allowed to toggle the coursevisible for the tool in category 2.
+        $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage('You are not allowed to change this setting for this tool.');
-        toggle_showinactivitychooser::execute($tool->id, $course->id, true);
+        toggle_showinactivitychooser::execute($tool2id, $course->id, true);
+    }
+
+    /**
+     * Test toggle_showinactivitychooser for a hidden site tool.
+     *
+     * @covers ::execute
+     * @return void
+     */
+    public function test_toggleshowinactivitychooser_hidden_site_tool(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $coursecat1 = $this->getDataGenerator()->create_category();
+        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
+        $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $this->setUser($editingteacher);
 
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
         $ltigenerator->create_tool_types([
@@ -157,7 +200,6 @@ final class toggle_showinactivitychooser_test extends lti_testcase {
         $result = toggle_showinactivitychooser::execute($tool->id, $course->id, false);
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertFalse($result);
-
     }
 
 }
