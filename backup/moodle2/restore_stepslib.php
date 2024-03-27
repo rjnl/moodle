@@ -4343,8 +4343,13 @@ class restore_block_instance_structure_step extends restore_structure_step {
 
         $paths = array();
 
-        $paths[] = new restore_path_element('block', '/block', true); // Get the whole XML together
+        $block = new restore_path_element('block', '/block', true); // Get the whole XML together
+
+        $paths[] = $block;
         $paths[] = new restore_path_element('block_position', '/block/block_positions/block_position');
+
+        // Apply for 'admin tool' plugins optional paths at block level.
+        $this->add_plugin_structure('tool', $block);
 
         return $paths;
     }
