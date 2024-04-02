@@ -21,7 +21,7 @@
  * @copyright  2020 Claude Vervoort (Cengage), Carlos Costa, Adrian Hutchinson (Macgraw Hill)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace core_ltix\ltiopenid;
+namespace core_ltix\local\ltiopenid;
 
 /**
  * Exception when transforming the registration to LTI config.

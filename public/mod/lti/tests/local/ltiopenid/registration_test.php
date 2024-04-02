@@ -141,7 +141,7 @@ EOD;
     public function test_to_config_full(): void {
         $registration = json_decode($this->registrationfulljson, true);
         $registration['scope'] .= ' https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly';
-        $config = \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        $config = \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
         $this->assertEquals('JWK_KEYSET', $config->lti_keytype);
         $this->assertEquals(LTI_VERSION_1P3, $config->lti_ltiversion);
         $this->assertEquals('TheClientId', $config->lti_clientid);
@@ -170,7 +170,7 @@ EOD;
      */
     public function test_to_config_minimal(): void {
         $registration = json_decode($this->registrationminimaljson, true);
-        $config = \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        $config = \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
         $this->assertEquals('JWK_KEYSET', $config->lti_keytype);
         $this->assertEquals(LTI_VERSION_1P3, $config->lti_ltiversion);
         $this->assertEquals('TheClientId', $config->lti_clientid);
@@ -198,7 +198,7 @@ EOD;
      */
     public function test_to_config_minimal_with_deeplinking(): void {
         $registration = json_decode($this->registrationminimaldljson, true);
-        $config = \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        $config = \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
         $this->assertEquals(1, $config->lti_contentitem);
         $this->assertEmpty($config->lti_toolurl_ContentItemSelectionRequest);
     }
@@ -208,10 +208,10 @@ EOD;
      */
     public function test_validation_initlogin(): void {
         $registration = json_decode($this->registrationfulljson, true);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
         unset($registration['initiate_login_uri']);
-        \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -219,10 +219,10 @@ EOD;
      */
     public function test_validation_redirecturis(): void {
         $registration = json_decode($this->registrationfulljson, true);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
         unset($registration['redirect_uris']);
-        \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -230,10 +230,10 @@ EOD;
      */
     public function test_validation_jwks(): void {
         $registration = json_decode($this->registrationfulljson, true);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
         $registration['jwks_uri'] = '';
-        \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -241,11 +241,11 @@ EOD;
      */
     public function test_validation_missing_domain_targetlinkuri(): void {
         $registration = json_decode($this->registrationminimaljson, true);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
         unset($registration['https://purl.imsglobal.org/spec/lti-tool-configuration']['domain']);
         unset($registration['https://purl.imsglobal.org/spec/lti-tool-configuration']['target_link_uri']);
-        \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -253,10 +253,10 @@ EOD;
      */
     public function test_validation_domain_targetlinkuri_match(): void {
         $registration = json_decode($this->registrationminimaljson, true);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
         $registration['https://purl.imsglobal.org/spec/lti-tool-configuration']['domain'] = 'not.the.right.domain';
-        \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -265,9 +265,9 @@ EOD;
     public function test_validation_domain_targetlinkuri_onlylink(): void {
         $registration = json_decode($this->registrationminimaljson, true);
         unset($registration['https://purl.imsglobal.org/spec/lti-tool-configuration']['domain']);
-        $this->expectException(\core_ltix\ltiopenid\registration_exception::class);
+        $this->expectException(\core_ltix\local\ltiopenid\registration_exception::class);
         $this->expectExceptionCode(400);
-        $config = \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        $config = \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
     }
 
     /**
@@ -276,7 +276,7 @@ EOD;
     public function test_validation_domain_targetlinkuri_onlydomain(): void {
         $registration = json_decode($this->registrationminimaljson, true);
         unset($registration['https://purl.imsglobal.org/spec/lti-tool-configuration']['target_link_uri']);
-        $config = \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
+        $config = \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registration, 'TheClientId');
         $this->assertEquals('example.org', $config->lti_tooldomain);
         $this->assertEquals('https://www.example.org', $config->lti_toolurl);
     }
@@ -287,7 +287,7 @@ EOD;
     public function test_config_to_registration(): void {
         $orig = json_decode($this->registrationfulljson, true);
         $orig['scope'] .= ' https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly';
-        $reghelper = \core_ltix\ltiopenid\registration_helper::get();
+        $reghelper = \core_ltix\local\ltiopenid\registration_helper::get();
         $reg = $reghelper->config_to_registration($reghelper->registration_to_config($orig, 'clid'), 12);
         $this->assertEquals('clid', $reg['client_id']);
         $this->assertEquals($orig['response_types'], $reg['response_types']);
@@ -324,7 +324,7 @@ EOD;
      */
     public function test_config_to_registration_minimal(): void {
         $orig = json_decode($this->registrationminimaljson, true);
-        $reghelper = \core_ltix\ltiopenid\registration_helper::get();
+        $reghelper = \core_ltix\local\ltiopenid\registration_helper::get();
         $reg = $reghelper->config_to_registration($reghelper->registration_to_config($orig, 'clid'), 12);
         $this->assertEquals('clid', $reg['client_id']);
         $this->assertEquals($orig['response_types'], $reg['response_types']);
@@ -363,7 +363,7 @@ EOD;
         $type['ltiversion'] = 'LTI-1p0';
         $type['icon'] = 'https://base.test.url/icon.png';
 
-        $reg = \core_ltix\ltiopenid\registration_helper::get()->config_to_registration((object)$config, $type['id'], (object)$type);
+        $reg = \core_ltix\local\ltiopenid\registration_helper::get()->config_to_registration((object)$config, $type['id'], (object)$type);
         $this->assertFalse(isset($reg['client_id']));
         $this->assertFalse(isset($reg['initiate_login_uri']));
         $this->assertEquals($type['name'], $reg['client_name']);
@@ -406,7 +406,7 @@ EOD;
         $toolproxy['guid'] = 'lti2guidtest';
         $toolproxy['secret'] = 'peM7YDx420bo';
 
-        $reghelper = $this->getMockBuilder(\core_ltix\ltiopenid\registration_helper::class)
+        $reghelper = $this->getMockBuilder(\core_ltix\local\ltiopenid\registration_helper::class)
             ->onlyMethods(['get_tool_proxy'])
             ->getMock();
         $map = [[$toolproxy['id'], $toolproxy]];

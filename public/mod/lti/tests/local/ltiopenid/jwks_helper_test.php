@@ -59,7 +59,7 @@ final class jwks_helper_test extends \advanced_testcase {
         if (isset($expected['exception'])) {
             $this->expectException($expected['exception']);
         }
-        $fixed = \core_ltix\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
+        $fixed = \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
         $this->assertEquals($expected['jwks'], $fixed);
     }
 
