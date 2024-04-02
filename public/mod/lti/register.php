@@ -52,7 +52,7 @@ foreach ($toolproxies as $key => $toolproxy) {
 
 $redirect = new moodle_url('/mod/lti/toolproxies.php');
 if ($duplicate) {
-    redirect($redirect,  get_string('duplicateregurl', 'lti'));
+    redirect($redirect,  get_string('duplicateregurl', 'core_ltix'));
 }
 
 

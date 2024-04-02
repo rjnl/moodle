@@ -14,14 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\task;
-
-use core_ltix\task\clean_access_tokens;
+namespace core_ltix\task;
 
 /**
  * Tests cleaning up the access tokens task.
  *
- * @package mod_lti
+ * @package core_ltix
  * @category test
  * @copyright 2019 Mark Nelson <markn@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

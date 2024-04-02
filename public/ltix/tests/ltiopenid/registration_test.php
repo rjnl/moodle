@@ -32,12 +32,12 @@
 // of the Universitat Politecnica de Catalunya http://www.upc.edu
 // Contact info: Marc Alier Forment granludo @ gmail.com or marc.alier @ upc.edu.
 
-namespace mod_lti\local\ltiopenid;
+namespace core_ltix\ltiopenid;
 
 /**
  * OpenId LTI Registration library tests
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2020 Claude Vervoort, Cengage
  * @author     Claude Vervoort
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

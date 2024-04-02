@@ -32,13 +32,13 @@
 // of the Universitat Politecnica de Catalunya http://www.upc.edu
 // Contact info: Marc Alier Forment granludo @ gmail.com or marc.alier @ upc.edu.
 
-namespace mod_lti\local\ltiopenid;
+namespace core_ltix\ltiopenid;
 
 /**
  * Tests for the jwks_helper class.
  *
- * @coversDefaultClass \mod_lti\local\ltiopenid\jwks_helper
- * @package    mod_lti
+ * @coversDefaultClass jwks_helper
+ * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
