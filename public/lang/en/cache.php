@@ -78,6 +78,7 @@ $string['cachedef_message_time_last_message_between_users'] = 'Time created for 
 $string['cachedef_modelfirstanalyses'] = 'First analysis by model and analysable';
 $string['cachedef_moodlenet_usercanshare'] = 'Users can share resources to MoodleNet';
 $string['cachedef_locking'] = 'Locking';
+$string['cachedef_ltix_keyset'] = 'Caches the keyset information of tools';
 $string['cachedef_message_processors_enabled'] = "Message processors enabled status";
 $string['cachedef_contextwithinsights'] = 'Context with insights';
 $string['cachedef_navigation_cache'] = 'Navigation cache';

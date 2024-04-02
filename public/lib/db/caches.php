@@ -645,4 +645,8 @@ $definitions = array(
         'simpledata' => true,
         'ttl' => 1800,
     ],
+
+    'ltix_keyset' => [
+        'mode' => cache_store::MODE_APPLICATION
+    ],
 );

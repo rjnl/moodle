@@ -1311,7 +1311,7 @@ MwIDAQAB
         $config = new \stdClass();
         $typeid = lti_add_type($type, $config);
 
-        $this->expectExceptionMessage(get_string('errorincorrectconsumerkey', 'mod_lti'));
+        $this->expectExceptionMessage(get_string('errorincorrectconsumerkey', 'core_ltix'));
         lti_verify_jwt_signature($typeid, '', '');
     }
 

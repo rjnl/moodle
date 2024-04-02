@@ -27,6 +27,9 @@ namespace mod_lti\local\ltiopenid;
  * Exception when transforming the registration to LTI config.
  *
  * Code is the HTTP Error code.
+ *
+ * @deprecated since Moodle 4.4
+ * @see \core_ltix\ltiopenid\registration_exception
  */
 class registration_exception extends \Exception {
 }
