@@ -35,7 +35,7 @@ use stdClass;
  * This class exposes functions for LTI Dynamic Registration.
  *
  * @deprecated since Moodle 4.4
- * @see \core_ltix\ltiopenid\registration_helper
+ * @see \core_ltix\local\ltiopenid\registration_helper
  *
  * @package    mod_lti
  * @copyright  2020 Claude Vervoort (Cengage), Carlos Costa, Adrian Hutchinson (Macgraw Hill)
@@ -78,10 +78,10 @@ class registration_helper {
      * @return object the Moodle LTI config.
      */
     public function registration_to_config(array $registrationpayload, string $clientid): object {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::registration_to_config() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::registration_to_config() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->registration_to_config($registrationpayload, $clientid);
+        return \core_ltix\local\ltiopenid\registration_helper::get()->registration_to_config($registrationpayload, $clientid);
     }
 
     /**
@@ -95,10 +95,10 @@ class registration_helper {
      * @return array the Client Registration as an associative array.
      */
     public function config_to_registration(object $config, int $typeid, ?object $type = null): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::config_to_registration() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::config_to_registration() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->config_to_registration($config, $typeid, $type);
+        return \core_ltix\local\ltiopenid\registration_helper::get()->config_to_registration($config, $typeid, $type);
     }
 
     /**
@@ -111,10 +111,10 @@ class registration_helper {
      * @return array with 2 keys: clientid for the registration, type but only if it's an update
      */
     public function validate_registration_token(string $registrationtokenjwt): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::validate_registration_token() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::validate_registration_token() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->validate_registration_token($registrationtokenjwt);
+        return \core_ltix\local\ltiopenid\registration_helper::get()->validate_registration_token($registrationtokenjwt);
     }
 
     /**
@@ -124,10 +124,10 @@ class registration_helper {
      * @return array List of scopes
      */
     public function lti_get_service_scopes() {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::lti_get_service_scopes() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::lti_get_service_scopes() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->lti_get_service_scopes();
+        return \core_ltix\local\ltiopenid\registration_helper::get()->lti_get_service_scopes();
     }
 
     /**
@@ -137,10 +137,10 @@ class registration_helper {
      * @return string generated client id
      */
     public function new_clientid(): string {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::new_clientid() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::new_clientid() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->new_clientid();
+        return \core_ltix\local\ltiopenid\registration_helper::get()->new_clientid();
     }
 
     /**
@@ -154,10 +154,10 @@ class registration_helper {
      * @return string base64encoded hash
      */
     public function sign(string $key, string $salt, string $secret): string {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::sign() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::sign() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->sign($key, $salt, $secret);
+        return \core_ltix\local\ltiopenid\registration_helper::get()->sign($key, $salt, $secret);
     }
 
     /**
@@ -169,9 +169,9 @@ class registration_helper {
      * @return mixed Tool Proxy details
      */
     public function get_tool_proxy(int $proxyid): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\registration_helper::get_tool_proxy() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\registration_helper::get_tool_proxy() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\registration_helper::get()->get_tool_proxy($proxyid);
+        return \core_ltix\local\ltiopenid\registration_helper::get()->get_tool_proxy($proxyid);
     }
 }

@@ -25,8 +25,8 @@
 
 use Firebase\JWT\JWT;
 
-use core_ltix\ltiopenid\jwks_helper;
-use core_ltix\ltiopenid\registration_helper;
+use core_ltix\local\ltiopenid\jwks_helper;
+use core_ltix\local\ltiopenid\registration_helper;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir.'/weblib.php');

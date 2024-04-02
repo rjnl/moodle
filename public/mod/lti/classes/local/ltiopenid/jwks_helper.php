@@ -27,7 +27,7 @@ namespace mod_lti\local\ltiopenid;
  * This class exposes functions for LTI 1.3 Key Management.
  *
  * @deprecated since Moodle 4.4
- * @see \core_ltix\ltiopenid\jwks_helper
+ * @see \core_ltix\local\ltiopenid\jwks_helper
  *
  * @package    mod_lti
  * @copyright  2020 Claude Vervoort (Cengage)
@@ -42,10 +42,10 @@ class jwks_helper {
      * @return array keys are kid and key in PEM format.
      */
     public static function get_private_key() {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\jwks_helper::get_private_key() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::get_private_key() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\jwks_helper::get_private_key();
+        return \core_ltix\local\ltiopenid\jwks_helper::get_private_key();
     }
 
     /**
@@ -55,10 +55,10 @@ class jwks_helper {
      * @return array keyset exposting the site public key.
      */
     public static function get_jwks() {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\jwks_helper::get_jwks() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::get_jwks() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\jwks_helper::get_jwks();
+        return \core_ltix\local\ltiopenid\jwks_helper::get_jwks();
     }
 
     /**
@@ -78,10 +78,10 @@ class jwks_helper {
      * @return array the fixed keyset array.
      */
     public static function fix_jwks_alg(array $jwks, string $jwt): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\ltiopenid\jwks_helper::fix_jwks_alg() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
+        return \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
     }
 
 }

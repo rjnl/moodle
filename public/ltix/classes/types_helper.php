@@ -22,7 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/ltix/constants.php');
 
-use core_ltix\ltiopenid\registration_helper;
+use core_ltix\local\ltiopenid\registration_helper;
 use moodle_exception;
 use stdClass;
 

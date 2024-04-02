@@ -22,7 +22,7 @@ require_once($CFG->dirroot . '/ltix/OAuth.php');
 require_once($CFG->dirroot . '/ltix/TrivialStore.php');
 
 use cache;
-use core_ltix\ltiopenid\jwks_helper;
+use core_ltix\local\ltiopenid\jwks_helper;
 use Exception;
 use Firebase\JWT\JWK;
 use Firebase\JWT\JWT;

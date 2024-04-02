@@ -24,8 +24,8 @@
 define('NO_DEBUG_DISPLAY', true);
 define('NO_MOODLE_COOKIES', true);
 
-use core_ltix\ltiopenid\registration_helper;
-use core_ltix\ltiopenid\registration_exception;
+use core_ltix\local\ltiopenid\registration_helper;
+use core_ltix\local\ltiopenid\registration_exception;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');

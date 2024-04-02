@@ -48,7 +48,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-use core_ltix\ltiopenid\registration_helper;
+use core_ltix\local\ltiopenid\registration_helper;
 
 /**
  * Structure step to restore one lti activity
