@@ -68,7 +68,7 @@ if ($ok) {
     $tool = $DB->get_record('lti_types', array('clientid' => $claims['sub']));
     if ($tool) {
         try {
-            lti_verify_jwt_signature($tool->id, $claims['sub'], $clientassertion);
+            \core_ltix\oauth_helper::verify_jwt_signature($tool->id, $claims['sub'], $clientassertion);
             $ok = true;
         } catch (Exception $e) {
             $error = $e->getMessage();
@@ -83,7 +83,7 @@ if ($ok) {
 if ($ok) {
     $scopes = array();
     $requestedscopes = explode(' ', $scope);
-    $typeconfig = lti_get_type_config($tool->id);
+    $typeconfig = \core_ltix\types_helper::get_type_config($tool->id);
     $permittedscopes = lti_get_permitted_service_scopes($tool, $typeconfig);
     $scopes = array_intersect($requestedscopes, $permittedscopes);
     $ok = !empty($scopes);
@@ -91,7 +91,7 @@ if ($ok) {
 }
 
 if ($ok) {
-    $token = lti_new_access_token($tool->id, $scopes);
+    $token = \core_ltix\tool_helper::new_access_token($tool->id, $scopes);
     $expiry = LTI_ACCESS_TOKEN_LIFE;
     $permittedscopes = implode(' ', $scopes);
     $body = <<< EOD

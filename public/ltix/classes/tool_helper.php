@@ -1225,7 +1225,7 @@ class tool_helper {
         if (!defined('BEHAT_SITE_RUNNING') && !defined('PHPUNIT_TEST')) {
             // Even if it doesn't have .xml, load the url to check if it's a cartridge..
             try {
-                $toolinfo = lti_load_cartridge($url,
+                $toolinfo = \core_ltix\tool_helper::load_cartridge($url,
                     array(
                         "launch_url" => "launchurl"
                     )

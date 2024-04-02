@@ -92,7 +92,7 @@ class get_tool_types_and_proxies extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        [$proxies, $types] = lti_get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
+        [$proxies, $types] = \core_ltix\types_helper::get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
 
         return [
             'types' => $types,

@@ -65,14 +65,14 @@ require_login($course, true, $cm);
 require_capability('mod/lti:view', $context);
 
 $typeid = $lti->typeid;
-if (empty($typeid) && ($tool = lti_get_tool_by_url_match($lti->toolurl))) {
+if (empty($typeid) && ($tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl))) {
     $typeid = $tool->id;
 }
 if ($typeid) {
-    $config = lti_get_type_config($typeid);
+    $config = \core_ltix\types_helper::get_type_config($typeid);
     $missingtooltype = empty($config);
     if (!$missingtooltype) {
-        $config = lti_get_type_type_config($typeid);
+        $config = \core_ltix\types_helper::get_type_type_config($typeid);
         if ($config->lti_ltiversion === LTI_VERSION_1P3) {
             if (!isset($SESSION->lti_initiatelogin_status)) {
                 $msgtype = 'basic-lti-launch-request';

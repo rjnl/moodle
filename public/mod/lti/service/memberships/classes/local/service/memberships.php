@@ -230,7 +230,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
             ]
         ];
 
-        $enabledcapabilities = lti_get_enabled_capabilities($tool);
+        $enabledcapabilities = \core_ltix\tool_helper::get_enabled_capabilities($tool);
         $islti2 = $tool->toolproxyid > 0;
         $n = 0;
         $more = false;
@@ -456,7 +456,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
                         $forcessl = true;
                     }
                     if ((isset($toolconfig['forcessl']) && ($toolconfig['forcessl'] == '1')) or $forcessl) {
-                        $serviceurl = lti_ensure_url_is_https($serviceurl);
+                        $serviceurl = \core_ltix\tool_helper::ensure_url_is_https($serviceurl);
                     }
                     $basicoutcome->lis_outcome_service_url = $serviceurl;
                     $message->{'https://purl.imsglobal.org/spec/lti-bo/claim/basicoutcome'} = $basicoutcome;
@@ -543,7 +543,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
         global $COURSE;
 
         $launchparameters = array();
-        $tool = lti_get_type_type_config($typeid);
+        $tool = \core_ltix\types_helper::get_type_type_config($typeid);
         if (isset($tool->{$this->get_component_id()})) {
             if ($tool->{$this->get_component_id()} == parent::SERVICE_ENABLED && $this->is_used_in_context($typeid, $courseid)) {
                 $launchparameters['context_memberships_url'] = '$ToolProxyBinding.memberships.url';

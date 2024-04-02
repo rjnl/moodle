@@ -32,6 +32,7 @@ $string['errorinvaliddata'] = 'Invalid data: {$a}';
 $string['errorinvalidresponseformat'] = 'Invalid Content-Item response format.';
 $string['errortooltypenotfound'] = 'LTI tool type not found.';
 $string['ltix'] = 'LTIx';
+$string['opensslconfiginvalid'] = 'LTI 1.3 requires a valid openssl.cnf to be configured and available to your web server. Please contact the site administrator to configure and enable openssl for this site.';
 $string['pending'] = 'Pending';
 $string['privacy:metadata'] = 'The LTIx subsystem does not store any personal data.';
 $string['rejected'] = 'Rejected';

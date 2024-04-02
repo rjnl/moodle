@@ -684,9 +684,9 @@ class oauth_helper {
             $ok = !is_null($claims) && !empty($claims['iss']);
         }
         if ($ok) {
-            lti_verify_jwt_signature($typeid, $claims['iss'], $jwtparam);
+            self::verify_jwt_signature($typeid, $claims['iss'], $jwtparam);
             $params['oauth_consumer_key'] = $claims['iss'];
-            foreach (lti_get_jwt_claim_mapping() as $key => $mapping) {
+            foreach (self::get_jwt_claim_mapping() as $key => $mapping) {
                 $claim = LTI_JWT_CLAIM_PREFIX;
                 if (!empty($mapping['suffix'])) {
                     $claim .= "-{$mapping['suffix']}";
@@ -743,9 +743,9 @@ class oauth_helper {
             }
         }
         if (isset($params['content_items'])) {
-            $params['content_items'] = lti_convert_content_items($params['content_items']);
+            $params['content_items'] = tool_helper::convert_content_items($params['content_items']);
         }
-        $messagetypemapping = lti_get_jwt_message_type_mapping();
+        $messagetypemapping = self::get_jwt_message_type_mapping();
         if (isset($params['lti_message_type']) && array_key_exists($params['lti_message_type'], $messagetypemapping)) {
             $params['lti_message_type'] = $messagetypemapping[$params['lti_message_type']];
         }

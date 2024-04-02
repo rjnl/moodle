@@ -19,7 +19,6 @@ namespace mod_lti\external;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
-use mod_lti\local\types_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -69,7 +68,8 @@ class toggle_showinactivitychooser extends external_api {
 
         $context =  \core\context\course::instance($courseid);
         self::validate_context($context);
-        return types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context, $showinactivitychooser);
+        return \core_ltix\types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
+            $showinactivitychooser);
     }
 
     /**

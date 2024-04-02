@@ -200,7 +200,7 @@ class toolsettings extends \mod_lti\local\ltiservice\service_base {
         global $COURSE;
 
         $launchparameters = array();
-        $tool = lti_get_type_type_config($typeid);
+        $tool = \core_ltix\types_helper::get_type_type_config($typeid);
         if (isset($tool->{$this->get_component_id()})) {
             if ($tool->{$this->get_component_id()} == self::SERVICE_ENABLED && $this->is_used_in_context($typeid, $courseid)) {
                 $launchparameters['system_setting_url'] = '$ToolProxy.custom.url';

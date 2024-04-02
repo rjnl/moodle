@@ -253,8 +253,8 @@ class gradebookservices extends service_base {
     public function get_launch_parameters($messagetype, $courseid, $user, $typeid, $modlti = null) {
         global $DB;
         $launchparameters = array();
-        $this->set_type(lti_get_type($typeid));
-        $this->set_typeconfig(lti_get_type_config($typeid));
+        $this->set_type(\core_ltix\types_helper::get_type($typeid));
+        $this->set_typeconfig(\core_ltix\types_helper::get_type_config($typeid));
         // Only inject parameters if the service is enabled for this tool.
         if (isset($this->get_typeconfig()['ltiservice_gradesynchronization'])) {
             if ($this->get_typeconfig()['ltiservice_gradesynchronization'] == self::GRADEBOOKSERVICES_READ ||
@@ -348,9 +348,9 @@ class gradebookservices extends service_base {
                         if ($ltiactivity->typeid != 0) {
                             $tool = $DB->get_record('lti_types', array('id' => $ltiactivity->typeid));
                         } else {
-                            $tool = lti_get_tool_by_url_match($ltiactivity->toolurl, $courseid);
+                            $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->toolurl, $courseid);
                             if (!$tool) {
-                                $tool = lti_get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
+                                $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
                             }
                         }
                         if (is_null($typeid)) {
@@ -401,9 +401,9 @@ class gradebookservices extends service_base {
                     if ($ltiactivity->typeid != 0) {
                         $tool = $DB->get_record('lti_types', array('id' => $ltiactivity->typeid));
                     } else {
-                        $tool = lti_get_tool_by_url_match($ltiactivity->toolurl, $courseid);
+                        $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->toolurl, $courseid);
                         if (!$tool) {
-                            $tool = lti_get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
+                            $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
                         }
                     }
                     if (is_null($typeid)) {
@@ -589,7 +589,7 @@ class gradebookservices extends service_base {
                     $submissionreview->url = $gbs->subreviewurl;
                 }
                 if (!empty($gbs->subreviewparams)) {
-                    $submissionreview->custom = lti_split_parameters($gbs->subreviewparams);
+                    $submissionreview->custom = \core_ltix\tool_helper::split_parameters($gbs->subreviewparams);
                 }
                 $lineitem->submissionReview = $submissionreview;
             }
@@ -657,9 +657,9 @@ class gradebookservices extends service_base {
         $sqlparams1['course'] = $course;
         $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
         if ($ltiactivity->typeid == 0) {
-            $tool = lti_get_tool_by_url_match($ltiactivity->toolurl, $course);
+            $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
             if (!$tool) {
-                $tool = lti_get_tool_by_url_match($ltiactivity->securetoolurl, $course);
+                $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
             }
             return (($tool) && ($toolproxy == $tool->toolproxyid));
         } else {
@@ -695,9 +695,9 @@ class gradebookservices extends service_base {
         $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
         if ($ltiactivity) {
             if ($ltiactivity->typeid == 0) {
-                $tool = lti_get_tool_by_url_match($ltiactivity->toolurl, $course);
+                $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
                 if (!$tool) {
-                    $tool = lti_get_tool_by_url_match($ltiactivity->securetoolurl, $course);
+                    $tool = \core_ltix\tool_helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
                 }
                 return (($tool) && ($typeid == $tool->id));
             } else {
@@ -746,7 +746,7 @@ class gradebookservices extends service_base {
                     $gbs->subreviewparams = $subreviewparams;
                     $DB->update_record('ltiservice_gradebookservices', $gbs);
                 } else {
-                    $baseurl = lti_get_type_type_config($ltiinstance->typeid)->lti_toolurl;
+                    $baseurl = \core_ltix\types_helper::get_type_type_config($ltiinstance->typeid)->lti_toolurl;
                     $DB->insert_record('ltiservice_gradebookservices', (object)array(
                         'gradeitemid' => $gradeitem->id,
                         'courseid' => $gradeitem->courseid,

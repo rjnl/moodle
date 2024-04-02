@@ -41,7 +41,7 @@ require_sesskey();
 
 require_capability('mod/lti:requesttooladd', context_course::instance($lti->course));
 
-$baseurl = lti_get_domain_from_url($lti->toolurl);
+$baseurl = \core_ltix\tool_helper::get_domain_from_url($lti->toolurl);
 
 $url = new moodle_url('/mod/lti/request_tool.php', array('instanceid' => $instanceid));
 $PAGE->set_url($url);
@@ -56,15 +56,15 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($lti->name, true, array('context' => $context)));
 
 // Add a tool type if one does not exist already.
-if (!lti_get_tool_by_url_match($lti->toolurl, $lti->course, LTI_TOOL_STATE_ANY)) {
+if (!\core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl, $lti->course, LTI_TOOL_STATE_ANY)) {
     // There are no tools (active, pending, or rejected) for the launch URL. Create a new pending tool.
     $tooltype = new stdClass();
     $toolconfig = new stdClass();
 
-    $toolconfig->lti_toolurl = lti_get_domain_from_url($lti->toolurl);
+    $toolconfig->lti_toolurl = \core_ltix\tool_helper::get_domain_from_url($lti->toolurl);
     $toolconfig->lti_typename = $toolconfig->lti_toolurl;
 
-    lti_add_type($tooltype, $toolconfig);
+    \core_ltix\types_helper::add_type($tooltype, $toolconfig);
 
     echo get_string('lti_tool_request_added', 'lti');
 } else {

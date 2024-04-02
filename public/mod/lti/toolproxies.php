@@ -55,16 +55,16 @@ $createdon = get_string('createdon', 'lti');
 
 $toolproxies = $DB->get_records('lti_tool_proxies');
 
-$configuredtoolproxies = lti_filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_CONFIGURED);
+$configuredtoolproxies = \core_ltix\tool_helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_CONFIGURED);
 $configuredtoolproxieshtml = lti_get_tool_proxy_table($configuredtoolproxies, 'tp_configured');
 
-$pendingtoolproxies = lti_filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_PENDING);
+$pendingtoolproxies = \core_ltix\tool_helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_PENDING);
 $pendingtoolproxieshtml = lti_get_tool_proxy_table($pendingtoolproxies, 'tp_pending');
 
-$acceptedtoolproxies = lti_filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_ACCEPTED);
+$acceptedtoolproxies = \core_ltix\tool_helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_ACCEPTED);
 $acceptedtoolproxieshtml = lti_get_tool_proxy_table($acceptedtoolproxies, 'tp_accepted');
 
-$rejectedtoolproxies = lti_filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_REJECTED);
+$rejectedtoolproxies = \core_ltix\tool_helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_REJECTED);
 $rejectedtoolproxieshtml = lti_get_tool_proxy_table($rejectedtoolproxies, 'tp_rejected');
 
 $tab = optional_param('tab', '', PARAM_ALPHAEXT);

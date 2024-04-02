@@ -157,7 +157,7 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        return lti_get_tool_proxies($orphanedonly);
+        return \core_ltix\tool_helper::get_tool_proxies($orphanedonly);
     }
 
     /**
@@ -501,7 +501,7 @@ class mod_lti_external extends external_api {
         require_capability('moodle/site:config', $context);
 
         // Can't create duplicate proxies with the same URL.
-        $duplicates = lti_get_tool_proxies_from_registration_url($registrationurl);
+        $duplicates = \core_ltix\tool_helper::get_tool_proxies_from_registration_url($registrationurl);
         if (!empty($duplicates)) {
             throw new moodle_exception('duplicateregurl', 'mod_lti');
         }
@@ -521,13 +521,13 @@ class mod_lti_external extends external_api {
             $config->lti_services = $serviceoffered;
         }
 
-        $id = lti_add_tool_proxy($config);
-        $toolproxy = lti_get_tool_proxy($id);
+        $id = \core_ltix\tool_helper::add_tool_proxy($config);
+        $toolproxy = \core_ltix\tool_helper::get_tool_proxy($id);
 
         // Pending makes more sense than configured as the first state, since
         // the next step is to register, which requires the state be pending.
         $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
-        lti_update_tool_proxy($toolproxy);
+        \core_ltix\tool_helper::update_tool_proxy($toolproxy);
 
         return $toolproxy;
     }
@@ -575,9 +575,9 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $toolproxy = lti_get_tool_proxy($id);
+        $toolproxy = \core_ltix\tool_helper::get_tool_proxy($id);
 
-        lti_delete_tool_proxy($id);
+        \core_ltix\tool_helper::delete_tool_proxy($id);
 
         return $toolproxy;
     }
@@ -625,7 +625,7 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $toolproxy = lti_get_tool_proxy($id);
+        $toolproxy = \core_ltix\tool_helper::get_tool_proxy($id);
         return lti_build_registration_request($toolproxy);
     }
 
@@ -767,16 +767,16 @@ class mod_lti_external extends external_api {
                 $data->lti_password = $secret;
             }
 
-            lti_load_type_from_cartridge($cartridgeurl, $data);
+            \core_ltix\types_helper::load_type_from_cartridge($cartridgeurl, $data);
             if (empty($data->lti_toolurl)) {
                 throw new moodle_exception('unabletocreatetooltype', 'mod_lti');
             } else {
-                $id = lti_add_type($type, $data);
+                $id = \core_ltix\types_helper::add_type($type, $data);
             }
         }
 
         if (!empty($id)) {
-            $type = lti_get_type($id);
+            $type = \core_ltix\types_helper::get_type($id);
             return serialise_tool_type($type);
         } else {
             throw new moodle_exception('unabletocreatetooltype', 'mod_lti');
@@ -838,7 +838,7 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $type = lti_get_type($id);
+        $type = \core_ltix\types_helper::get_type($id);
 
         if (empty($type)) {
             throw new moodle_exception('unabletofindtooltype', 'mod_lti', '', array('id' => $id));
@@ -861,7 +861,7 @@ class mod_lti_external extends external_api {
             }
         }
 
-        lti_update_type($type, new stdClass());
+        \core_ltix\types_helper::update_type($type, new stdClass());
 
         return serialise_tool_type($type);
     }
@@ -909,16 +909,16 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $type = lti_get_type($id);
+        $type = \core_ltix\types_helper::get_type($id);
 
         if (!empty($type)) {
-            lti_delete_type($id);
+            \core_ltix\types_helper::delete_type($id);
 
             // If this is the last type for this proxy then remove the proxy
             // as well so that it isn't orphaned.
             $types = lti_get_lti_types_from_proxy_id($type->toolproxyid);
             if (empty($types)) {
-                lti_delete_tool_proxy($type->toolproxyid);
+                \core_ltix\tool_helper::delete_tool_proxy($type->toolproxyid);
             }
         }
 
@@ -972,7 +972,7 @@ class mod_lti_external extends external_api {
         self::validate_context($context);
         require_capability('moodle/site:config', $context);
 
-        $iscartridge = lti_is_cartridge($url);
+        $iscartridge = \core_ltix\tool_helper::is_cartridge($url);
 
         return array('iscartridge' => $iscartridge);
     }

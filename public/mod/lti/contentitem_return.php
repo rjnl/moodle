@@ -54,7 +54,7 @@ if (!empty($_POST["repost"])) {
 }
 
 if (!empty($jwt)) {
-    $params = lti_convert_from_jwt($id, $jwt);
+    $params = \core_ltix\oauth_helper::convert_from_jwt($id, $jwt);
     $consumerkey = $params['oauth_consumer_key'] ?? '';
     $messagetype = $params['lti_message_type'] ?? '';
     $version = $params['lti_version'] ?? '';
@@ -68,7 +68,7 @@ if (!empty($jwt)) {
     $items = optional_param('content_items', '', PARAM_RAW);
     $errormsg = optional_param('lti_errormsg', '', PARAM_TEXT);
     $msg = optional_param('lti_msg', '', PARAM_TEXT);
-    lti_verify_oauth_signature($id, $consumerkey);
+    \core_ltix\oauth_helper::verify_oauth_signature($id, $consumerkey);
 }
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
@@ -81,7 +81,8 @@ $redirecturl = null;
 $returndata = null;
 if (empty($errormsg) && !empty($items)) {
     try {
-        $returndata = lti_tool_configuration_from_content_item($id, $messagetype, $version, $consumerkey, $items);
+        $returndata = \core_ltix\tool_helper::tool_configuration_from_content_item($id, $messagetype, $version, $consumerkey,
+            $items);
     } catch (moodle_exception $e) {
         $errormsg = $e->getMessage();
     }
