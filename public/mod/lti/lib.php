@@ -117,7 +117,7 @@ function lti_add_instance($lti, $mform) {
         lti_grade_item_update($lti);
     }
 
-    $services = lti_get_services();
+    $services = \core_ltix\tool_helper::get_services();
     foreach ($services as $service) {
         $service->instance_added( $lti );
     }
@@ -169,7 +169,7 @@ function lti_update_instance($lti, $mform) {
         $lti->typeid = $lti->urlmatchedtypeid;
     }
 
-    $services = lti_get_services();
+    $services = \core_ltix\tool_helper::get_services();
     foreach ($services as $service) {
         $service->instance_updated( $lti );
     }
@@ -212,7 +212,7 @@ function lti_delete_instance($id) {
 
     // We must delete the module record after we delete the grade item.
     if ($DB->delete_records("lti", array("id" => $basiclti->id)) ) {
-        $services = lti_get_services();
+        $services = \core_ltix\tool_helper::get_services();
         foreach ($services as $service) {
             $service->instance_deleted( $id );
         }
@@ -355,16 +355,16 @@ function lti_get_coursemodule_info($coursemodule) {
     }
 
     if (!empty($lti->typeid)) {
-        $toolconfig = lti_get_type_config($lti->typeid);
-    } else if ($tool = lti_get_tool_by_url_match($lti->toolurl)) {
-        $toolconfig = lti_get_type_config($tool->id);
+        $toolconfig = \core_ltix\types_helper::get_type_config($lti->typeid);
+    } else if ($tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl)) {
+        $toolconfig = \core_ltix\types_helper::get_type_config($tool->id);
     } else {
         $toolconfig = array();
     }
 
     // We want to use the right icon based on whether the
     // current page is being requested over http or https.
-    if (lti_request_is_using_ssl() &&
+    if (\core_ltix\tool_helper::request_is_using_ssl() &&
         (!empty($lti->secureicon) || (isset($toolconfig['secureicon']) && !empty($toolconfig['secureicon'])))) {
         if (!empty($lti->secureicon)) {
             $info->iconurl = new moodle_url($lti->secureicon);

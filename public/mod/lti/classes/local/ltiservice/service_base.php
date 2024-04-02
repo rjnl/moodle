@@ -419,14 +419,14 @@ abstract class service_base {
                 $typeid = $consumerkey;
             }
             if (!empty($typeid)) {
-                $this->type = lti_get_type($typeid);
-                $this->typeconfig = lti_get_type_config($typeid);
+                $this->type = \core_ltix\types_helper::get_type($typeid);
+                $this->typeconfig = \core_ltix\types_helper::get_type_config($typeid);
                 $ok = !empty($this->type->id);
                 if ($ok && !empty($this->type->toolproxyid)) {
-                    $this->toolproxy = lti_get_tool_proxy($this->type->toolproxyid);
+                    $this->toolproxy = \core_ltix\tool_helper::get_tool_proxy($this->type->toolproxyid);
                 }
             } else {
-                $toolproxy = lti_get_tool_proxy_from_guid($consumerkey);
+                $toolproxy = \core_ltix\tool_helper::get_tool_proxy_from_guid($consumerkey);
                 if ($toolproxy !== false) {
                     $this->toolproxy = $toolproxy;
                 }
@@ -473,7 +473,7 @@ abstract class service_base {
         }
 
         if (!empty($toolproxyguid)) {
-            $toolproxy = lti_get_tool_proxy_from_guid($toolproxyguid);
+            $toolproxy = \core_ltix\tool_helper::get_tool_proxy_from_guid($toolproxyguid);
             if ($toolproxy !== false) {
                 if (!$this->is_unsigned() && ($toolproxy->guid == $consumerkey)) {
                     $ok = $this->check_signature($toolproxy->guid, $toolproxy->secret, $body);
@@ -510,7 +510,7 @@ abstract class service_base {
         if (empty($typeid)) {
             return $ok;
         } else if ($this->is_allowed_in_context($typeid, $courseid)) {
-            $tool = lti_get_type_type_config($typeid);
+            $tool = \core_ltix\types_helper::get_type_type_config($typeid);
             if ($tool !== false) {
                 if (!$this->is_unsigned() && ($tool->lti_resourcekey == $consumerkey)) {
                     $ok = $this->check_signature($tool->lti_resourcekey, $tool->lti_password, $body);

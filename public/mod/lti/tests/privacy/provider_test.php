@@ -208,17 +208,17 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $type = new \stdClass();
         $type->baseurl = 'http://moodle.org';
         $type->course = $course1->id;
-        lti_add_type($type, new \stdClass());
+        \core_ltix\types_helper::add_type($type, new \stdClass());
 
         $type = new \stdClass();
         $type->baseurl = 'http://moodle.org';
         $type->course = $course1->id;
-        lti_add_type($type, new \stdClass());
+        \core_ltix\types_helper::add_type($type, new \stdClass());
 
         $type = new \stdClass();
         $type->baseurl = 'http://moodle.org';
         $type->course = $course2->id;
-        lti_add_type($type, new \stdClass());
+        \core_ltix\types_helper::add_type($type, new \stdClass());
 
         // Export all of the data for the context.
         $coursecontext = \context_course::instance($course1->id);
@@ -252,7 +252,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
 
         $toolproxy = new \stdClass();
         $toolproxy->createdby = $user;
-        lti_add_tool_proxy($toolproxy);
+        \core_ltix\tool_helper::add_tool_proxy($toolproxy);
 
         // Export all of the data for the context.
         $systemcontext = \context_system::instance();

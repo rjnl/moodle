@@ -74,7 +74,7 @@ if ($ok) {
     $launchid = $ltimessagehint->launchid;
     list($courseid, $typeid, $id, $messagetype, $foruserid, $titleb64, $textb64) = explode(',', $SESSION->$launchid, 7);
     unset($SESSION->$launchid);
-    $config = lti_get_type_type_config($typeid);
+    $config = \core_ltix\types_helper::get_type_type_config($typeid);
     $ok = ($clientid === $config->lti_clientid);
     if (!$ok) {
         $error = 'unauthorized_client';

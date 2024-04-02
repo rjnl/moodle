@@ -55,7 +55,7 @@ $consumerkey = lti\get_oauth_key_from_headers(null, array(basicoutcomes::SCOPE_B
 if ($consumerkey === false) {
     throw new Exception('Missing or invalid consumer key or access token.');
 } else if (is_string($consumerkey)) {
-    $toolproxy = lti_get_tool_proxy_from_guid($consumerkey);
+    $toolproxy = \core_ltix\tool_helper::get_tool_proxy_from_guid($consumerkey);
     if ($toolproxy !== false) {
         $secrets = array($toolproxy->secret);
     } else if (!empty($tool)) {

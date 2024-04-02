@@ -259,7 +259,7 @@ class lineitem extends resource_base {
                 $baseurl = null;
             } else {
                 $toolproxyid = null;
-                $baseurl = lti_get_type_type_config($typeid)->lti_toolurl;
+                $baseurl = \core_ltix\types_helper::get_type_type_config($typeid)->lti_toolurl;
             }
             $DB->update_record('ltiservice_gradebookservices', (object)array(
                     'id' => $gbs->id,

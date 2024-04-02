@@ -22,9 +22,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/ltix/constants.php');
 
-use context_course;
-use core\context\course;
-use mod_lti\local\ltiopenid\registration_helper;
+use core_ltix\ltiopenid\registration_helper;
 use moodle_exception;
 use stdClass;
 
@@ -799,7 +797,7 @@ class types_helper {
         $numtries = 0;
         do {
             $numtries ++;
-            $generatedtoken = md5(uniqid(rand(), 1));
+            $generatedtoken = md5(uniqid((string) rand(), true));
             if ($numtries > 5) {
                 throw new moodle_exception('Failed to generate LTI access token');
             }

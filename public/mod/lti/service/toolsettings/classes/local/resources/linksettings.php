@@ -98,7 +98,7 @@ class linksettings extends \mod_lti\local\ltiservice\resource_base {
                 $id = -$this->get_service()->get_type()->id;
             }
             if ($response->get_request_method() == 'GET') {
-                $linksettings = lti_get_tool_settings($id, $lti->course, $linkid);
+                $linksettings = \core_ltix\tool_helper::get_tool_settings($id, $lti->course, $linkid);
                 if (!empty($bubble)) {
                     $contextsetting = new contextsettings($this->get_service());
                     if ($COURSE == 'site') {
@@ -113,7 +113,7 @@ class linksettings extends \mod_lti\local\ltiservice\resource_base {
                         $contextsetting->params['vendor_code'] = 'tool';
                     }
                     $contextsetting->params['product_code'] = abs($id);
-                    $contextsettings = lti_get_tool_settings($id, $lti->course);
+                    $contextsettings = \core_ltix\tool_helper::get_tool_settings($id, $lti->course);
                     $systemsetting = new systemsettings($this->get_service());
                     if ($id >= 0) {
                         $systemsetting->params['config_type'] = 'toolproxy';
@@ -121,7 +121,7 @@ class linksettings extends \mod_lti\local\ltiservice\resource_base {
                         $systemsetting->params['config_type'] = 'tool';
                     }
                     $systemsetting->params['tool_proxy_id'] = abs($id);
-                    $systemsettings = lti_get_tool_settings($id);
+                    $systemsettings = \core_ltix\tool_helper::get_tool_settings($id);
                     if ($bubble == 'distinct') {
                         toolsettings::distinct_settings($systemsettings, $contextsettings, $linksettings);
                     }
@@ -189,7 +189,7 @@ class linksettings extends \mod_lti\local\ltiservice\resource_base {
                     }
                 }
                 if ($ok) {
-                    lti_set_tool_settings($settings, $id, $lti->course, $linkid);
+                    \core_ltix\tool_helper::set_tool_settings($settings, $id, $lti->course, $linkid);
                 } else {
                     $response->set_code(406);
                 }

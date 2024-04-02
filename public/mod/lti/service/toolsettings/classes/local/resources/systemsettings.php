@@ -102,7 +102,7 @@ class systemsettings extends resource_base {
         }
 
         if ($ok) {
-            $systemsettings = lti_get_tool_settings($id);
+            $systemsettings = \core_ltix\tool_helper::get_tool_settings($id);
             if ($response->get_request_method() == 'GET') {
                 $json = '';
                 if ($simpleformat) {
@@ -144,7 +144,7 @@ class systemsettings extends resource_base {
                     }
                 }
                 if ($ok) {
-                    lti_set_tool_settings($settings, $id);
+                    \core_ltix\tool_helper::set_tool_settings($settings, $id);
                 } else {
                     $response->set_code(406);
                 }

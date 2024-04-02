@@ -25,7 +25,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_lti\local\ltiopenid\registration_helper;
+use core_ltix\ltiopenid\registration_helper;
 
 define('NO_DEBUG_DISPLAY', true);
 define('NO_MOODLE_COOKIES', true);
@@ -53,7 +53,7 @@ $conf = [
         'version' => $CFG->release,
         'messages_supported' => [['type' => 'LtiResourceLinkRequest'],
             ['type' => 'LtiDeepLinkingRequest', 'placements' => ['ContentArea']]],
-        'variables' => array_keys(lti_get_capabilities())
+        'variables' => array_keys(\core_ltix\tool_helper::get_capabilities()),
     ]
 ];
 

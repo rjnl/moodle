@@ -424,6 +424,7 @@ final class externallib_test extends mod_lti_testcase {
         $proxy = mod_lti_external::create_tool_proxy('Test proxy', $this->getExternalTestFileUrl('/test.html'), array(), array());
         $proxy = (object) external_api::clean_returnvalue(mod_lti_external::create_tool_proxy_returns(), $proxy);
         $this->assertNotEmpty(lti_get_tool_proxy($proxy->id));
+        $this->assertDebuggingCalled();
 
         $proxy = mod_lti_external::delete_tool_proxy($proxy->id);
         $proxy = (object) external_api::clean_returnvalue(mod_lti_external::delete_tool_proxy_returns(), $proxy);
@@ -432,6 +433,7 @@ final class externallib_test extends mod_lti_testcase {
         $this->assertEquals($this->getExternalTestFileUrl('/test.html'), $proxy->regurl);
         $this->assertEquals(LTI_TOOL_PROXY_STATE_PENDING, $proxy->state);
         $this->assertEmpty(lti_get_tool_proxy($proxy->id));
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -466,7 +468,7 @@ final class externallib_test extends mod_lti_testcase {
         $type->description = "Example description";
         $type->toolproxyid = $proxy->id;
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
-        lti_add_type($type, $data);
+        \core_ltix\types_helper::add_type($type, $data);
 
         $types = mod_lti_external::get_tool_types($proxy->id);
         $types = external_api::clean_returnvalue(mod_lti_external::get_tool_types_returns(), $types);
@@ -488,9 +490,9 @@ final class externallib_test extends mod_lti_testcase {
         $this->assertEquals('Example tool', $type['name']);
         $this->assertEquals('Example tool description', $type['description']);
         $this->assertEquals('https://download.moodle.org/unittest/test.jpg', $type['urls']['icon']);
-        $typeentry = lti_get_type($type['id']);
+        $typeentry = \core_ltix\types_helper::get_type($type['id']);
         $this->assertEquals('http://www.example.com/lti/provider.php', $typeentry->baseurl);
-        $config = lti_get_type_config($type['id']);
+        $config = \core_ltix\types_helper::get_type_config($type['id']);
         $this->assertTrue(isset($config['sendname']));
         $this->assertTrue(isset($config['sendemailaddr']));
         $this->assertTrue(isset($config['acceptgrades']));
@@ -547,11 +549,11 @@ final class externallib_test extends mod_lti_testcase {
         $this->setAdminUser();
         $type = mod_lti_external::create_tool_type($this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml'), '', '');
         $type = external_api::clean_returnvalue(mod_lti_external::create_tool_type_returns(), $type);
-        $this->assertNotEmpty(lti_get_type($type['id']));
+        $this->assertNotEmpty(\core_ltix\types_helper::get_type($type['id']));
 
         $type = mod_lti_external::delete_tool_type($type['id']);
         $type = external_api::clean_returnvalue(mod_lti_external::delete_tool_type_returns(), $type);
-        $this->assertEmpty(lti_get_type($type['id']));
+        $this->assertEmpty(\core_ltix\types_helper::get_type($type['id']));
     }
 
     /**
@@ -561,7 +563,7 @@ final class externallib_test extends mod_lti_testcase {
         $this->setAdminUser();
         $type = mod_lti_external::create_tool_type($this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml'), '', '');
         $type = external_api::clean_returnvalue(mod_lti_external::create_tool_type_returns(), $type);
-        $this->assertNotEmpty(lti_get_type($type['id']));
+        $this->assertNotEmpty(\core_ltix\types_helper::get_type($type['id']));
 
         $course = $this->getDataGenerator()->create_course();
         $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');

@@ -70,7 +70,7 @@ require_sesskey();
 
 // Check this is not for a tool created from a tool proxy.
 if (!empty($id)) {
-    $type = lti_get_type_type_config($id);
+    $type = \core_ltix\types_helper::get_type_type_config($id);
     if (!empty($type->toolproxyid)) {
         $sesskey = required_param('sesskey', PARAM_RAW);
         $params = array('action' => $action, 'id' => $id, 'sesskey' => $sesskey, 'tab' => $tab);
@@ -112,17 +112,17 @@ if (!empty($returnurl)) {
 }
 
 if ($action == 'accept') {
-    lti_set_state_for_type($id, LTI_TOOL_STATE_CONFIGURED);
+    \core_ltix\types_helper::set_state_for_type($id, LTI_TOOL_STATE_CONFIGURED);
     redirect($redirect);
 } else if ($action == 'reject') {
-    lti_set_state_for_type($id, LTI_TOOL_STATE_REJECTED);
+    \core_ltix\types_helper::set_state_for_type($id, LTI_TOOL_STATE_REJECTED);
     redirect($redirect);
 } else if ($action == 'delete') {
-    lti_delete_type($id);
+    \core_ltix\types_helper::delete_type($id);
     redirect($redirect);
 }
 
-if (lti_request_is_using_ssl() && !empty($type->lti_secureicon)) {
+if (\core_ltix\tool_helper::request_is_using_ssl() && !empty($type->lti_secureicon)) {
     $type->oldicon = $type->lti_secureicon;
 } else {
     $type->oldicon = $type->lti_icon;
@@ -144,14 +144,14 @@ if ($data = $form->get_data()) {
     $type = new stdClass();
     if (!empty($id)) {
         $type->id = $id;
-        lti_load_type_if_cartridge($data);
-        lti_update_type($type, $data);
+        \core_ltix\types_helper::load_type_if_cartridge($data);
+        \core_ltix\types_helper::update_type($type, $data);
 
         redirect($redirect);
     } else {
         $type->state = LTI_TOOL_STATE_CONFIGURED;
-        lti_load_type_if_cartridge($data);
-        lti_add_type($type, $data);
+        \core_ltix\types_helper::load_type_if_cartridge($data);
+        \core_ltix\types_helper::add_type($type, $data);
 
         redirect($redirect);
     }

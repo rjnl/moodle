@@ -235,19 +235,23 @@ final class types_helper_test extends mod_lti_testcase {
 
         // LTI_COURSEVISIBLE_NO can't be updated.
         $result = types_helper::override_type_showinactivitychooser($tool1id, $course->id, $context, true);
+        $this->assertDebuggingCalled();
         $this->assertFalse($result);
 
         // Tool not exist.
         $result = types_helper::override_type_showinactivitychooser($tool5id + 1, $course->id, $context, false);
+        $this->assertDebuggingCalled();
         $this->assertFalse($result);
 
         $result = types_helper::override_type_showinactivitychooser($tool2id, $course->id, $context, true);
+        $this->assertDebuggingCalled();
         $this->assertTrue($result);
         $coursevisibleoverriden = $DB->get_field('lti_coursevisible', 'coursevisible',
             ['typeid' => $tool2id, 'courseid' => $course->id]);
         $this->assertEquals(LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $coursevisibleoverriden);
 
         $result = types_helper::override_type_showinactivitychooser($tool3id, $course->id, $context, false);
+        $this->assertDebuggingCalled();
         $this->assertTrue($result);
         $coursevisible = $DB->get_field('lti_types', 'coursevisible', ['id' => $tool3id]);
         $this->assertEquals(LTI_COURSEVISIBLE_PRECONFIGURED, $coursevisible);
@@ -255,10 +259,11 @@ final class types_helper_test extends mod_lti_testcase {
         // Restricted category no allowed.
         $this->expectException('moodle_exception');
         $this->expectExceptionMessage('You are not allowed to change this setting for this tool.');
-        types_helper::override_type_showinactivitychooser($tool4id, $course->id, $context, false);
+        \core_ltix\types_helper::override_type_showinactivitychooser($tool4id, $course->id, $context, false);
 
         // Restricted category allowed.
         $result = types_helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
+        $this->assertDebuggingCalled();
         $this->assertTrue($result);
         $coursevisibleoverriden = $DB->get_field('lti_coursevisible', 'coursevisible',
             ['typeid' => $tool5id, 'courseid' => $course->id]);
@@ -266,7 +271,7 @@ final class types_helper_test extends mod_lti_testcase {
 
         $this->setUser($teacher2);
         $this->expectException(\required_capability_exception::class);
-        types_helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
+        \core_ltix\types_helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
     }
 
 }

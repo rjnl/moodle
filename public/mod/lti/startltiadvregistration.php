@@ -25,8 +25,8 @@
 
 use Firebase\JWT\JWT;
 
-use mod_lti\local\ltiopenid\jwks_helper;
-use mod_lti\local\ltiopenid\registration_helper;
+use core_ltix\ltiopenid\jwks_helper;
+use core_ltix\ltiopenid\registration_helper;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir.'/weblib.php');
@@ -39,7 +39,7 @@ require_capability('moodle/site:config', $context);
 $starturl = required_param('url', PARAM_URL);
 $typeid = optional_param('type', -1, PARAM_INT);
 
-$types = lti_get_tools_by_url($starturl, null);
+$types = \core_ltix\tool_helper::get_tools_by_url($starturl, null);
 
 if (!empty($types) && $typeid == -1) {
     // There are matching types for the registration domain, let's prompt the user to upgrade.

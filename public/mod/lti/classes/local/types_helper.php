@@ -57,10 +57,12 @@ class types_helper {
      * @return bool True if the coursevisible was changed, false otherwise.
      */
     public static function override_type_showinactivitychooser(int $tooltypeid, int $courseid, \core\context\course $context, bool $showinactivitychooser): bool {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\types_helper::override_type_showinactivitychooser() instead.',
+        debugging(__FUNCTION__ . '() is deprecated. ' .
+            'Please use \core_ltix\types_helper::override_type_showinactivitychooser() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context, $showinactivitychooser);
+        return \core_ltix\types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
+            $showinactivitychooser);
     }
 
 }

@@ -96,12 +96,12 @@ function lti_get_jwt_claim_mapping() {
  */
 function lti_get_instance_type(object $instance): ?object {
     if (empty($instance->typeid)) {
-        if (!$tool = lti_get_tool_by_url_match($instance->toolurl, $instance->course)) {
-            $tool = lti_get_tool_by_url_match($instance->securetoolurl,  $instance->course);
+        if (!$tool = \core_ltix\tool_helper::get_tool_by_url_match($instance->toolurl, $instance->course)) {
+            $tool = \core_ltix\tool_helper::get_tool_by_url_match($instance->securetoolurl,  $instance->course);
         }
         return $tool;
     }
-    return lti_get_type($instance->typeid);
+    return \core_ltix\types_helper::get_type($instance->typeid);
 }
 
 /**
@@ -125,7 +125,7 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
     }
 
     if ($typeid) {
-        $typeconfig = lti_get_type_config($typeid);
+        $typeconfig = \core_ltix\types_helper::get_type_config($typeid);
     } else {
         // There is no admin configuration for this tool. Use configuration in the lti instance record plus some defaults.
         $typeconfig = (array)$instance;
@@ -139,7 +139,7 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
     }
 
     if (isset($tool->toolproxyid)) {
-        $toolproxy = lti_get_tool_proxy($tool->toolproxyid);
+        $toolproxy = \core_ltix\tool_helper::get_tool_proxy($tool->toolproxyid);
         $key = $toolproxy->guid;
         $secret = $toolproxy->secret;
     } else {
@@ -166,7 +166,7 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
     $endpoint = trim($endpoint);
 
     // If the current request is using SSL and a secure tool URL is specified, use it.
-    if (lti_request_is_using_ssl() && !empty($instance->securetoolurl)) {
+    if (\core_ltix\tool_helper::request_is_using_ssl() && !empty($instance->securetoolurl)) {
         $endpoint = trim($instance->securetoolurl);
     }
 
@@ -177,19 +177,19 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
         }
 
         if ($endpoint !== '') {
-            $endpoint = lti_ensure_url_is_https($endpoint);
+            $endpoint = \core_ltix\tool_helper::ensure_url_is_https($endpoint);
         }
     } else if ($endpoint !== '' && !strstr($endpoint, '://')) {
         $endpoint = 'http://' . $endpoint;
     }
 
-    $orgid = lti_get_organizationid($typeconfig);
+    $orgid = \core_ltix\types_helper::get_organizationid($typeconfig);
 
     $course = $PAGE->course;
     $islti2 = isset($tool->toolproxyid);
     $allparams = lti_build_request($instance, $typeconfig, $course, $typeid, $islti2, $messagetype, $foruserid);
     if ($islti2) {
-        $requestparams = lti_build_request_lti2($tool, $allparams);
+        $requestparams = \core_ltix\tool_helper::build_request_lti2($tool, $allparams);
     } else {
         $requestparams = $allparams;
     }
@@ -198,7 +198,7 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
     if (isset($typeconfig['customparameters'])) {
         $customstr = $typeconfig['customparameters'];
     }
-    $services = lti_get_services();
+    $services = \core_ltix\tool_helper::get_services();
     foreach ($services as $service) {
         [$endpoint, $customstr] = $service->override_endpoint($messagetype,
             $endpoint, $customstr, $instance->course, $instance);
@@ -217,7 +217,7 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
     $returnurl = $url->out(false);
 
     if (isset($typeconfig['forcessl']) && ($typeconfig['forcessl'] == '1')) {
-        $returnurl = lti_ensure_url_is_https($returnurl);
+        $returnurl = \core_ltix\tool_helper::ensure_url_is_https($returnurl);
     }
 
     $target = '';
@@ -241,13 +241,13 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
 
     // Add the parameters configured by the LTI services.
     if ($typeid && !$islti2) {
-        $services = lti_get_services();
+        $services = \core_ltix\tool_helper::get_services();
         foreach ($services as $service) {
             $serviceparameters = $service->get_launch_parameters('basic-lti-launch-request',
                     $course->id, $USER->id , $typeid, $instance->id);
             foreach ($serviceparameters as $paramkey => $paramvalue) {
-                $requestparams['custom_' . $paramkey] = lti_parse_custom_parameter($toolproxy, $tool, $requestparams, $paramvalue,
-                    $islti2);
+                $requestparams['custom_' . $paramkey] = \core_ltix\tool_helper::parse_custom_parameter($toolproxy, $tool,
+                    $requestparams, $paramvalue, $islti2);
             }
         }
     }
@@ -265,9 +265,9 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
 
     if ((!empty($key) && !empty($secret)) || ($ltiversion === LTI_VERSION_1P3)) {
         if ($ltiversion !== LTI_VERSION_1P3) {
-            $parms = lti_sign_parameters($requestparams, $endpoint, 'POST', $key, $secret);
+            $parms = \core_ltix\oauth_helper::sign_parameters($requestparams, $endpoint, 'POST', $key, $secret);
         } else {
-            $parms = lti_sign_jwt($requestparams, $endpoint, $key, $typeid, $nonce);
+            $parms = \core_ltix\oauth_helper::sign_jwt($requestparams, $endpoint, $key, $typeid, $nonce);
         }
 
         $endpointurl = new \moodle_url($endpoint);
@@ -318,7 +318,7 @@ function lti_register($toolproxy) {
 
     // Change the status to pending.
     $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
-    lti_update_tool_proxy($toolproxy);
+    \core_ltix\tool_helper::update_tool_proxy($toolproxy);
 
     $requestparams = lti_build_registration_request($toolproxy);
 
@@ -487,7 +487,7 @@ function lti_build_request($instance, $typeconfig, $course, $typeid = null, $isl
         }
 
         if ((isset($typeconfig['forcessl']) && ($typeconfig['forcessl'] == '1')) or $forcessl) {
-            $serviceurl = lti_ensure_url_is_https($serviceurl);
+            $serviceurl = \core_ltix\tool_helper::ensure_url_is_https($serviceurl);
         }
 
         $requestparams['lis_outcome_service_url'] = $serviceurl;
@@ -619,23 +619,24 @@ function lti_build_custom_parameters($toolproxy, $tool, $instance, $params, $cus
     // has given permission.
     $custom = array();
     if ($customstr) {
-        $custom = lti_split_custom_parameters($toolproxy, $tool, $params, $customstr, $islti2);
+        $custom = \core_ltix\tool_helper::split_custom_parameters($toolproxy, $tool, $params, $customstr, $islti2);
     }
     if ($instructorcustomstr) {
-        $custom = array_merge(lti_split_custom_parameters($toolproxy, $tool, $params,
+        $custom = array_merge(\core_ltix\tool_helper::split_custom_parameters($toolproxy, $tool, $params,
             $instructorcustomstr, $islti2), $custom);
     }
     if ($islti2) {
-        $custom = array_merge(lti_split_custom_parameters($toolproxy, $tool, $params,
+        $custom = array_merge(\core_ltix\tool_helper::split_custom_parameters($toolproxy, $tool, $params,
             $tool->parameter, true), $custom);
-        $settings = lti_get_tool_settings($tool->toolproxyid);
-        $custom = array_merge($custom, lti_get_custom_parameters($toolproxy, $tool, $params, $settings));
+        $settings = \core_ltix\tool_helper::get_tool_settings($tool->toolproxyid);
+        $custom = array_merge($custom, \core_ltix\tool_helper::get_custom_parameters($toolproxy, $tool, $params, $settings));
         if (!empty($instance->course)) {
-            $settings = lti_get_tool_settings($tool->toolproxyid, $instance->course);
-            $custom = array_merge($custom, lti_get_custom_parameters($toolproxy, $tool, $params, $settings));
+            $settings = \core_ltix\tool_helper::get_tool_settings($tool->toolproxyid, $instance->course);
+            $custom = array_merge($custom, \core_ltix\tool_helper::get_custom_parameters($toolproxy, $tool, $params, $settings));
             if (!empty($instance->id)) {
-                $settings = lti_get_tool_settings($tool->toolproxyid, $instance->course, $instance->id);
-                $custom = array_merge($custom, lti_get_custom_parameters($toolproxy, $tool, $params, $settings));
+                $settings = \core_ltix\tool_helper::get_tool_settings($tool->toolproxyid, $instance->course, $instance->id);
+                $custom = array_merge($custom, \core_ltix\tool_helper::get_custom_parameters($toolproxy, $tool, $params,
+                    $settings));
             }
         }
     }
@@ -674,7 +675,7 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
                                                   $unsigned = false, $canconfirm = false, $copyadvice = false, $nonce = '') {
     global $USER;
 
-    $tool = lti_get_type($id);
+    $tool = \core_ltix\types_helper::get_type($id);
     // Validate parameters.
     if (!$tool) {
         throw new moodle_exception('errortooltypenotfound', 'core_ltix');
@@ -691,14 +692,14 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
         $title = $tool->name;
     }
 
-    $typeconfig = lti_get_type_config($id);
+    $typeconfig = \core_ltix\types_helper::get_type_config($id);
     $key = '';
     $secret = '';
     $islti2 = false;
     $islti13 = false;
     if (isset($tool->toolproxyid)) {
         $islti2 = true;
-        $toolproxy = lti_get_tool_proxy($tool->toolproxyid);
+        $toolproxy = \core_ltix\tool_helper::get_tool_proxy($tool->toolproxyid);
         $key = $toolproxy->guid;
         $secret = $toolproxy->secret;
     } else {
@@ -750,12 +751,12 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
 
     // Get LTI2-specific request parameters and merge to the request parameters if applicable.
     if ($islti2) {
-        $lti2params = lti_build_request_lti2($tool, $requestparams);
+        $lti2params = \core_ltix\tool_helper::build_request_lti2($tool, $requestparams);
         $requestparams = array_merge($requestparams, $lti2params);
     }
 
     // Get standard request parameters and merge to the request parameters.
-    $orgid = lti_get_organizationid($typeconfig);
+    $orgid = \core_ltix\types_helper::get_organizationid($typeconfig);
     $standardparams = lti_build_standard_message(null, $orgid, $tool->ltiversion, 'ContentItemSelectionRequest');
     $requestparams = array_merge($requestparams, $standardparams);
 
@@ -769,13 +770,13 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
 
     // Add the parameters configured by the LTI services.
     if ($id && !$islti2) {
-        $services = lti_get_services();
+        $services = \core_ltix\tool_helper::get_services();
         foreach ($services as $service) {
             $serviceparameters = $service->get_launch_parameters('ContentItemSelectionRequest',
                 $course->id, $USER->id , $id);
             foreach ($serviceparameters as $paramkey => $paramvalue) {
-                $requestparams['custom_' . $paramkey] = lti_parse_custom_parameter($toolproxy, $tool, $requestparams, $paramvalue,
-                    $islti2);
+                $requestparams['custom_' . $paramkey] = \core_ltix\tool_helper::parse_custom_parameter($toolproxy, $tool,
+                    $requestparams, $paramvalue, $islti2);
             }
         }
     }
@@ -823,9 +824,9 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
     $requestparams['title'] = $title;
     $requestparams['text'] = $text;
     if (!$islti13) {
-        $signedparams = lti_sign_parameters($requestparams, $toolurlout, 'POST', $key, $secret);
+        $signedparams = \core_ltix\oauth_helper::sign_parameters($requestparams, $toolurlout, 'POST', $key, $secret);
     } else {
-        $signedparams = lti_sign_jwt($requestparams, $toolurlout, $key, $id, $nonce);
+        $signedparams = \core_ltix\oauth_helper::sign_jwt($requestparams, $toolurlout, $key, $id, $nonce);
     }
     $toolurlparams = $toolurl->params();
 
@@ -973,7 +974,8 @@ function lti_tool_configuration_from_content_item($typeid, $messagetype, $ltiver
     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\tool_helper::tool_configuration_from_content_item() instead.',
         DEBUG_DEVELOPER);
 
-    return \core_ltix\tool_helper::tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey, $contentitemsjson);
+    return \core_ltix\tool_helper::tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey,
+        $contentitemsjson);
 }
 
 /**
@@ -1665,7 +1667,7 @@ function lti_set_state_for_type($id, $state) {
  */
 function lti_get_config($ltiobject) {
     $typeconfig = (array)$ltiobject;
-    $additionalconfig = lti_get_type_config($ltiobject->typeid);
+    $additionalconfig = \core_ltix\types_helper::get_type_config($ltiobject->typeid);
     $typeconfig = array_merge($typeconfig, $additionalconfig);
     return $typeconfig;
 }
@@ -1822,7 +1824,8 @@ function lti_get_tool_proxy_from_guid($toolproxyguid) {
  * @return array The record of the tool proxy with this url
  */
 function lti_get_tool_proxies_from_registration_url($regurl) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\tool_helper::get_tool_proxies_from_registration_url() instead.',
+    debugging(__FUNCTION__ . '() is deprecated. ' .
+        'Please use \core_ltix\tool_helper::get_tool_proxies_from_registration_url() instead.',
         DEBUG_DEVELOPER);
 
     return \core_ltix\tool_helper::get_tool_proxies_from_registration_url($regurl);
@@ -2204,7 +2207,7 @@ function lti_build_login_request($courseid, $cmid, $instance, $config, $messaget
             "{$courseid},{$config->typeid},,{$messagetype},{$foruserid}," . base64_encode($title) . ',' . base64_encode($text);
     }
     $endpoint = trim($endpoint);
-    $services = lti_get_services();
+    $services = \core_ltix\tool_helper::get_services();
     foreach ($services as $service) {
         [$endpoint] = $service->override_endpoint($messagetype ?? 'basic-lti-launch-request', $endpoint, '', $courseid, $instance);
     }
@@ -2212,7 +2215,7 @@ function lti_build_login_request($courseid, $cmid, $instance, $config, $messaget
     $ltihint['launchid'] = $launchid;
     // If SSL is forced make sure https is on the normal launch URL.
     if (isset($config->lti_forcessl) && ($config->lti_forcessl == '1')) {
-        $endpoint = lti_ensure_url_is_https($endpoint);
+        $endpoint = \core_ltix\tool_helper::ensure_url_is_https($endpoint);
     } else if (!strstr($endpoint, '://')) {
         $endpoint = 'http://' . $endpoint;
     }
@@ -2397,7 +2400,7 @@ function lti_log_response($responsexml, $e = null) {
 function lti_get_type_config_by_instance($instance) {
     $typeid = null;
     if (empty($instance->typeid)) {
-        $tool = lti_get_tool_by_url_match($instance->toolurl, $instance->course);
+        $tool = \core_ltix\tool_helper::get_tool_by_url_match($instance->toolurl, $instance->course);
         if ($tool) {
             $typeid = $tool->id;
         }
@@ -2405,7 +2408,7 @@ function lti_get_type_config_by_instance($instance) {
         $typeid = $instance->typeid;
     }
     if (!empty($typeid)) {
-        return lti_get_type_config($typeid);
+        return \core_ltix\types_helper::get_type_config($typeid);
     }
     return array();
 }
@@ -2510,7 +2513,7 @@ function lti_get_service_by_resource_id($services, $resourceid) {
  */
 function lti_get_permitted_service_scopes($type, $typeconfig) {
 
-    $services = lti_get_services();
+    $services = \core_ltix\tool_helper::get_services();
     $scopes = array();
     foreach ($services as $service) {
         $service->set_type($type);
@@ -2764,7 +2767,7 @@ function get_tool_type_instance_ids($type) {
 function serialise_tool_type(stdClass $type) {
     global $CFG;
 
-    $capabilitygroups = get_tool_type_capability_groups($type);
+    $capabilitygroups = \core_ltix\types_helper::get_tool_type_capability_groups($type);
     $instanceids = get_tool_type_instance_ids($type);
     // Clean the name. We don't want tags here.
     $name = clean_param($type->name, PARAM_NOTAGS);
@@ -2779,7 +2782,7 @@ function serialise_tool_type(stdClass $type) {
         'name' => $name,
         'description' => $description,
         'urls' => get_tool_type_urls($type),
-        'state' => get_tool_type_state_info($type),
+        'state' => \core_ltix\types_helper::get_tool_type_state_info($type),
         'platformid' => $CFG->wwwroot,
         'clientid' => $type->clientid,
         'deploymentid' => $type->id,
@@ -2813,7 +2816,7 @@ function lti_load_type_if_cartridge($type) {
  * @since Moodle 3.1
  */
 function lti_load_tool_if_cartridge($lti) {
-    if (!empty($lti->toolurl) && lti_is_cartridge($lti->toolurl)) {
+    if (!empty($lti->toolurl) && \core_ltix\tool_helper::is_cartridge($lti->toolurl)) {
         lti_load_tool_from_cartridge($lti->toolurl, $lti);
     }
 }
@@ -2858,7 +2861,7 @@ function lti_load_type_from_cartridge($url, $type) {
  * @since Moodle 3.1
  */
 function lti_load_tool_from_cartridge($url, $lti) {
-    $toolinfo = lti_load_cartridge($url,
+    $toolinfo = \core_ltix\tool_helper::load_cartridge($url,
         array(
             "title" => "name",
             "launch_url" => "toolurl",
