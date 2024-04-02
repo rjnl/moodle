@@ -32,6 +32,17 @@ use core_external\external_single_structure;
 use core_external\external_value;
 use core_external\external_warnings;
 use core_external\util;
+use core_ltix\external;
+use core_ltix\external\create_tool_proxy;
+use core_ltix\external\create_tool_type;
+use core_ltix\external\delete_tool_proxy;
+use core_ltix\external\delete_tool_type;
+use core_ltix\external\get_tool_proxies;
+use core_ltix\external\get_tool_proxy_registration_request;
+use core_ltix\external\get_tool_types;
+use core_ltix\external\is_cartridge;
+use core_ltix\external\structs;
+use core_ltix\external\update_tool_type;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -53,11 +64,11 @@ class mod_lti_external extends external_api {
      * Returns structure be used for returning a tool type from a web service.
      *
      * @deprecated since Moodle 4.4
-     *  @return external_function_parameters
+     * @return external_single_structure
      * @since Moodle 3.1
      */
     private static function tool_type_return_structure() {
-        return \core_ltix\external::tool_type_return_structure();
+        return structs::tool_type_return_structure();
     }
 
     /**
@@ -68,7 +79,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     private static function tool_proxy_return_structure() {
-        return \core_ltix\external::tool_proxy_return_structure();
+        return structs::tool_proxy_return_structure();
     }
 
     /**
@@ -79,7 +90,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function get_tool_proxies_parameters() {
-        return \core_ltix\external::get_tool_proxies_parameters();
+        return get_tool_proxies::execute_parameters();
     }
 
     /**
@@ -92,9 +103,9 @@ class mod_lti_external extends external_api {
      * @throws moodle_exception
      */
     public static function get_tool_proxies($orphanedonly) {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::get_tool_proxies instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_proxies instead.',
                   DEBUG_DEVELOPER);
-        return \core_ltix\external::get_tool_proxies($orphanedonly);
+        return get_tool_proxies::execute($orphanedonly);
     }
 
     /**
@@ -113,9 +124,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function get_tool_proxies_returns() {
-        return new external_multiple_structure(
-            self::tool_proxy_return_structure()
-        );
+        return get_tool_proxies::execute_returns();
     }
 
     /**
@@ -403,7 +412,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function create_tool_proxy_parameters() {
-        return \core_ltix\external::create_tool_proxy_parameters();
+        return create_tool_proxy::execute_parameters();
     }
 
     /**
@@ -419,9 +428,9 @@ class mod_lti_external extends external_api {
      * @throws moodle_exception
      */
     public static function create_tool_proxy($name, $registrationurl, $capabilityoffered, $serviceoffered) {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::create_tool_proxy instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\create_tool_proxy instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::create_tool_proxy($name, $registrationurl, $capabilityoffered, $serviceoffered);
+        return create_tool_proxy::execute($name, $registrationurl, $capabilityoffered, $serviceoffered);
     }
 
     /**
@@ -440,7 +449,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function create_tool_proxy_returns() {
-        return self::tool_proxy_return_structure();
+        return create_tool_proxy::execute_returns();
     }
 
     /**
@@ -451,7 +460,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function delete_tool_proxy_parameters() {
-        return \core_ltix\external::delete_tool_proxy_parameters();
+        return delete_tool_proxy::execute_parameters();
     }
 
     /**
@@ -464,9 +473,9 @@ class mod_lti_external extends external_api {
      * @throws moodle_exception
      */
     public static function delete_tool_proxy($id) {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::delete_tool_proxy instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\delete_tool_proxy instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::delete_tool_proxy($id);
+        return delete_tool_proxy::execute($id);
     }
 
     /**
@@ -485,7 +494,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function delete_tool_proxy_returns() {
-        return self::tool_proxy_return_structure();
+        return delete_tool_proxy::execute_returns();
     }
 
     /**
@@ -496,7 +505,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.0
      */
     public static function get_tool_proxy_registration_request_parameters() {
-        return \core_ltix\external::get_tool_proxy_registration_request_parameters();
+        return get_tool_proxy_registration_request::execute_parameters();
     }
 
     /**
@@ -510,8 +519,8 @@ class mod_lti_external extends external_api {
      */
     public static function get_tool_proxy_registration_request($id) {
         debugging(__FUNCTION__ . '() is deprecated. Please use 
-                       \core_ltix\external::get_tool_proxy_registration_request instead.', DEBUG_DEVELOPER);
-        return \core_ltix\external::get_tool_proxy_registration_request($id);
+                       \core_ltix\external\get_tool_proxy_registration_request instead.', DEBUG_DEVELOPER);
+        return get_tool_proxy_registration_request::execute($id);
     }
 
     /**
@@ -529,7 +538,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function get_tool_proxy_registration_request_returns() {
-        return \core_ltix\external::get_tool_proxy_registration_request_returns();
+        return get_tool_proxy_registration_request::execute_returns();
     }
 
     /**
@@ -540,7 +549,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function get_tool_types_parameters() {
-        return \core_ltix\external::get_tool_types_parameters();
+        return get_tool_types::execute_parameters();
     }
 
     /**
@@ -553,10 +562,10 @@ class mod_lti_external extends external_api {
      * @throws moodle_exception
      */
     public static function get_tool_types($toolproxyid) {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::get_tool_types instead.',
+        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_types instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\external::get_tool_types($toolproxyid);
+        return get_tool_types::execute($toolproxyid);
     }
 
     /**
@@ -575,9 +584,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function get_tool_types_returns() {
-        return new external_multiple_structure(
-            self::tool_type_return_structure()
-        );
+        return get_tool_types::execute_returns();
     }
 
     /**
@@ -588,7 +595,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function create_tool_type_parameters() {
-        return \core_ltix\external::create_tool_type_parameters();
+        return create_tool_type::execute_parameters();
     }
 
     /**
@@ -605,7 +612,7 @@ class mod_lti_external extends external_api {
     public static function create_tool_type($cartridgeurl, $key, $secret) {
         debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::create_tool_type instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::create_tool_type($cartridgeurl, $key, $secret);
+        return create_tool_type::execute($cartridgeurl, $key, $secret);
     }
 
     /**
@@ -624,7 +631,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function create_tool_type_returns() {
-        return self::tool_type_return_structure();
+        return create_tool_type::execute_returns();
     }
 
     /**
@@ -635,7 +642,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function update_tool_type_parameters() {
-        return \core_ltix\external::update_tool_type_parameters();
+        return update_tool_type::execute_parameters();
     }
 
     /**
@@ -653,7 +660,7 @@ class mod_lti_external extends external_api {
     public static function update_tool_type($id, $name, $description, $state) {
         debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::update_tool_type instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::update_tool_type($id, $name, $description, $state);
+        return update_tool_type::execute($id, $name, $description, $state);
     }
 
     /**
@@ -672,7 +679,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function update_tool_type_returns() {
-        return self::tool_type_return_structure();
+        return update_tool_type::execute_returns();
     }
 
     /**
@@ -683,7 +690,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function delete_tool_type_parameters() {
-        return \core_ltix\external::delete_tool_type_parameters();
+        return delete_tool_type::execute_parameters();
     }
 
     /**
@@ -698,7 +705,7 @@ class mod_lti_external extends external_api {
     public static function delete_tool_type($id) {
         debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::delete_tool_type instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::delete_tool_type($id);
+        return delete_tool_type::execute($id);
     }
 
     /**
@@ -717,7 +724,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function delete_tool_type_returns() {
-        return \core_ltix\external::delete_tool_type_returns();
+        return delete_tool_type::execute_returns();
     }
 
     /**
@@ -728,7 +735,7 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function is_cartridge_parameters() {
-        return \core_ltix\external::is_cartridge_parameters();
+        return is_cartridge::execute_parameters();
     }
 
     /**
@@ -743,7 +750,7 @@ class mod_lti_external extends external_api {
     public static function is_cartridge($url) {
         debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external::is_cartridge instead.',
             DEBUG_DEVELOPER);
-        return \core_ltix\external::is_cartridge($url);
+        return is_cartridge::execute($url);
     }
 
     /**
@@ -762,6 +769,6 @@ class mod_lti_external extends external_api {
      * @since Moodle 3.1
      */
     public static function is_cartridge_returns() {
-        return \core_ltix\external::is_cartridge_returns();
+        return is_cartridge::execute_returns();
     }
 }

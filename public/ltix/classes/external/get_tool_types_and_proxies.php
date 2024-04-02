@@ -18,9 +18,9 @@ namespace core_ltix\external;
 
 use core_external\external_api;
 use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
 use core_external\external_single_structure;
 use core_external\external_value;
-use core_ltix\external;
 use core_ltix\helper;
 
 /**
@@ -111,8 +111,8 @@ class get_tool_types_and_proxies extends external_api {
      */
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
-            'types' => external::get_tool_types_returns(),
-            'proxies' => external::get_tool_proxies_returns(),
+            'types' => new external_multiple_structure(structs::tool_type_return_structure()),
+            'proxies' => new external_multiple_structure(structs::tool_proxy_return_structure()),
             'limit' => new external_value(PARAM_INT, 'Limit of how many tool types to show', VALUE_OPTIONAL),
             'offset' => new external_value(PARAM_INT, 'Offset of tool types', VALUE_OPTIONAL),
         ]);
