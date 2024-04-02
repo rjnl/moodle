@@ -15,18 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains the cache definitions for the lti plugin
+ * This library exposes functions for LTI Dynamic Registration.
  *
- * @package    mod_lti
- * @copyright 2020 Carlos Vinícius Monteiro Costa
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    core_ltix
+ * @copyright  2020 Claude Vervoort (Cengage), Carlos Costa, Adrian Hutchinson (Macgraw Hill)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace core_ltix\ltiopenid;
 
-defined('MOODLE_INTERNAL') || die();
-
-// Added definition for keyset cache.
-$definitions = [
-    'keyset' => [
-        'mode' => cache_store::MODE_APPLICATION
-    ]
-];
+/**
+ * Exception when transforming the registration to LTI config.
+ *
+ * Code is the HTTP Error code.
+ */
+class registration_exception extends \Exception {
+}
