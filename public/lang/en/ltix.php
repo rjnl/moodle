@@ -28,6 +28,7 @@ $string['cleanaccesstokens'] = 'External tool removal of expired access tokens';
 $string['contentselected'] = 'Content selected';
 $string['courseactivitiesorresources'] = 'Course activities or resources';
 $string['courseinformation'] = 'Course information';
+$string['duplicateregurl'] = 'This registration URL is already in use';
 $string['errorincorrectconsumerkey'] = 'Consumer key is incorrect.';
 $string['errorinvaliddata'] = 'Invalid data: {$a}';
 $string['errorinvalidresponseformat'] = 'Invalid Content-Item response format.';

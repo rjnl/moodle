@@ -172,7 +172,6 @@ $string['dynreg_update_version'] = 'LTI version';
 $string['dynreg_update_notools'] = 'No tools in context.';
 $string['dynreg_update_btn_update'] = 'Update';
 $string['dynreg_update_btn_new'] = 'Register as a new external tool';
-$string['duplicateregurl'] = 'This registration URL is already in use';
 $string['editdescription'] = 'Click here to give this tool a description';
 $string['editmanualinstancedeprecationwarning'] = 'Manually configured External tool activities are no longer supported. Don\'t worry, this activity will still work as it is, but you can\'t make changes to the tool configuration here anymore.
 <br><br>

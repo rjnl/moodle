@@ -503,7 +503,7 @@ class mod_lti_external extends external_api {
         // Can't create duplicate proxies with the same URL.
         $duplicates = \core_ltix\helper::get_tool_proxies_from_registration_url($registrationurl);
         if (!empty($duplicates)) {
-            throw new moodle_exception('duplicateregurl', 'mod_lti');
+            throw new moodle_exception('duplicateregurl', 'core_ltix');
         }
 
         $config = new stdClass();
