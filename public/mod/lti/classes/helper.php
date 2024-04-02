@@ -31,30 +31,12 @@ class helper {
     /**
      * Get SQL to query DB for LTI tool proxy records.
      *
+     * @deprecated since Moodle 4.4
      * @param bool $orphanedonly If true, return SQL to get orphaned proxies only.
      * @param bool $count If true, return SQL to get the count of the records instead of the records themselves.
      * @return string SQL.
      */
     public static function get_tool_proxy_sql(bool $orphanedonly = false, bool $count = false): string {
-        if ($count) {
-            $select = "SELECT count(*) as type_count";
-            $sort = "";
-        } else {
-            // We only want the fields from lti_tool_proxies table. Must define every column to be compatible with mysqli.
-            $select = "SELECT ltp.id, ltp.name, ltp.regurl, ltp.state, ltp.guid, ltp.secret, ltp.vendorcode,
-                              ltp.capabilityoffered, ltp.serviceoffered, ltp.toolproxy, ltp.createdby,
-                              ltp.timecreated, ltp.timemodified";
-            $sort = " ORDER BY ltp.name ASC, ltp.state DESC, ltp.timemodified DESC";
-        }
-        $from = " FROM {lti_tool_proxies} ltp";
-        if ($orphanedonly) {
-            $join = " LEFT JOIN {lti_types} lt ON ltp.id = lt.toolproxyid";
-            $where = " WHERE lt.toolproxyid IS null";
-        } else {
-            $join = "";
-            $where = "";
-        }
-
-        return $select . $from . $join . $where . $sort;
+        return \core_ltix\tool_helper::get_tool_proxy_sql($orphanedonly, $count);
     }
 }
