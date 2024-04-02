@@ -317,6 +317,7 @@ $string['legacytype'] = 'Legacy role type';
 $string['legacy:user'] = 'LEGACY ROLE: Authenticated user';
 $string['listallroles'] = 'List all roles';
 $string['localroles'] = 'Locally assigned roles';
+$string['ltix:addcoursetool'] = 'Add course-specific tool configurations';
 $string['mainadmin'] = 'Main administrator';
 $string['mainadminset'] = 'Set main admin';
 $string['manageadmins'] = 'Manage site administrators';

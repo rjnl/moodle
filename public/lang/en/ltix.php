@@ -23,5 +23,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['active'] = 'Active';
+$string['contentselected'] = 'Content selected';
+$string['courseactivitiesorresources'] = 'Course activities or resources';
+$string['courseinformation'] = 'Course information';
+$string['errorinvaliddata'] = 'Invalid data: {$a}';
+$string['errorinvalidresponseformat'] = 'Invalid Content-Item response format.';
+$string['errortooltypenotfound'] = 'LTI tool type not found.';
 $string['ltix'] = 'LTIx';
+$string['pending'] = 'Pending';
 $string['privacy:metadata'] = 'The LTIx subsystem does not store any personal data.';
+$string['rejected'] = 'Rejected';
+$string['unknownstate'] = 'Unknown state';
+$string['useraccountinformation'] = 'User account information';
+$string['userpersonalinformation'] = 'User personal information';
