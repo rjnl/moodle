@@ -167,6 +167,10 @@ class backup_course_task extends backup_task {
         $content = self::encode_links_helper($content, 'GRADEREPORTINDEXBYID', '/grade/report/index.php?id=');
         $content = self::encode_links_helper($content, 'BADGESVIEWBYID',       '/badges/view.php?type=2&id=');
         $content = self::encode_links_helper($content, 'USERINDEXVIEWBYID',    '/user/index.php?id=');
+        // Replace urls with "contextid/component/filearea/itemid" first.
+        //$content = self::encode_links_helper($content, 'PLUGINFILEBYITEMID',  '/pluginfile.php/');
+        $content = self::encode_links_helper($content, 'PLUGINFILE',  '/pluginfile.php/');
+        // Now replace urls without any itemid.
         $content = self::encode_links_helper($content, 'PLUGINFILEBYCONTEXT',  '/pluginfile.php/');
         $content = self::encode_links_helper($content, 'PLUGINFILEBYCONTEXTURLENCODED', '/pluginfile.php/', true);
 
@@ -200,8 +204,19 @@ class backup_course_task extends backup_task {
         $httpsbase = preg_quote($httpsbase, '/');
         $httpbase = preg_quote($httpbase, '/');
 
+        if ($name == 'PLUGINFILE') {
+            // /(http:\/\/localhost\/moodle\/pluginfile\.php\/)([0-9]+)(.+)(\/[0-9]+\/)/gm
+            //$return = preg_replace('/(' . $httpsbase . ')([0-9]+)(\/[^\'"]+\/)([0-9]+)\//', '$@' . $name . '*$2$3*$4@$/', $content);
+            //$return = preg_replace('/(' . $httpbase . ')([0-9]+)(\/[^\'"]+\/)([0-9]+)\//', '$@' . $name . '*$2$3*$4@$/', $return);
+
+
+            $return = preg_replace('/(' . $httpbase . ')([0-9]+)(\/[^\'"]+\/)([0-9]+)/', '@@' . $name . '@@', $content);
+        }
+        else {
         $return = preg_replace('/(' . $httpsbase . ')([0-9]+)/', '$@' . $name . '*$2@$', $content);
         $return = preg_replace('/(' . $httpbase . ')([0-9]+)/', '$@' . $name . '*$2@$', $return);
+        }
+
 
         return $return;
     }
