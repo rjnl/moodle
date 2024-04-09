@@ -62,20 +62,20 @@ final class cleanup_test extends \advanced_testcase {
         $conditions['iteminstance'] = $lti2->id;
         $gradeitem2 = $DB->get_record('grade_items', $conditions);
 
-        // Insert these into the 'ltiservice_gradebookservices' table.
+        // Insert these into the 'ltixservice_gradebookservices' table.
         $data = new \stdClass();
         $data->gradeitemid = $gradeitem->id;
         $data->courseid = $course->id;
-        $DB->insert_record('ltiservice_gradebookservices', $data);
+        $DB->insert_record('ltixservice_gradebookservices', $data);
 
         $data->gradeitemid = $gradeitem2->id;
-        $DB->insert_record('ltiservice_gradebookservices', $data);
+        $DB->insert_record('ltixservice_gradebookservices', $data);
 
         $task = new cleanup_task();
         $task->execute();
 
         // Check they both still exist.
-        $this->assertEquals(2, $DB->count_records('ltiservice_gradebookservices'));
+        $this->assertEquals(2, $DB->count_records('ltixservice_gradebookservices'));
 
         // Delete the first LTI activity.
         \core_courseformat\formatactions::cm($course->id)->delete($lti->cmid);
@@ -85,7 +85,7 @@ final class cleanup_test extends \advanced_testcase {
         $task->execute();
 
         // Check only the second grade item exists.
-        $gradebookserviceitems = $DB->get_records('ltiservice_gradebookservices');
+        $gradebookserviceitems = $DB->get_records('ltixservice_gradebookservices');
         $this->assertCount(1, $gradebookserviceitems);
 
         $gradebookserviceitem = reset($gradebookserviceitems);
@@ -111,18 +111,18 @@ final class cleanup_test extends \advanced_testcase {
         $gradeitem = new \grade_item($params);
         $gradeitem->insert();
 
-        // Insert it into the 'ltiservice_gradebookservices' table.
+        // Insert it into the 'ltixservice_gradebookservices' table.
         $data = new \stdClass();
         $data->gradeitemid = $gradeitem->id;
         $data->courseid = $course->id;
-        $DB->insert_record('ltiservice_gradebookservices', $data);
+        $DB->insert_record('ltixservice_gradebookservices', $data);
 
         // Run the task.
         $task = new cleanup_task();
         $task->execute();
 
         // Check it still exist.
-        $this->assertEquals(1, $DB->count_records('ltiservice_gradebookservices'));
+        $this->assertEquals(1, $DB->count_records('ltixservice_gradebookservices'));
 
         // Delete the manual item.
         $gradeitem->delete();
@@ -132,6 +132,6 @@ final class cleanup_test extends \advanced_testcase {
         $task->execute();
 
         // Check it has been removed.
-        $this->assertEquals(0, $DB->count_records('ltiservice_gradebookservices'));
+        $this->assertEquals(0, $DB->count_records('ltixservice_gradebookservices'));
     }
 }

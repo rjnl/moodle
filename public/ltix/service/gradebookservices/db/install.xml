@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="ltix/service/gradebookservices/db" VERSION="20150915" COMMENT="XMLDB file for Moodle core_ltix/service/gradebookservices"
+<XMLDB PATH="ltix/service/gradebookservices/db" VERSION="20240607" COMMENT="XMLDB file for Moodle core_ltix/service/gradebookservices"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../../../../lib/xmldb/xmldb.xsd"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="ltiservice_gradebookservices" COMMENT="This file records the grade items created by the LTI Gradebook Services service">
+    <TABLE NAME="ltixservice_gradebookservices" COMMENT="This file records the grade items created by the LTI Gradebook Services service">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="gradeitemid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the gradeItem related."/>
