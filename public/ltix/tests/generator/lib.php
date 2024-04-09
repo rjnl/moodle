@@ -47,7 +47,7 @@ class core_ltix_generator extends testing_module_generator {
      * two params (type, config) based on the array key prefixes ({@see lti_add_type()} for how the two params are handled):
      * - NO prefix: denotes 'type' data.
      * - 'lti_' prefix: denotes 'config' data.
-     * - 'ltiservice_' prefix: denotes 'config' data, specifically config for service plugins.
+     * - 'ltixservice_' prefix: denotes 'config' data, specifically config for service plugins.
      *
      * @param array $data array of type and config data containing prefixed keys.
      * @return array containing separated objects for type and config data. E.g. ['type' = stdClass, 'config' => stdClass]
@@ -56,8 +56,7 @@ class core_ltix_generator extends testing_module_generator {
         // Grab any non-prefixed fields; these are the type fields. The rest is considered config.
         $type = array_filter(
             $data,
-            fn($val, $key) => !str_contains($key, 'lti_') && !str_contains($key, 'ltiservice_')
-                && !str_contains($key, 'ltixservice_'),
+            fn($val, $key) => !str_contains($key, 'lti_') && !str_contains($key, 'ltixservice_'),
             ARRAY_FILTER_USE_BOTH
         );
         $config = array_diff_key($data, $type);
