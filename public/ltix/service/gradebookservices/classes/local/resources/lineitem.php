@@ -261,7 +261,7 @@ class lineitem extends resource_base {
                 $toolproxyid = null;
                 $baseurl = \core_ltix\helper::get_type_type_config($typeid)->lti_toolurl;
             }
-            $DB->update_record('ltiservice_gradebookservices', (object)array(
+            $DB->update_record('ltixservice_gradebookservices', (object)array(
                     'id' => $gbs->id,
                     'gradeitemid' => $gbs->gradeitemid,
                     'courseid' => $gbs->courseid,
@@ -305,7 +305,7 @@ class lineitem extends resource_base {
         } else {
             $sqlparams = array();
             $sqlparams['id'] = $gbs->id;
-            if (!$DB->delete_records('ltiservice_gradebookservices', $sqlparams)) {
+            if (!$DB->delete_records('ltixservice_gradebookservices', $sqlparams)) {
                 throw new \Exception(null, 500);
             }
         }

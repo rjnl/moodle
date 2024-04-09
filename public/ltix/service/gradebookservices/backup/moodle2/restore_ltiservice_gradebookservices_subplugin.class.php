@@ -66,7 +66,7 @@ class restore_ltixservice_gradebookservices_subplugin extends restore_subplugin 
         global $DB;
         $data = (object)$data;
         // The coupled lineitems are restored as any other grade item
-        // so we will only create the entry in the ltiservice_gradebookservices table.
+        // so we will only create the entry in the ltixservice_gradebookservices table.
         // We will try to find a valid toolproxy in the system.
         // If it has been found before... we use it.
         /* cache parent property to account for missing PHPDoc type specification */
@@ -107,7 +107,7 @@ class restore_ltixservice_gradebookservices_subplugin extends restore_subplugin 
         }
         // If this has not been restored before.
         if ($this->get_mappingid('gbsgradeitemrestored',  $data->id, 0) == 0) {
-            $newgbsid = $DB->insert_record('ltiservice_gradebookservices', (object) array(
+            $newgbsid = $DB->insert_record('ltixservice_gradebookservices', (object) array(
                     'gradeitemid' => 0,
                     'courseid' => $courseid,
                     'toolproxyid' => $newtoolproxyid,
@@ -206,7 +206,7 @@ class restore_ltixservice_gradebookservices_subplugin extends restore_subplugin 
         global $DB;
         $activitytask = $this->task;
         $courseid = $activitytask->get_courseid();
-        $gbstoupdate = $DB->get_records('ltiservice_gradebookservices', array('gradeitemid' => 0, 'courseid' => $courseid));
+        $gbstoupdate = $DB->get_records('ltixservice_gradebookservices', array('gradeitemid' => 0, 'courseid' => $courseid));
         foreach ($gbstoupdate as $gbs) {
             $oldgradeitemid = $this->get_mappingid('gbsgradeitemoldid', $gbs->id, 0);
             $newgradeitemid = $this->get_mappingid('grade_item', $oldgradeitemid, 0);
@@ -216,19 +216,19 @@ class restore_ltixservice_gradebookservices_subplugin extends restore_subplugin 
                     // Before 3.9 resourceid was stored in grade_item->idnumber.
                     $gbs->resourceid = $DB->get_field_select('grade_items', 'idnumber', "id=:id", ['id' => $newgradeitemid]);
                 }
-                $DB->update_record('ltiservice_gradebookservices', $gbs);
+                $DB->update_record('ltixservice_gradebookservices', $gbs);
             }
         }
         // Pre 3.9 backups did not include a gradebookservices record. Adding one here if missing for the restored instance.
         $gi = $DB->get_record('grade_items', array('itemtype' => 'mod', 'itemmodule' => 'lti', 'courseid' => $courseid,
             'iteminstance' => $this->task->get_activityid()));
         if ($gi) {
-            $gbs = $DB->get_records('ltiservice_gradebookservices', ['gradeitemid' => $gi->id]);
+            $gbs = $DB->get_records('ltixservice_gradebookservices', ['gradeitemid' => $gi->id]);
             if (empty($gbs)) {
                 // The currently restored LTI link has a grade item but no gbs, so let's create a gbs entry.
                 if ($instance = $DB->get_record('lti', array('id' => $gi->iteminstance))) {
                     if ($tool = \core_ltix\helper::get_instance_type($instance)) {
-                        $DB->insert_record('ltiservice_gradebookservices', (object) array(
+                        $DB->insert_record('ltixservice_gradebookservices', (object) array(
                             'gradeitemid' => $gi->id,
                             'courseid' => $courseid,
                             'toolproxyid' => $tool->toolproxyid,

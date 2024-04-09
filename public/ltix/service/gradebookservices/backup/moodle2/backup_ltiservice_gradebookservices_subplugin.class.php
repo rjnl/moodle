@@ -93,7 +93,7 @@ class backup_ltixservice_gradebookservices_subplugin extends backup_subplugin {
             $toolproxyid = $ltitype->toolproxyid;
         } else if ($lti->typeid == self::NONVALIDTYPEID) { // This activity comes from an old backup.
             // 1. Let's check if the activity is coupled. If so, find the values in the GBS element.
-            $gbsrecord = $DB->get_record('ltiservice_gradebookservices',
+            $gbsrecord = $DB->get_record('ltixservice_gradebookservices',
                     ['ltilinkid' => $activityid], 'typeid,toolproxyid,baseurl');
             if ($gbsrecord) {
                 $typeid = $gbsrecord->typeid;
@@ -118,7 +118,7 @@ class backup_ltixservice_gradebookservices_subplugin extends backup_subplugin {
         // Define sources.
         if ($toolproxyid != null) {
             $lineitemssql = "SELECT l.*, t.vendorcode as vendorcode, t.guid as guid
-                               FROM {ltiservice_gradebookservices} l
+                               FROM {ltixservice_gradebookservices} l
                          INNER JOIN {lti_tool_proxies} t ON (t.id = l.toolproxyid)
                               WHERE l.courseid = ?
                                 AND l.toolproxyid = ?
@@ -126,7 +126,7 @@ class backup_ltixservice_gradebookservices_subplugin extends backup_subplugin {
             $lineitemsparams = ['courseid' => backup::VAR_COURSEID, backup_helper::is_sqlparam($toolproxyid)];
         } else {
             $lineitemssql = "SELECT l.*, null as vendorcode, null as guid
-                               FROM {ltiservice_gradebookservices} l
+                               FROM {ltixservice_gradebookservices} l
                               WHERE l.courseid = ?
                                 AND l.typeid = ?
                                 AND l.toolproxyid is null";

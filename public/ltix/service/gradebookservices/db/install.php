@@ -30,7 +30,7 @@ function xmldb_ltixservice_gradebookservices_install() {
 
     // Migrate data from the now-defunct ltiservice_gradebookservices plugin if this plugin is being installed during an upgrade.
     if ($dbman->table_exists('tmp_ltiservice_gradebookservices')) {
-        $sql = 'INSERT INTO {ltiservice_gradebookservices}
+        $sql = 'INSERT INTO {ltixservice_gradebookservices}
                             (gradeitemid, courseid, toolproxyid, typeid, baseurl, ltilinkid, resourceid, tag, subreviewurl,
                              subreviewparams)
                      SELECT gradeitemid, courseid, toolproxyid, typeid, baseurl, ltilinkid, resourceid, tag, subreviewurl,

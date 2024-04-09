@@ -160,7 +160,7 @@ class gradebookservices extends service_base {
         global $DB;
         if ($messagetype == 'LtiSubmissionReviewRequest' && isset($lti->id)) {
             $conditions = array('courseid' => $courseid, 'ltilinkid' => $lti->id);
-            $coupledlineitems = $DB->get_records('ltiservice_gradebookservices', $conditions);
+            $coupledlineitems = $DB->get_records('ltixservice_gradebookservices', $conditions);
             if (count($coupledlineitems) == 1) {
                 $item = reset($coupledlineitems);
                 $url = $item->subreviewurl;
@@ -265,7 +265,7 @@ class gradebookservices extends service_base {
 
                         $coupledlineitems = $DB->get_records('grade_items', $conditions);
                         $conditionsgbs = array('courseid' => $courseid, 'ltilinkid' => $modlti);
-                        $lineitemsgbs = $DB->get_records('ltiservice_gradebookservices', $conditionsgbs);
+                        $lineitemsgbs = $DB->get_records('ltixservice_gradebookservices', $conditionsgbs);
                         // If a link has more that one attached grade items, per spec we do not populate line item url.
                         if (count($lineitemsgbs) == 1) {
                             $id = reset($lineitemsgbs)->gradeitemid;
@@ -455,7 +455,7 @@ class gradebookservices extends service_base {
         $item->itemtype = 'manual';
         $item->grademax = $maximumscore;
         $id = $item->insert('mod/ltixservice_gradebookservices');
-        $DB->insert_record('ltiservice_gradebookservices', (object)array(
+        $DB->insert_record('ltixservice_gradebookservices', (object)array(
                 'gradeitemid' => $id,
                 'courseid' => $courseid,
                 'toolproxyid' => $toolproxyid,
@@ -741,10 +741,10 @@ class gradebookservices extends service_base {
                     $gbs->tag = $tag;
                     $gbs->subreviewurl = $subreviewurlstr;
                     $gbs->subreviewparams = $subreviewparams;
-                    $DB->update_record('ltiservice_gradebookservices', $gbs);
+                    $DB->update_record('ltixservice_gradebookservices', $gbs);
                 } else {
                     $baseurl = \core_ltix\helper::get_type_type_config($ltiinstance->typeid)->lti_toolurl;
-                    $DB->insert_record('ltiservice_gradebookservices', (object)array(
+                    $DB->insert_record('ltixservice_gradebookservices', (object)array(
                         'gradeitemid' => $gradeitem->id,
                         'courseid' => $gradeitem->courseid,
                         'typeid' => $ltiinstance->typeid,
@@ -815,7 +815,7 @@ class gradebookservices extends service_base {
         global $DB;
 
         $sql = "DELETE
-                  FROM {ltiservice_gradebookservices}
+                  FROM {ltixservice_gradebookservices}
                  WHERE gradeitemid NOT IN (SELECT id
                                              FROM {grade_items} gi)";
         $DB->execute($sql);
@@ -874,7 +874,7 @@ class gradebookservices extends service_base {
     public static function find_ltiservice_gradebookservice_for_lineitem($lineitemid) {
         global $DB;
         if ($lineitemid) {
-            return $DB->get_record('ltiservice_gradebookservices',
+            return $DB->get_record('ltixservice_gradebookservices',
                     array('gradeitemid' => $lineitemid));
         }
     }
