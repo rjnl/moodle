@@ -347,7 +347,7 @@ class helper {
      * @param string $contentitemsjson The JSON string for the content_items parameter.
      * @return stdClass The array of module information objects.
      * @throws moodle_exception
-     * @throws moodle\mod\lti\OAuthException
+     * @throws \core_ltix\OAuthException
      */
     public static function tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey, $contentitemsjson) {
         $tool = self::get_type($typeid);
@@ -1211,7 +1211,7 @@ class helper {
      * Determines if the given url is for a IMS basic cartridge
      *
      * @param  string $url The url to be checked
-     * @return True if the url is for a cartridge
+     * @return boolean True if the url is for a cartridge
      */
     public static function is_cartridge($url) {
         // If it is empty, it's not a cartridge.
@@ -2296,7 +2296,7 @@ class helper {
      *
      * @param stdClass $instance the external tool activity settings
      * @param int $foruserid for user param, optional
-     * @return string The HTML code containing the javascript code for the launch
+     * @return void Prints the HTML code containing the javascript code for the launch
      */
     public static function launch_tool($instance, $foruserid=0) {
 
@@ -2507,7 +2507,7 @@ class helper {
      *
      * @param stdClass  $instance       Basic LTI instance object
      * @param string    $orgid          Organisation ID
-     * @param boolean   $ltiversion     LTI version to be used for tool messages
+     * @param string    $ltiversion     LTI version to be used for tool messages
      * @param string    $messagetype    The request message type. Defaults to basic-lti-launch-request if empty.
      *
      * @return array                    Message parameters
@@ -4004,6 +4004,7 @@ class helper {
      *
      */
     public static function get_token_endpoint() {
+        global $DB;
 
         $response = new \core_ltix\local\ltiservice\response();
 

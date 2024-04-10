@@ -171,7 +171,6 @@ $string['no_tp_cancelled'] = 'There are no cancelled external tool registrations
 $string['no_tp_configured'] = 'There are no unregistered external tool registrations configured.';
 $string['no_tp_pending'] = 'There are no pending external tool registrations.';
 $string['no_tp_rejected'] = 'There are no rejected external tool registrations.';
-$string['no_lti_tools'] = 'There are no external tools configured.';
 $string['nocourseexternaltoolsnotice'] = 'There are no LTI External tools yet.';
 $string['noprofileservice'] = 'Profile service not found';
 $string['oauthsecurity'] = 'LTI 1.0/1.1';
