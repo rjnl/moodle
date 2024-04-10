@@ -105,7 +105,7 @@ class scores extends resource_base {
             if ($item === false) {
                 throw new \Exception('Line item does not exist', 404);
             }
-            $gbs = gradebookservices::find_ltiservice_gradebookservice_for_lineitem($itemid);
+            $gbs = gradebookservices::find_ltixservice_gradebookservice_for_lineitem($itemid);
             $ltilinkid = null;
             if (isset($item->iteminstance)) {
                 $ltilinkid = $item->iteminstance;

@@ -151,7 +151,7 @@ class lineitem extends resource_base {
             throw new \Exception(null, 400);
         }
         $item = \grade_item::fetch(array('id' => $olditem->id, 'courseid' => $olditem->courseid));
-        $gbs = gradebookservices::find_ltiservice_gradebookservice_for_lineitem($olditem->id);
+        $gbs = gradebookservices::find_ltixservice_gradebookservice_for_lineitem($olditem->id);
         $updategradeitem = false;
         $rescalegrades = false;
         $oldgrademax = grade_floatval($item->grademax);
@@ -297,7 +297,7 @@ class lineitem extends resource_base {
         global $DB;
 
         $gradeitem = \grade_item::fetch(array('id' => $item->id));
-        if (($gbs = gradebookservices::find_ltiservice_gradebookservice_for_lineitem($item->id)) == false) {
+        if (($gbs = gradebookservices::find_ltixservice_gradebookservice_for_lineitem($item->id)) == false) {
             throw new \Exception(null, 403);
         }
         if (!$gradeitem->delete('mod/ltixservice_gradebookservices')) {
