@@ -322,7 +322,7 @@ class gradebookservices extends service_base {
         $lineitemsandtotalcount = array();
         if ($lineitems) {
             foreach ($lineitems as $lineitem) {
-                $gbs = $this->find_ltiservice_gradebookservice_for_lineitem($lineitem->id);
+                $gbs = $this->find_ltixservice_gradebookservice_for_lineitem($lineitem->id);
                 if ($gbs && (!isset($tag) || (isset($tag) && $gbs->tag == $tag))
                         && (!isset($ltilinkid) || (isset($ltilinkid) && $gbs->ltilinkid == $ltilinkid))
                         && (!isset($resourceid) || (isset($resourceid) && $gbs->resourceid == $resourceid))) {
@@ -390,7 +390,7 @@ class gradebookservices extends service_base {
         require_once($CFG->libdir . '/gradelib.php');
         $lineitem = \grade_item::fetch(array('id' => $itemid));
         if ($lineitem) {
-            $gbs = $this->find_ltiservice_gradebookservice_for_lineitem($itemid);
+            $gbs = $this->find_ltixservice_gradebookservice_for_lineitem($itemid);
             if (!$gbs) {
                 // We will need to check if the activity related belongs to our tool proxy.
                 $ltiactivity = $DB->get_record('lti', array('id' => $lineitem->iteminstance));
@@ -572,7 +572,7 @@ class gradebookservices extends service_base {
         $lineitem->id = "{$endpoint}/{$item->id}/lineitem" . $typeidstring;
         $lineitem->label = $item->itemname;
         $lineitem->scoreMaximum = floatval($item->grademax);
-        $gbs = self::find_ltiservice_gradebookservice_for_lineitem($item->id);
+        $gbs = self::find_ltixservice_gradebookservice_for_lineitem($item->id);
         if ($gbs) {
             $lineitem->resourceId = (!empty($gbs->resourceid)) ? $gbs->resourceid : '';
             $lineitem->tag = (!empty($gbs->tag)) ? $gbs->tag : '';
@@ -735,7 +735,7 @@ class gradebookservices extends service_base {
                 $resourceid = (isset($resourceid) && empty(trim($resourceid))) ? null : $resourceid;
                 $subreviewurlstr = $subreviewurl ? $subreviewurl->out(false) : null;
                 $tag = (isset($tag) && empty(trim($tag))) ? null : $tag;
-                $gbs = self::find_ltiservice_gradebookservice_for_lineitem($gradeitem->id);
+                $gbs = self::find_ltixservice_gradebookservice_for_lineitem($gradeitem->id);
                 if ($gbs) {
                     $gbs->resourceid = $resourceid;
                     $gbs->tag = $tag;
@@ -793,7 +793,7 @@ class gradebookservices extends service_base {
         $defaultvalues->subreviewurl = '';
         $defaultvalues->subreviewparams = '';
         if (is_object($defaultvalues) && $defaultvalues->instance) {
-            $gbs = self::find_ltiservice_gradebookservice_for_lti($defaultvalues->instance);
+            $gbs = self::find_ltixservice_gradebookservice_for_lti($defaultvalues->instance);
             if ($gbs) {
                 $defaultvalues->lineitemresourceid = $gbs->resourceid;
                 $defaultvalues->lineitemtag = $gbs->tag;
@@ -811,7 +811,7 @@ class gradebookservices extends service_base {
      * This method will clean these orphans. It will happens based on a task
      * because it is not urgent and we don't want to slow the service
      */
-    public static function delete_orphans_ltiservice_gradebookservices_rows() {
+    public static function delete_orphan_ltixservice_gradebookservices_rows() {
         global $DB;
 
         $sql = "DELETE
@@ -854,13 +854,13 @@ class gradebookservices extends service_base {
      * @param string $instanceid The LTI module instance id
      * @return object gradebookservice for this line item
      */
-    public static function find_ltiservice_gradebookservice_for_lti($instanceid) {
+    public static function find_ltixservice_gradebookservice_for_lti($instanceid) {
         global $DB;
 
         if ($instanceid) {
             $gradeitem = $DB->get_record('grade_items', array('itemmodule' => 'lti', 'iteminstance' => $instanceid));
             if ($gradeitem) {
-                return self::find_ltiservice_gradebookservice_for_lineitem($gradeitem->id);
+                return self::find_ltixservice_gradebookservice_for_lineitem($gradeitem->id);
             }
         }
     }
@@ -871,7 +871,7 @@ class gradebookservices extends service_base {
      * @param string $lineitemid The lineitem (gradeitem) id
      * @return object gradebookservice if it exists
      */
-    public static function find_ltiservice_gradebookservice_for_lineitem($lineitemid) {
+    public static function find_ltixservice_gradebookservice_for_lineitem($lineitemid) {
         global $DB;
         if ($lineitemid) {
             return $DB->get_record('ltixservice_gradebookservices',

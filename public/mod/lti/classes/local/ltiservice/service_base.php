@@ -99,7 +99,7 @@ abstract class service_base {
      */
     public function get_component_id() {
 
-        return 'ltiservice_' . $this->id;
+        return 'ltixservice_' . $this->id;
 
     }
 

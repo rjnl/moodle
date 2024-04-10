@@ -52,7 +52,7 @@ class cleanup_task extends scheduled_task {
      * Run forum cron.
      */
     public function execute() {
-        gradebookservices::delete_orphans_ltiservice_gradebookservices_rows();
+        gradebookservices::delete_orphan_ltixservice_gradebookservices_rows();
     }
 
 }

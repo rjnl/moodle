@@ -28,7 +28,7 @@ use ltixservice_gradebookservices\local\service\gradebookservices;
  * @category   test
  * @copyright  2022 Cengage Group <claude.vervoort@cengage.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \core_ltix\service\gradebookservices\local\resources\lineitem
+ * @coversDefaultClass \ltixservice_gradebookservices\local\resources\lineitem
  */
 final class lineitem_test extends \advanced_testcase {
 
