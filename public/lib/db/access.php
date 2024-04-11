@@ -2902,4 +2902,15 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         ]
     ],
+
+    // The ability to request the administrator to configure a particular
+    // External tool globally.
+    'moodle/ltix:requesttooladd' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    )
 );

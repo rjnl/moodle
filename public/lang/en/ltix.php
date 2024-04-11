@@ -129,6 +129,13 @@ $string['keytype_help'] = 'The authentication method used to validate the tool.'
 $string['keytype_keyset'] = 'Keyset URL';
 $string['keytype_rsa'] = 'RSA key';
 $string['lti_administration'] = 'Edit preconfigured tool';
+$string['ltix_launch_error'] = 'An error occurred when launching the external tool:';
+$string['ltix_launch_error_tool_request'] = '<p>
+To submit a request for an administrator to complete the tool configuration, click <a href="{$a->admin_request_url}" target="_top">here</a>.
+</p>';
+$string['ltix_launch_error_unsigned_help'] = '<p>This error may be a result of a missing consumer key and shared secret for the tool provider.</p>
+<p>If you have a consumer key and shared secret, you may enter it when editing the external tool instance (make sure advanced options are visible).</p>
+<p>Alternatively, you may <a href="{$a->course_tool_editor}">create a course level tool provider configuration</a>.</p>';
 $string['ltiversion'] = 'LTI version';
 $string['ltiversion_help'] = 'The version of LTI being used for signing messages and service requests: LTI 1.0/1.1 and LTI 2.0 use the OAuth 1.0A security profile; LTI 1.3.0 uses JWTs.';
 $string['ltiunknownserviceapicall'] = 'LTI unknown service API call.';
@@ -202,6 +209,7 @@ Tools which do not require secure communication from Moodle and do not provide a
 may not require a resource key.';
 $string['restricttocategory'] = 'Restrict to category';
 $string['restricttocategory_help'] = 'To restrict use of this tool to courses within a category, select the category or categories from the list.';
+$string['return_to_course'] = 'Click <a href="{$a->link}" target="_top">here</a> to return to the course.';
 $string['secure_icon_url'] = 'Secure icon URL';
 $string['secure_icon_url_help'] = 'Similar to the icon URL, but used when the site is accessed securely through SSL. This field is to prevent the browser from displaying a warning about an insecure image.';
 $string['secure_launch_url'] = 'Secure tool URL';

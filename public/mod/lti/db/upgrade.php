@@ -96,6 +96,7 @@ function xmldb_lti_upgrade($oldversion) {
             'mod/lti:manage' => 'moodle/ltix:manage',
             'mod/lti:addcoursetool' => 'moodle/ltix:addcoursetool',
             'mod/lti:addpreconfiguredinstance' => 'moodle/ltix:viewcoursetools',
+            'mod/lti:requesttooladd' => 'moodle/ltix:requesttooladd',
         ];
         foreach ($capmapping as $oldcap => $newcap) {
 

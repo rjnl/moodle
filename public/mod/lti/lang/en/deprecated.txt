@@ -12,3 +12,7 @@ courseexternaltoolsnoviewpermissions,mod_lti
 courseexternaltooliconalt,mod_lti
 courseexternaltools,mod_lti
 courseexternaltoolsinfo,mod_lti
+return_to_course,mod_lti
+lti_launch_error,mod_lti
+lti_launch_error_tool_request,mod_lti
+lti_launch_error_unsigned_help,mod_lti
