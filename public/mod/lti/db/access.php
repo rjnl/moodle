@@ -66,17 +66,6 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'mod/lti:addinstance',
     ),
-
-    // The ability to request the administrator to configure a particular
-    // External tool globally.
-    'mod/lti:requesttooladd' => array(
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    )
 );
 $deprecatedcapabilities = [
     // The ability to add a manual instance (i.e. not from a preconfigured tool) to the course.
@@ -96,6 +85,11 @@ $deprecatedcapabilities = [
     ],
     'mod/lti:addcoursetool' => [
         'replacement' => 'moodle/ltix:addcoursetool',
+        'message' => 'This capability has been replaced by an equivalent core capability as part of moving large parts of mod_lti'.
+            ' to core.'
+    ],
+    'mod/lti:requesttooladd' => [
+        'replacement' => 'moodle/ltix:requesttooladd',
         'message' => 'This capability has been replaced by an equivalent core capability as part of moving large parts of mod_lti'.
             ' to core.'
     ],

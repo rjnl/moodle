@@ -321,6 +321,7 @@ $string['ltix:addcoursetool'] = 'Add course-specific tool configurations';
 $string['ltix:manage'] = 'Be an instructor when the tool is launched';
 $string['ltix:admin'] = 'Be an administrator when the tool is launched';
 $string['ltix:viewcoursetools'] = 'View course external tools';
+$string['ltix:requesttooladd'] = 'The ability to request the administrator to configure a particular external tool globally.';
 $string['mainadmin'] = 'Main administrator';
 $string['mainadminset'] = 'Set main admin';
 $string['manageadmins'] = 'Manage site administrators';

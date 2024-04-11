@@ -39,7 +39,7 @@ require_login($course);
 
 require_sesskey();
 
-require_capability('mod/lti:requesttooladd', context_course::instance($lti->course));
+require_capability('moodle/ltix:requesttooladd', context_course::instance($lti->course));
 
 $baseurl = \core_ltix\helper::get_domain_from_url($lti->toolurl);
 

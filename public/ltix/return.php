@@ -17,15 +17,13 @@
 /**
  * Handle the return back to Moodle from the tool provider
  *
- * @package mod_lti
+ * @package core_ltix
  * @copyright  Copyright (c) 2011 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author     Chris Scribner
  */
 
-require_once('../../config.php');
-require_once($CFG->dirroot.'/mod/lti/lib.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once('../config.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
 
 $courseid = required_param('course', PARAM_INT);
@@ -51,7 +49,7 @@ require_login($course);
 require_sesskey();
 
 if (!empty($errormsg) || !empty($msg)) {
-    $url = new moodle_url('/mod/lti/return.php', array('course' => $courseid));
+    $url = new moodle_url('/ltix/return.php', array('course' => $courseid));
     $PAGE->set_url($url);
 
     $pagetitle = strip_tags($course->shortname);
@@ -72,7 +70,7 @@ if (!empty($errormsg) || !empty($msg)) {
 }
 
 if (!empty($errormsg)) {
-    echo get_string('lti_launch_error', 'lti');
+    echo get_string('ltix_launch_error', 'core_ltix');
 
     p($errormsg);
 
@@ -83,17 +81,17 @@ if (!empty($errormsg)) {
         $links = new stdClass();
 
         if (has_capability('moodle/ltix:addcoursetool', $contextcourse)) {
-            $coursetooleditor = new moodle_url('mod/lti/coursetools.php', ['id' => $courseid]);
+            $coursetooleditor = new moodle_url('/ltix/coursetools.php', ['id' => $courseid]);
             $links->course_tool_editor = $coursetooleditor->out(false);
 
-            echo get_string('lti_launch_error_unsigned_help', 'lti', $links);
+            echo get_string('ltix_launch_error_unsigned_help', 'core_ltix', $links);
         }
 
-        if (!empty($lti) && has_capability('mod/lti:requesttooladd', $contextcourse)) {
-            $adminrequesturl = new moodle_url('/mod/lti/request_tool.php', array('instanceid' => $lti->id, 'sesskey' => sesskey()));
+        if (!empty($lti) && has_capability('moodle/ltix:requesttooladd', $contextcourse)) {
+            $adminrequesturl = new moodle_url('/ltix/request_tool.php', array('instanceid' => $lti->id, 'sesskey' => sesskey()));
             $links->admin_request_url = $adminrequesturl->out(false);
 
-            echo get_string('lti_launch_error_tool_request', 'lti', $links);
+            echo get_string('ltix_launch_error_tool_request', 'core_ltix', $links);
         }
     }
 
@@ -126,7 +124,7 @@ if (!empty($errormsg)) {
             </script>
         ";
 
-        $clickhere = get_string('return_to_course', 'lti', (object)array('link' => $url));
+        $clickhere = get_string('return_to_course', 'core_ltix', (object)array('link' => $url));
 
         $noscript = "
             <noscript>
