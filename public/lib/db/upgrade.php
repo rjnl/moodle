@@ -1900,6 +1900,17 @@ function xmldb_main_upgrade($oldversion) {
             }
         }
 
+        // Move all the service-specific type config for ltiservice_xx plugins to ltixservice_xx.
+        // Note: this takes a conservative approach and only migrates the known config for shipped ltiservice plugins.
+        // Any non-core service plugins, if present, will need to provide their own upgrade path as part of migrating their plugin.
+        $pluginconfigoptions = ['ltiservice_gradesynchronization', 'ltiservice_memberships', 'ltiservice_toolsettings'];
+        [$insql, $inparams] = $DB->get_in_or_equal($pluginconfigoptions, SQL_PARAMS_NAMED, 'name');
+        $sql = "UPDATE {lti_types_config}
+                   SET name = REPLACE(name, :oldprefix, :newprefix)
+                 WHERE name ".$insql;
+        $params = ['oldprefix' => 'ltiservice_', 'newprefix' => 'ltixservice_'];
+        $DB->execute($sql, array_merge($params, $inparams));
+
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2026060500.01);
     }
