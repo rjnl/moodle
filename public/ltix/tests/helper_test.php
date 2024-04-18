@@ -1140,6 +1140,7 @@ class helper_test extends lti_testcase {
         $this->resetAfterTest();
 
         $CFG->mod_lti_institution_name = 'some institution name lols';
+        $CFG->ltix_institution_name = 'some institution name lols';
 
         $course   = $this->getDataGenerator()->create_course();
         $instance = $this->getDataGenerator()->create_module('lti',

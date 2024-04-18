@@ -282,7 +282,11 @@ class edit_types extends moodleform {
 
             $mform->addElement('checkbox', 'lti_forcessl', get_string('force_ssl', 'lti'));
             $mform->setType('lti_forcessl', PARAM_BOOL);
-            if (!empty($CFG->mod_lti_forcessl)) {
+            if (!empty($CFG->ltix_forcessl)) {
+                $mform->setDefault('lti_forcessl', '1');
+                $mform->freeze('lti_forcessl');
+            } else if(!empty($CFG->mod_lti_forcessl)) {
+                debugging('mod_lti_forcessl is deprecated. Please use ltix_forcessl instead.', DEBUG_DEVELOPER);
                 $mform->setDefault('lti_forcessl', '1');
                 $mform->freeze('lti_forcessl');
             } else {

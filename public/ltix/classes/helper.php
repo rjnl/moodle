@@ -2473,7 +2473,10 @@ class helper {
             $serviceurl = $serviceurl->out();
 
             $forcessl = false;
-            if (!empty($CFG->mod_lti_forcessl)) {
+            if (!empty($CFG->ltix_forcessl)) {
+                $forcessl = true;
+            } else if (!empty($CFG->mod_lti_forcessl)) {
+                debugging('mod_lti_forcessl is deprecated. Please use ltix_forcessl instead.', DEBUG_DEVELOPER);
                 $forcessl = true;
             }
 
@@ -2543,7 +2546,10 @@ class helper {
         if ($orgid) {
             $requestparams["tool_consumer_instance_guid"] = $orgid;
         }
-        if (!empty($CFG->mod_lti_institution_name)) {
+        if (!empty($CFG->ltix_institution_name)) {
+            $requestparams['tool_consumer_instance_name'] = trim(html_to_text($CFG->ltix_institution_name, 0));
+        } else if (!empty($CFG->mod_lti_institution_name)) {
+            debugging('mod_lti_institution_name is deprecated. Please use ltix_institution_name instead.', DEBUG_DEVELOPER);
             $requestparams['tool_consumer_instance_name'] = trim(html_to_text($CFG->mod_lti_institution_name, 0));
         } else {
             $requestparams['tool_consumer_instance_name'] = get_site()->shortname;
@@ -3366,11 +3372,20 @@ class helper {
     public static function should_log_request($rawbody) {
         global $CFG;
 
-        if (empty($CFG->mod_lti_log_users)) {
+        if (!empty($CFG->mod_lti_log_users)) {
+            debugging('mod_lti_log_users is deprecated. Please use ltix_log_users instead.', DEBUG_DEVELOPER);
+        }
+
+        if (empty($CFG->ltix_log_users) && empty($CFG->mod_lti_log_users)) {
             return false;
         }
 
-        $logusers = explode(',', $CFG->mod_lti_log_users);
+        $logusers = [];
+        if (!empty($CFG->ltix_log_users)) {
+            $logusers = explode(',', $CFG->ltix_log_users);
+        } elseif (!empty($CFG->mod_lti_log_users)) {
+            $logusers = explode(',', $CFG->mod_lti_log_users);
+        }
         if (empty($logusers)) {
             return false;
         }
