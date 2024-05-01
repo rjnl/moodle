@@ -1882,11 +1882,11 @@ function xmldb_main_upgrade($oldversion) {
             set_config('privatekey', null, 'mod_lti');
         }
 
-        $servicetypes = ['basicoutcomes', 'memberships'];
+        $servicetypes = ['basicoutcomes', 'memberships', 'profile'];
         foreach ($servicetypes as $type) {
-            $versionFile = $CFG->dirroot . "mod/lti/service/{$type}/version.php";
+            $versionfile = $CFG->dirroot . "mod/lti/service/{$type}/version.php";
 
-            if (!file_exists($versionFile)) {
+            if (!file_exists($versionfile)) {
                 uninstall_plugin('ltiservice', $type);
             }
         }

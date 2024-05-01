@@ -27,6 +27,7 @@ require_once('../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
+use core_ltix\local\ltiservice\service_helper;
 
 $id = required_param('id', PARAM_INT);
 $tab = optional_param('tab', '', PARAM_ALPHAEXT);
@@ -56,7 +57,7 @@ if ($duplicate) {
 }
 
 
-$profileservice = \core_ltix\helper::get_service_by_name('profile');
+$profileservice = service_helper::get_service_by_name('profile');
 if (empty($profileservice)) {
     redirect($redirect,  get_string('noprofileservice', 'lti'));
 }

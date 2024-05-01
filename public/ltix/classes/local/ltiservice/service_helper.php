@@ -41,20 +41,20 @@ class service_helper {
                 }
             }
         }
-    
+
         return $contexts;
-    
+
     }
 
     public static function get_response_xml($codemajor, $description, $messageref, $messagetype) {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><imsx_POXEnvelopeResponse />');
         $xml->addAttribute('xmlns', 'http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0');
-    
+
         $headerinfo = $xml->addChild('imsx_POXHeader')->addChild('imsx_POXResponseHeaderInfo');
-    
+
         $headerinfo->addChild('imsx_version', 'V1.0');
         $headerinfo->addChild('imsx_messageIdentifier', (string)mt_rand());
-    
+
         $statusinfo = $headerinfo->addChild('imsx_statusInfo');
         $statusinfo->addchild('imsx_codeMajor', $codemajor);
         $statusinfo->addChild('imsx_severity', 'status');
@@ -62,23 +62,23 @@ class service_helper {
         $statusinfo->addChild('imsx_messageRefIdentifier', $messageref);
         $incomingtype = str_replace('Response', 'Request', $messagetype);
         $statusinfo->addChild('imsx_operationRefIdentifier', $incomingtype);
-    
+
         $xml->addChild('imsx_POXBody')->addChild($messagetype);
-    
+
         return $xml;
     }
-    
+
     public static function parse_message_id($xml) {
         if (empty($xml->imsx_POXHeader)) {
             return '';
         }
-    
+
         $node = $xml->imsx_POXHeader->imsx_POXRequestHeaderInfo->imsx_messageIdentifier;
         $messageid = (string)$node;
-    
+
         return $messageid;
     }
-    
+
     public static function parse_grade_replace_message($xml) {
         $node = $xml->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
@@ -86,7 +86,7 @@ class service_helper {
             throw new Exception('Invalid sourcedId in result message');
         }
         $node = $xml->imsx_POXBody->replaceResultRequest->resultRecord->result->resultScore->textString;
-    
+
         $score = (string) $node;
         if ( ! is_numeric($score) ) {
             throw new Exception('Score must be numeric');
@@ -95,70 +95,70 @@ class service_helper {
         if ( $grade < 0.0 || $grade > 1.0 ) {
             throw new Exception('Score not between 0.0 and 1.0');
         }
-    
+
         $parsed = new stdClass();
         $parsed->gradeval = $grade;
-    
+
         $parsed->instanceid = $resultjson->data->instanceid;
         $parsed->userid = $resultjson->data->userid;
         $parsed->launchid = $resultjson->data->launchid;
         $parsed->typeid = $resultjson->data->typeid;
         $parsed->sourcedidhash = $resultjson->hash;
-    
+
         $parsed->messageid = self::parse_message_id($xml);
-    
+
         return $parsed;
     }
-    
+
     public static function parse_grade_read_message($xml) {
         $node = $xml->imsx_POXBody->readResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
         if ( is_null($resultjson) ) {
             throw new Exception('Invalid sourcedId in result message');
         }
-    
+
         $parsed = new stdClass();
         $parsed->instanceid = $resultjson->data->instanceid;
         $parsed->userid = $resultjson->data->userid;
         $parsed->launchid = $resultjson->data->launchid;
         $parsed->typeid = $resultjson->data->typeid;
         $parsed->sourcedidhash = $resultjson->hash;
-    
+
         $parsed->messageid = self::parse_message_id($xml);
-    
+
         return $parsed;
     }
-    
+
     public static function parse_grade_delete_message($xml) {
         $node = $xml->imsx_POXBody->deleteResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
         if ( is_null($resultjson) ) {
             throw new Exception('Invalid sourcedId in result message');
         }
-    
+
         $parsed = new stdClass();
         $parsed->instanceid = $resultjson->data->instanceid;
         $parsed->userid = $resultjson->data->userid;
         $parsed->launchid = $resultjson->data->launchid;
         $parsed->typeid = $resultjson->data->typeid;
         $parsed->sourcedidhash = $resultjson->hash;
-    
+
         $parsed->messageid = self::parse_message_id($xml);
-    
+
         return $parsed;
     }
-    
+
     public static function accepts_grades($ltiinstance) {
         global $DB;
-    
+
         $acceptsgrades = true;
         $ltitype = $DB->get_record('lti_types', array('id' => $ltiinstance->typeid));
-    
+
         if (empty($ltitype->toolproxyid)) {
             $typeconfig = helper::get_config($ltiinstance);
-    
+
             $typeacceptgrades = isset($typeconfig['acceptgrades']) ? $typeconfig['acceptgrades'] : LTI_SETTING_DELEGATE;
-    
+
             if (!($typeacceptgrades == LTI_SETTING_ALWAYS ||
                 ($typeacceptgrades == LTI_SETTING_DELEGATE && $ltiinstance->instructorchoiceacceptgrades == LTI_SETTING_ALWAYS))) {
                 $acceptsgrades = false;
@@ -167,10 +167,10 @@ class service_helper {
             $enabledcapabilities = explode("\n", $ltitype->enabledcapability);
             $acceptsgrades = in_array('Result.autocreate', $enabledcapabilities) || in_array('BasicOutcome.url', $enabledcapabilities);
         }
-    
+
         return $acceptsgrades;
     }
-    
+
     /**
      * Set the passed user ID to the session user.
      *
@@ -178,27 +178,27 @@ class service_helper {
      */
     public static function set_session_user($userid) {
         global $DB;
-    
+
         if ($user = $DB->get_record('user', array('id' => $userid))) {
             \core\session\manager::set_user($user);
         }
     }
-    
+
     public static function update_grade($ltiinstance, $userid, $launchid, $gradeval) {
         global $CFG, $DB;
         require_once($CFG->libdir . '/gradelib.php');
-    
+
         $params = array();
         $params['itemname'] = $ltiinstance->name;
-    
+
         $gradeval = $gradeval * floatval($ltiinstance->grade);
-    
+
         $grade = new stdClass();
         $grade->userid   = $userid;
         $grade->rawgrade = $gradeval;
-    
+
         $status = grade_update(LTI_SOURCE, $ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade, $params);
-    
+
         $record = $DB->get_record('lti_submission', array('ltiid' => $ltiinstance->id, 'userid' => $userid,
             'launchid' => $launchid), 'id');
         if ($record) {
@@ -206,7 +206,7 @@ class service_helper {
         } else {
             $id = null;
         }
-    
+
         if (!empty($id)) {
             $DB->update_record('lti_submission', array(
                 'id' => $id,
@@ -226,18 +226,18 @@ class service_helper {
                 'state' => 1
             ));
         }
-    
+
         return $status == GRADE_UPDATE_OK;
     }
-    
+
     public static function read_grade($ltiinstance, $userid) {
         global $CFG;
         require_once($CFG->libdir . '/gradelib.php');
-    
+
         $grades = grade_get_grades($ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, $userid);
-    
+
         $ltigrade = floatval($ltiinstance->grade);
-    
+
         if (!empty($ltigrade) && isset($grades) && isset($grades->items[0]) && is_array($grades->items[0]->grades)) {
             foreach ($grades->items[0]->grades as $agrade) {
                 $grade = $agrade->grade;
@@ -247,24 +247,24 @@ class service_helper {
             }
         }
     }
-    
+
     public static function delete_grade($ltiinstance, $userid) {
         global $CFG;
         require_once($CFG->libdir . '/gradelib.php');
-    
+
         $grade = new stdClass();
         $grade->userid   = $userid;
         $grade->rawgrade = null;
-    
+
         $status = grade_update(LTI_SOURCE, $ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade);
-    
+
         return $status == GRADE_UPDATE_OK;
     }
-    
+
     public static function verify_message($key, $sharedsecrets, $body, $headers = null) {
         foreach ($sharedsecrets as $secret) {
             $signaturefailed = false;
-    
+
             try {
                 // TODO: Switch to core oauthlib once implemented - MDL-30149.
                 oauth_helper::handle_oauth_body_post($key, $secret, $body, $headers);
@@ -272,15 +272,15 @@ class service_helper {
                 debugging('LTI message verification failed: '.$e->getMessage());
                 $signaturefailed = true;
             }
-    
+
             if (!$signaturefailed) {
                 return $secret; // Return the secret used to sign the message).
             }
         }
-    
+
         return false;
     }
-    
+
     /**
      * Validate source ID from external request
      *
@@ -291,12 +291,12 @@ class service_helper {
     public static function verify_sourcedid($ltiinstance, $parsed) {
         $sourceid = \core_ltix\helper::build_sourcedid($parsed->instanceid, $parsed->userid,
             $ltiinstance->servicesalt, $parsed->typeid, $parsed->launchid);
-    
+
         if ($sourceid->hash != $parsed->sourcedidhash) {
             throw new Exception('SourcedId hash not valid');
         }
     }
-    
+
     /**
      * Extend the LTI services through the ltisource plugins
      *
@@ -314,10 +314,27 @@ class service_helper {
             $data->xml = new SimpleXMLElement($data->body);
             $callback = current($plugins);
             call_user_func($callback, $data);
-    
+
             return true;
         }
         return false;
     }
-    
+
+    /**
+     * Initializes an instance of the named service
+     *
+     * @param string $servicename Name of service
+     *
+     * @return bool|\core_ltix\local\ltiservice\service_base Service
+     */
+    public static function get_service_by_name($servicename) {
+        $service = false;
+        $classname = "\\ltixservice_{$servicename}\\local\\service\\{$servicename}";
+        if (class_exists($classname)) {
+            $service = new $classname();
+        }
+
+        return $service;
+
+    }
 }
