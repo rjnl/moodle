@@ -264,7 +264,7 @@ class lineitems extends resource_base {
             $baseurl = null;
         } else {
             $toolproxyid = null;
-            $baseurl = \core_ltix\types_helper::get_type_type_config($typeid)->lti_toolurl;
+            $baseurl = \core_ltix\helper::get_type_type_config($typeid)->lti_toolurl;
         }
         $gradebookservices = new gradebookservices();
         $id = $gradebookservices->add_standalone_lineitem($contextid, $json->label,

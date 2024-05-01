@@ -122,22 +122,22 @@ class toolproxy extends \mod_lti\local\ltiservice\resource_base {
         // Check all services requested were offered (only tool services currently supported).
         $requestsbasicoutcomes = false;
         if ($ok && isset($toolproxyjson->security_contract->tool_service)) {
-            $contexts = lti_get_contexts($toolproxyjson);
-            $profileservice = lti_get_service_by_name('profile');
+            $contexts = \core_ltix\helper::get_contexts($toolproxyjson);
+            $profileservice = \core_ltix\helper::get_service_by_name('profile');
             $profileservice->set_tool_proxy($toolproxy);
             $context = $profileservice->get_service_path() . $profileservice->get_resources()[0]->get_path() . '#';
             $offeredservices = explode("\n", $toolproxy->serviceoffered);
-            $services = \core_ltix\tool_helper::get_services();
+            $services = \core_ltix\helper::get_services();
             $tpservices = $toolproxyjson->security_contract->tool_service;
             $errors = array();
             foreach ($tpservices as $service) {
-                $fqid = lti_get_fqid($contexts, $service->service);
+                $fqid = \core_ltix\helper::get_fqid($contexts, $service->service);
                 $requestsbasicoutcomes = $requestsbasicoutcomes || (substr($fqid, -13) === 'Outcomes.LTI1');
                 if (substr($fqid, 0, strlen($context)) !== $context) {
                     $errors[] = $service->service;
                 } else {
                     $id = explode('#', $fqid, 2);
-                    $aservice = lti_get_service_by_resource_id($services, $id[1]);
+                    $aservice = \core_ltix\helper::get_service_by_resource_id($services, $id[1]);
                     $classname = explode('\\', get_class($aservice));
                     if (empty($aservice) || !in_array($classname[count($classname) - 1], $offeredservices)) {
                         $errors[] = $service->service;
@@ -242,10 +242,10 @@ class toolproxy extends \mod_lti\local\ltiservice\resource_base {
                     }
                 }
 
-                $ok = $ok && (\core_ltix\types_helper::add_type($type, $config) !== false);
+                $ok = $ok && (\core_ltix\helper::add_type($type, $config) !== false);
             }
             if (isset($toolproxyjson->custom)) {
-                \core_ltix\tool_helper::set_tool_settings($toolproxyjson->custom, $toolproxy->id);
+                \core_ltix\helper::set_tool_settings($toolproxyjson->custom, $toolproxy->id);
             }
         }
 
@@ -274,7 +274,7 @@ EOD;
                 $toolproxy->state = LTI_TOOL_PROXY_STATE_REJECTED;
                 $response->set_code(400);
             }
-            \core_ltix\tool_helper::update_tool_proxy($toolproxy);
+            \core_ltix\helper::update_tool_proxy($toolproxy);
         } else {
             $response->set_code(400);
         }

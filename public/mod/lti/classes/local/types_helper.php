@@ -43,7 +43,7 @@ class types_helper {
             return [];
         }
 
-        return \core_ltix\types_helper::get_lti_types_by_course($courseid, $coursevisible);
+        return \core_ltix\helper::get_lti_types_by_course($courseid, $userid, $coursevisible);
     }
 
     /**
@@ -58,10 +58,10 @@ class types_helper {
      */
     public static function override_type_showinactivitychooser(int $tooltypeid, int $courseid, \core\context\course $context, bool $showinactivitychooser): bool {
         debugging(__FUNCTION__ . '() is deprecated. ' .
-            'Please use \core_ltix\types_helper::override_type_showinactivitychooser() instead.',
+            'Please use \core_ltix\helper::override_type_showinactivitychooser() instead.',
             DEBUG_DEVELOPER);
 
-        return \core_ltix\types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
+        return \core_ltix\helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
             $showinactivitychooser);
     }
 

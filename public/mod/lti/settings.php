@@ -100,19 +100,19 @@ if ($ADMIN->fulltree) {
         'mod_lti'
     );
 
-    $types = \core_ltix\types_helper::filter_get_types(get_site()->id);
+    $types = \core_ltix\helper::filter_get_types(get_site()->id);
 
-    $configuredtools = \core_ltix\tool_helper::filter_tool_types($types, LTI_TOOL_STATE_CONFIGURED);
+    $configuredtools = \core_ltix\helper::filter_tool_types($types, LTI_TOOL_STATE_CONFIGURED);
 
-    $configuredtoolshtml = lti_get_tool_table($configuredtools, 'lti_configured');
+    $configuredtoolshtml = \core_ltix\helper::get_tool_table($configuredtools, 'lti_configured');
 
-    $pendingtools = \core_ltix\tool_helper::filter_tool_types($types, LTI_TOOL_STATE_PENDING);
+    $pendingtools = \core_ltix\helper::filter_tool_types($types, LTI_TOOL_STATE_PENDING);
 
-    $pendingtoolshtml = lti_get_tool_table($pendingtools, 'lti_pending');
+    $pendingtoolshtml = \core_ltix\helper::get_tool_table($pendingtools, 'lti_pending');
 
-    $rejectedtools = \core_ltix\tool_helper::filter_tool_types($types, LTI_TOOL_STATE_REJECTED);
+    $rejectedtools = \core_ltix\helper::filter_tool_types($types, LTI_TOOL_STATE_REJECTED);
 
-    $rejectedtoolshtml = lti_get_tool_table($rejectedtools, 'lti_rejected');
+    $rejectedtoolshtml = \core_ltix\helper::get_tool_table($rejectedtools, 'lti_rejected');
 
     $tab = optional_param('tab', '', PARAM_ALPHAEXT);
     $activeselected = '';

@@ -83,15 +83,15 @@ if ($ok) {
 if ($ok) {
     $scopes = array();
     $requestedscopes = explode(' ', $scope);
-    $typeconfig = \core_ltix\types_helper::get_type_config($tool->id);
-    $permittedscopes = lti_get_permitted_service_scopes($tool, $typeconfig);
+    $typeconfig = \core_ltix\helper::get_type_config($tool->id);
+    $permittedscopes = \core_ltix\helper::get_permitted_service_scopes($tool, $typeconfig);
     $scopes = array_intersect($requestedscopes, $permittedscopes);
     $ok = !empty($scopes);
     $error = 'invalid_scope';
 }
 
 if ($ok) {
-    $token = \core_ltix\tool_helper::new_access_token($tool->id, $scopes);
+    $token = \core_ltix\helper::new_access_token($tool->id, $scopes);
     $expiry = LTI_ACCESS_TOKEN_LIFE;
     $permittedscopes = implode(' ', $scopes);
     $body = <<< EOD

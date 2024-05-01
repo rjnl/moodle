@@ -56,7 +56,7 @@ if ($duplicate) {
 }
 
 
-$profileservice = lti_get_service_by_name('profile');
+$profileservice = \core_ltix\helper::get_service_by_name('profile');
 if (empty($profileservice)) {
     redirect($redirect,  get_string('noprofileservice', 'lti'));
 }

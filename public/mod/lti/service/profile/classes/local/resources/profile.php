@@ -87,7 +87,7 @@ class profile extends \mod_lti\local\ltiservice\resource_base {
             $ok = false;
             $response->set_code(400);
         } else {
-            $toolproxy = \core_ltix\tool_helper::get_tool_proxy_from_guid($params['tool_proxy_id']);
+            $toolproxy = \core_ltix\helper::get_tool_proxy_from_guid($params['tool_proxy_id']);
             $ok = $toolproxy !== false;
         }
         if ($ok) {

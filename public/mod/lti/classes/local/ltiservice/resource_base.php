@@ -229,10 +229,10 @@ abstract class resource_base {
                 // Check tool proxy to ensure service being requested is included.
                 $toolproxy = json_decode($toolproxyjson);
                 if (!empty($toolproxy) && isset($toolproxy->security_contract->tool_service)) {
-                    $contexts = lti_get_contexts($toolproxy);
+                    $contexts = \core_ltix\helper::get_contexts($toolproxy);
                     $tpservices = $toolproxy->security_contract->tool_service;
                     foreach ($tpservices as $service) {
-                        $fqid = lti_get_fqid($contexts, $service->service);
+                        $fqid = \core_ltix\helper::get_fqid($contexts, $service->service);
                         $id = explode('#', $fqid, 2);
                         if ($this->get_id() === $id[1]) {
                             $ok = true;
@@ -277,10 +277,10 @@ abstract class resource_base {
             } else {
                 $toolproxy = json_decode($toolproxyjson);
                 if (!empty($toolproxy) && isset($toolproxy->security_contract->tool_service)) {
-                    $contexts = lti_get_contexts($toolproxy);
+                    $contexts = \core_ltix\helper::get_contexts($toolproxy);
                     $tpservices = $toolproxy->security_contract->tool_service;
                     foreach ($tpservices as $service) {
-                        $fqid = lti_get_fqid($contexts, $service->service);
+                        $fqid = \core_ltix\helper::get_fqid($contexts, $service->service);
                         $id = explode('#', $fqid, 2);
                         if ($this->get_id() === $id[1]) {
                             $ok = true;

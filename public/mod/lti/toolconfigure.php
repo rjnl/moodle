@@ -39,8 +39,8 @@ if ($cartridgeurl) {
     $data = new stdClass();
     $type->state = LTI_TOOL_STATE_CONFIGURED;
     $data->lti_coursevisible = 1;
-    \core_ltix\types_helper::load_type_from_cartridge($cartridgeurl, $data);
-    \core_ltix\types_helper::add_type($type, $data);
+    \core_ltix\helper::load_type_from_cartridge($cartridgeurl, $data);
+    \core_ltix\helper::add_type($type, $data);
 }
 
 $pageurl = new moodle_url('/mod/lti/toolconfigure.php');

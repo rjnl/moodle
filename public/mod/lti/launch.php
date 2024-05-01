@@ -59,21 +59,21 @@ $cm = get_coursemodule_from_id('lti', $cmid, 0, false, MUST_EXIST);
 $lti = $DB->get_record('lti', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $typeid = $lti->typeid;
-if (empty($typeid) && ($tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl))) {
+if (empty($typeid) && ($tool = \core_ltix\helper::get_tool_by_url_match($lti->toolurl))) {
     $typeid = $tool->id;
 }
 if ($typeid) {
-    $config = \core_ltix\types_helper::get_type_config($typeid);
+    $config = \core_ltix\helper::get_type_config($typeid);
     $missingtooltype = empty($config);
     if (!$missingtooltype) {
-        $config = \core_ltix\types_helper::get_type_type_config($typeid);
+        $config = \core_ltix\helper::get_type_type_config($typeid);
         if ($config->lti_ltiversion === LTI_VERSION_1P3) {
             if (!isset($SESSION->lti_initiatelogin_status)) {
                 $msgtype = 'basic-lti-launch-request';
                 if ($action === 'gradeReport') {
                     $msgtype = 'LtiSubmissionReviewRequest';
                 }
-                echo lti_initiate_login($cm->course, $cmid, $lti, $config, $msgtype, '', '', $foruserid);
+                echo \core_ltix\helper::initiate_login($cm->course, $cmid, $lti, $config, $msgtype, '', '', $foruserid);
                 exit;
             } else {
                 unset($SESSION->lti_initiatelogin_status);
@@ -104,4 +104,4 @@ if ($triggerview) {
 }
 
 $lti->cmid = $cm->id;
-lti_launch_tool($lti, $foruserid);
+\core_ltix\helper::launch_tool($lti, $foruserid);

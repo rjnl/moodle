@@ -2867,4 +2867,29 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         ],
     ],
+
+    // When the user arrives at the external tool, if they have this capability
+    // in Moodle, then they are given the Instructor role in the remote system,
+    // otherwise they are given Learner. See the \core_ltix\helper::get_ims_role function.
+    'moodle/ltix:manage' => [
+        'riskbitmask' => RISK_PERSONAL, // A bit of a guess, but seems likely.
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
+    ],
+
+    // When the user arrives at the external tool, if they have this capability
+    // in Moodle, then they are given the Administrator role in the remote system,
+    // otherwise they are given Learner. See the \core_ltix\helper::get_ims_role function.
+    'moodle/ltix:admin' => [
+        'riskbitmask' => RISK_PERSONAL, // A bit of a guess, but seems likely.
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE
+    ],
 );

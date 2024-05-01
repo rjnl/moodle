@@ -78,15 +78,15 @@ class oauth_helper {
      * @throws lti\OAuthException
      */
     public static function verify_oauth_signature($typeid, $consumerkey) {
-        $tool = types_helper::get_type($typeid);
+        $tool = helper::get_type($typeid);
         // Validate parameters.
         if (!$tool) {
             throw new moodle_exception('errortooltypenotfound', 'core_ltix');
         }
-        $typeconfig = types_helper::get_type_config($typeid);
+        $typeconfig = helper::get_type_config($typeid);
 
         if (isset($tool->toolproxyid)) {
-            $toolproxy = tool_helper::get_tool_proxy($tool->toolproxyid);
+            $toolproxy = helper::get_tool_proxy($tool->toolproxyid);
             $key = $toolproxy->guid;
             $secret = $toolproxy->secret;
         } else {
@@ -143,7 +143,7 @@ class oauth_helper {
      */
     public static function get_jwt_claim_mapping() {
         $mapping = [];
-        $services = \core_ltix\tool_helper::get_services();
+        $services = \core_ltix\helper::get_services();
         foreach ($services as $service) {
             $mapping = array_merge($mapping, $service->get_jwt_claim_mappings());
         }
@@ -625,7 +625,7 @@ class oauth_helper {
      * @throws ExpiredException             Provided JWT has since expired, as defined by the 'exp' claim
      */
     public static function verify_jwt_signature($typeid, $consumerkey, $jwtparam) {
-        $tool = types_helper::get_type($typeid);
+        $tool = helper::get_type($typeid);
 
         // Validate parameters.
         if (!$tool) {
@@ -635,7 +635,7 @@ class oauth_helper {
             throw new moodle_exception('JWT security not supported with LTI 2');
         }
 
-        $typeconfig = types_helper::get_type_config($typeid);
+        $typeconfig = helper::get_type_config($typeid);
 
         $key = $tool->clientid ?? '';
 
@@ -743,7 +743,7 @@ class oauth_helper {
             }
         }
         if (isset($params['content_items'])) {
-            $params['content_items'] = tool_helper::convert_content_items($params['content_items']);
+            $params['content_items'] = helper::convert_content_items($params['content_items']);
         }
         $messagetypemapping = self::get_jwt_message_type_mapping();
         if (isset($params['lti_message_type']) && array_key_exists($params['lti_message_type'], $messagetypemapping)) {

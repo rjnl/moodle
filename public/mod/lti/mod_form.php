@@ -325,7 +325,7 @@ class mod_lti_mod_form extends moodleform_mod {
         $instancetypes = lti_get_types_for_add_instance();
         $matchestoolnotavailabletocourse = false;
         if (!$manualinstance && !empty($this->current->toolurl)) {
-            if (\core_ltix\types_helper::get_type_config($this->current->typeid)) {
+            if (\core_ltix\helper::get_type_config($this->current->typeid)) {
                 $matchestoolnotavailabletocourse = !in_array($this->current->typeid, array_keys($instancetypes));
             }
         }
@@ -341,7 +341,7 @@ class mod_lti_mod_form extends moodleform_mod {
         }
 
         $tooltypeid = $this->current->typeid ?? $this->typeid;
-        $tooltype = \core_ltix\types_helper::get_type($tooltypeid);
+        $tooltype = \core_ltix\helper::get_type($tooltypeid);
 
         // Store the id of the tool type should it be linked to a tool proxy, to aid in disabling certain form elements.
         $toolproxytypeid = $tooltype->toolproxyid ? $tooltypeid : '';
@@ -355,7 +355,7 @@ class mod_lti_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // For tools supporting content selection, add the 'Select content button'.
-        $config = \core_ltix\types_helper::get_type_config($tooltypeid);
+        $config = \core_ltix\helper::get_type_config($tooltypeid);
         $supportscontentitemselection = !empty($config['contentitem']);
 
         if ($supportscontentitemselection) {
@@ -532,7 +532,7 @@ class mod_lti_mod_form extends moodleform_mod {
      * @param object $defaultvalues default values to populate the form with.
      */
     public function set_data($defaultvalues) {
-        $services = \core_ltix\tool_helper::get_services();
+        $services = \core_ltix\helper::get_services();
         if (is_object($defaultvalues)) {
             foreach ($services as $service) {
                 $service->set_instance_form_values( $defaultvalues );

@@ -114,7 +114,7 @@ class service_exception_handler {
 
         // Log the request if necessary.
         if ($this->log) {
-            lti_log_response($xml, $exception);
+            \core_ltix\helper::log_response($xml, $exception);
         }
 
         echo $xml;

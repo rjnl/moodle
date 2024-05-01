@@ -68,7 +68,7 @@ class toggle_showinactivitychooser extends external_api {
 
         $context =  \core\context\course::instance($courseid);
         self::validate_context($context);
-        return \core_ltix\types_helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
+        return \core_ltix\helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
             $showinactivitychooser);
     }
 

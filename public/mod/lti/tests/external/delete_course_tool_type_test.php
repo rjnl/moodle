@@ -45,7 +45,7 @@ final class delete_course_tool_type_test extends \mod_lti_testcase {
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
-        $typeid = \core_ltix\types_helper::add_type(
+        $typeid = \core_ltix\helper::add_type(
             (object) [
                 'state' => LTI_TOOL_STATE_CONFIGURED,
                 'course' => $course->id
