@@ -1,4 +1,3 @@
-<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,17 +14,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the ltiservice_basicoutcomes service.
+ * This file contains all necessary code to initiate a tool registration process
  *
- * @package    ltiservice_basicoutcomes
- * @copyright  2019 Stephen Vickers
+ * @package    core_ltix
+ * @copyright  2014 Vital Source Technologies http://vitalsource.com
+ * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
-$plugin->version   = 2025100600;
-$plugin->requires  = 2025092600;
-$plugin->component = 'ltiservice_basicoutcomes';
+LTI Service plugins directory
+==============================
+This directory contains LTI service plugins which are discoverable from the Tool
+Consumer Profile.

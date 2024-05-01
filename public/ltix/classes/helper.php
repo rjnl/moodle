@@ -233,16 +233,21 @@ class helper {
      * @return array List of services
      */
     public static function get_services() {
-        $services = [];
-        $definedservices = core_component::get_plugin_list('ltiservice');
-        foreach ($definedservices as $name => $location) {
+        $services = array();
+        $definedltiservices = core_component::get_plugin_list('ltiservice');
+        $definedltixservices = core_component::get_plugin_list('ltixservice');
+
+        foreach ($definedltiservices as $name => $location) {
             $classname = "\\ltiservice_{$name}\\local\\service\\{$name}";
             $services[] = new $classname();
         }
 
+        foreach ($definedltixservices as $name => $location) {
+            $classname = "\\ltixservice_{$name}\\local\\service\\{$name}";
+            $services[] = new $classname();
+        }
         return $services;
     }
-
     /**
      * Updates a tool proxy in the database
      *

@@ -17,24 +17,24 @@
 /**
  * This file contains a class definition for the Basic Outcomes service
  *
- * @package    ltiservice_basicoutcomes
+ * @package    ltixservice_basicoutcomes
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_basicoutcomes\local\service;
+namespace ltixservice_basicoutcomes\local\service;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * A service implementing Basic Outcomes.
  *
- * @package    ltiservice_basicoutcomes
+ * @package    ltixservice_basicoutcomes
  * @since      Moodle 3.7
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class basicoutcomes extends \mod_lti\local\ltiservice\service_base {
+class basicoutcomes extends \core_ltix\local\ltiservice\service_base {
 
     /** Scope for accessing the service */
     const SCOPE_BASIC_OUTCOMES = 'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome';
@@ -59,7 +59,7 @@ class basicoutcomes extends \mod_lti\local\ltiservice\service_base {
 
         if (empty($this->resources)) {
             $this->resources = array();
-            $this->resources[] = new \ltiservice_basicoutcomes\local\resources\basicoutcomes($this);
+            $this->resources[] = new \ltixservice_basicoutcomes\local\resources\basicoutcomes($this);
         }
 
         return $this->resources;

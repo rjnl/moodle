@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for ltiservice_basicoutcomes.
+ * Privacy Subsystem implementation for ltixservice_basicoutcomes.
  *
- * @package    ltiservice_basicoutcomes
+ * @package    ltixservice_basicoutcomes
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_basicoutcomes\privacy;
+namespace ltixservice_basicoutcomes\privacy;
 
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\contextlist;
@@ -33,7 +33,7 @@ use \core_privacy\local\request\approved_userlist;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy Subsystem for ltiservice_basicoutcomes.
+ * Privacy Subsystem for ltixservice_basicoutcomes.
  *
  * @copyright  2019 Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
