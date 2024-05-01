@@ -109,7 +109,7 @@ EOD;
             case LTI_TOOL_PROXY_STATE_PENDING:
                 // Change the status to configured.
                 $toolproxy->state = LTI_TOOL_PROXY_STATE_CONFIGURED;
-                \core_ltix\tool_helper::update_tool_proxy($toolproxy);
+                \core_ltix\helper::update_tool_proxy($toolproxy);
         }
     }
 

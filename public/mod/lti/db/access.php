@@ -56,31 +56,6 @@ $capabilities = array(
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
 
-    // When the user arrives at the external tool, if they have this capability
-    // in Moodle, then they are given the Instructor role in the remote system,
-    // otherwise they are given Learner. See the lti_get_ims_role function.
-    'mod/lti:manage' => array(
-        'riskbitmask' => RISK_PERSONAL, // A bit of a guess, but seems likely.
-
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    ),
-
-    // When the user arrives at the external tool, if they have this capability
-    // in Moodle, then they are given the Administrator role in the remote system,
-    // otherwise they are given Learner. See the lti_get_ims_role function.
-    'mod/lti:admin' => array(
-        'riskbitmask' => RISK_PERSONAL, // A bit of a guess, but seems likely.
-
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE
-    ),
-
     // The ability to create or edit tool configurations for particular courses.
     'mod/lti:addcoursetool' => array(
         'captype' => 'write',
@@ -118,5 +93,14 @@ $deprecatedcapabilities = [
     'mod/lti:addmanualinstance' => [
         'message' => 'Manual instance configuration is deprecated. Please create a course tool (mod/lti:addcoursetool) and ensure '.
             'users are able to add an instance of the course tool via the activity chooser (mod/lti:addpreconfiguredinstance).'
+    ],
+    'mod/lti:manage' => [
+        'replacement' => 'moodle/ltix:manage',
+        'mssage' => 'This capability should not be used anymore, please use moodle/ltix:manage instead.',
+
+    ],
+    'mod/lti:admin' => [
+        'replacement' => 'moodle/ltix:admin',
+        'message' => 'This capability should not be used anymore, please use moodle/ltix:admin instead.'
     ],
 ];

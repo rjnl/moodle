@@ -259,7 +259,7 @@ final class types_helper_test extends mod_lti_testcase {
         // Restricted category no allowed.
         $this->expectException('moodle_exception');
         $this->expectExceptionMessage('You are not allowed to change this setting for this tool.');
-        \core_ltix\types_helper::override_type_showinactivitychooser($tool4id, $course->id, $context, false);
+        \core_ltix\helper::override_type_showinactivitychooser($tool4id, $course->id, $context, false);
 
         // Restricted category allowed.
         $result = types_helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
@@ -271,7 +271,7 @@ final class types_helper_test extends mod_lti_testcase {
 
         $this->setUser($teacher2);
         $this->expectException(\required_capability_exception::class);
-        \core_ltix\types_helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
+        \core_ltix\helper::override_type_showinactivitychooser($tool5id, $course->id, $context, false);
     }
 
 }

@@ -183,7 +183,7 @@ class lineitem extends resource_base {
             if (isset($json->submissionReview)) {
                 $incomingurl = $json->submissionReview->url ?? 'DEFAULT';
                 if (isset($json->submissionReview->custom)) {
-                    $incomingparams = params_to_string($json->submissionReview->custom);
+                    $incomingparams = \core_ltix\helper::params_to_string($json->submissionReview->custom);
                 }
             }
             if ($gbs->subreviewurl ?? null !== $incomingurl || $gbs->subreviewparams ?? null !== $incomingparams) {
@@ -259,7 +259,7 @@ class lineitem extends resource_base {
                 $baseurl = null;
             } else {
                 $toolproxyid = null;
-                $baseurl = \core_ltix\types_helper::get_type_type_config($typeid)->lti_toolurl;
+                $baseurl = \core_ltix\helper::get_type_type_config($typeid)->lti_toolurl;
             }
             $DB->update_record('ltiservice_gradebookservices', (object)array(
                     'id' => $gbs->id,

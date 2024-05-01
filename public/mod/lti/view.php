@@ -70,11 +70,11 @@ if ($l) {  // Two ways to specify the module.
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
 $typeid = $lti->typeid;
-if (empty($typeid) && ($tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl))) {
+if (empty($typeid) && ($tool = \core_ltix\helper::get_tool_by_url_match($lti->toolurl))) {
     $typeid = $tool->id;
 }
 if ($typeid) {
-    $toolconfig = \core_ltix\types_helper::get_type_config($typeid);
+    $toolconfig = \core_ltix\helper::get_type_config($typeid);
     $missingtooltype = empty($toolconfig);
     if (!$missingtooltype) {
         $toolurl = $toolconfig['toolurl'];
@@ -105,7 +105,7 @@ if (!empty($missingtooltype)) {
     throw new moodle_exception('tooltypenotfounderror', 'mod_lti');
 }
 
-$launchcontainer = lti_get_launch_container($lti, $toolconfig);
+$launchcontainer = \core_ltix\helper::get_launch_container($lti, $toolconfig);
 
 if ($launchcontainer == LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
     $PAGE->set_pagelayout('incourse');
@@ -138,7 +138,7 @@ $activityheader->set_attrs($header ?? []);
 echo $OUTPUT->header();
 
 if ($typeid) {
-    $config = \core_ltix\types_helper::get_type_type_config($typeid);
+    $config = \core_ltix\helper::get_type_type_config($typeid);
 } else {
     $config = new stdClass();
     $config->lti_ltiversion = LTI_VERSION_1;

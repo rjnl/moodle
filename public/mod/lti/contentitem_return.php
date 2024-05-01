@@ -81,7 +81,7 @@ $redirecturl = null;
 $returndata = null;
 if (empty($errormsg) && !empty($items)) {
     try {
-        $returndata = \core_ltix\tool_helper::tool_configuration_from_content_item($id, $messagetype, $version, $consumerkey,
+        $returndata = \core_ltix\helper::tool_configuration_from_content_item($id, $messagetype, $version, $consumerkey,
             $items);
     } catch (moodle_exception $e) {
         $errormsg = $e->getMessage();

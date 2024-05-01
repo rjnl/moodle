@@ -85,7 +85,7 @@ class mod_lti_generator extends testing_module_generator {
         if (!isset($config['serviceoffered'])) {
             $config['serviceoffered'] = '';
         }
-        \core_ltix\tool_helper::add_tool_proxy((object) $config);
+        \core_ltix\helper::add_tool_proxy((object) $config);
     }
 
     /**
@@ -132,7 +132,7 @@ class mod_lti_generator extends testing_module_generator {
 
         ['type' => $type, 'config' => $config] = $this->get_type_and_config_from_data($data);
 
-        return \core_ltix\types_helper::add_type(type: $type, config: $config);
+        return \core_ltix\helper::add_type(type: $type, config: $config);
     }
 
     /**
@@ -174,7 +174,7 @@ class mod_lti_generator extends testing_module_generator {
 
         ['type' => $type, 'config' => $config] = $this->get_type_and_config_from_data($type);
 
-        \core_ltix\types_helper::load_type_if_cartridge($config);
-        return \core_ltix\types_helper::add_type(type: $type, config: $config);
+        \core_ltix\helper::load_type_if_cartridge($config);
+        return \core_ltix\helper::add_type(type: $type, config: $config);
     }
 }

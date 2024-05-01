@@ -35,7 +35,7 @@ $typeid = optional_param('typeid', null, PARAM_INT);
 require_login($courseid, false);
 require_capability('mod/lti:addcoursetool', context_course::instance($courseid));
 if (!empty($typeid)) {
-    $type = \core_ltix\types_helper::get_type_type_config($typeid);
+    $type = \core_ltix\helper::get_type_type_config($typeid);
     if ($type->course != $courseid || $type->course == get_site()->id) {
         throw new moodle_exception('You do not have permissions to edit this tool type.');
     }
@@ -64,14 +64,14 @@ if ($form->is_cancelled()) {
 
     if (!empty($data->typeid)) {
         $type = (object) ['id' => $data->typeid];
-        \core_ltix\types_helper::load_type_if_cartridge($data);
-        \core_ltix\types_helper::update_type($type, $data);
+        \core_ltix\helper::load_type_if_cartridge($data);
+        \core_ltix\helper::update_type($type, $data);
         $redirecturl = new moodle_url('/mod/lti/coursetools.php', ['id' => $courseid]);
         $notice = get_string('courseexternaltooleditsuccess', 'mod_lti');
     } else {
         $type = (object) ['state' => LTI_TOOL_STATE_CONFIGURED, 'course' => $data->course];
-        \core_ltix\types_helper::load_type_if_cartridge($data);
-        \core_ltix\types_helper::add_type($type, $data);
+        \core_ltix\helper::load_type_if_cartridge($data);
+        \core_ltix\helper::add_type($type, $data);
         $redirecturl = new moodle_url('/mod/lti/coursetools.php', ['id' => $courseid]);
         $notice = get_string('courseexternaltooladdsuccess', 'mod_lti', $type->name);
     }

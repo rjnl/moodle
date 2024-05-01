@@ -100,9 +100,9 @@ class backup_ltiservice_gradebookservices_subplugin extends backup_subplugin {
                 $toolproxyid = $gbsrecord->toolproxyid;
             } else { // 2. If it is uncoupled... we will need to guess the right activity typeid
                 // Guess the typeid for the activity.
-                $tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->toolurl, $activitycourseid);
+                $tool = \core_ltix\helper::get_tool_by_url_match($lti->toolurl, $activitycourseid);
                 if (!$tool) {
-                    $tool = \core_ltix\tool_helper::get_tool_by_url_match($lti->securetoolurl, $activitycourseid);
+                    $tool = \core_ltix\helper::get_tool_by_url_match($lti->securetoolurl, $activitycourseid);
                 }
                 if ($tool) {
                     $alttypeid = $tool->id;

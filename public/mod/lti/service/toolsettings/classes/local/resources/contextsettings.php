@@ -104,7 +104,7 @@ class contextsettings extends \mod_lti\local\ltiservice\resource_base {
                 $response->set_code(404);
             } else {
                 $systemsetting = null;
-                $contextsettings = \core_ltix\tool_helper::get_tool_settings($id, $contextid);
+                $contextsettings = \core_ltix\helper::get_tool_settings($id, $contextid);
                 if (!empty($bubble)) {
                     $systemsetting = new systemsettings($this->get_service());
                     $systemsetting->params['tool_proxy_id'] = $productcode;
@@ -113,7 +113,7 @@ class contextsettings extends \mod_lti\local\ltiservice\resource_base {
                     } else {
                         $systemsetting->params['config_type'] = 'tool';
                     }
-                    $systemsettings = \core_ltix\tool_helper::get_tool_settings($id);
+                    $systemsettings = \core_ltix\helper::get_tool_settings($id);
                     if ($bubble == 'distinct') {
                         toolsettings::distinct_settings($systemsettings, $contextsettings, null);
                     }
@@ -167,7 +167,7 @@ class contextsettings extends \mod_lti\local\ltiservice\resource_base {
                         }
                     }
                     if ($ok) {
-                        \core_ltix\tool_helper::set_tool_settings($settings, $id, $contextid);
+                        \core_ltix\helper::set_tool_settings($settings, $id, $contextid);
                     } else {
                         $response->set_code(406);
                     }

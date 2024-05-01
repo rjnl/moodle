@@ -39,7 +39,7 @@ require_capability('moodle/site:config', $context);
 $starturl = required_param('url', PARAM_URL);
 $typeid = optional_param('type', -1, PARAM_INT);
 
-$types = \core_ltix\tool_helper::get_tools_by_url($starturl, null);
+$types = \core_ltix\helper::get_tools_by_url($starturl, null);
 
 if (!empty($types) && $typeid == -1) {
     // There are matching types for the registration domain, let's prompt the user to upgrade.

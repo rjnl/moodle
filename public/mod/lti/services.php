@@ -47,7 +47,7 @@ $path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '';
 $accept = $response->get_accept();
 $contenttype = $response->get_content_type();
 
-$services = \core_ltix\tool_helper::get_services();
+$services = \core_ltix\helper::get_services();
 foreach ($services as $service) {
     $resources = $service->get_resources();
     foreach ($resources as $resource) {

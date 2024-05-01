@@ -88,5 +88,32 @@ function xmldb_lti_upgrade($oldversion) {
     // Automatically generated Moodle v5.2.0 release upgrade line.
     // Put any upgrade step following this.
 
+    if ($oldversion < 2026042001) {
+        // Capabilities have been renamed - modify any existing roles with custom changes.
+        // Manage role has already been given to editingteacher/teacher/manager role at site context during core install
+        // so make sure we ignore those records.
+        $DB->execute("UPDATE {role_capabilities}
+                         SET capability = 'moodle/ltix:manage'
+                       WHERE capability = 'mod/lti:manage' AND
+                             id NOT IN (SELECT rc.id
+                                          FROM {role_capabilities} rc
+                                          JOIN {role} r on r.id = rc.roleid
+                                          WHERE rc.capability = 'mod/lti:manage' AND
+                                                rc.contextid = 1 AND
+                                                r.shortname IN ('editingteacher', 'teacher', 'manager')");
+
+        // The ltix:admin is not given to any roles by default.
+        $DB->execute("UPDATE {role_capabilities}
+                         SET capability = 'moodle/ltix:admin'
+                       WHERE capability = 'mod/lti:admin'");
+
+        // We manually modifyied capabilities, for safety, clear the capabilities cache.
+        cache::make('core', 'capabilities')->delete('core_capabilities');
+
+        // Lti savepoint reached.
+        upgrade_mod_savepoint(true, 2026042001, 'lti');
+
+    }
+
     return true;
 }

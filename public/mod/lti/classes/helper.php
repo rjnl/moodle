@@ -37,6 +37,6 @@ class helper {
      * @return string SQL.
      */
     public static function get_tool_proxy_sql(bool $orphanedonly = false, bool $count = false): string {
-        return \core_ltix\tool_helper::get_tool_proxy_sql($orphanedonly, $count);
+        return \core_ltix\helper::get_tool_proxy_sql($orphanedonly, $count);
     }
 }

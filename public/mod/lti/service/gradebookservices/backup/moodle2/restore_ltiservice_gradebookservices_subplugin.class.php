@@ -227,7 +227,7 @@ class restore_ltiservice_gradebookservices_subplugin extends restore_subplugin {
             if (empty($gbs)) {
                 // The currently restored LTI link has a grade item but no gbs, so let's create a gbs entry.
                 if ($instance = $DB->get_record('lti', array('id' => $gi->iteminstance))) {
-                    if ($tool = lti_get_instance_type($instance)) {
+                    if ($tool = \core_ltix\helper::get_instance_type($instance)) {
                         $DB->insert_record('ltiservice_gradebookservices', (object) array(
                             'gradeitemid' => $gi->id,
                             'courseid' => $courseid,
