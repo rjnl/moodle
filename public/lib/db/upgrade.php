@@ -1891,6 +1891,15 @@ function xmldb_main_upgrade($oldversion) {
             }
         }
 
+        // Rename the ltiservice_gradebookservices table so that it's not removed during the uninstallation of that plugin.
+        // This permits data migration to the replacement ltixservice_gradebookservices during that plugin's install.php.
+
+        // Define table ltiservice_gradebookservices to be renamed to tmp_ltiservice_gradebookservices.
+        $table = new xmldb_table('ltiservice_gradebookservices');
+
+        // Launch rename table for ltiservice_gradebookservices.
+        $dbman->rename_table($table, 'tmp_ltiservice_gradebookservices');
+
         // Main savepoint reached.
         upgrade_main_savepoint(true, 2026060500.01);
     }
