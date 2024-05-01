@@ -15,21 +15,32 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the ltiservice_toolproxy service.
+ * Privacy Subsystem implementation for ltixservice_toolproxy.
  *
- * @package    ltiservice_toolproxy
- * @copyright  2014 Vital Source Technologies http://vitalsource.com
- * @author     Stephen Vickers
+ * @package    ltixservice_toolproxy
+ * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace ltixservice_toolproxy\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Privacy Subsystem for ltixservice_toolproxy implementing null_provider.
+ *
+ * @copyright  2018 Mark Nelson <markn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class provider implements \core_privacy\local\metadata\null_provider {
 
-$plugin->version   = 2025100600;
-$plugin->requires  = 2025092600;
-$plugin->component = 'ltiservice_toolproxy';
-$plugin->dependencies = [
-    'ltixservice_profile' => 2025092600,
-];
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return string
+     */
+    public static function get_reason(): string {
+        return 'privacy:metadata';
+    }
+}
