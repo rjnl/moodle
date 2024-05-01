@@ -68,7 +68,8 @@ class core_ltix_generator extends testing_module_generator {
         // Grab any non-prefixed fields; these are the type fields. The rest is considered config.
         $type = array_filter(
             $data,
-            fn($val, $key) => !str_contains($key, 'lti_') && !str_contains($key, 'ltiservice_'),
+            fn($val, $key) => !str_contains($key, 'lti_') && !str_contains($key, 'ltiservice_')
+                && !str_contains($key, 'ltixservice_'),
             ARRAY_FILTER_USE_BOTH
         );
         $config = array_diff_key($data, $type);
