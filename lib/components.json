@@ -27,6 +27,7 @@
         "gradereport": "public/grade/report",
         "gradingform": "public/grade/grading/form",
         "ltixservice": "public/ltix/service",
+        "ltixsource": "public/ltix/source",
         "mlbackend": "public/lib/mlbackend",
         "webservice": "public/webservice",
         "repository": "public/repository",

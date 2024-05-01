@@ -2260,9 +2260,9 @@ class helper {
         }
 
         // Allow request params to be updated by sub-plugins.
-        $plugins = core_component::get_plugin_list('ltisource');
+        $plugins = core_component::get_plugin_list('ltixsource');
         foreach (array_keys($plugins) as $plugin) {
-            $pluginparams = component_callback('ltisource_'.$plugin, 'before_launch',
+            $pluginparams = component_callback('ltixsource_'.$plugin, 'before_launch',
                 array($instance, $endpoint, $requestparams), []);
 
             if (!empty($pluginparams) && is_array($pluginparams)) {
@@ -2737,9 +2737,9 @@ class helper {
         }
 
         // Allow request params to be updated by sub-plugins.
-        $plugins = core_component::get_plugin_list('ltisource');
+        $plugins = core_component::get_plugin_list('ltixsource');
         foreach (array_keys($plugins) as $plugin) {
-            $pluginparams = component_callback('ltisource_' . $plugin, 'before_launch', [$instance, $toolurlout, $requestparams], []);
+            $pluginparams = component_callback('ltixsource_' . $plugin, 'before_launch', [$instance, $toolurlout, $requestparams], []);
 
             if (!empty($pluginparams) && is_array($pluginparams)) {
                 $requestparams = array_merge($requestparams, $pluginparams);

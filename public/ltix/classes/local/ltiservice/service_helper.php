@@ -298,18 +298,18 @@ class service_helper {
     }
 
     /**
-     * Extend the LTI services through the ltisource plugins
+     * Extend the LTI services through the ltixsource plugins
      *
      * @param stdClass $data LTI request data
      * @return bool
      * @throws coding_exception
      */
     public static function extend_lti_services($data) {
-        $plugins = get_plugin_list_with_function('ltisource', $data->messagetype);
+        $plugins = get_plugin_list_with_function('ltixsource', $data->messagetype);
         if (!empty($plugins)) {
             // There can only be one.
             if (count($plugins) > 1) {
-                throw new coding_exception('More than one ltisource plugin handler found');
+                throw new coding_exception('More than one ltixsource plugin handler found');
             }
             $data->xml = new SimpleXMLElement($data->body);
             $callback = current($plugins);
