@@ -1506,10 +1506,10 @@ function lti_get_services() {
  * @return bool|\mod_lti\local\ltiservice\service_base Service
  */
 function lti_get_service_by_name($servicename) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_service_by_name() instead.',
+    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiservice\service_helper::get_service_by_name() instead.',
         DEBUG_DEVELOPER);
 
-    return \core_ltix\helper::get_service_by_name($servicename);
+    return \core_ltix\local\ltiservice\service_helper::get_service_by_name($servicename);
 }
 
 /**

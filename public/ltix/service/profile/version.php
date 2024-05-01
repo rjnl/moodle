@@ -15,32 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for ltiservice_profile.
+ * Version information for the ltixservice_profile service.
  *
- * @package    ltiservice_profile
- * @copyright  2018 Mark Nelson <markn@moodle.com>
+ * @package    ltixservice_profile
+ * @copyright  2014 Vital Source Technologies http://vitalsource.com
+ * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_profile\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * Privacy Subsystem for ltiservice_profile implementing null_provider.
- *
- * @copyright  2018 Mark Nelson <markn@moodle.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class provider implements \core_privacy\local\metadata\null_provider {
 
-    /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
-     *
-     * @return string
-     */
-    public static function get_reason(): string {
-        return 'privacy:metadata';
-    }
-}
+$plugin->version   = 2025100600;
+$plugin->requires  = 2025092600;
+$plugin->component = 'ltixservice_profile';

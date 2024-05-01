@@ -31,5 +31,5 @@ $plugin->version   = 2025100600;
 $plugin->requires  = 2025092600;
 $plugin->component = 'ltiservice_toolproxy';
 $plugin->dependencies = [
-    'ltiservice_profile' => 2025092600,
+    'ltixservice_profile' => 2025092600,
 ];
