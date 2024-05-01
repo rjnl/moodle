@@ -1477,7 +1477,7 @@ class helper {
                     $record->value = $value;
                     self::update_config($record);
                 }
-                if (substr($key, 0, 11) == 'ltiservice_' && !is_null($value)) {
+                if ((substr($key, 0, 11) == 'ltiservice_'  || substr($key, 0, 12) == 'ltixservice_') && !is_null($value)) {
                     $record = new \StdClass();
                     $record->typeid = $type->id;
                     $record->name = $key;
@@ -1657,7 +1657,7 @@ class helper {
                 if (!is_null($value)) {
                     if (substr($key, 0, 4) === 'lti_') {
                         $fieldname = substr($key, 4);
-                    } else if (substr($key, 0, 11) !== 'ltiservice_') {
+                    } else if (substr($key, 0, 11) !== 'ltiservice_' && substr($key, 0, 12) !== 'ltixservice_') {
                         continue;
                     } else {
                         $fieldname = $key;
@@ -1844,7 +1844,7 @@ class helper {
 
         // Get the parameters from the LTI services.
         foreach ($config as $name => $value) {
-            if (strpos($name, 'ltiservice_') === 0) {
+            if (strpos($name, 'ltiservice_') === 0 || strpos($name, 'ltixservice_') === 0) {
                 $type->{$name} = $config[$name];
             }
         }
@@ -3497,10 +3497,10 @@ class helper {
     /**
      * Finds a service by id
      *
-     * @param \mod_lti\local\ltiservice\service_base[] $services Array of services
+     * @param \core_ltix\local\ltiservice\service_base[] $services Array of services
      * @param string $resourceid  ID of resource
      *
-     * @return mod_lti\local\ltiservice\service_base Service
+     * @return \core_ltix\local\ltiservice\service_base Service
      */
     public static function get_service_by_resource_id($services, $resourceid) {
 

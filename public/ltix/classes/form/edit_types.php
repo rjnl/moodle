@@ -362,7 +362,7 @@ class edit_types extends moodleform {
         $services = \core_ltix\helper::get_services();
         $mform->addElement('header', 'services', get_string('services', 'lti'));
         foreach ($services as $service) {
-            /** @var \mod_lti\local\ltiservice\service_base $service */
+            /** @var \core_ltix\local\ltiservice\service_base $service */
             $service->get_configuration_options($mform);
         }
     }

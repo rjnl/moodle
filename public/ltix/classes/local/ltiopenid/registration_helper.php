@@ -196,32 +196,32 @@ class registration_helper {
 
         // Sets Service info based on scopes.
         $config->lti_acceptgrades = LTI_SETTING_NEVER;
-        $config->ltiservice_gradesynchronization = 0;
-        $config->ltiservice_memberships = 0;
+        $config->ltixservice_gradesynchronization = 0;
+        $config->ltixservice_memberships = 0;
         $config->ltixservice_toolsettings = 0;
         if (isset($scopes)) {
             // Sets Assignment and Grade Services info.
 
             if (in_array(self::SCOPE_SCORE, $scopes)) {
                 $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-                $config->ltiservice_gradesynchronization = 1;
+                $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_RESULT, $scopes)) {
                 $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-                $config->ltiservice_gradesynchronization = 1;
+                $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_LINEITEM_RO, $scopes)) {
                 $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-                $config->ltiservice_gradesynchronization = 1;
+                $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_LINEITEM, $scopes)) {
                 $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
-                $config->ltiservice_gradesynchronization = 2;
+                $config->ltixservice_gradesynchronization = 2;
             }
 
             // Sets Names and Role Provisioning info.
             if (in_array(self::SCOPE_NRPS, $scopes)) {
-                $config->ltiservice_memberships = 1;
+                $config->ltixservice_memberships = 1;
             }
 
             // Sets Tool Settings info.
@@ -332,15 +332,15 @@ class registration_helper {
             $lticonfigurationresponse['custom_parameters'] = $params;
         }
         $scopesresponse = [];
-        if ($config->ltiservice_gradesynchronization ?? 0 > 0) {
+        if ($config->ltixservice_gradesynchronization ?? 0 > 0) {
             $scopesresponse[] = self::SCOPE_SCORE;
             $scopesresponse[] = self::SCOPE_RESULT;
             $scopesresponse[] = self::SCOPE_LINEITEM_RO;
         }
-        if ($config->ltiservice_gradesynchronization ?? 0 == 2) {
+        if ($config->ltixservice_gradesynchronization ?? 0 == 2) {
             $scopesresponse[] = self::SCOPE_LINEITEM;
         }
-        if ($config->ltiservice_memberships ?? 0 == 1) {
+        if ($config->ltixservice_memberships ?? 0 == 1) {
             $scopesresponse[] = self::SCOPE_NRPS;
         }
         if ($config->ltixservice_toolsettings ?? 0 == 1) {
