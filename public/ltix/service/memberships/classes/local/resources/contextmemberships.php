@@ -17,17 +17,17 @@
 /**
  * This file contains a class definition for the Context Memberships resource
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @copyright  2015 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 
-namespace ltiservice_memberships\local\resources;
+namespace ltixservice_memberships\local\resources;
 
-use mod_lti\local\ltiservice\resource_base;
-use ltiservice_memberships\local\service\memberships;
+use core_ltix\local\ltiservice\resource_base;
+use ltixservice_memberships\local\service\memberships;
 use core_availability\info_module;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * A resource implementing Context Memberships.
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @since      Moodle 3.0
  * @copyright  2015 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -45,7 +45,7 @@ class contextmemberships extends resource_base {
     /**
      * Class constructor.
      *
-     * @param \ltiservice_memberships\local\service\memberships $service Service instance
+     * @param \ltixservice_memberships\local\service\memberships $service Service instance
      */
     public function __construct($service) {
 
@@ -62,7 +62,7 @@ class contextmemberships extends resource_base {
     /**
      * Execute the request for this resource.
      *
-     * @param \mod_lti\local\ltiservice\response $response  Response object for this request.
+     * @param \core_ltix\local\ltiservice\response $response  Response object for this request.
      */
     public function execute($response) {
         global $DB;

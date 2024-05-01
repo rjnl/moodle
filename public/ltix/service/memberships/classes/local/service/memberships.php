@@ -17,25 +17,25 @@
 /**
  * This file contains a class definition for the Memberships service
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @copyright  2015 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_memberships\local\service;
+namespace ltixservice_memberships\local\service;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * A service implementing Memberships.
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @since      Moodle 3.0
  * @copyright  2015 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class memberships extends \mod_lti\local\ltiservice\service_base {
+class memberships extends \core_ltix\local\ltiservice\service_base {
 
     /** Default prefix for context-level roles */
     const CONTEXT_ROLE_PREFIX = 'http://purl.imsglobal.org/vocab/lis/v2/membership#';
@@ -76,8 +76,8 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
 
         if (empty($this->resources)) {
             $this->resources = array();
-            $this->resources[] = new \ltiservice_memberships\local\resources\contextmemberships($this);
-            $this->resources[] = new \ltiservice_memberships\local\resources\linkmemberships($this);
+            $this->resources[] = new \ltixservice_memberships\local\resources\contextmemberships($this);
+            $this->resources[] = new \ltixservice_memberships\local\resources\linkmemberships($this);
         }
 
         return $this->resources;
@@ -114,7 +114,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
     /**
      * Get the JSON for members.
      *
-     * @param \mod_lti\local\ltiservice\resource_base $resource       Resource handling the request
+     * @param \core_ltix\local\ltiservice\resource_base $resource       Resource handling the request
      * @param \context_course   $context    Course context
      * @param string            $contextid  Course ID
      * @param object            $tool       Tool instance object
@@ -140,7 +140,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
         $memberships = new memberships();
         $memberships->check_tool($tool->id, null, array(self::SCOPE_MEMBERSHIPS_READ));
 
-        $response = new \mod_lti\local\ltiservice\response();
+        $response = new \core_ltix\local\ltiservice\response();
 
         $json = $memberships->get_members_json($resource, $context, $course, $role, $limitfrom, $limitnum, $lti, $info, $response);
 
@@ -150,7 +150,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
     /**
      * Get the JSON for members.
      *
-     * @param \mod_lti\local\ltiservice\resource_base $resource       Resource handling the request
+     * @param \core_ltix\local\ltiservice\resource_base $resource       Resource handling the request
      * @param \context_course   $context    Course context
      * @param \course           $course     Course
      * @param string            $role       User role requested (empty if none)
@@ -159,7 +159,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
      * @param object            $lti        LTI instance record
      * @param \core_availability\info_module $info Conditional availability information
      *      for LTI instance (null if context-level request)
-     * @param \mod_lti\local\ltiservice\response $response       Response object for the request
+     * @param \core_ltix\local\ltiservice\response $response       Response object for the request
      *
      * @return string
      */
@@ -196,7 +196,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
      * Note that when a limit is set and the exclude array is not empty, then the number of memberships
      * returned may be less than the limit.
      *
-     * @param \mod_lti\local\ltiservice\resource_base $resource       Resource handling the request
+     * @param \core_ltix\local\ltiservice\resource_base $resource       Resource handling the request
      * @param array  $users               Array of user records
      * @param string $contextid           Course ID
      * @param array  $exclude             Array of user records to be excluded from the response
@@ -205,7 +205,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
      * @param object $lti                 LTI instance record
      * @param \core_availability\info_module $info Conditional availability information
      *      for LTI instance (null if context-level request)
-     * @param \mod_lti\local\ltiservice\response $response       Response object for the request
+     * @param \core_ltix\local\ltiservice\response $response       Response object for the request
      *
      * @return string
      */
@@ -345,7 +345,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
      * Note that when a limit is set and the exclude array is not empty, then the number of memberships
      * returned may be less than the limit.
      *
-     * @param \mod_lti\local\ltiservice\resource_base $resource       Resource handling the request
+     * @param \core_ltix\local\ltiservice\resource_base $resource       Resource handling the request
      * @param array   $users               Array of user records
      * @param \course $course              Course
      * @param array   $exclude             Array of user records to be excluded from the response
@@ -353,7 +353,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
      * @param int     $limitnum            Maximum number of records to be returned
      * @param object  $lti                 LTI instance record
      * @param \core_availability\info_module  $info     Conditional availability information for LTI instance
-     * @param \mod_lti\local\ltiservice\response $response       Response object for the request
+     * @param \core_ltix\local\ltiservice\response $response       Response object for the request
      *
      * @return string
      */
@@ -454,7 +454,7 @@ class memberships extends \mod_lti\local\ltiservice\service_base {
                     $serviceurl = new \moodle_url('/mod/lti/service.php');
                     $serviceurl = $serviceurl->out();
                     $forcessl = false;
-                    if (!empty($CFG->mod_lti_forcessl)) {
+                    if (!empty($CFG->core_ltix_forcessl)) {
                         $forcessl = true;
                     }
                     if ((isset($toolconfig['forcessl']) && ($toolconfig['forcessl'] == '1')) or $forcessl) {

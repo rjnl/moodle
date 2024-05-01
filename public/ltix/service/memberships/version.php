@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the ltiservice_memberships service.
+ * Version information for the ltixservice_memberships service.
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @copyright  2015 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -29,4 +29,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2025100600;
 $plugin->requires  = 2025092600;
-$plugin->component = 'ltiservice_memberships';
+$plugin->component = 'ltixservice_memberships';
