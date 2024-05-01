@@ -156,7 +156,7 @@ EOD;
         $this->assertEquals(2, $config->ltiservice_gradesynchronization);
         $this->assertEquals(LTI_SETTING_DELEGATE, $config->lti_acceptgrades);
         $this->assertEquals(1, $config->ltiservice_memberships);
-        $this->assertEquals(0, $config->ltiservice_toolsettings);
+        $this->assertEquals(0, $config->ltixservice_toolsettings);
         $this->assertEquals('client.example.org', $config->lti_tooldomain);
         $this->assertEquals('https://client.example.org/lti', $config->lti_toolurl);
         $this->assertEquals(LTI_SETTING_ALWAYS, $config->lti_sendname);

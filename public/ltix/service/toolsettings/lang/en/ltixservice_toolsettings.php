@@ -15,22 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the ltiservice_toolsettings service.
+ * Strings for component 'ltixservice_toolsettings', language 'en'
  *
- * @package    ltiservice_toolsettings
+ * @package    ltixservice_toolsettings
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
-$plugin->version   = 2025100600;
-$plugin->requires  = 2025092600;
-$plugin->component = 'ltiservice_toolsettings';
-$plugin->dependencies = [
-    'ltixservice_profile' => 2025092600,
-    'ltixservice_toolproxy' => 2025092600,
-];
+$string['allow'] = 'Use this service';
+$string['ltixservice_toolsettings'] = 'Tool Settings';
+$string['ltixservice_toolsettings_help'] = 'Allow the tool to save and retrieve setting values.';
+$string['notallow'] = 'Do not use this service';
+$string['pluginname'] = 'Tool Settings Service';
+$string['privacy:metadata'] = 'The Tool Settings Service plugin does not store any personal data.';
