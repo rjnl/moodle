@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'ltiservice_toolproxy', language 'en'
+ * Strings for component 'ltixservice_toolproxy', language 'en'
  *
- * @package    ltiservice_toolproxy
+ * @package    ltixservice_toolproxy
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

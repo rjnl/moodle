@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for ltiservice_toolproxy.
+ * Privacy Subsystem implementation for ltixservice_toolproxy.
  *
- * @package    ltiservice_toolproxy
+ * @package    ltixservice_toolproxy
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_toolproxy\privacy;
+namespace ltixservice_toolproxy\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy Subsystem for ltiservice_toolproxy implementing null_provider.
+ * Privacy Subsystem for ltixservice_toolproxy implementing null_provider.
  *
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
