@@ -14,20 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
- * Unit tests for ltiservice_memberships privacy provider.
+ * Unit tests for ltixservice_memberships privacy provider.
  *
- * @package    ltiservice_memberships
+ * @package    ltixservice_memberships
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace ltiservice_memberships\privacy;
+namespace ltixservice_memberships\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 use core_privacy\tests\provider_testcase;
 
 /**
- * Unit tests for ltiservice_memberships privacy provider.
+ * Unit tests for ltixservice_memberships privacy provider.
  *
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -47,7 +47,7 @@ final class provider_test extends provider_testcase {
      */
     public function test_get_contexts_for_userid(): void {
         $user = $this->getDataGenerator()->create_user();
-        $contextlist = \ltiservice_memberships\privacy\provider::get_contexts_for_userid($user->id);
+        $contextlist = \ltixservice_memberships\privacy\provider::get_contexts_for_userid($user->id);
         $this->assertEmpty($contextlist);
     }
 }
