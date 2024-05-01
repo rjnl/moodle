@@ -15,19 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for ltiservice_toolsettings.
+ * Privacy Subsystem implementation for ltixservice_toolsettings.
  *
- * @package    ltiservice_toolsettings
+ * @package    ltixservice_toolsettings
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_toolsettings\privacy;
+namespace ltixservice_toolsettings\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Privacy Subsystem for ltiservice_toolsettings implementing null_provider.
+ * Privacy Subsystem for ltixservice_toolsettings implementing null_provider.
  *
  * @copyright  2018 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

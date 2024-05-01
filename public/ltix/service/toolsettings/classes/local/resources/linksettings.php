@@ -17,32 +17,32 @@
 /**
  * This file contains a class definition for the Context Settings resource
  *
- * @package    ltiservice_toolsettings
+ * @package    ltixservice_toolsettings
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace ltiservice_toolsettings\local\resources;
+namespace ltixservice_toolsettings\local\resources;
 
-use ltiservice_toolsettings\local\service\toolsettings;
+use ltixservice_toolsettings\local\service\toolsettings;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * A resource implementing the Context-level (ToolProxyBinding) Settings.
  *
- * @package    ltiservice_toolsettings
+ * @package    ltixservice_toolsettings
  * @since      Moodle 2.8
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class linksettings extends \mod_lti\local\ltiservice\resource_base {
+class linksettings extends \core_ltix\local\ltiservice\resource_base {
 
     /**
      * Class constructor.
      *
-     * @param \mod_lti\local\ltiservice\service_base $service Service instance
+     * @param \core_ltix\local\ltiservice\service_base $service Service instance
      */
     public function __construct($service) {
 
@@ -60,7 +60,7 @@ class linksettings extends \mod_lti\local\ltiservice\resource_base {
     /**
      * Execute the request for this resource.
      *
-     * @param \mod_lti\local\ltiservice\response $response  Response object for this request.
+     * @param \core_ltix\local\ltiservice\response $response  Response object for this request.
      */
     public function execute($response) {
         global $DB, $COURSE;

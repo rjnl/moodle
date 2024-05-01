@@ -198,7 +198,7 @@ class registration_helper {
         $config->lti_acceptgrades = LTI_SETTING_NEVER;
         $config->ltiservice_gradesynchronization = 0;
         $config->ltiservice_memberships = 0;
-        $config->ltiservice_toolsettings = 0;
+        $config->ltixservice_toolsettings = 0;
         if (isset($scopes)) {
             // Sets Assignment and Grade Services info.
 
@@ -226,7 +226,7 @@ class registration_helper {
 
             // Sets Tool Settings info.
             if (in_array(self::SCOPE_TOOL_SETTING, $scopes)) {
-                $config->ltiservice_toolsettings = 1;
+                $config->ltixservice_toolsettings = 1;
             }
         }
 
@@ -343,7 +343,7 @@ class registration_helper {
         if ($config->ltiservice_memberships ?? 0 == 1) {
             $scopesresponse[] = self::SCOPE_NRPS;
         }
-        if ($config->ltiservice_toolsettings ?? 0 == 1) {
+        if ($config->ltixservice_toolsettings ?? 0 == 1) {
             $scopesresponse[] = self::SCOPE_TOOL_SETTING;
         }
         $registrationresponse['scope'] = implode(' ', $scopesresponse);
