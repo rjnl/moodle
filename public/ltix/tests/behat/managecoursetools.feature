@@ -1,4 +1,4 @@
-@mod @mod_lti
+@core @core_ltix
 Feature: Manage course tools
   In order to provide richer experiences for learners
   As a teacher
@@ -40,7 +40,7 @@ Feature: Manage course tools
 
   Scenario: Viewing a site level tool in the course tools table
     # The first tool isn't visible in courses, the next two are, and the last tool is in a pending state and is not visible.
-    Given the following "mod_lti > tool types" exist:
+    Given the following "core_ltix > tool types" exist:
       | name         | description         | baseurl                   | coursevisible | state |
       | Example tool | Another description | https://example.com/tool1 | 0             | 1     |
       | Test tool 2  | Tool2 description   | https://example.com/tool2 | 1             | 1     |
@@ -57,10 +57,10 @@ Feature: Manage course tools
 
   Scenario: Viewing course tools without the capability to add/edit but having the capability to use
     Given the following "role capability" exists:
-      | role                             | editingteacher |
-      | moodle/ltix:addcoursetool        | prohibit       |
-      | mod/lti:addpreconfiguredinstance | allow          |
-    And the following "mod_lti > course tools" exist:
+      | role                        | editingteacher |
+      | moodle/ltix:addcoursetool   | prohibit       |
+      | moodle/ltix:viewcoursetools | allow          |
+    And the following "core_ltix > course tools" exist:
       | name      | description         | baseurl                  | course |
       | Test tool | Example description | https://example.com/tool | C1     |
     And I am on the "Course 1" course page logged in as teacher1
@@ -69,10 +69,10 @@ Feature: Manage course tools
 
   Scenario: Viewing course tools with the capability to add/edit and without the capability to use
     Given the following "role capability" exists:
-      | role                             | editingteacher |
-      | moodle/ltix:addcoursetool        | allow          |
-      | mod/lti:addpreconfiguredinstance | prohibit       |
-    And the following "mod_lti > course tools" exist:
+      | role                        | editingteacher |
+      | moodle/ltix:addcoursetool   | allow          |
+      | moodle/ltix:viewcoursetools | prohibit       |
+    And the following "core_ltix > course tools" exist:
       | name      | description         | baseurl                  | course |
       | Test tool | Example description | https://example.com/tool | C1     |
     When I am on the "Course 1" course page logged in as teacher1
@@ -80,7 +80,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Edit a course tool
-    Given the following "mod_lti > course tools" exist:
+    Given the following "core_ltix > course tools" exist:
       | name      | description         | baseurl                  | course |
       | Test tool | Example description | https://example.com/tool | C1     |
     And I am on the "Course 1" course page logged in as teacher1
@@ -103,7 +103,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Navigate through the listing of course tools
-    Given 20 "mod_lti > course tools" exist with the following data:
+    Given 20 "core_ltix > course tools" exist with the following data:
     | name        | Test tool [count]                   |
     | description | Example description [count]         |
     | baseurl     | https://www.example.com/tool[count] |
@@ -118,7 +118,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Delete a course tool
-    Given the following "mod_lti > course tools" exist:
+    Given the following "core_ltix > course tools" exist:
       | name         | description         | baseurl                          | course |
       | Test tool    | Example description | https://example.com/tool         | C1     |
       | Another tool | Example 123         | https://another.example.com/tool | C1     |
@@ -158,7 +158,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Site tool appearing in activity chooser according to settings
-    Given the following "mod_lti > tool types" exist:
+    Given the following "core_ltix > tool types" exist:
       | name            | baseurl                                | coursevisible | state |
       | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
       | Teaching Tool 2 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
@@ -215,7 +215,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Course tool appearing in activity chooser according to settings
-    Given the following "mod_lti > course tools" exist:
+    Given the following "core_ltix > course tools" exist:
       | name          | baseurl                                | course | coursevisible |
       | Course Tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     | 2             |
       | Course Tool 2 | /ltix/tests/fixtures/tool_provider.php | C1     | 1             |
@@ -251,11 +251,11 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Site and course tools settings are preserved when backup and restore
-    Given the following "mod_lti > tool types" exist:
+    Given the following "core_ltix > tool types" exist:
       | name            | baseurl                                | coursevisible | state |
       | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
       | Teaching Tool 2 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
-    And the following "mod_lti > course tools" exist:
+    And the following "core_ltix > course tools" exist:
       | name          | description         | baseurl                  | course |
       | Course Tool 1 | Example description | https://example.com/tool | C1     |
     And I log in as "admin"

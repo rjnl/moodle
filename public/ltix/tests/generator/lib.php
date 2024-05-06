@@ -15,19 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * LTI data generator
- *
- * @package    core_ltix
- * @category   test
- * @copyright  Copyright (c) 2012 Moodlerooms Inc. (http://www.moodlerooms.com)
- * @author     Mark Nielsen
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * LTI module data generator class
+ * Data generator class for core_ltix.
  *
  * @package    core_ltix
  * @category   test
@@ -84,6 +72,9 @@ class core_ltix_generator extends testing_module_generator {
      * @return int ID of created tool
      */
     public function create_tool_types(array $data): int {
+        global $CFG;
+        require_once($CFG->dirroot . '/ltix/constants.php');
+
         if (!isset($data['baseurl'])) {
             throw new coding_exception('Must specify baseurl when creating a LTI tool type.');
         }
@@ -108,7 +99,8 @@ class core_ltix_generator extends testing_module_generator {
      * @throws coding_exception if any required fields are missing.
      */
     public function create_course_tool_types(array $type): int {
-        global $SITE;
+        global $SITE, $CFG;
+        require_once($CFG->dirroot . '/ltix/constants.php');
 
         if (!isset($type['baseurl'])) {
             throw new coding_exception('Must specify baseurl when creating a course tool type.');
