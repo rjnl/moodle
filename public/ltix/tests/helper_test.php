@@ -817,21 +817,21 @@ class helper_test extends lti_testcase {
 
         // Try when the forcessl config property is not set.
         helper::prepare_type_for_save($type, $config);
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(0, $config->lti_forcessl);
         $this->assertEquals(0, $type->forcessl);
 
         // Try when forcessl config property is set.
         $config->lti_forcessl = 1;
         helper::prepare_type_for_save($type, $config);
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(1, $config->lti_forcessl);
         $this->assertEquals(1, $type->forcessl);
 
         // Try when forcessl config property is set to 0.
         $config->lti_forcessl = 0;
         helper::prepare_type_for_save($type, $config);
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(0, $config->lti_forcessl);
         $this->assertEquals(0, $type->forcessl);
     }
