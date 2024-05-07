@@ -320,6 +320,7 @@ $string['localroles'] = 'Locally assigned roles';
 $string['ltix:addcoursetool'] = 'Add course-specific tool configurations';
 $string['ltix:manage'] = 'Be an instructor when the tool is launched';
 $string['ltix:admin'] = 'Be an administrator when the tool is launched';
+$string['ltix:viewcoursetools'] = 'View course external tools';
 $string['mainadmin'] = 'Main administrator';
 $string['mainadminset'] = 'Set main admin';
 $string['manageadmins'] = 'Manage site administrators';

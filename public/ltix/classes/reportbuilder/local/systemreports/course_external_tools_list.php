@@ -103,7 +103,7 @@ class course_external_tools_list extends system_report {
      * @return bool
      */
     protected function can_view(): bool {
-        return has_capability('mod/lti:addpreconfiguredinstance', $this->get_context());
+        return has_capability('moodle/ltix:viewcoursetools', $this->get_context());
     }
 
     public function row_callback(\stdClass $row): void {

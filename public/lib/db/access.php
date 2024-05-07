@@ -2892,4 +2892,14 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE
     ],
+
+    // Controls users ability to view the course tools.
+    'moodle/ltix:viewcoursetools' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ]
+    ],
 );
