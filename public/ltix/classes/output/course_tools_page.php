@@ -17,7 +17,7 @@
 namespace core_ltix\output;
 
 use core_reportbuilder\system_report_factory;
-use core_ltix\reportbuilder\local\systemreports\course_external_tools_list; //This needs to be moved
+use core_ltix\reportbuilder\local\systemreports\course_external_tools_list;
 
 /**
  * The course tools page renderable, containing a page header renderable and a course tools system report.

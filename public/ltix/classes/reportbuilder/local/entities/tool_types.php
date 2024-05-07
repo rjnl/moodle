@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\reportbuilder\local\entities;
+namespace core_ltix\reportbuilder\local\entities;
 
 use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\filters\text;
@@ -28,7 +28,7 @@ use core_reportbuilder\local\report\filter;
  *
  * Defines all the columns and filters that can be added to reports that use this entity.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -52,7 +52,7 @@ class tool_types extends base {
      * @return lang_string
      */
     protected function get_default_entity_title(): lang_string {
-        return new lang_string('entitycourseexternaltools', 'mod_lti');
+        return new lang_string('entitycourseexternaltools', 'core_ltix');
     }
 
     /**
@@ -76,11 +76,11 @@ class tool_types extends base {
             ->add_callback(static function(string $name, \stdClass $data) {
                 global $OUTPUT;
 
-                $iconurl = $data->icon ?: $OUTPUT->image_url('monologo', 'lti')->out();
+                $iconurl = $data->icon ?: $OUTPUT->image_url('i/lti', 'core')->out();
                 $iconclass = $data->icon ? ' nofilter' : '';
                 $iconcontainerclass = 'activityiconcontainer smaller';
                 $name = $data->name;
-                $img = \html_writer::img($iconurl, get_string('courseexternaltooliconalt', 'mod_lti', $name),
+                $img = \html_writer::img($iconurl, get_string('courseexternaltooliconalt', 'core_ltix', $name),
                     ['class' => 'activityicon' . $iconclass]);
                 $name = \html_writer::span($name, 'align-self-center');
                 return \html_writer::div(\html_writer::div($img, 'me-2 '.$iconcontainerclass) . $name, 'd-flex');
