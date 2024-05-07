@@ -16,7 +16,7 @@
 /**
  * Course LTI External tools list management.
  *
- * @module      mod_lti/course_tools_list
+ * @module      core_ltix/course_tools_list
  * @copyright   2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,10 +46,10 @@ export const init = () => {
             const usage = courseToolDelete.dataset.courseToolUsage;
             const deleteBodyStringId = usage > 0 ? 'deletecoursetoolwithusageconfirm' : 'deletecoursetoolconfirm';
             const requiredStrings = [
-                {key: 'deletecoursetool', component: 'mod_lti', param: courseToolDelete.dataset.courseToolName},
-                {key: deleteBodyStringId, component: 'mod_lti', param: courseToolDelete.dataset.courseToolName},
+                {key: 'deletecoursetool', component: 'core_ltix', param: courseToolDelete.dataset.courseToolName},
+                {key: deleteBodyStringId, component: 'core_ltix', param: courseToolDelete.dataset.courseToolName},
                 {key: 'delete', component: 'core', param: courseToolDelete.dataset.courseToolName},
-                {key: 'coursetooldeleted', component: 'mod_lti', param: courseToolDelete.dataset.courseToolName}
+                {key: 'coursetooldeleted', component: 'core_ltix', param: courseToolDelete.dataset.courseToolName}
             ];
             // Use triggerElement to return focus to the action menu toggle.
             const triggerElement = courseToolDelete.closest('.dropdown').querySelector('.dropdown-toggle');
@@ -61,14 +61,14 @@ export const init = () => {
                     deleteLabel,
                     {triggerElement});
             }).then(() => {
-                const pendingPromise = new Pending('mod_lti/course_tools:delete');
+                const pendingPromise = new Pending('core_ltix/course_tools:delete');
 
                 const request = {
-                    methodname: 'mod_lti_delete_course_tool_type',
+                    methodname: 'core_ltix_delete_course_tool_type',
                     args: {tooltypeid: courseToolDelete.dataset.courseToolId}
                 };
                 return Ajax.call([request])[0]
-                    .then(addToast(getString('coursetooldeleted', 'mod_lti', courseToolDelete.dataset.courseToolName)))
+                    .then(addToast(getString('coursetooldeleted', 'core_ltix', courseToolDelete.dataset.courseToolName)))
                     .then(() => {
                         const tableRoot = triggerElement.closest(Selectors.main.region);
                         return refreshTableContent(tableRoot);

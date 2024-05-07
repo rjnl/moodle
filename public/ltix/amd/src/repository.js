@@ -16,7 +16,7 @@
 /**
  * Module to handle AJAX interactions.
  *
- * @module     mod_lti/repository
+ * @module     core_ltix/repository
  * @copyright  2023 Ilya Tregubov <ilya.a.tregubov@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +36,7 @@ export const toggleShowInActivityChooser = (
     courseid,
     showinactivitychooser,
 ) => Ajax.call([{
-    methodname: 'mod_lti_toggle_showinactivitychooser',
+    methodname: 'core_ltix_toggle_showinactivitychooser',
     args: {
         tooltypeid,
         courseid,
