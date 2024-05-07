@@ -327,7 +327,7 @@ final class locallib_test extends \advanced_testcase {
         // Try when the forcessl config property is not set.
         lti_prepare_type_for_save($type, $config);
         $this->assertDebuggingCalled();
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(0, $config->lti_forcessl);
         $this->assertEquals(0, $type->forcessl);
 
@@ -335,7 +335,7 @@ final class locallib_test extends \advanced_testcase {
         $config->lti_forcessl = 1;
         lti_prepare_type_for_save($type, $config);
         $this->assertDebuggingCalled();
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(1, $config->lti_forcessl);
         $this->assertEquals(1, $type->forcessl);
 
@@ -343,7 +343,7 @@ final class locallib_test extends \advanced_testcase {
         $config->lti_forcessl = 0;
         lti_prepare_type_for_save($type, $config);
         $this->assertDebuggingCalled();
-        $this->assertObjectHasAttribute('lti_forcessl', $config);
+        $this->assertObjectHasProperty('lti_forcessl', $config);
         $this->assertEquals(0, $config->lti_forcessl);
         $this->assertEquals(0, $type->forcessl);
     }
