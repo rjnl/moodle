@@ -1,1 +1,14 @@
 selectcontentvalidationerror,mod_lti
+entitycourseexternaltools,mod_lti
+deletecoursetool,mod_lti
+deletecoursetoolconfirm,mod_lti
+deletecoursetoolwithusageconfirm,mod_lti
+coursetooldeleted,mod_lti
+usage,mod_lti
+showinactivitychooser,mod_lti
+dontshowinactivitychooser,mod_lti
+courseexternaltoolsnoeditpermissions,mod_lti
+courseexternaltoolsnoviewpermissions,mod_lti
+courseexternaltooliconalt,mod_lti
+courseexternaltools,mod_lti
+courseexternaltoolsinfo,mod_lti

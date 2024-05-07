@@ -59,8 +59,11 @@ $string['courseexternaltooleditsuccess'] = 'Changes saved.';
 $string['courseexternaltooliconalt'] = 'Icon for {$a}';
 $string['courseexternaltools'] = 'LTI External tools';
 $string['courseexternaltoolsinfo'] = 'LTI External tools are add-on apps you can integrate into your course, such as interactive content or assessments. Your students can access and use them without leaving your course.';
+$string['courseexternaltoolsnoeditpermissions'] = 'You don\'t have permission to edit this tool';
+$string['courseexternaltoolsnoviewpermissions'] = 'View course external tools';
 $string['courseinformation'] = 'Course information';
 $string['courselink'] = 'Go to course';
+$string['coursetooldeleted'] = '{$a} deleted';
 $string['createdon'] = 'Created on';
 $string['custom'] = 'Custom parameters';
 $string['custom_help'] = 'Custom parameters are settings used by the tool provider. For example, a custom parameter may be used to display
@@ -81,7 +84,11 @@ real estate to the tool, and others provide a more integrated feel with the Mood
 $string['delegate'] = 'Delegate to teacher';
 $string['delegate_tool'] = 'As specified in Deep Linking definition or Delegate to teacher';
 $string['delete'] = 'Delete';
+$string['deletecoursetool'] = 'Delete {$a}';
+$string['deletecoursetoolconfirm'] = 'This will delete {$a} from the available LTI tools in your course.';
+$string['deletecoursetoolwithusageconfirm'] = '{$a} is currently being used in at least one activity in your course. If you delete this tool, the activities that use it will no longer work.<br><br>Are you sure you want to delete {$a}?';
 $string['delete_confirmation'] = 'Are you sure you want to delete this preconfigured tool?';
+$string['dontshowinactivitychooser'] = 'Don\'t show in activity chooser';
 $string['duplicateregurl'] = 'This registration URL is already in use';
 $string['dynreg_update_btn_new'] = 'Register as a new external tool';
 $string['dynreg_update_btn_update'] = 'Update';
@@ -96,6 +103,7 @@ $string['embed'] = 'Embed';
 $string['embed_no_blocks'] = 'Embed, without blocks';
 $string['enterkeyandsecret'] = 'Enter your consumer key and shared secret';
 $string['enterkeyandsecret_help'] = 'If you were given a consumer key and/or shared secret, input them here';
+$string['entitycourseexternaltools'] = 'LTI External tools';
 $string['errorbadurl'] = 'URL is not a valid tool URL or cartridge.';
 $string['errorincorrectconsumerkey'] = 'Consumer key is incorrect.';
 $string['errorinvaliddata'] = 'Invalid data: {$a}';
@@ -220,6 +228,7 @@ $string['share_name_help'] = 'Specify whether the full name of the user launchin
 The tool provider may need launchers\' names to show meaningful information within the tool.
 
 Note that this setting may be overridden in the tool configuration.';
+$string['showinactivitychooser'] = 'Show in activity chooser';
 $string['show_in_course_activity_chooser'] = 'Show in activity chooser and as a preconfigured tool';
 $string['show_in_course_lti1'] = 'Tool configuration usage';
 $string['show_in_course_lti1_help'] = 'This tool may be shown in the activity chooser for a teacher to select to add to a course. Alternatively, it may be shown in the preconfigured tool drop-down menu when adding an external tool to a course. A further option is for the tool configuration to only be used if the exact tool URL is entered when adding an external tool to a course.';
@@ -288,6 +297,7 @@ $string['unabletocreatetooltype'] = 'Unable to create tool';
 $string['unabletofindtooltype'] = 'Unable to find tool for {$a->id}';
 $string['unknownstate'] = 'Unknown state';
 $string['update'] = 'Update';
+$string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
 

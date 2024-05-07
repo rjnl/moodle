@@ -14,18 +14,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_lti\reportbuilder\local\systemreports;
+namespace core_ltix\reportbuilder\local\systemreports;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot.'/ltix/constants.php');
 
 use core\output\html_writer;
 use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\column;
-use mod_lti\reportbuilder\local\entities\tool_types;
+use core_ltix\reportbuilder\local\entities\tool_types;
 use core_reportbuilder\system_report;
+
 
 /**
  * Course external tools list system report class implementation.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,8 +46,7 @@ class course_external_tools_list extends system_report {
      * Initialise report, we need to set the main table, load our entities and set columns/filters
      */
     protected function initialise(): void {
-        global $DB, $CFG;
-        require_once($CFG->dirroot . '/mod/lti/locallib.php');
+        global $DB;
 
         $this->course = get_course($this->get_context()->instanceid);
 
@@ -92,7 +96,7 @@ class course_external_tools_list extends system_report {
         );
         $this->add_base_condition_sql($wheresql, $params);
 
-        $this->set_downloadable(false, get_string('pluginname', 'mod_lti'));
+        $this->set_downloadable(false, get_string('courseexternaltools', 'core_ltix'));
         $this->set_default_per_page(10);
         $this->set_default_no_results_notice(null);
     }
@@ -132,7 +136,7 @@ class course_external_tools_list extends system_report {
         // TODO: This should be replaced with proper column aggregation once that's added to system_report instances in MDL-76392.
         $this->add_column(new column(
             'usage',
-            new \lang_string('usage', 'mod_lti'),
+            new \lang_string('usage', 'core_ltix'),
             $tooltypesentity->get_entity_name()
         ))
             ->set_type(column::TYPE_INTEGER)
@@ -143,7 +147,7 @@ class course_external_tools_list extends system_report {
         // Enable toggle column.
         $this->add_column((new column(
             'showinactivitychooser',
-            new \lang_string('showinactivitychooser', 'mod_lti'),
+            new \lang_string('showinactivitychooser', 'core_ltix'),
             $tooltypesentity->get_entity_name()
         ))
             // Site tools can be overridden on course level.
@@ -172,8 +176,8 @@ class course_external_tools_list extends system_report {
                     ['name' => 'data-action', 'value' => 'showinactivitychooser-toggle'],
                     ['name' => 'data-state', 'value' => $coursevisible],
                 ];
-                $label = $coursevisible ? get_string('dontshowinactivitychooser', 'mod_lti')
-                    : get_string('showinactivitychooser', 'mod_lti');
+                $label = $coursevisible ? get_string('dontshowinactivitychooser', 'core_ltix')
+                    : get_string('showinactivitychooser', 'core_ltix');
 
                 $disabled = !has_capability('moodle/ltix:addcoursetool', \context_course::instance($courseid));
 
@@ -203,7 +207,7 @@ class course_external_tools_list extends system_report {
                 if (get_site()->id == $row->course) {
                     return \html_writer::div(
                         \html_writer::div(
-                            $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'mod_lti')
+                            $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'core_ltix')
                         ), 'tool-action-icon-container'), 'd-flex justify-content-end'
                     );
                 }
@@ -212,7 +216,7 @@ class course_external_tools_list extends system_report {
                 if (!has_capability('moodle/ltix:addcoursetool', \context_course::instance($row->course))) {
                     return \html_writer::div(
                         \html_writer::div(
-                            $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'mod_lti')
+                            $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'core_ltix')
                         ), 'tool-action-icon-container'), 'd-flex justify-content-end'
                     );
                 }
@@ -225,7 +229,7 @@ class course_external_tools_list extends system_report {
                 $menu->triggerattributes['title'] = $triggerlabel;
 
                 $menu->add(new \action_menu_link(
-                    new \moodle_url('/mod/lti/coursetooledit.php', ['course' => $row->course, 'typeid' => $row->id]),
+                    new \moodle_url('/ltix/coursetooledit.php', ['course' => $row->course, 'typeid' => $row->id]),
                     null,
                     get_string('edit', 'core'),
                     null
