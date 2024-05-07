@@ -35,8 +35,8 @@ $course = get_course($id);
 require_course_login($course, false);
 
 $context = context_course::instance($course->id);
-if (!has_capability('mod/lti:addpreconfiguredinstance', $context)) {
-    throw new \moodle_exception('nopermissions', 'error', '', get_string('courseexternaltoolsnoviewpermissions', 'mod_lti'));
+if (!has_capability('moodle/ltix:viewcoursetools', $context)) {
+    throw new \moodle_exception('nopermissions', 'error', '', get_string('courseexternaltoolsnoviewpermissions', 'core_ltix'));
 }
 
 // Page setup.

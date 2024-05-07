@@ -94,7 +94,11 @@ function xmldb_lti_upgrade($oldversion) {
         // The following capabilities have already been assigned to all relevant roles at site context (during core upgrade)
         // Now, ensure any custom role overrides are updated such that they reflect the new capability, at which point any users
         // who had the old capability now have the replacement capability in any relevant contexts.
-        $capmapping = ['mod/lti:manage' => 'moodle/ltix:manage', 'mod/lti:addcoursetool' => 'moodle/ltix:addcoursetool'];
+        $capmapping = [
+            'mod/lti:manage' => 'moodle/ltix:manage',
+            'mod/lti:addcoursetool' => 'moodle/ltix:addcoursetool',
+            'mod/lti:addpreconfiguredinstance' => 'moodle/ltix:viewcoursetools',
+        ];
         foreach ($capmapping as $oldcap => $newcap) {
 
             $sql = "UPDATE {role_capabilities}
