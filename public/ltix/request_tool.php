@@ -17,15 +17,13 @@
 /**
  * Submits a request to administrators to add a tool configuration for the requested site.
  *
- * @package mod_lti
+ * @package    core_ltix
  * @copyright  Copyright (c) 2011 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author     Chris Scribner
  */
 
-require_once('../../config.php');
-require_once($CFG->dirroot.'/mod/lti/lib.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once('../config.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
 
 $instanceid = required_param('instanceid', PARAM_INT);
@@ -43,7 +41,7 @@ require_capability('moodle/ltix:requesttooladd', context_course::instance($lti->
 
 $baseurl = \core_ltix\helper::get_domain_from_url($lti->toolurl);
 
-$url = new moodle_url('/mod/lti/request_tool.php', array('instanceid' => $instanceid));
+$url = new moodle_url('/ltix/request_tool.php', array('instanceid' => $instanceid));
 $PAGE->set_url($url);
 
 $pagetitle = strip_tags($course->shortname);
@@ -66,9 +64,9 @@ if (!\core_ltix\helper::get_tool_by_url_match($lti->toolurl, $lti->course, LTI_T
 
     \core_ltix\helper::add_type($tooltype, $toolconfig);
 
-    echo get_string('lti_tool_request_added', 'lti');
+    echo get_string('lti_tool_request_added', 'core_ltix');
 } else {
-    echo get_string('lti_tool_request_existing', 'lti');
+    echo get_string('lti_tool_request_existing', 'core_ltix');
 }
 
 echo $OUTPUT->footer();

@@ -18,7 +18,7 @@
  * This file receives a registration request along with the registration token and returns a client_id.
  *
  * @copyright  2020 Claude Vervoort (Cengage), Carlos Costa, Adrian Hutchinson (Macgraw Hill)
- * @package    mod_lti
+ * @package    core_ltix
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define('NO_DEBUG_DISPLAY', true);
@@ -27,15 +27,16 @@ define('NO_MOODLE_COOKIES', true);
 use core_ltix\local\ltiopenid\registration_helper;
 use core_ltix\local\ltiopenid\registration_exception;
 
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/lti/locallib.php');
+require_once(__DIR__ . '/../config.php');
+require_once(__DIR__ . '/constants.php');
+require_once(__DIR__ . '/OAuth.php'); // Required, since autoloading won't work for this collection of classes.
 
 $code = 200;
 $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' or ($_SERVER['REQUEST_METHOD'] === 'GET')) {
     $doregister = $_SERVER['REQUEST_METHOD'] === 'POST';
     // Retrieve registration token from Bearer Authorization header.
-    $authheader = core_ltix\OAuthUtil::get_headers()['Authorization'] ?? '';
+    $authheader = \core_ltix\OAuthUtil::get_headers()['Authorization'] ?? '';
     if (!($authheader && substr($authheader, 0, 7) == 'Bearer ')) {
         $message = 'missing_registration_token';
         $code = 401;
@@ -52,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' or ($_SERVER['REQUEST_METHOD'] === 'GE
             if ($doregister) {
                 $registrationpayload = json_decode(file_get_contents('php://input'), true);
                 $config = registration_helper::get()->registration_to_config($registrationpayload, $tokenres['clientid']);
-                if ($type->id) {
+                if (!empty($type->id)) {
                     \core_ltix\helper::update_type($type, clone $config);
                     $typeid = $type->id;
                 } else {
@@ -77,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' or ($_SERVER['REQUEST_METHOD'] === 'GE
     $code = 400;
     $message = 'Unsupported operation';
 }
-$response = new \mod_lti\local\ltiservice\response();
+$response = new \core_ltix\local\ltiservice\response();
 // Set code.
 $response->set_code($code);
 // Set body.

@@ -22,7 +22,7 @@
  * @copyright  2023 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+$string['accept'] = 'Accept';
 $string['accepted'] = 'Accepted';
 $string['accept_grades_admin'] = 'Accept grades from the tool';
 $string['accept_grades_admin_help'] = 'Specify whether the tool provider can add, update, read, and delete grades associated with instances of this tool.
@@ -35,13 +35,16 @@ $string['active'] = 'Active';
 $string['add_ltiadv'] = 'Add LTI Advantage';
 $string['add_ltilegacy'] = 'Add Legacy LTI';
 $string['addtool'] = 'Add tool';
+$string['addtype'] = 'Add preconfigured tool';
 $string['always'] = 'Always';
 $string['autoaddtype'] = 'Add tool';
 $string['baseurl'] = 'Base URL/tool registration name';
 $string['cancel'] = 'Cancel';
 $string['capabilities'] = 'Capabilities';
 $string['capabilitiesrequired'] = 'This tool requires access to the following data in order to activate:';
+$string['capabilities_help'] = 'Select those capabilities which you wish to offer to the tool provider.  More than one capability can be selected.';
 $string['cleanaccesstokens'] = 'External tool removal of expired access tokens';
+$string['click_to_continue'] = '<a href="{$a->link}" target="_top">Click to continue</a>';
 $string['clientidadmin'] = 'Client ID';
 $string['clientidadmin_help'] = 'The client ID is a unique value used to identify a tool. It is created automatically for each tool which uses the JWT security profile introduced in LTI 1.3 and should be part of the details passed to the tool provider so that they can configure the connection at their end.';
 $string['configured'] = 'Configured';
@@ -110,6 +113,7 @@ $string['errorinvaliddata'] = 'Invalid data: {$a}';
 $string['errorinvalidresponseformat'] = 'Invalid Content-Item response format.';
 $string['errortooltypenotfound'] = 'LTI tool type not found.';
 $string['existing_window'] = 'Existing window';
+$string['external_tool_types'] = 'Preconfigured tools';
 $string['failedtocreatetooltype'] = 'Failed to create new tool. Please check the URL and try again.';
 $string['failedtodeletetoolproxy'] = 'Failed to delete tool registration. You may need to visit "Manage external tool registrations" and delete it manually.';
 $string['force_ssl'] = 'Force SSL';
@@ -136,10 +140,20 @@ To submit a request for an administrator to complete the tool configuration, cli
 $string['ltix_launch_error_unsigned_help'] = '<p>This error may be a result of a missing consumer key and shared secret for the tool provider.</p>
 <p>If you have a consumer key and shared secret, you may enter it when editing the external tool instance (make sure advanced options are visible).</p>
 <p>Alternatively, you may <a href="{$a->course_tool_editor}">create a course level tool provider configuration</a>.</p>';
+$string['lti_tool_request_added'] = 'Tool configuration request successfully submitted. You may need to contact an administrator to complete the tool configuration.';
+$string['lti_tool_request_existing'] = 'A tool configuration for the tool domain has already been submitted.';
 $string['ltiversion'] = 'LTI version';
 $string['ltiversion_help'] = 'The version of LTI being used for signing messages and service requests: LTI 1.0/1.1 and LTI 2.0 use the OAuth 1.0A security profile; LTI 1.3.0 uses JWTs.';
 $string['ltiunknownserviceapicall'] = 'LTI unknown service API call.';
-$string['ltix'] = 'LTIx';
+$string['ltix'] = 'LTI';
+$string['main_admin'] = 'General help';
+$string['main_admin_help'] = 'External tools allow Moodle users to interact with learning resources hosted remotely. Through a special launch protocol, the remote tool has access to general information about the launching user. For example, the institution name, course ID, user ID, and other information such as the user\'s name or email address.
+
+Tools listed on this page are separated into three categories:
+
+* **Active** - These tool providers have been approved and configured by an administrator. They can be used from within any course on this site. If a consumer key and shared secret are entered, a trust relationship is established between this site and the remote tool, providing a secure communication channel.
+* **Pending** - These tool providers came in through a package import, but have not been configured by an administrator. Teachers may still use tools from these providers if they have a consumer key and shared secret, or if none is required.
+* **Rejected** - These tools providers are flagged as ones which an administrator has no intention of making available on the site. Teachers may still use tools from these providers if they have a consumer key and shared secret, or if none is required.';
 $string['manage_external_tools'] = 'Manage tools';
 $string['manage_tools'] = 'Manage preconfigured tools';
 $string['manage_tool_proxies'] = 'Manage external tool registrations';
@@ -174,6 +188,7 @@ $string['organizationurl_help'] = 'The base URL of this Moodle instance.
 If this field is left blank, a default value will be used based on the site configuration.';
 $string['parameter'] = 'Tool parameters';
 $string['parameter_help'] = 'Tool parameters are settings requested to be passed by the tool provider in the accepted tool proxy.';
+$string['password'] = 'Shared secret';
 $string['password_admin'] = 'Shared secret';
 $string['password_admin_help'] = 'The shared secret can be thought of as a password used to authenticate access to the tool. It should be provided
 along with the consumer key from the tool provider.
@@ -197,7 +212,9 @@ $string['registrationname'] = 'Tool provider name';
 $string['registrationname_help'] = 'Enter the name of the tool provider being registered.';
 $string['registrationurl'] = 'Registration URL';
 $string['registrationurl_help'] = 'The registration URL should be available from the tool provider as the location to which registration requests should be sent.';
+$string['reject'] = 'Reject';
 $string['rejected'] = 'Rejected';
+$string['resourcekey'] = 'Consumer key';
 $string['resourcekey_admin'] = 'Consumer key';
 $string['resourcekey_admin_help'] = 'The consumer key can be thought of as a username used to authenticate access to the tool.
 It can be used by the tool provider to uniquely identify the Moodle site from which users launch into the tool.
@@ -217,6 +234,7 @@ $string['secure_launch_url_help'] = 'Similar to the tool URL, but used instead o
 
 The tool URL may also be set to an https address to force launching through SSL, and this field may be left blank.';
 $string['services'] = 'Services';
+$string['services_help'] = 'Select those services which you wish to offer to the tool provider.  More than one service can be selected.';
 $string['share_email'] = 'Share launcher\'s email with the tool';
 $string['share_email_admin'] = 'Share launcher\'s email with tool';
 $string['share_email_admin_help'] = 'Specify whether the e-mail address of the user launching the tool will be shared with the tool provider.
@@ -266,6 +284,17 @@ $string['tooldetailspublickeyseturl'] = 'Public keyset URL';
 $string['toolisbeingused'] = 'This tool is being used {$a} times';
 $string['toolisnotbeingused'] = 'This tool has not yet been used';
 $string['toolproxy'] = 'External tool registrations';
+$string['toolproxy_help'] = 'External tool registrations allow Moodle site administrators to configure external tools from a tool proxy obtained from a tool provider supporting LTI 2.0. A registration URL provided by the tool provider is all that is required to initiate the process. The capabilities and services offered to the tool provider are selected when configuring a new registration.
+
+Tool registrations listed on this page are separated into four categories:
+
+* **Configured** - These tool registrations have been set up but the registration process has not yet been started.
+* **Pending** - The registration process for these tool registrations has been started but has not completed. Open and save the settings to move it
+back to the \'Configured\' category.
+* **Accepted** - These tool registrations have been approved; the resources specified in the tool proxy will appear on the preconfigured tools page
+with an initial status of \'Pending\'.
+* **Rejected** - These tool registrations are ones which were rejected during the registration process. Open and save the settings to move it
+back to the \'Configured\' category so the registration process can be restarted.';
 $string['toolproxyregistration'] = 'External tool registration';
 $string['toolregistration'] = 'External tool registration';
 $string['toolsetup'] = 'External tool configuration';

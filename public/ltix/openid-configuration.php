@@ -20,7 +20,7 @@
  * It is part of the LTI Tool Dynamic Registration, and used by
  * tools to get the site configuration and registration end-point.
  *
- * @package    mod_lti
+ * @package    core_ltix
  * @copyright  2020 Claude Vervoort (Cengage), Carlos Costa, Adrian Hutchinson (Macgraw Hill)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -29,20 +29,19 @@ use core_ltix\local\ltiopenid\registration_helper;
 
 define('NO_DEBUG_DISPLAY', true);
 define('NO_MOODLE_COOKIES', true);
-require_once(__DIR__ . '/../../config.php');
-require_once($CFG->dirroot . '/mod/lti/locallib.php');
+require_once(__DIR__ . '/../config.php');
 require_once($CFG->libdir.'/weblib.php');
 
 $scopes = registration_helper::get()->lti_get_service_scopes();
 $scopes[] = 'openid';
 $conf = [
     'issuer' => $CFG->wwwroot,
-    'token_endpoint' => (new moodle_url('/mod/lti/token.php'))->out(false),
+    'token_endpoint' => (new moodle_url('/ltix/token.php'))->out(false),
     'token_endpoint_auth_methods_supported' => ['private_key_jwt'],
     'token_endpoint_auth_signing_alg_values_supported' => ['RS256'],
-    'jwks_uri' => (new moodle_url('/mod/lti/certs.php'))->out(false),
-    'authorization_endpoint' => (new moodle_url('/mod/lti/auth.php'))->out(false),
-    'registration_endpoint' => (new moodle_url('/mod/lti/openid-registration.php'))->out(false),
+    'jwks_uri' => (new moodle_url('/ltix/certs.php'))->out(false),
+    'authorization_endpoint' => (new moodle_url('/ltix/auth.php'))->out(false),
+    'registration_endpoint' => (new moodle_url('/ltix/openid-registration.php'))->out(false),
     'scopes_supported' => $scopes,
     'response_types_supported' => ['id_token'],
     'subject_types_supported' => ['public', 'pairwise'],

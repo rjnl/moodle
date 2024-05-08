@@ -30,7 +30,7 @@ $cartridgeurl = optional_param('cartridgeurl', '', PARAM_URL);
 
 // No guest autologin.
 require_login(0, false);
-admin_externalpage_setup('ltitoolconfigure');
+admin_externalpage_setup('ltixtoolconfigure');
 
 if ($cartridgeurl) {
     $type = new stdClass();

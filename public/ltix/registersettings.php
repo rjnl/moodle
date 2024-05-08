@@ -26,9 +26,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
+require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
+require_once($CFG->dirroot.'/ltix/classes/form/register_form.php');
 
 $action       = optional_param('action', null, PARAM_ALPHANUMEXT);
 $id           = optional_param('id', null, PARAM_INT);
@@ -52,7 +53,7 @@ if (!empty($returnto)) {
 }
 $PAGE->set_url($pageurl);
 
-admin_externalpage_setup('ltitoolproxies');
+admin_externalpage_setup('ltixtoolproxies');
 
 $redirect = new moodle_url('/ltix/toolproxies.php', array('tab' => $tab));
 $redirect = $redirect->out();
@@ -73,7 +74,7 @@ if ($isupdate) {
 }
 
 $PAGE->set_primary_active_tab('siteadminnode');
-$PAGE->set_secondary_active_tab('modules');
+$PAGE->set_secondary_active_tab('siteadminnode');
 
 $form = new \core_ltix\form\core_ltix_register_types_form($pageurl, (object)$data);
 

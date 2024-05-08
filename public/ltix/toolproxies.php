@@ -33,7 +33,7 @@ require_login(0, false);
 $pageurl = new moodle_url('/ltix/toolproxies.php');
 $PAGE->set_url($pageurl);
 
-admin_externalpage_setup('ltitoolproxies');
+admin_externalpage_setup('ltixtoolproxies');
 
 $PAGE->set_title(get_string('toolregistration', 'core_ltix'));
 
