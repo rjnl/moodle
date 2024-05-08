@@ -17,14 +17,12 @@
 /**
  * Handle the return from the Tool Provider after registering a tool proxy.
  *
- * @package mod_lti
+ * @package    core_ltix
  * @copyright  2015 Ryan Wyllie
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once($CFG->dirroot.'/mod/lti/lib.php');
-require_once($CFG->dirroot.'/mod/lti/locallib.php');
+require_once('../config.php');
 
 $status = optional_param('status', '', PARAM_TEXT);
 $msg = optional_param('lti_msg', '', PARAM_TEXT);
@@ -38,11 +36,11 @@ require_login(0, false);
 $systemcontext = context_system::instance();
 require_capability('moodle/site:config', $systemcontext);
 
-$pageurl = new moodle_url('/mod/lti/externalregistrationreturn.php');
+$pageurl = new moodle_url('/ltix/externalregistrationreturn.php');
 $PAGE->set_context($systemcontext);
 $PAGE->set_url($pageurl);
 $PAGE->set_pagelayout('maintenance');
-$output = $PAGE->get_renderer('mod_lti');
+$output = $PAGE->get_renderer('core_ltix');
 echo $output->header();
 
 // Check status and lti_errormsg.
@@ -53,13 +51,13 @@ if ($status !== 'success' && empty($err)) {
         $err = $msg;
     } else {
         // Otherwise, use our generic error message.
-        $err = get_string('failedtocreatetooltype', 'mod_lti');
+        $err = get_string('failedtocreatetooltype', 'core_ltix');
     }
 }
 $params = array('message' => s($msg), 'error' => s($err), 'id' => $id, 'status' => s($status));
 
-$page = new \mod_lti\output\external_registration_return_page();
+$page = new \core_ltix\output\external_registration_return_page();
 echo $output->render($page);
 
-$PAGE->requires->js_call_amd('mod_lti/external_registration_return', 'init', $params);
+$PAGE->requires->js_call_amd('core_ltix/external_registration_return', 'init', $params);
 echo $output->footer();

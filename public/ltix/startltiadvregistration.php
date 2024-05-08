@@ -17,7 +17,7 @@
 /**
  * Redirect the user to registration with token and openid config url as query params.
  *
- * @package mod_lti
+ * @package    core_ltix
  * @copyright  2020 Cengage
  * @author     Claude Vervoort
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -28,9 +28,8 @@ use Firebase\JWT\JWT;
 use core_ltix\local\ltiopenid\jwks_helper;
 use core_ltix\local\ltiopenid\registration_helper;
 
-require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/../config.php');
 require_once($CFG->libdir.'/weblib.php');
-require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
 require_login();
 $context = context_system::instance();
@@ -43,12 +42,12 @@ $types = \core_ltix\helper::get_tools_by_url($starturl, null);
 
 if (!empty($types) && $typeid == -1) {
     // There are matching types for the registration domain, let's prompt the user to upgrade.
-    $pageurl = new moodle_url('/mod/lti/startltiadvregistration.php');
+    $pageurl = new moodle_url('/ltix/startltiadvregistration.php');
     $PAGE->set_context($context);
     $PAGE->set_url($pageurl);
     $PAGE->set_pagelayout('maintenance');
-    $output = $PAGE->get_renderer('mod_lti');
-    $page = new \mod_lti\output\registration_upgrade_choice_page($types, $starturl);
+    $output = $PAGE->get_renderer('core_ltix');
+    $page = new \core_ltix\output\registration_upgrade_choice_page($types, $starturl);
     echo $output->header();
     echo $output->render($page);
     echo $output->footer();
@@ -72,7 +71,7 @@ if (!empty($types) && $typeid == -1) {
     ];
     $privatekey = jwks_helper::get_private_key();
     $regtoken = JWT::encode($token, $privatekey['key'], 'RS256', $privatekey['kid']);
-    $confurl = new moodle_url('/mod/lti/openid-configuration.php');
+    $confurl = new moodle_url('/ltix/openid-configuration.php');
     $url = new moodle_url($starturl);
     $url->param('openid_configuration', $confurl->out(false));
     $url->param('registration_token', $regtoken);

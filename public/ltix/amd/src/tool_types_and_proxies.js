@@ -38,7 +38,7 @@ import ajax from 'core/ajax';
  */
 export const query = (args) => {
     const request = {
-        methodname: 'mod_lti_get_tool_types_and_proxies',
+        methodname: 'core_ltix_get_tool_types_and_proxies',
         args: args || {}
     };
 
@@ -59,7 +59,7 @@ export const query = (args) => {
  */
 export const count = (args) => {
     const request = {
-        methodname: 'mod_lti_get_tool_types_and_proxies_count',
+        methodname: 'core_ltix_get_tool_types_and_proxies_count',
         args: args || {}
     };
 

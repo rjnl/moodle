@@ -22,9 +22,8 @@
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die;
 
-require_once('../../config.php');
+require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
 use core_ltix\local\ltiservice\service_helper;
@@ -65,7 +64,7 @@ if (empty($profileservice)) {
 $url = new moodle_url('/ltix/register.php', array('id' => $id));
 $PAGE->set_url($url);
 
-admin_externalpage_setup('ltitoolproxies');
+admin_externalpage_setup('ltixtoolproxies');
 
 
 $PAGE->set_heading(get_string('toolproxyregistration', 'core_ltix'));

@@ -37,7 +37,7 @@ require_once($CFG->libdir.'/formslib.php');
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class core_ltix_register_types_form extends moodleform {
+class core_ltix_register_types_form extends \moodleform {
 
     /**
      * Set up the form definition.

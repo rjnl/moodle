@@ -37,7 +37,7 @@ define(['core/ajax', 'core/notification'], function(ajax, notification) {
          */
         query: function(args) {
             var request = {
-                methodname: 'mod_lti_get_tool_proxies',
+                methodname: 'core_ltix_get_tool_proxies',
                 args: args || {}
             };
 
@@ -57,7 +57,7 @@ define(['core/ajax', 'core/notification'], function(ajax, notification) {
          */
         'delete': function(id) {
             var request = {
-                methodname: 'mod_lti_delete_tool_proxy',
+                methodname: 'core_ltix_delete_tool_proxy',
                 args: {
                     id: id
                 }
@@ -84,7 +84,7 @@ define(['core/ajax', 'core/notification'], function(ajax, notification) {
          */
         create: function(args) {
             var request = {
-                methodname: 'mod_lti_create_tool_proxy',
+                methodname: 'core_ltix_create_tool_proxy',
                 args: args
             };
 

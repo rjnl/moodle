@@ -26,7 +26,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
+require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->dirroot.'/ltix/constants.php');
 
@@ -68,7 +68,7 @@ if (!empty($returnto)) {
 }
 $PAGE->set_url($pageurl);
 
-admin_externalpage_setup('managemodules'); // Hacky solution for printing the admin page.
+admin_externalpage_setup('ltixtoolconfigure'); // Hacky solution for printing the admin page.
 
 $redirect = "$CFG->wwwroot/$CFG->admin/settings.php?section=modsettinglti&tab={$tab}";
 if (!empty($returnurl)) {
@@ -106,7 +106,9 @@ if ($data = $form->get_data()) {
 }
 
 $PAGE->set_title(get_string('toolsetup', 'core_ltix'));
-$PAGE->navbar->add(get_string('lti_administration', 'core_ltix'), $CFG->wwwroot.'/'.$CFG->admin.'/settings.php?section=modsettinglti');
+$PAGE->set_primary_active_tab('siteadminnode');
+$PAGE->set_secondary_active_tab('siteadminnode');
+$PAGE->navbar->add(get_string('lti_administration', 'core_ltix'), $CFG->wwwroot.'/'.$CFG->admin.'/settings.php?section=ltixsettings');
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('toolsetup', 'core_ltix'));
