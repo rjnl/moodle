@@ -14,7 +14,7 @@ Feature: Content-Item support
     And the following "course enrolments" exist:
       | user | course | role |
       | teacher1 | C1 | editingteacher |
-    And the following "mod_lti > tool types" exist:
+    And the following "core_ltix > tool types" exist:
       | name            | description        | baseurl                                | coursevisible | state | lti_contentitem |
       | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 2             | 1     | 1               |
 

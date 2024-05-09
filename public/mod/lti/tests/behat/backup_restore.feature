@@ -17,7 +17,7 @@ Feature: Restoring Moodle 2 backup restores LTI configuration
       | enableasyncbackup | 0 |
 
   Scenario: Backup and restore course with preconfigured site LTI tool on the same site
-    Given the following "mod_lti > tool types" exist:
+    Given the following "core_ltix > tool types" exist:
       | name         | description           | baseurl                | coursevisible | state |
       | My site tool | Site tool description | https://www.moodle.org | 2             | 1     |
     And the following "mod_lti > tool instances" exist:
@@ -31,12 +31,12 @@ Feature: Restoring Moodle 2 backup restores LTI configuration
     And I am on site homepage
     And I follow "Course 1 copy 1"
     Then I should see "My LTI module"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
     And "This tool is being used 2 times" "text" should exist in the "//div[contains(@id,'tool-card-container') and contains(., 'My site tool')]" "xpath_element"
 
   @javascript
   Scenario: Backup and restore course with preconfigured course LTI tool on the same site
-    Given the following "mod_lti > course tools" exist:
+    Given the following "core_ltix > course tools" exist:
       | name           | description         | baseurl                                 | course | lti_resourcekey | lti_password | lti_launchcontainer |
       | My course tool | Example description | http://www.example.com/lti/provider.php | C1     | my key          | my secret    | 5                   |
     # In the first course create an LTI module that uses a course preconfigured tool
