@@ -454,7 +454,7 @@ class gradebookservices extends service_base {
         \grade_item::set_properties($item, $params);
         $item->itemtype = 'manual';
         $item->grademax = $maximumscore;
-        $id = $item->insert('mod/ltixservice_gradebookservices');
+        $id = $item->insert('ltixservice_gradebookservices');
         $DB->insert_record('ltixservice_gradebookservices', (object)array(
                 'gradeitemid' => $id,
                 'courseid' => $courseid,
@@ -495,7 +495,7 @@ class gradebookservices extends service_base {
      */
     public function save_grade_item($gradeitem, $score, $userid) {
         global $DB, $CFG;
-        $source = 'mod' . $this->get_component_id();
+        $source = $this->get_component_id();
         if ($DB->get_record('user', array('id' => $userid)) === false) {
             throw new \Exception(null, 400);
         }
