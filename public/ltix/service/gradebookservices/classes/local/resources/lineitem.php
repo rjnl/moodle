@@ -242,7 +242,7 @@ class lineitem extends resource_base {
             }
         }
         if ($updategradeitem) {
-            if (!$item->update('mod/ltixservice_gradebookservices')) {
+            if (!$item->update('ltixservice_gradebookservices')) {
                 throw new \Exception(null, 500);
             }
             if ($rescalegrades) {
@@ -300,7 +300,7 @@ class lineitem extends resource_base {
         if (($gbs = gradebookservices::find_ltixservice_gradebookservice_for_lineitem($item->id)) == false) {
             throw new \Exception(null, 403);
         }
-        if (!$gradeitem->delete('mod/ltixservice_gradebookservices')) {
+        if (!$gradeitem->delete('ltixservice_gradebookservices')) {
             throw new \Exception(null, 500);
         } else {
             $sqlparams = array();
