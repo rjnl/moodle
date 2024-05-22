@@ -1503,7 +1503,7 @@ function lti_get_services() {
  * @deprecated since Moodle 4.4
  * @param string $servicename Name of service
  *
- * @return bool|\mod_lti\local\ltiservice\service_base Service
+ * @return bool|\core_ltix\local\ltiservice\service_base Service
  */
 function lti_get_service_by_name($servicename) {
     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiservice\service_helper::get_service_by_name() instead.',
@@ -1516,10 +1516,10 @@ function lti_get_service_by_name($servicename) {
  * Finds a service by id
  *
  * @deprecated since Moodle 4.4
- * @param \mod_lti\local\ltiservice\service_base[] $services Array of services
+ * @param \core_ltix\local\ltiservice\service_base[] $services Array of services
  * @param string $resourceid  ID of resource
  *
- * @return mod_lti\local\ltiservice\service_base Service
+ * @return core_ltix\local\ltiservice\service_base Service
  */
 function lti_get_service_by_resource_id($services, $resourceid) {
     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_service_by_resource_id() instead.',
