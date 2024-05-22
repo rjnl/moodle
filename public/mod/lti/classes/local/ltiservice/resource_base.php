@@ -35,6 +35,7 @@ require_once($CFG->dirroot . '/mod/lti/locallib.php');
 /**
  * The mod_lti\local\ltiservice\resource_base class.
  *
+ * @deprecated since Moodle 4.5 use \core_ltix\local\ltiservice\resource_base instead.
  * @package    mod_lti
  * @since      Moodle 2.8
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
@@ -73,9 +74,12 @@ abstract class resource_base {
      * Class constructor.
      *
      * @param service_base $service Service instance
+     * @deprecated since Moodle 4.5
      */
     public function __construct($service) {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         $this->service = $service;
         $this->type = 'RestService';
         $this->id = null;
@@ -92,9 +96,12 @@ abstract class resource_base {
      * Get the resource ID.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_id() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->id;
 
     }
@@ -103,9 +110,12 @@ abstract class resource_base {
      * Get the resource template.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_template() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->template;
 
     }
@@ -114,9 +124,12 @@ abstract class resource_base {
      * Get the resource path.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_path() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->get_template();
 
     }
@@ -125,9 +138,12 @@ abstract class resource_base {
      * Get the resource type.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_type() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->type;
 
     }
@@ -136,9 +152,12 @@ abstract class resource_base {
      * Get the resource's service.
      *
      * @return service_base
+     * @deprecated since Moodle 4.5
      */
     public function get_service() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->service;
 
     }
@@ -147,9 +166,12 @@ abstract class resource_base {
      * Get the resource methods.
      *
      * @return array
+     * @deprecated since Moodle 4.5
      */
     public function get_methods() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->methods;
 
     }
@@ -158,9 +180,12 @@ abstract class resource_base {
      * Get the resource media types.
      *
      * @return array
+     * @deprecated since Moodle 4.5
      */
     public function get_formats() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->formats;
 
     }
@@ -169,9 +194,12 @@ abstract class resource_base {
      * Get the resource template variables.
      *
      * @return array
+     * @deprecated since Moodle 4.5
      */
     public function get_variables() {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $this->variables;
 
     }
@@ -180,8 +208,11 @@ abstract class resource_base {
      * Get the resource fully qualified endpoint.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_endpoint() {
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
 
         $this->parse_template();
         $template = preg_replace('/[\(\)]/', '', $this->get_template());
@@ -206,6 +237,7 @@ abstract class resource_base {
      * Execute the request for this resource.
      *
      * @param response $response  Response object for this request.
+     * @deprecated since Moodle 4.5
      */
     abstract public function execute($response);
 
@@ -217,9 +249,12 @@ abstract class resource_base {
      * @param string[] $scopes              Array of scope(s) required for incoming request
      *
      * @return boolean
+     * @deprecated since Moodle 4.5
      */
     public function check_tool($typeid, $body = null, $scopes = null) {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         $ok = $this->get_service()->check_tool($typeid, $body, $scopes);
         if ($ok) {
             if ($this->get_service()->get_tool_proxy()) {
@@ -350,9 +385,12 @@ abstract class resource_base {
      * @param string $value String to be parsed
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function parse_value($value) {
 
+        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
+            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         return $value;
 
     }

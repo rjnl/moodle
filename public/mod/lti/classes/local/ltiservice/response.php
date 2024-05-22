@@ -31,6 +31,7 @@ defined('MOODLE_INTERNAL') || die;
 /**
  * The mod_lti\local\ltiservice\response class.
  *
+ * @deprecated since Moodle 4.5 use \core_ltix\local\ltiservice\response instead.
  * @package    mod_lti
  * @since      Moodle 2.8
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
@@ -59,8 +60,12 @@ class response {
 
     /**
      * Class constructor.
+     * @deprecated since Moodle 4.5
      */
     public function __construct() {
+
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
 
         $this->code = 200;
         $this->reason = '';
@@ -93,8 +98,11 @@ class response {
      * Get the response code.
      *
      * @return int
+     * @deprecated since Moodle 4.5
      */
     public function get_code() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->code;
     }
 
@@ -102,8 +110,11 @@ class response {
      * Set the response code.
      *
      * @param int $code Response code
+     * @deprecated since Moodle 4.5
      */
     public function set_code($code) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->code = $code;
         $this->reason = '';
     }
@@ -112,8 +123,11 @@ class response {
      * Get the response reason.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_reason() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $code = $this->code;
         if (($code < 200) || ($code >= 600)) {
             $code = 500;  // Status code must be between 200 and 599.
@@ -132,8 +146,11 @@ class response {
      * Set the response reason.
      *
      * @param string $reason Reason
+     * @deprecated since Moodle 4.5
      */
     public function set_reason($reason) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->reason = $reason;
     }
 
@@ -141,8 +158,11 @@ class response {
      * Get the request method.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_request_method() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->requestmethod;
     }
 
@@ -150,8 +170,11 @@ class response {
      * Get the request accept header.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_accept() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->accept;
     }
 
@@ -159,8 +182,11 @@ class response {
      * Set the request accept header.
      *
      * @param string $accept Accept header value
+     * @deprecated since Moodle 4.5
      */
     public function set_accept($accept) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->accept = $accept;
     }
 
@@ -168,8 +194,11 @@ class response {
      * Get the response content type.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_content_type() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->contenttype;
     }
 
@@ -177,8 +206,11 @@ class response {
      * Set the response content type.
      *
      * @param string $contenttype Content type
+     * @deprecated since Moodle 4.5
      */
     public function set_content_type($contenttype) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->contenttype = $contenttype;
     }
 
@@ -186,8 +218,11 @@ class response {
      * Get the request body.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_request_data() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->data;
     }
 
@@ -195,8 +230,11 @@ class response {
      * Set the response body.
      *
      * @param string $data Body data
+     * @deprecated since Moodle 4.5
      */
     public function set_request_data($data) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->data = $data;
     }
 
@@ -204,8 +242,11 @@ class response {
      * Get the response body.
      *
      * @return string
+     * @deprecated since Moodle 4.5
      */
     public function get_body() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         return $this->body;
     }
 
@@ -213,8 +254,11 @@ class response {
      * Set the response body.
      *
      * @param string $body Body data
+     * @deprecated since Moodle 4.5
      */
     public function set_body($body) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         $this->body = $body;
     }
 
@@ -222,15 +266,21 @@ class response {
      * Add an additional header.
      *
      * @param string $header The new header
+     * @deprecated since Moodle 4.5
      */
     public function add_additional_header($header) {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         array_push($this->additionalheaders, $header);
     }
 
     /**
      * Send the response.
+     * @deprecated since Moodle 4.5
      */
     public function send() {
+        debugging('Class \mod_lti\local\ltiservice\response is deprecated, please use '.
+            '\core_ltix\local\ltiservice\response instead.', DEBUG_DEVELOPER);
         header("HTTP/1.0 {$this->code} {$this->get_reason()}");
         foreach ($this->additionalheaders as $header) {
             header($header);
