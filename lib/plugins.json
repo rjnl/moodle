@@ -618,6 +618,14 @@
         "logstore": [
             "legacy"
         ],
+        "ltiservice": [
+            "gradebookservices",
+            "basicoutcomes",
+            "memberships",
+            "profile",
+            "toolproxy",
+            "toolsettings"
+        ],
         "media": [
             "swf"
         ],
