@@ -66,6 +66,9 @@ class create_tool_proxy extends external_api {
     public static function execute(string $name, string $registrationurl, array $capabilityoffered = [],
             array $serviceoffered = []): object {
 
+        global $CFG;
+        require_once($CFG->dirroot . '/ltix/constants.php');
+
         $params = self::validate_parameters(self::execute_parameters(),
             array(
                 'name' => $name,

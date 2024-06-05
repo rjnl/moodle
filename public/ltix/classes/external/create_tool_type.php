@@ -56,6 +56,9 @@ class create_tool_type extends external_api {
      * @throws \moodle_exception If the tool type could not be created
      */
     public static function execute(string $cartridgeurl, string $key = '', string $secret = ''): array {
+        global $CFG;
+        require_once($CFG->dirroot . '/ltix/constants.php');
+
         $params = self::validate_parameters(self::execute_parameters(),
             array(
                 'cartridgeurl' => $cartridgeurl,
