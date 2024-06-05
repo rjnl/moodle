@@ -1,4 +1,4 @@
-@mod @mod_lti
+@core @core_ltix
 Feature: Create/edit tool configuration that has Deep Linking support
   In order to provide external tools that support Deep Linking for teachers and learners
   As an admin
@@ -6,7 +6,7 @@ Feature: Create/edit tool configuration that has Deep Linking support
 
   Background:
     Given I log in as "admin"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
 
   Scenario: Verifying ContentItemSelectionRequest selection support in external tool registration
     When I follow "Manage external tool registrations"

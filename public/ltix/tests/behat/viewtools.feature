@@ -1,16 +1,16 @@
-@mod @mod_lti
+@core @core_ltix
 Feature: Navigate existing LTI tool types using pagination
   In order to manage reusable activities for teachers
   As an admin
   I need to view existing tools
 
   Background:
-    Given 100 "mod_lti > tool types" exist with the following data:
+    Given 100 "core_ltix > tool types" exist with the following data:
       |name        |Test tool [count]                  |
       |description |Example description [count]        |
       |baseurl     |https://www.example.com/tool[count]|
     And I log in as "admin"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
 
   @javascript
   Scenario: View first page of tool types.
