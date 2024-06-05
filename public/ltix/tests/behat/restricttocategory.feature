@@ -1,4 +1,4 @@
-@mod @mod_lti
+@core @core_ltix
 Feature: Make an LTI only available to specific course categories
   In order to restrict which courses a tool can be used in
   As an administrator
@@ -24,7 +24,7 @@ Feature: Make an LTI only available to specific course categories
       | teacher1 | C1 | editingteacher |
       | teacher1 | C2 | editingteacher |
       | teacher1 | C3 | editingteacher |
-    And the following "mod_lti > tool types" exist:
+    And the following "core_ltix > tool types" exist:
       | name            | description        | baseurl                                | coursevisible | state | lti_coursecategories |
       | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | catb                 |
       | Teaching Tool 2 | Tool 2 description | /ltix/tests/fixtures/tool_provider.php | 2             | 1     | catca                |
@@ -54,7 +54,7 @@ Feature: Make an LTI only available to specific course categories
   @javascript
   Scenario: Editing and saving selected parent / child categories
     Given I log in as "admin"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I expand all fieldsets
@@ -90,10 +90,10 @@ Feature: Make an LTI only available to specific course categories
 
   @javascript
   Scenario: Category restriction only shown for a site tool
-    Given the following "mod_lti > tool types" exist:
+    Given the following "core_ltix > tool types" exist:
       | name            | baseurl                                | coursevisible | state |
       | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
-    And the following "mod_lti > course tools" exist:
+    And the following "core_ltix > course tools" exist:
       | name          | description         | baseurl                  | course |
       | Course Tool 1 | Example description | https://example.com/tool | C1     |
     And I log in as "admin"
@@ -105,7 +105,7 @@ Feature: Make an LTI only available to specific course categories
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     And I should not see "Restrict to category"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I should see "Restrict to category"

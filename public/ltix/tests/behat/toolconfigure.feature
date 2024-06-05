@@ -1,4 +1,4 @@
-@mod @mod_lti
+@core @core_ltix
 Feature: Configure tool types
   In order to allow teachers to add external LTI tools
   As an admin
@@ -6,7 +6,7 @@ Feature: Configure tool types
 
   Background:
     Given I log in as "admin"
-    And I navigate to "Plugins > Activity modules > External tool > Manage tools" in site administration
+    And I navigate to "General > LTI > Manage tools" in site administration
 
   @javascript
   Scenario: Add a tool type from a cartridge URL
@@ -17,8 +17,8 @@ Feature: Configure tool types
     And I should see "Example tool"
 
   @javascript
-  Scenario: Try to add a non-existant cartridge
-    When I set the field "url" to local url "/mod/lti/tests/fixtures/nonexistant.xml"
+  Scenario: Try to add a non-existent cartridge
+    When I set the field "url" to local url "/ltix/tests/fixtures/nonexistent.xml"
     And I press "Add Legacy LTI"
     Then I should see "Enter your consumer key and shared secret"
     And I press "Save changes"
