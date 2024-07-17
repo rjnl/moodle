@@ -8,7 +8,7 @@ Feature: Verify the breadcrumbs in manage tools site administration pages
     Given I log in as "admin"
 
   Scenario: Verify the breadcrumbs in manage tools page as an admin
-    Given I navigate to "General > LTI > Manage tools" in site administration
+    Given I navigate to "LTI > Manage tools" in site administration
     And "Manage tools" "text" should exist in the ".breadcrumb" "css_element"
     And "LTI" "link" should exist in the ".breadcrumb" "css_element"
     When I click on "configure a tool manually" "link"
@@ -24,7 +24,7 @@ Feature: Verify the breadcrumbs in manage tools site administration pages
     And "Manage tools" "link" should exist in the ".breadcrumb" "css_element"
     And "LTI" "link" should exist in the ".breadcrumb" "css_element"
     And I press "Cancel"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
     And I click on "Manage external tool registrations" "link"
     And "Manage external tool registrations" "text" should exist in the ".breadcrumb" "css_element"
     And "LTI" "link" should exist in the ".breadcrumb" "css_element"

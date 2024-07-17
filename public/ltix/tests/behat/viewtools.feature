@@ -10,7 +10,7 @@ Feature: Navigate existing LTI tool types using pagination
       |description |Example description [count]        |
       |baseurl     |https://www.example.com/tool[count]|
     And I log in as "admin"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
 
   @javascript
   Scenario: View first page of tool types.
