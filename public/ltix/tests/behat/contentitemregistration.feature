@@ -6,7 +6,7 @@ Feature: Create/edit tool configuration that has Deep Linking support
 
   Background:
     Given I log in as "admin"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
 
   Scenario: Verifying ContentItemSelectionRequest selection support in external tool registration
     When I follow "Manage external tool registrations"

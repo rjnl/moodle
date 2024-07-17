@@ -6,7 +6,7 @@ Feature: Configure tool types
 
   Background:
     Given I log in as "admin"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
 
   @javascript
   Scenario: Add a tool type from a cartridge URL

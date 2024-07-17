@@ -31,7 +31,7 @@ Feature: Restoring Moodle 2 backup restores LTI configuration
     And I am on site homepage
     And I follow "Course 1 copy 1"
     Then I should see "My LTI module"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
     And "This tool is being used 2 times" "text" should exist in the "//div[contains(@id,'tool-card-container') and contains(., 'My site tool')]" "xpath_element"
 
   @javascript

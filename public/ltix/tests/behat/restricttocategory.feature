@@ -54,7 +54,7 @@ Feature: Make an LTI only available to specific course categories
   @javascript
   Scenario: Editing and saving selected parent / child categories
     Given I log in as "admin"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I expand all fieldsets
@@ -105,7 +105,7 @@ Feature: Make an LTI only available to specific course categories
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     And I should not see "Restrict to category"
-    And I navigate to "General > LTI > Manage tools" in site administration
+    And I navigate to "LTI > Manage tools" in site administration
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I should see "Restrict to category"
