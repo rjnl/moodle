@@ -1760,5 +1760,44 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026020500.01);
     }
 
+    if ($oldversion < 2026020500.02) {
+        // Define table lti_resource_link to be created.
+        $table = new xmldb_table('lti_resource_link');
+
+        // Adding fields to table lti_resource_link.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('typeid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('legacyid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('url', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('text', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('textformat', XMLDB_TYPE_INTEGER, '4', null, null, null, '0');
+        $table->add_field('launchcontainer', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
+        $table->add_field('customparams', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('icon', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('servicesalt', XMLDB_TYPE_CHAR, '40', null, null, null, null);
+
+        // Adding keys to table lti_resource_link.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('typeid', XMLDB_KEY_FOREIGN, ['typeid'], 'lti_types', ['id']);
+        $table->add_key('contextid', XMLDB_KEY_FOREIGN, ['contextid'], 'context', ['id']);
+
+        // Adding unique index uuid to table lti_resource_link.
+        $table->add_index('uuid_index', XMLDB_INDEX_UNIQUE, ['uuid']);
+
+        // Adding unique index legacyid to table lti_resource_link.
+        $table->add_index('legacyid_index', XMLDB_INDEX_UNIQUE, ['legacyid']);
+
+        // Conditionally launch create table for lti_resource_link.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026020500.02);
+    }
+
     return true;
 }
