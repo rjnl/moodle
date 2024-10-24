@@ -1876,20 +1876,21 @@ function xmldb_main_upgrade($oldversion) {
     if ($oldversion < 2026060500.01) {
         // Move mod_lti keys into new core lti config.
         if (!empty(get_config('mod_lti', 'kid')) && !empty(get_config('mod_lti', 'privatekey'))) {
-            set_config('kid',  get_config('mod_lti', 'kid'), 'core_ltix');
-            set_config('privatekey',  get_config('mod_lti', 'privatekey'), 'core_ltix');
+            set_config('kid', get_config('mod_lti', 'kid'), 'core_ltix');
+            set_config('privatekey', get_config('mod_lti', 'privatekey'), 'core_ltix');
             set_config('kid', null, 'mod_lti');
             set_config('privatekey', null, 'mod_lti');
         }
 
         // Rename the ltiservice_gradebookservices table so that it's not removed during the uninstallation of that plugin.
         // This permits data migration to the replacement ltixservice_gradebookservices during that plugin's install.php.
+        if (!$dbman->table_exists(new xmldb_table('ltixservice_gradebookservices'))) {
+            // Define table ltiservice_gradebookservices to be renamed to tmp_ltiservice_gradebookservices.
+            $table = new xmldb_table('ltiservice_gradebookservices');
 
-        // Define table ltiservice_gradebookservices to be renamed to tmp_ltiservice_gradebookservices.
-        $table = new xmldb_table('ltiservice_gradebookservices');
-
-        // Launch rename table for ltiservice_gradebookservices.
-        $dbman->rename_table($table, 'tmp_ltiservice_gradebookservices');
+            // Launch rename table for ltiservice_gradebookservices.
+            $dbman->rename_table($table, 'tmp_ltiservice_gradebookservices');
+        }
 
         $servicetypes = ['basicoutcomes', 'gradebookservices', 'memberships', 'profile', 'toolproxy', 'toolsettings'];
         foreach ($servicetypes as $type) {
@@ -1907,7 +1908,7 @@ function xmldb_main_upgrade($oldversion) {
         [$insql, $inparams] = $DB->get_in_or_equal($pluginconfigoptions, SQL_PARAMS_NAMED, 'name');
         $sql = "UPDATE {lti_types_config}
                    SET name = REPLACE(name, :oldprefix, :newprefix)
-                 WHERE name ".$insql;
+                 WHERE name " . $insql;
         $params = ['oldprefix' => 'ltiservice_', 'newprefix' => 'ltixservice_'];
         $DB->execute($sql, array_merge($params, $inparams));
 
