@@ -1923,13 +1923,15 @@ function xmldb_main_upgrade($oldversion) {
         // Adding fields to table lti_resource_link.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('typeid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('component', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('itemtype', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('legacyid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('uuid', XMLDB_TYPE_CHAR, '36', null, XMLDB_NOTNULL, null, null);
         $table->add_field('url', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
         $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('text', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('textformat', XMLDB_TYPE_INTEGER, '4', null, null, null, '0');
+        $table->add_field('gradable', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('launchcontainer', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1');
         $table->add_field('customparams', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('icon', XMLDB_TYPE_TEXT, null, null, null, null, null);
@@ -1940,11 +1942,8 @@ function xmldb_main_upgrade($oldversion) {
         $table->add_key('typeid', XMLDB_KEY_FOREIGN, ['typeid'], 'lti_types', ['id']);
         $table->add_key('contextid', XMLDB_KEY_FOREIGN, ['contextid'], 'context', ['id']);
 
-        // Adding unique index uuid to table lti_resource_link.
-        $table->add_index('uuid_index', XMLDB_INDEX_UNIQUE, ['uuid']);
-
-        // Adding unique index legacyid to table lti_resource_link.
-        $table->add_index('legacyid_index', XMLDB_INDEX_UNIQUE, ['legacyid']);
+        // Adding indexes to table lti_resource_link.
+        $table->add_index('componentlink', XMLDB_INDEX_UNIQUE, ['component', 'itemtype', 'itemid', 'contextid']);
 
         // Conditionally launch create table for lti_resource_link.
         if (!$dbman->table_exists($table)) {
