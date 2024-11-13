@@ -5230,13 +5230,15 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="typeid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="The component owning the resource link"/>
+        <FIELD NAME="itemtype" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="String identifier for the type of the resource link within the component"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="legacyid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="integer id holding the id value of existing links moved over from the mod lti table."/>
-        <FIELD NAME="uuid" TYPE="char" LENGTH="36" NOTNULL="true" SEQUENCE="false" COMMENT="UUID which is preserved on copy/restore. Means links stored in content, which cannot be updated, would continue to work."/>
         <FIELD NAME="url" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Title of the link"/>
         <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Plain text description of the resource being linked to"/>
         <FIELD NAME="textformat" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the text field (MOODLE, HTML, MARKDOWN...)"/>
+        <FIELD NAME="gradable" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Whether the link supports score posting from the tool"/>
         <FIELD NAME="launchcontainer" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Contains an LTI_LAUNCH_CONTAINER_% constant and represents how the link should be displayed (iframe, new window, etc)."/>
         <FIELD NAME="customparams" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Additional custom parameters that should be included in launches. Provided by either a user, or by the tool via deep linking."/>
         <FIELD NAME="icon" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Icon which may be used alongside the link"/>
@@ -5248,8 +5250,7 @@
         <KEY NAME="contextid" TYPE="foreign" FIELDS="contextid" REFTABLE="context" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="legacyid" UNIQUE="true" FIELDS="legacyid"/>
-        <INDEX NAME="uuid" UNIQUE="true" FIELDS="uuid"/>
+        <INDEX NAME="componentlink" UNIQUE="true" FIELDS="component, itemtype, itemid, contextid"/>
       </INDEXES>
     </TABLE>
   </TABLES>
