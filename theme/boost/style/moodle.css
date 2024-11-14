@@ -27035,6 +27035,12 @@ img.icon {
   z-index: 1000;
 }
 
+@media (min-width: 992px) {
+  .maintenancewarning,
+  .jsenabled .btn-footer-popover {
+    z-index: 1050;
+  }
+}
 .modal.modal-in-page {
   z-index: 0;
 }

@@ -626,6 +626,13 @@
     z-index: $zindex-dropdown;
 }
 
+@media (min-width: 992px) {
+    .maintenancewarning,
+    .jsenabled .btn-footer-popover {
+        z-index: $zindex-dropdown + 50;
+    }
+}
+
 .modal.modal-in-page {
     z-index: 0;
 }
