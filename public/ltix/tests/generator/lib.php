@@ -71,8 +71,6 @@ class core_ltix_generator extends testing_module_generator {
      * @return int ID of created tool
      */
     public function create_tool_types(array $data): int {
-        global $CFG;
-        require_once($CFG->dirroot . '/ltix/constants.php');
 
         if (!isset($data['baseurl'])) {
             throw new coding_exception('Must specify baseurl when creating a LTI tool type.');
@@ -80,10 +78,10 @@ class core_ltix_generator extends testing_module_generator {
         $data['baseurl'] = (new moodle_url($data['baseurl']))->out(false); // Permits relative URLs in behat features.
 
         // Sensible defaults permitting the tool type to be used in a launch.
-        $data['lti_acceptgrades'] = $data['lti_acceptgrades'] ?? LTI_SETTING_ALWAYS;
-        $data['lti_sendname'] = $data['lti_sendname'] ?? LTI_SETTING_ALWAYS;
-        $data['lti_sendemailaddr'] = $data['lti_sendname'] ?? LTI_SETTING_ALWAYS;
-        $data['lti_launchcontainer'] = $data['lti_launchcontainer'] ?? LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
+        $data['lti_acceptgrades'] = $data['lti_acceptgrades'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $data['lti_sendname'] = $data['lti_sendname'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $data['lti_sendemailaddr'] = $data['lti_sendname'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $data['lti_launchcontainer'] = $data['lti_launchcontainer'] ?? \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
 
         ['type' => $type, 'config' => $config] = $this->get_type_and_config_from_data($data);
 
@@ -98,8 +96,7 @@ class core_ltix_generator extends testing_module_generator {
      * @throws coding_exception if any required fields are missing.
      */
     public function create_course_tool_types(array $type): int {
-        global $SITE, $CFG;
-        require_once($CFG->dirroot . '/ltix/constants.php');
+        global $SITE;
 
         if (!isset($type['baseurl'])) {
             throw new coding_exception('Must specify baseurl when creating a course tool type.');
@@ -109,15 +106,15 @@ class core_ltix_generator extends testing_module_generator {
         }
 
         $type['baseurl'] = (new moodle_url($type['baseurl']))->out(false); // Permits relative URLs in behat features.
-        $type['coursevisible'] = $type['coursevisible'] ?? LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
-        $type['state'] = LTI_TOOL_STATE_CONFIGURED; // The default for course tools.
+        $type['coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $type['state'] = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED; // The default for course tools.
 
         // Sensible defaults permitting the tool type to be used in a launch.
-        $type['lti_acceptgrades'] = $type['lti_acceptgrades'] ?? LTI_SETTING_ALWAYS;
-        $type['lti_sendname'] = $type['lti_sendname'] ?? LTI_SETTING_ALWAYS;
-        $type['lti_sendemailaddr'] = $type['lti_sendemailaddr'] ?? LTI_SETTING_ALWAYS;
-        $type['lti_coursevisible'] = $type['coursevisible'] ?? LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
-        $type['lti_launchcontainer'] = $type['lti_launchcontainer'] ?? LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
+        $type['lti_acceptgrades'] = $type['lti_acceptgrades'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $type['lti_sendname'] = $type['lti_sendname'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $type['lti_sendemailaddr'] = $type['lti_sendemailaddr'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
+        $type['lti_coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $type['lti_launchcontainer'] = $type['lti_launchcontainer'] ?? \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
 
         // Required for cartridge processing support.
         $type['lti_toolurl'] = $type['baseurl'];

@@ -67,7 +67,7 @@ if ($typeid) {
     $missingtooltype = empty($config);
     if (!$missingtooltype) {
         $config = \core_ltix\helper::get_type_type_config($typeid);
-        if ($config->lti_ltiversion === LTI_VERSION_1P3) {
+        if ($config->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
             if (!isset($SESSION->lti_initiatelogin_status)) {
                 $msgtype = 'basic-lti-launch-request';
                 if ($action === 'gradeReport') {

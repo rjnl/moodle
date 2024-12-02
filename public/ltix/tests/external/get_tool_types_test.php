@@ -59,7 +59,7 @@ final class get_tool_types_test extends lti_testcase {
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
         $data = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->toolproxyid = $proxy->id;

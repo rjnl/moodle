@@ -68,7 +68,7 @@ final class get_tool_types_and_proxies_test extends externallib_advanced_testcas
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
 
         return $ltigenerator->create_tool_types([
-            'state' => LTI_TOOL_STATE_CONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'name' => "Test tool 1",
             'description' => "Example description 1",
             'toolproxyid' => $proxyid,

@@ -38,7 +38,7 @@ $context = \context_helper::instance_by_id($contextid);
 // the login or the content item selection request. This should be improved once these calls are replaced by the builder API.
 
 $config = \core_ltix\helper::get_type_type_config($id);
-if ($config->lti_ltiversion === LTI_VERSION_1P3) {
+if ($config->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
     if (!isset($SESSION->lti_initiatelogin_status)) {
         echo \core_ltix\helper::initiate_login($context->get_course_context()->instanceid, 0, null, $config,
             'ContentItemSelectionRequest', $title, $text);

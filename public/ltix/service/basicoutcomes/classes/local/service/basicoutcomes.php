@@ -71,7 +71,7 @@ class basicoutcomes extends \core_ltix\local\ltiservice\service_base {
     public function get_permitted_scopes() {
 
         $scopes = array();
-        if (!isset($this->get_typeconfig()['acceptgrades']) || ($this->get_typeconfig()['acceptgrades'] != LTI_SETTING_NEVER)) {
+        if (!isset($this->get_typeconfig()['acceptgrades']) || ($this->get_typeconfig()['acceptgrades'] != \core_ltix\constants::LTI_SETTING_NEVER)) {
             $scopes[] = self::SCOPE_BASIC_OUTCOMES;
         }
 

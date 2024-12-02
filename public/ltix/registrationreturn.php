@@ -24,7 +24,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 $top = optional_param('top', 0, PARAM_INT);
 $msg = optional_param('lti_msg', '', PARAM_TEXT);
@@ -99,15 +98,15 @@ EOD;
     if (!empty($id)) {
         $toolproxy = $DB->get_record('lti_tool_proxies', array('id' => $id));
         switch($toolproxy->state) {
-            case LTI_TOOL_PROXY_STATE_ACCEPTED:
+            case \core_ltix\constants::LTI_TOOL_PROXY_STATE_ACCEPTED:
                 $redirect->param('tab', 'tp_accepted');
                 break;
-            case LTI_TOOL_PROXY_STATE_REJECTED:
+            case \core_ltix\constants::LTI_TOOL_PROXY_STATE_REJECTED:
                 $redirect->param('tab', 'tp_rejected');
                 break;
-            case LTI_TOOL_PROXY_STATE_PENDING:
+            case \core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING:
                 // Change the status to configured.
-                $toolproxy->state = LTI_TOOL_PROXY_STATE_CONFIGURED;
+                $toolproxy->state = \core_ltix\constants::LTI_TOOL_PROXY_STATE_CONFIGURED;
                 \core_ltix\helper::update_tool_proxy($toolproxy);
         }
     }

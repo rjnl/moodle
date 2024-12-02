@@ -102,14 +102,14 @@ function lti_add_instance($lti, $mform) {
         $lti->typeid = $lti->urlmatchedtypeid;
     }
 
-    if (!isset($lti->instructorchoiceacceptgrades) || $lti->instructorchoiceacceptgrades != LTI_SETTING_ALWAYS) {
+    if (!isset($lti->instructorchoiceacceptgrades) || $lti->instructorchoiceacceptgrades != \core_ltix\constants::LTI_SETTING_ALWAYS) {
         // The instance does not accept grades back from the provider, so set to "No grade" value 0.
         $lti->grade = 0;
     }
 
     $lti->id = $DB->insert_record('lti', $lti);
 
-    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == LTI_SETTING_ALWAYS) {
+    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
         if (!isset($lti->cmidnumber)) {
             $lti->cmidnumber = '';
         }
@@ -155,7 +155,7 @@ function lti_update_instance($lti, $mform) {
 
     \core_ltix\helper::force_type_config_settings($lti, \core_ltix\helper::get_type_config_by_instance($lti));
 
-    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == LTI_SETTING_ALWAYS) {
+    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
         lti_grade_item_update($lti);
     } else {
         // Instance is no longer accepting grades from Provider, set grade to "No grade" value 0.
@@ -287,7 +287,7 @@ function mod_lti_get_all_content_items(\core_course\local\entity\content_item $d
     $types = [];
 
     foreach (\core_ltix\helper::get_lti_types() as $ltitype) {
-        if ($ltitype->coursevisible != LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
+        if ($ltitype->coursevisible != \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
             continue;
         }
         $type           = new stdClass();
@@ -379,7 +379,7 @@ function lti_get_coursemodule_info($coursemodule) {
 
     // Does the link open in a new window?
     $launchcontainer = \core_ltix\helper::get_launch_container($lti, $toolconfig);
-    if ($launchcontainer == LTI_LAUNCH_CONTAINER_WINDOW) {
+    if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW) {
         $launchurl = new moodle_url('/mod/lti/launch.php', array('id' => $coursemodule->id));
         $info->onclick = "window.open('" . $launchurl->out(false) . "', 'lti-".$coursemodule->id."'); return false;";
     }

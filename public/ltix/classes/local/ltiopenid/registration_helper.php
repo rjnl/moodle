@@ -161,10 +161,10 @@ class registration_helper {
         $config->lti_tooldomain = $domain;
         $config->lti_typename = $clientname;
         $config->lti_description = $description;
-        $config->lti_ltiversion = LTI_VERSION_1P3;
-        $config->lti_organizationid_default = LTI_DEFAULT_ORGID_SITEID;
+        $config->lti_ltiversion = \core_ltix\constants::LTI_VERSION_1P3;
+        $config->lti_organizationid_default = \core_ltix\constants::LTI_DEFAULT_ORGID_SITEID;
         $config->lti_icon = $logouri;
-        $config->lti_coursevisible = LTI_COURSEVISIBLE_PRECONFIGURED;
+        $config->lti_coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
         $config->lti_contentitem = 0;
         // Sets Content Item.
         if (!empty($messages)) {
@@ -192,10 +192,10 @@ class registration_helper {
             $config->lti_customparameters = implode(PHP_EOL, $paramssarray);
         }
         // Sets launch container.
-        $config->lti_launchcontainer = LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
+        $config->lti_launchcontainer = \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
 
         // Sets Service info based on scopes.
-        $config->lti_acceptgrades = LTI_SETTING_NEVER;
+        $config->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_NEVER;
         $config->ltixservice_gradesynchronization = 0;
         $config->ltixservice_memberships = 0;
         $config->ltixservice_toolsettings = 0;
@@ -203,19 +203,19 @@ class registration_helper {
             // Sets Assignment and Grade Services info.
 
             if (in_array(self::SCOPE_SCORE, $scopes)) {
-                $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
+                $config->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_DELEGATE;
                 $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_RESULT, $scopes)) {
-                $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
+                $config->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_DELEGATE;
                 $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_LINEITEM_RO, $scopes)) {
-                $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
+                $config->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_DELEGATE;
                 $config->ltixservice_gradesynchronization = 1;
             }
             if (in_array(self::SCOPE_LINEITEM, $scopes)) {
-                $config->lti_acceptgrades = LTI_SETTING_DELEGATE;
+                $config->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_DELEGATE;
                 $config->ltixservice_gradesynchronization = 2;
             }
 
@@ -231,24 +231,24 @@ class registration_helper {
         }
 
         // Sets privacy settings.
-        $config->lti_sendname = LTI_SETTING_NEVER;
-        $config->lti_sendemailaddr = LTI_SETTING_NEVER;
+        $config->lti_sendname = \core_ltix\constants::LTI_SETTING_NEVER;
+        $config->lti_sendemailaddr = \core_ltix\constants::LTI_SETTING_NEVER;
         if (isset($claims)) {
             // Sets name privacy settings.
 
             if (in_array('name', $claims)) {
-                $config->lti_sendname = LTI_SETTING_ALWAYS;
+                $config->lti_sendname = \core_ltix\constants::LTI_SETTING_ALWAYS;
             }
             if (in_array('given_name', $claims)) {
-                $config->lti_sendname = LTI_SETTING_ALWAYS;
+                $config->lti_sendname = \core_ltix\constants::LTI_SETTING_ALWAYS;
             }
             if (in_array('family_name', $claims)) {
-                $config->lti_sendname = LTI_SETTING_ALWAYS;
+                $config->lti_sendname = \core_ltix\constants::LTI_SETTING_ALWAYS;
             }
 
             // Sets email privacy settings.
             if (in_array('email', $claims)) {
-                $config->lti_sendemailaddr = LTI_SETTING_ALWAYS;
+                $config->lti_sendemailaddr = \core_ltix\constants::LTI_SETTING_ALWAYS;
             }
         }
         return $config;
@@ -294,7 +294,7 @@ class registration_helper {
         $lticonfigurationresponse = [];
         $ltiversion = $type ? $type->ltiversion : $config->ltiversion;
         $lticonfigurationresponse['version'] = $ltiversion;
-        if ($ltiversion === LTI_VERSION_1P3) {
+        if ($ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
             $registrationresponse['client_id'] = $type ? $type->clientid : $config->clientid;
             $registrationresponse['response_types'] = ['id_token'];
             $registrationresponse['jwks_uri'] = $config->publickeyset;
@@ -303,9 +303,9 @@ class registration_helper {
             $registrationresponse['redirect_uris'] = explode(PHP_EOL, $config->redirectionuris);
             $registrationresponse['application_type'] = 'web';
             $registrationresponse['token_endpoint_auth_method'] = 'private_key_jwt';
-        } else if ($ltiversion === LTI_VERSION_1 && $type) {
+        } else if ($ltiversion === \core_ltix\constants::LTI_VERSION_1 && $type) {
             $this->add_previous_key_claim($lticonfigurationresponse, $config->resourcekey, $config->password);
-        } else if ($ltiversion === LTI_VERSION_2 && $type) {
+        } else if ($ltiversion === \core_ltix\constants::LTI_VERSION_2 && $type) {
             $toolproxy = $this->get_tool_proxy($type->toolproxyid);
             $this->add_previous_key_claim($lticonfigurationresponse, $toolproxy['guid'], $toolproxy['secret']);
         }
@@ -349,12 +349,12 @@ class registration_helper {
         $registrationresponse['scope'] = implode(' ', $scopesresponse);
 
         $claimsresponse = ['sub', 'iss'];
-        if ($config->sendname ?? '' == LTI_SETTING_ALWAYS) {
+        if ($config->sendname ?? '' == \core_ltix\constants::LTI_SETTING_ALWAYS) {
             $claimsresponse[] = 'name';
             $claimsresponse[] = 'family_name';
             $claimsresponse[] = 'given_name';
         }
-        if ($config->sendemailaddr ?? '' == LTI_SETTING_ALWAYS) {
+        if ($config->sendemailaddr ?? '' == \core_ltix\constants::LTI_SETTING_ALWAYS) {
             $claimsresponse[] = 'email';
         }
         $lticonfigurationresponse['claims'] = $claimsresponse;

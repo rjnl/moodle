@@ -24,7 +24,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 $courseid = required_param('course', PARAM_INT);
 $instanceid = optional_param('instanceid', 0, PARAM_INT);
@@ -33,7 +32,7 @@ $errormsg = optional_param('lti_errormsg', '', PARAM_TEXT);
 $msg = optional_param('lti_msg', '', PARAM_TEXT);
 $unsigned = optional_param('unsigned', '0', PARAM_INT);
 
-$launchcontainer = optional_param('launch_container', LTI_LAUNCH_CONTAINER_WINDOW, PARAM_INT);
+$launchcontainer = optional_param('launch_container', \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW, PARAM_INT);
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 $lti = null;
@@ -57,7 +56,7 @@ if (!empty($errormsg) || !empty($msg)) {
     $PAGE->set_heading($course->fullname);
 
     // Avoid frame-in-frame action.
-    if ($launchcontainer == LTI_LAUNCH_CONTAINER_EMBED || $launchcontainer == LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
+    if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED || $launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
         $PAGE->set_pagelayout('embedded');
     } else {
         $PAGE->set_pagelayout('incourse');
@@ -107,7 +106,7 @@ if (!empty($errormsg)) {
     $url = $courseurl->out();
 
     // Avoid frame-in-frame action.
-    if ($launchcontainer == LTI_LAUNCH_CONTAINER_EMBED || $launchcontainer == LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
+    if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED || $launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
         // Output a page containing some script to break out of frames and redirect them.
 
         echo '<html><body>';

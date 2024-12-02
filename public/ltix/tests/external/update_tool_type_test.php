@@ -55,7 +55,7 @@ final class update_tool_type_test extends lti_testcase {
         $type = create_tool_type::execute($this->getExternalTestFileUrl('/ims_cartridge_basic_lti_link.xml'), '', '');
         $type = external_api::clean_returnvalue(create_tool_type::execute_returns(), $type);
 
-        $type = update_tool_type::execute($type['id'], 'New name', 'New description', LTI_TOOL_STATE_PENDING);
+        $type = update_tool_type::execute($type['id'], 'New name', 'New description', \core_ltix\constants::LTI_TOOL_STATE_PENDING);
         $type = external_api::clean_returnvalue(update_tool_type::execute_returns(), $type);
 
         $this->assertEquals('New name', $type['name']);
