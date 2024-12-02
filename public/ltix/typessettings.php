@@ -51,7 +51,6 @@
 
 require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 $action       = optional_param('action', null, PARAM_ALPHANUMEXT);
 $id           = optional_param('id', null, PARAM_INT);
@@ -111,10 +110,10 @@ if (!empty($returnurl)) {
 }
 
 if ($action == 'accept') {
-    \core_ltix\helper::set_state_for_type($id, LTI_TOOL_STATE_CONFIGURED);
+    \core_ltix\helper::set_state_for_type($id, \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED);
     redirect($redirect);
 } else if ($action == 'reject') {
-    \core_ltix\helper::set_state_for_type($id, LTI_TOOL_STATE_REJECTED);
+    \core_ltix\helper::set_state_for_type($id, \core_ltix\constants::LTI_TOOL_STATE_REJECTED);
     redirect($redirect);
 } else if ($action == 'delete') {
     \core_ltix\helper::delete_type($id);
@@ -148,7 +147,7 @@ if ($data = $form->get_data()) {
 
         redirect($redirect);
     } else {
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         \core_ltix\helper::load_type_if_cartridge($data);
         \core_ltix\helper::add_type($type, $data);
 

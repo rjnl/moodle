@@ -58,7 +58,7 @@ final class create_tool_proxy_test extends lti_testcase {
 
         $this->assertEquals('Test proxy', $proxy->name);
         $this->assertEquals($this->getExternalTestFileUrl('/test.html'), $proxy->regurl);
-        $this->assertEquals(LTI_TOOL_PROXY_STATE_PENDING, $proxy->state);
+        $this->assertEquals(\core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING, $proxy->state);
         $this->assertEquals(implode("\n", $capabilities), $proxy->capabilityoffered);
     }
 

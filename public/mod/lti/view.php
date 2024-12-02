@@ -50,7 +50,6 @@ require_once('../../config.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->dirroot.'/mod/lti/lib.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course Module ID, or
 $l  = optional_param('l', 0, PARAM_INT);  // lti ID.
@@ -107,10 +106,10 @@ if (!empty($missingtooltype)) {
 
 $launchcontainer = \core_ltix\helper::get_launch_container($lti, $toolconfig);
 
-if ($launchcontainer == LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
+if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
     $PAGE->set_pagelayout('incourse');
     $PAGE->blocks->show_only_fake_blocks(); // Disable blocks for layouts which do include pre-post blocks.
-} else if ($launchcontainer == LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW) {
+} else if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW) {
     if (!$forceview) {
         $url = new moodle_url('/mod/lti/launch.php', array('id' => $cm->id));
         redirect($url);
@@ -141,7 +140,7 @@ if ($typeid) {
     $config = \core_ltix\helper::get_type_type_config($typeid);
 } else {
     $config = new stdClass();
-    $config->lti_ltiversion = LTI_VERSION_1;
+    $config->lti_ltiversion = \core_ltix\constants::LTI_VERSION_1;
 }
 $launchurl = new moodle_url('/mod/lti/launch.php', ['id' => $cm->id, 'triggerview' => 0]);
 if ($action) {
@@ -151,7 +150,7 @@ if ($foruserid) {
     $launchurl->param('user', $foruserid);;
 }
 unset($SESSION->lti_initiatelogin_status);
-if (($launchcontainer == LTI_LAUNCH_CONTAINER_WINDOW)) {
+if (($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW)) {
     if (!$forceview) {
         echo "<script language=\"javascript\">//<![CDATA[\n";
         echo "window.open('{$launchurl->out(true)}','lti-$cm->id');";

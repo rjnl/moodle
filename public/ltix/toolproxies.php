@@ -25,7 +25,6 @@
 
 require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 // No guest autologin.
 require_login(0, false);
@@ -54,16 +53,16 @@ $createdon = get_string('createdon', 'core_ltix');
 
 $toolproxies = $DB->get_records('lti_tool_proxies');
 
-$configuredtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_CONFIGURED);
+$configuredtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, \core_ltix\constants::LTI_TOOL_PROXY_STATE_CONFIGURED);
 $configuredtoolproxieshtml = \core_ltix\helper::get_tool_proxy_table($configuredtoolproxies, 'tp_configured');
 
-$pendingtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_PENDING);
+$pendingtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, \core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING);
 $pendingtoolproxieshtml = \core_ltix\helper::get_tool_proxy_table($pendingtoolproxies, 'tp_pending');
 
-$acceptedtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_ACCEPTED);
+$acceptedtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, \core_ltix\constants::LTI_TOOL_PROXY_STATE_ACCEPTED);
 $acceptedtoolproxieshtml = \core_ltix\helper::get_tool_proxy_table($acceptedtoolproxies, 'tp_accepted');
 
-$rejectedtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, LTI_TOOL_PROXY_STATE_REJECTED);
+$rejectedtoolproxies = \core_ltix\helper::filter_tool_proxy_types($toolproxies, \core_ltix\constants::LTI_TOOL_PROXY_STATE_REJECTED);
 $rejectedtoolproxieshtml = \core_ltix\helper::get_tool_proxy_table($rejectedtoolproxies, 'tp_rejected');
 
 $tab = optional_param('tab', '', PARAM_ALPHAEXT);

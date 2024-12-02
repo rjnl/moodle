@@ -24,7 +24,6 @@
  */
 
 require_once('../config.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 $instanceid = required_param('instanceid', PARAM_INT);
 
@@ -54,7 +53,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($lti->name, true, array('context' => $context)));
 
 // Add a tool type if one does not exist already.
-if (!\core_ltix\helper::get_tool_by_url_match($lti->toolurl, $lti->course, LTI_TOOL_STATE_ANY)) {
+if (!\core_ltix\helper::get_tool_by_url_match($lti->toolurl, $lti->course, \core_ltix\constants::LTI_TOOL_STATE_ANY)) {
     // There are no tools (active, pending, or rejected) for the launch URL. Create a new pending tool.
     $tooltype = new stdClass();
     $toolconfig = new stdClass();

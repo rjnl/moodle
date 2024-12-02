@@ -28,7 +28,6 @@ use core_ltix\local\ltiopenid\registration_helper;
 use core_ltix\local\ltiopenid\registration_exception;
 
 require_once(__DIR__ . '/../config.php');
-require_once(__DIR__ . '/constants.php');
 require_once(__DIR__ . '/OAuth.php'); // Required, since autoloading won't work for this collection of classes.
 
 $code = 200;
@@ -46,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' or ($_SERVER['REQUEST_METHOD'] === 'GE
         try {
             $tokenres = registration_helper::get()->validate_registration_token(trim(substr($authheader, 7)));
             $type = new stdClass();
-            $type->state = LTI_TOOL_STATE_PENDING;
+            $type->state = \core_ltix\constants::LTI_TOOL_STATE_PENDING;
             if (array_key_exists('type', $tokenres)) {
                 $type = $tokenres['type'];
             }

@@ -39,7 +39,6 @@ use moodleform;
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 /**
  * LTI Edit Form
@@ -88,30 +87,30 @@ class edit_types extends moodleform {
 
         if (!$istool) {
             $options = array(
-                LTI_VERSION_1 => get_string('oauthsecurity', 'core_ltix'),
-                LTI_VERSION_1P3 => get_string('jwtsecurity', 'core_ltix'),
+                \core_ltix\constants::LTI_VERSION_1 => get_string('oauthsecurity', 'core_ltix'),
+                \core_ltix\constants::LTI_VERSION_1P3 => get_string('jwtsecurity', 'core_ltix'),
             );
             $mform->addElement('select', 'lti_ltiversion', get_string('ltiversion', 'core_ltix'), $options);
             $mform->setType('lti_ltiversion', PARAM_TEXT);
             $mform->addHelpButton('lti_ltiversion', 'ltiversion', 'core_ltix');
-            $mform->setDefault('lti_ltiversion', LTI_VERSION_1);
+            $mform->setDefault('lti_ltiversion', \core_ltix\constants::LTI_VERSION_1);
 
             $mform->addElement('text', 'lti_resourcekey', get_string('resourcekey_admin', 'core_ltix'));
             $mform->setType('lti_resourcekey', PARAM_TEXT);
             $mform->addHelpButton('lti_resourcekey', 'resourcekey_admin', 'core_ltix');
-            $mform->hideIf('lti_resourcekey', 'lti_ltiversion', 'eq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_resourcekey', 'lti_ltiversion', 'eq', \core_ltix\constants::LTI_VERSION_1P3);
             $mform->setForceLtr('lti_resourcekey');
 
             $mform->addElement('passwordunmask', 'lti_password', get_string('password_admin', 'core_ltix'));
             $mform->setType('lti_password', PARAM_RAW);
             $mform->addHelpButton('lti_password', 'password_admin', 'core_ltix');
-            $mform->hideIf('lti_password', 'lti_ltiversion', 'eq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_password', 'lti_ltiversion', 'eq', \core_ltix\constants::LTI_VERSION_1P3);
 
             if (!empty($typeid)) {
                 $mform->addElement('text', 'lti_clientid_disabled', get_string('clientidadmin', 'core_ltix'));
                 $mform->setType('lti_clientid_disabled', PARAM_TEXT);
                 $mform->addHelpButton('lti_clientid_disabled', 'clientidadmin', 'core_ltix');
-                $mform->hideIf('lti_clientid_disabled', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+                $mform->hideIf('lti_clientid_disabled', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
                 $mform->disabledIf('lti_clientid_disabled', null);
                 $mform->setForceLtr('lti_clientid_disabled');
                 $mform->addElement('hidden', 'lti_clientid');
@@ -119,39 +118,39 @@ class edit_types extends moodleform {
             }
 
             $keyoptions = [
-                LTI_RSA_KEY => get_string('keytype_rsa', 'core_ltix'),
-                LTI_JWK_KEYSET => get_string('keytype_keyset', 'core_ltix'),
+                \core_ltix\constants::LTI_RSA_KEY => get_string('keytype_rsa', 'core_ltix'),
+                \core_ltix\constants::LTI_JWK_KEYSET => get_string('keytype_keyset', 'core_ltix'),
             ];
             $mform->addElement('select', 'lti_keytype', get_string('keytype', 'core_ltix'), $keyoptions);
             $mform->setType('lti_keytype', PARAM_TEXT);
             $mform->addHelpButton('lti_keytype', 'keytype', 'core_ltix');
-            $mform->setDefault('lti_keytype', LTI_JWK_KEYSET);
-            $mform->hideIf('lti_keytype', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+            $mform->setDefault('lti_keytype', \core_ltix\constants::LTI_JWK_KEYSET);
+            $mform->hideIf('lti_keytype', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
 
             $mform->addElement('textarea', 'lti_publickey', get_string('publickey', 'core_ltix'), ['rows' => 8, 'cols' => 60]);
             $mform->setType('lti_publickey', PARAM_TEXT);
             $mform->addHelpButton('lti_publickey', 'publickey', 'core_ltix');
-            $mform->hideIf('lti_publickey', 'lti_keytype', 'neq', LTI_RSA_KEY);
-            $mform->hideIf('lti_publickey', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_publickey', 'lti_keytype', 'neq', \core_ltix\constants::LTI_RSA_KEY);
+            $mform->hideIf('lti_publickey', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
             $mform->setForceLtr('lti_publickey');
 
             $mform->addElement('text', 'lti_publickeyset', get_string('publickeyset', 'core_ltix'), ['size' => '64']);
             $mform->setType('lti_publickeyset', PARAM_TEXT);
             $mform->addHelpButton('lti_publickeyset', 'publickeyset', 'core_ltix');
-            $mform->hideIf('lti_publickeyset', 'lti_keytype', 'neq', LTI_JWK_KEYSET);
-            $mform->hideIf('lti_publickeyset', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_publickeyset', 'lti_keytype', 'neq', \core_ltix\constants::LTI_JWK_KEYSET);
+            $mform->hideIf('lti_publickeyset', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
             $mform->setForceLtr('lti_publickeyset');
 
             $mform->addElement('text', 'lti_initiatelogin', get_string('initiatelogin', 'core_ltix'), array('size' => '64'));
             $mform->setType('lti_initiatelogin', PARAM_URL);
             $mform->addHelpButton('lti_initiatelogin', 'initiatelogin', 'core_ltix');
-            $mform->hideIf('lti_initiatelogin', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_initiatelogin', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
 
             $mform->addElement('textarea', 'lti_redirectionuris', get_string('redirectionuris', 'core_ltix'),
                 array('rows' => 3, 'cols' => 60));
             $mform->setType('lti_redirectionuris', PARAM_TEXT);
             $mform->addHelpButton('lti_redirectionuris', 'redirectionuris', 'core_ltix');
-            $mform->hideIf('lti_redirectionuris', 'lti_ltiversion', 'neq', LTI_VERSION_1P3);
+            $mform->hideIf('lti_redirectionuris', 'lti_ltiversion', 'neq', \core_ltix\constants::LTI_VERSION_1P3);
             $mform->setForceLtr('lti_redirectionuris');
         }
 
@@ -173,13 +172,13 @@ class edit_types extends moodleform {
             // Only site-level preconfigured tools allow the control of course visibility in the site admin tool type form.
             if (empty($this->_customdata->iscoursetool) || !$this->_customdata->iscoursetool) {
                 $options = array(
-                    LTI_COURSEVISIBLE_NO => get_string('show_in_course_no', 'core_ltix'),
-                    LTI_COURSEVISIBLE_PRECONFIGURED => get_string('show_in_course_preconfigured', 'core_ltix'),
-                    LTI_COURSEVISIBLE_ACTIVITYCHOOSER => get_string('show_in_course_activity_chooser', 'core_ltix'),
+                    \core_ltix\constants::LTI_COURSEVISIBLE_NO => get_string('show_in_course_no', 'core_ltix'),
+                    \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED => get_string('show_in_course_preconfigured', 'core_ltix'),
+                    \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER => get_string('show_in_course_activity_chooser', 'core_ltix'),
                 );
                 if ($istool) {
                     // LTI2 tools can not be matched by URL, they have to be either in preconfigured tools or in activity chooser.
-                    unset($options[LTI_COURSEVISIBLE_NO]);
+                    unset($options[\core_ltix\constants::LTI_COURSEVISIBLE_NO]);
                     $stringname = 'show_in_course_lti2';
                 } else {
                     $stringname = 'show_in_course_lti1';
@@ -189,7 +188,7 @@ class edit_types extends moodleform {
                 $mform->setDefault('lti_coursevisible', '1');
             }
         } else {
-            $mform->addElement('hidden', 'lti_coursevisible', LTI_COURSEVISIBLE_ACTIVITYCHOOSER);
+            $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER);
         }
         $mform->setType('lti_coursevisible', PARAM_INT);
 
@@ -197,13 +196,13 @@ class edit_types extends moodleform {
         $mform->setType('typeid', PARAM_INT);
 
         $launchoptions = array();
-        $launchoptions[LTI_LAUNCH_CONTAINER_EMBED] = get_string('embed', 'core_ltix');
-        $launchoptions[LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS] = get_string('embed_no_blocks', 'core_ltix');
-        $launchoptions[LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW] = get_string('existing_window', 'core_ltix');
-        $launchoptions[LTI_LAUNCH_CONTAINER_WINDOW] = get_string('new_window', 'core_ltix');
+        $launchoptions[\core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED] = get_string('embed', 'core_ltix');
+        $launchoptions[\core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS] = get_string('embed_no_blocks', 'core_ltix');
+        $launchoptions[\core_ltix\constants::LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW] = get_string('existing_window', 'core_ltix');
+        $launchoptions[\core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW] = get_string('new_window', 'core_ltix');
 
         $mform->addElement('select', 'lti_launchcontainer', get_string('default_launch_container', 'core_ltix'), $launchoptions);
-        $mform->setDefault('lti_launchcontainer', LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS);
+        $mform->setDefault('lti_launchcontainer', \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS);
         $mform->addHelpButton('lti_launchcontainer', 'default_launch_container', 'core_ltix');
         $mform->setType('lti_launchcontainer', PARAM_INT);
 
@@ -302,15 +301,15 @@ class edit_types extends moodleform {
                 $mform->addElement('header', 'setupoptions', get_string('miscellaneous', 'core_ltix'));
 
                 $options = array(
-                    LTI_DEFAULT_ORGID_SITEID => get_string('siteid', 'core_ltix'),
-                    LTI_DEFAULT_ORGID_SITEHOST => get_string('sitehost', 'core_ltix'),
+                    \core_ltix\constants::LTI_DEFAULT_ORGID_SITEID => get_string('siteid', 'core_ltix'),
+                    \core_ltix\constants::LTI_DEFAULT_ORGID_SITEHOST => get_string('sitehost', 'core_ltix'),
                 );
 
                 // TODO: all these lang strings need to come to core_ltix + check whether we can deprecate them in mod_lti.
                 $mform->addElement('select', 'lti_organizationid_default', get_string('organizationid_default', 'core_ltix'),
                     $options);
                 $mform->setType('lti_organizationid_default', PARAM_TEXT);
-                $mform->setDefault('lti_organizationid_default', LTI_DEFAULT_ORGID_SITEID);
+                $mform->setDefault('lti_organizationid_default', \core_ltix\constants::LTI_DEFAULT_ORGID_SITEID);
                 $mform->addHelpButton('lti_organizationid_default', 'organizationid_default', 'core_ltix');
 
                 $mform->addElement('text', 'lti_organizationid', get_string('organizationidguid', 'core_ltix'));
@@ -389,7 +388,7 @@ class edit_types extends moodleform {
         $errors = parent::validation($data, $files);
 
         // LTI2 tools do not contain a ltiversion field.
-        if (isset($data['lti_ltiversion']) && $data['lti_ltiversion'] == LTI_VERSION_1P3) {
+        if (isset($data['lti_ltiversion']) && $data['lti_ltiversion'] == \core_ltix\constants::LTI_VERSION_1P3) {
             $warning = \core_ltix\oauth_helper::verify_private_key();
             if (!empty($warning)) {
                 $errors['lti_ltiversion'] = $warning;
@@ -432,7 +431,7 @@ class edit_types extends moodleform {
         // This isn't supported from 4.3 onward in the creation of new tool types.
         foreach (['lti_sendname', 'lti_sendemailaddr'] as $elementname) {
             if (!empty($this->_form->_defaultValues[$elementname])
-                    && $this->_form->_defaultValues[$elementname] == LTI_SETTING_DELEGATE) {
+                    && $this->_form->_defaultValues[$elementname] == \core_ltix\constants::LTI_SETTING_DELEGATE) {
 
                 $elementarr = array_filter($this->_form->_elements, function ($element) use($elementname) {
                     return !empty($element->_attributes['name']) && $element->_attributes['name'] == $elementname;
@@ -442,7 +441,7 @@ class edit_types extends moodleform {
 
                 $element->addOption(
                     get_string('delegate', 'core_ltix'),
-                    LTI_SETTING_DELEGATE,
+                    \core_ltix\constants::LTI_SETTING_DELEGATE,
                     ['disabled' => 'disabled', 'selected' => 'selected']
                 );
             }

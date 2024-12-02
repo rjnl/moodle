@@ -524,11 +524,11 @@ class oauth_helper {
         );
         $payload['iss'] = $CFG->wwwroot;
         $payload['aud'] = $oauthconsumerkey;
-        $payload[LTI_JWT_CLAIM_PREFIX . '/claim/deployment_id'] = strval($typeid);
-        $payload[LTI_JWT_CLAIM_PREFIX . '/claim/target_link_uri'] = $endpoint;
+        $payload[\core_ltix\constants::LTI_JWT_CLAIM_PREFIX . '/claim/deployment_id'] = strval($typeid);
+        $payload[\core_ltix\constants::LTI_JWT_CLAIM_PREFIX . '/claim/target_link_uri'] = $endpoint;
 
         foreach ($parms as $key => $value) {
-            $claim = LTI_JWT_CLAIM_PREFIX;
+            $claim = \core_ltix\constants::LTI_JWT_CLAIM_PREFIX;
             if (array_key_exists($key, $claimmapping)) {
                 $mapping = $claimmapping[$key];
                 $type = $mapping["type"] ?? "string";
@@ -648,14 +648,14 @@ class oauth_helper {
             throw new moodle_exception('errorincorrectconsumerkey', 'core_ltix');
         }
 
-        if (empty($typeconfig['keytype']) || $typeconfig['keytype'] === LTI_RSA_KEY) {
+        if (empty($typeconfig['keytype']) || $typeconfig['keytype'] === \core_ltix\constants::LTI_RSA_KEY) {
             $publickey = $typeconfig['publickey'] ?? '';
             if (empty($publickey)) {
                 throw new moodle_exception('No public key configured');
             }
             // Attemps to verify jwt with RSA key.
             JWT::decode($jwtparam, new Key($publickey, 'RS256'));
-        } else if ($typeconfig['keytype'] === LTI_JWK_KEYSET) {
+        } else if ($typeconfig['keytype'] === \core_ltix\constants::LTI_JWK_KEYSET) {
             $keyseturl = $typeconfig['publickeyset'] ?? '';
             if (empty($keyseturl)) {
                 throw new moodle_exception('No public keyset configured');
@@ -692,7 +692,7 @@ class oauth_helper {
             self::verify_jwt_signature($typeid, $claims['iss'], $jwtparam);
             $params['oauth_consumer_key'] = $claims['iss'];
             foreach (self::get_jwt_claim_mapping() as $key => $mapping) {
-                $claim = LTI_JWT_CLAIM_PREFIX;
+                $claim = \core_ltix\constants::LTI_JWT_CLAIM_PREFIX;
                 if (!empty($mapping['suffix'])) {
                     $claim .= "-{$mapping['suffix']}";
                 }
@@ -727,7 +727,7 @@ class oauth_helper {
                         $params[$key] = $value;
                     }
                 }
-                $claim = LTI_JWT_CLAIM_PREFIX . '/claim/custom';
+                $claim = \core_ltix\constants::LTI_JWT_CLAIM_PREFIX . '/claim/custom';
                 if (isset($claims[$claim])) {
                     $custom = $claims[$claim];
                     if (is_array($custom)) {
@@ -736,7 +736,7 @@ class oauth_helper {
                         }
                     }
                 }
-                $claim = LTI_JWT_CLAIM_PREFIX . '/claim/ext';
+                $claim = \core_ltix\constants::LTI_JWT_CLAIM_PREFIX . '/claim/ext';
                 if (isset($claims[$claim])) {
                     $ext = $claims[$claim];
                     if (is_array($ext)) {

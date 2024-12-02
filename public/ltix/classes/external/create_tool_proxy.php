@@ -66,9 +66,6 @@ class create_tool_proxy extends external_api {
     public static function execute(string $name, string $registrationurl, array $capabilityoffered = [],
             array $serviceoffered = []): object {
 
-        global $CFG;
-        require_once($CFG->dirroot . '/ltix/constants.php');
-
         $params = self::validate_parameters(self::execute_parameters(),
             array(
                 'name' => $name,
@@ -111,7 +108,7 @@ class create_tool_proxy extends external_api {
 
         // Pending makes more sense than configured as the first state, since
         // the next step is to register, which requires the state be pending.
-        $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
+        $toolproxy->state = \core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING;
         helper::update_tool_proxy($toolproxy);
 
         return $toolproxy;

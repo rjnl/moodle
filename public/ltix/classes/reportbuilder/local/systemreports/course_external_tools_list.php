@@ -17,8 +17,6 @@
 namespace core_ltix\reportbuilder\local\systemreports;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 use core\output\html_writer;
 use core_reportbuilder\local\helpers\database;
@@ -89,9 +87,9 @@ class course_external_tools_list extends system_report {
         $params = array_merge(
             $params,
             [
-                $coursevisibleparam => LTI_COURSEVISIBLE_NO,
+                $coursevisibleparam => \core_ltix\constants::LTI_COURSEVISIBLE_NO,
                 $categoryparam => $this->course->category,
-                $toolstateparam => LTI_TOOL_STATE_CONFIGURED
+                $toolstateparam => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
             ]
         );
         $this->add_base_condition_sql($wheresql, $params);
@@ -163,7 +161,7 @@ class course_external_tools_list extends system_report {
                     $coursevisible = $row->coursevisibleoverridden;
                 }
 
-                if ($coursevisible == LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
+                if ($coursevisible == \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
                     $coursevisible = true;
                 } else {
                     $coursevisible = false;

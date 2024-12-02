@@ -221,8 +221,8 @@ class toolproxy extends \core_ltix\local\ltiservice\resource_base {
                 }
 
                 $type = new \stdClass();
-                $type->state = LTI_TOOL_STATE_PENDING;
-                $type->ltiversion = LTI_VERSION_2;
+                $type->state = \core_ltix\constants::LTI_TOOL_STATE_PENDING;
+                $type->ltiversion = \core_ltix\constants::LTI_VERSION_2;
                 $type->toolproxyid = $toolproxy->id;
                 // Ensure gradebook column is created.
                 if ($requestsbasicoutcomes && !in_array('BasicOutcome.url', $launchrequest->enabled_capability)) {
@@ -251,7 +251,7 @@ class toolproxy extends \core_ltix\local\ltiservice\resource_base {
         if (!empty($toolproxy)) {
             if ($ok) {
                 // If all went OK accept the tool proxy.
-                $toolproxy->state = LTI_TOOL_PROXY_STATE_ACCEPTED;
+                $toolproxy->state = \core_ltix\constants::LTI_TOOL_PROXY_STATE_ACCEPTED;
                 $toolproxy->toolproxy = $response->get_request_data();
                 $toolproxy->secret = $toolproxyjson->security_contract->shared_secret;
                 $toolproxy->vendorcode = $toolproxyjson->tool_profile->product_instance->product_info->product_family->vendor->code;
@@ -270,7 +270,7 @@ EOD;
                 $response->set_body($body);
             } else {
                 // Otherwise reject the tool proxy.
-                $toolproxy->state = LTI_TOOL_PROXY_STATE_REJECTED;
+                $toolproxy->state = \core_ltix\constants::LTI_TOOL_PROXY_STATE_REJECTED;
                 $response->set_code(400);
             }
             \core_ltix\helper::update_tool_proxy($toolproxy);

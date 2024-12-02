@@ -181,7 +181,7 @@ class memberships extends \core_ltix\local\ltiservice\service_base {
         $users = get_enrolled_users($context, $withcapability, 0, 'u.*', null, 0, 0, true);
         if (($response->get_accept() === 'application/vnd.ims.lti-nrps.v2.membershipcontainer+json') ||
             (($response->get_accept() !== 'application/vnd.ims.lis.v2.membershipcontainer+json') &&
-            ($this->get_type()->ltiversion === LTI_VERSION_1P3))) {
+            ($this->get_type()->ltiversion === \core_ltix\constants::LTI_VERSION_1P3))) {
             $json = $this->users_to_json($resource, $users, $course, $exclude, $limitfrom, $limitnum, $lti, $info, $response);
         } else {
             $json = $this->users_to_jsonld($resource, $users, $course->id, $exclude, $limitfrom, $limitnum, $lti, $info, $response);

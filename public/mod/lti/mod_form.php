@@ -50,7 +50,6 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 
 class mod_lti_mod_form extends moodleform_mod {
 
@@ -223,11 +222,11 @@ class mod_lti_mod_form extends moodleform_mod {
         $mform->setType('lineitemsubreviewparams', PARAM_TEXT);
 
         $launchoptions = [
-            LTI_LAUNCH_CONTAINER_DEFAULT => get_string('default', 'lti'),
-            LTI_LAUNCH_CONTAINER_EMBED => get_string('embed', 'core_ltix'),
-            LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS => get_string('embed_no_blocks', 'core_ltix'),
-            LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW => get_string('existing_window', 'core_ltix'),
-            LTI_LAUNCH_CONTAINER_WINDOW => get_string('new_window', 'core_ltix')
+            \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT => get_string('default', 'lti'),
+            \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED => get_string('embed', 'core_ltix'),
+            \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS => get_string('embed_no_blocks', 'core_ltix'),
+            \core_ltix\constants::LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW => get_string('existing_window', 'core_ltix'),
+            \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW => get_string('new_window', 'core_ltix')
         ];
         $mform->addElement('select', 'launchcontainer', get_string('launchinpopup', 'lti'), $launchoptions);
         $mform->addHelpButton('launchcontainer', 'launchinpopup', 'lti');
@@ -389,7 +388,7 @@ class mod_lti_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'server');
 
         // Show activity name when launched only applies to embedded type launches.
-        if (in_array($config['launchcontainer'], [LTI_LAUNCH_CONTAINER_EMBED, LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS])) {
+        if (in_array($config['launchcontainer'], [\core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED, \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS])) {
             $mform->addElement('checkbox', 'showtitlelaunch', get_string('display_name', 'lti'));
             $mform->setDefault('showtitlelaunch', true);
             $mform->addHelpButton('showtitlelaunch', 'display_name', 'lti');
@@ -412,7 +411,7 @@ class mod_lti_mod_form extends moodleform_mod {
         }
 
         // Show activity description when launched only applies to embedded type launches.
-        if (in_array($config['launchcontainer'], [LTI_LAUNCH_CONTAINER_EMBED, LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS])) {
+        if (in_array($config['launchcontainer'], [\core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED, \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS])) {
             $mform->addElement('checkbox', 'showdescriptionlaunch', get_string('display_description', 'lti'));
             $mform->addHelpButton('showdescriptionlaunch', 'display_description', 'lti');
         } else {
@@ -452,7 +451,7 @@ class mod_lti_mod_form extends moodleform_mod {
 
         // Launch container is set to 'LTI_LAUNCH_CONTAINER_DEFAULT', meaning it'll delegate to the tool's configuration.
         // Existing instances using values other than this can continue to use their existing value but cannot change it.
-        $mform->addElement('hidden', 'launchcontainer', LTI_LAUNCH_CONTAINER_DEFAULT);
+        $mform->addElement('hidden', 'launchcontainer', \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT);
         $mform->setType('launchcontainer', PARAM_INT);
 
         // Included to support deep linking return, but hidden to avoid instructor modification.
@@ -472,7 +471,7 @@ class mod_lti_mod_form extends moodleform_mod {
         $mform->setType('secureicon', PARAM_URL);
 
         // Add standard course module grading elements, and show them if the tool type + instance config permits it.
-        if (!empty($config['acceptgrades']) && in_array($config['acceptgrades'], [LTI_SETTING_ALWAYS, LTI_SETTING_DELEGATE])) {
+        if (!empty($config['acceptgrades']) && in_array($config['acceptgrades'], [\core_ltix\constants::LTI_SETTING_ALWAYS, \core_ltix\constants::LTI_SETTING_DELEGATE])) {
             $elementnamesbeforegrading = $this->_form->_elementIndex;
             $this->standard_grading_coursemodule_elements();
             $elementnamesaftergrading = $this->_form->_elementIndex;
@@ -495,7 +494,7 @@ class mod_lti_mod_form extends moodleform_mod {
             // permits overrides to 'no/unchecked'.
             // - Course tools with 'acceptgrades' set to 'DELEGATE' result in a checkbox that is defaulted to unchecked but which
             // permits overrides to 'yes/checked'.
-            if (($issitetooltype && $config['acceptgrades'] == LTI_SETTING_DELEGATE) || !$issitetooltype) {
+            if (($issitetooltype && $config['acceptgrades'] == \core_ltix\constants::LTI_SETTING_DELEGATE) || !$issitetooltype) {
                 $mform->insertElementBefore(
                     $mform->createElement(
                         'advcheckbox',
@@ -504,7 +503,7 @@ class mod_lti_mod_form extends moodleform_mod {
                     ),
                     array_keys($diff)[0]
                 );
-                $acceptgradesdefault = !$issitetooltype && $config['acceptgrades'] == LTI_SETTING_ALWAYS ? '1' : '0';
+                $acceptgradesdefault = !$issitetooltype && $config['acceptgrades'] == \core_ltix\constants::LTI_SETTING_ALWAYS ? '1' : '0';
                 $mform->setDefault('instructorchoiceacceptgrades', $acceptgradesdefault);
                 $mform->disabledIf('instructorchoiceacceptgrades', 'typeid', 'in', [$toolproxytypeid]); // LTI 2 only.
             }

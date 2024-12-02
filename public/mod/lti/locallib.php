@@ -55,7 +55,6 @@ require_once($CFG->dirroot.'/ltix/OAuth.php');
 require_once($CFG->libdir.'/weblib.php');
 require_once($CFG->dirroot . '/course/modlib.php');
 require_once($CFG->dirroot . '/ltix/TrivialStore.php');
-require_once($CFG->dirroot . '/ltix/constants.php');
 
 /**
  * Return the mapping for standard message types to JWT message_type claim.
@@ -243,9 +242,9 @@ function lti_build_request_lti2($tool, $params) {
  */
 function lti_build_standard_request($instance, $orgid, $islti2, $messagetype = 'basic-lti-launch-request') {
     if (!$islti2) {
-        $ltiversion = LTI_VERSION_1;
+        $ltiversion = \core_ltix\constants::LTI_VERSION_1;
     } else {
-        $ltiversion = LTI_VERSION_2;
+        $ltiversion = \core_ltix\constants::LTI_VERSION_2;
     }
     return \core_ltix\helper::build_standard_message($instance, $orgid, $ltiversion, $messagetype);
 }
@@ -703,7 +702,7 @@ function lti_filter_get_types($course) {
  *
  * @deprecated since Moodle 4.4
  * @param array $tools An array of lti_types records
- * @param int $state One of the LTI_TOOL_STATE_* constants
+ * @param int $state One of the \core_ltix\constants::LTI_TOOL_STATE_* constants
  * @return array
  */
 function lti_filter_tool_types(array $tools, $state) {
@@ -760,7 +759,7 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
     global $OUTPUT, $USER;
     $types = [];
     $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id,
-        [LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
+        [\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
 
     foreach ($preconfiguredtypes as $ltitype) {
         $type           = new stdClass();
@@ -822,7 +821,7 @@ function lti_get_domain_from_url($url) {
  * @param $state
  * @return mixed|null
  */
-function lti_get_tool_by_url_match($url, $courseid = null, $state = LTI_TOOL_STATE_CONFIGURED) {
+function lti_get_tool_by_url_match($url, $courseid = null, $state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED) {
     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_by_url_match() instead.',
         DEBUG_DEVELOPER);
 
@@ -1010,7 +1009,7 @@ function lti_add_type($type, $config) {
  *
  * @deprecated since Moodle 4.4
  * @param array $toolproxies An array of lti_tool_proxies records
- * @param int $state One of the LTI_TOOL_PROXY_STATE_* constants
+ * @param int $state One of the \core_ltix\constants::LTI_TOOL_PROXY_STATE_* constants
  *
  * @return array
  */

@@ -67,7 +67,7 @@ if ($form->is_cancelled()) {
         $redirecturl = new moodle_url('/ltix/coursetools.php', ['id' => $courseid]);
         $notice = get_string('courseexternaltooleditsuccess', 'core_ltix');
     } else {
-        $type = (object) ['state' => LTI_TOOL_STATE_CONFIGURED, 'course' => $data->course];
+        $type = (object) ['state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED, 'course' => $data->course];
         \core_ltix\helper::load_type_if_cartridge($data);
         \core_ltix\helper::add_type($type, $data);
         $redirecturl = new moodle_url('/ltix/coursetools.php', ['id' => $courseid]);

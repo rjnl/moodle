@@ -20,10 +20,6 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
-
-require_once($CFG->dirroot . '/ltix/constants.php');
-
 /**
  * Abstract base testcase for lti unit tests.
  *
@@ -44,14 +40,14 @@ abstract class lti_testcase extends \advanced_testcase {
     protected function generate_tool_type(string $uniqueid, ?int $toolproxyid = null): stdClass {
         // Create a tool type.
         $type = new stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool $uniqueid";
         $type->description = "Example description $uniqueid";
         $type->toolproxyid = $toolproxyid;
         $type->baseurl = $this->getExternalTestFileUrl("/test$uniqueid.html");
-        $type->coursevisible = LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
         $config = new stdClass();
-        $config->lti_coursevisible = LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $config->lti_coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
 
         $type->id = helper::add_type($type, $config);
         return $type;
@@ -85,7 +81,7 @@ abstract class lti_testcase extends \advanced_testcase {
 
         // Pending makes more sense than configured as the first state, since
         // the next step is to register, which requires the state be pending.
-        $toolproxy->state = LTI_TOOL_PROXY_STATE_PENDING;
+        $toolproxy->state = \core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING;
         helper::update_tool_proxy($toolproxy);
 
         return $toolproxy;

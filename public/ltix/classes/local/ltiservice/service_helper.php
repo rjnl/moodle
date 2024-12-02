@@ -157,10 +157,10 @@ class service_helper {
         if (empty($ltitype->toolproxyid)) {
             $typeconfig = helper::get_config($ltiinstance);
 
-            $typeacceptgrades = isset($typeconfig['acceptgrades']) ? $typeconfig['acceptgrades'] : LTI_SETTING_DELEGATE;
+            $typeacceptgrades = isset($typeconfig['acceptgrades']) ? $typeconfig['acceptgrades'] : \core_ltix\constants::LTI_SETTING_DELEGATE;
 
-            if (!($typeacceptgrades == LTI_SETTING_ALWAYS ||
-                ($typeacceptgrades == LTI_SETTING_DELEGATE && $ltiinstance->instructorchoiceacceptgrades == LTI_SETTING_ALWAYS))) {
+            if (!($typeacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS ||
+                ($typeacceptgrades == \core_ltix\constants::LTI_SETTING_DELEGATE && $ltiinstance->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS))) {
                 $acceptsgrades = false;
             }
         } else {
@@ -197,7 +197,7 @@ class service_helper {
         $grade->userid   = $userid;
         $grade->rawgrade = $gradeval;
 
-        $status = grade_update(LTI_SOURCE, $ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade, $params);
+        $status = grade_update(\core_ltix\constants::LTI_SOURCE, $ltiinstance->course, \core_ltix\constants::LTI_ITEM_TYPE, \core_ltix\constants::LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade, $params);
 
         $record = $DB->get_record('lti_submission', array('ltiid' => $ltiinstance->id, 'userid' => $userid,
             'launchid' => $launchid), 'id');
@@ -234,7 +234,7 @@ class service_helper {
         global $CFG;
         require_once($CFG->libdir . '/gradelib.php');
 
-        $grades = grade_get_grades($ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, $userid);
+        $grades = grade_get_grades($ltiinstance->course, \core_ltix\constants::LTI_ITEM_TYPE, \core_ltix\constants::LTI_ITEM_MODULE, $ltiinstance->id, $userid);
 
         $ltigrade = floatval($ltiinstance->grade);
 
@@ -256,7 +256,7 @@ class service_helper {
         $grade->userid   = $userid;
         $grade->rawgrade = null;
 
-        $status = grade_update(LTI_SOURCE, $ltiinstance->course, LTI_ITEM_TYPE, LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade);
+        $status = grade_update(\core_ltix\constants::LTI_SOURCE, $ltiinstance->course, \core_ltix\constants::LTI_ITEM_TYPE, \core_ltix\constants::LTI_ITEM_MODULE, $ltiinstance->id, 0, $grade);
 
         return $status == GRADE_UPDATE_OK;
     }

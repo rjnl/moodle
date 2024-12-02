@@ -28,7 +28,6 @@
 
 require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 require_once($CFG->dirroot.'/ltix/classes/form/register_form.php');
 
 $action       = optional_param('action', null, PARAM_ALPHANUMEXT);
@@ -93,7 +92,7 @@ if ($form->is_cancelled()) {
     if ($action == 'update') {
         $toolproxy = \core_ltix\helper::get_tool_proxy_config($id);
         $form->set_data($toolproxy);
-        if ($toolproxy->state == LTI_TOOL_PROXY_STATE_ACCEPTED) {
+        if ($toolproxy->state == \core_ltix\constants::LTI_TOOL_PROXY_STATE_ACCEPTED) {
             $form->disable_fields();
         }
     }

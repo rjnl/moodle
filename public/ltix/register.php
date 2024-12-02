@@ -25,7 +25,6 @@
 
 require_once('../config.php');
 require_once($CFG->libdir.'/adminlib.php');
-require_once($CFG->dirroot.'/ltix/constants.php');
 use core_ltix\local\ltiservice\service_helper;
 
 $id = required_param('id', PARAM_INT);
@@ -42,7 +41,7 @@ $toolproxies = $DB->get_records('lti_tool_proxies');
 
 $duplicate = false;
 foreach ($toolproxies as $key => $toolproxy) {
-    if (($toolproxy->state == LTI_TOOL_PROXY_STATE_PENDING) || ($toolproxy->state == LTI_TOOL_PROXY_STATE_ACCEPTED)) {
+    if (($toolproxy->state == \core_ltix\constants::LTI_TOOL_PROXY_STATE_PENDING) || ($toolproxy->state == \core_ltix\constants::LTI_TOOL_PROXY_STATE_ACCEPTED)) {
         if ($toolproxy->regurl == $toolproxies[$id]->regurl) {
             $duplicate = true;
             break;

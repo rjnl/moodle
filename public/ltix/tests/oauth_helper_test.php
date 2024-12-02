@@ -37,7 +37,6 @@ namespace core_ltix;
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/ltix/constants.php');
 require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 
 /**
@@ -468,7 +467,7 @@ final class oauth_helper_test extends lti_testcase {
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
@@ -484,7 +483,7 @@ V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9
 MwIDAQAB
 -----END PUBLIC KEY-----';
 
-        $config->lti_keytype = LTI_RSA_KEY;
+        $config->lti_keytype = \core_ltix\constants::LTI_RSA_KEY;
 
         $typeid = helper::add_type($type, $config);
 
@@ -505,7 +504,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
@@ -513,7 +512,7 @@ MwIDAQAB
         $config = new \stdClass();
         $config->lti_publickeyset = $this->getExternalTestFileUrl('/lti_keyset.json');
 
-        $config->lti_keytype = LTI_JWK_KEYSET;
+        $config->lti_keytype = \core_ltix\constants::LTI_JWK_KEYSET;
 
         $typeid = helper::add_type($type, $config);
 
@@ -545,7 +544,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->clientid = 'consumerkey';
@@ -567,14 +566,14 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->clientid = 'consumerkey';
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
         $config = new \stdClass();
-        $config->lti_keytype = LTI_RSA_KEY;
+        $config->lti_keytype = \core_ltix\constants::LTI_RSA_KEY;
         $typeid = helper::add_type($type, $config);
 
         $this->expectExceptionMessage('No public key configured');
@@ -591,7 +590,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->clientid = 'consumerkey';
@@ -637,7 +636,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->clientid = 'sso.example.com';
@@ -653,7 +652,7 @@ e+lf4s4OxQawWD79J9/5d3Ry0vbV3Am1FtGJiJvOwRsIfVChDpYStTcHTCMqtvWb
 V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9
 MwIDAQAB
 -----END PUBLIC KEY-----';
-        $config->lti_keytype = LTI_RSA_KEY;
+        $config->lti_keytype = \core_ltix\constants::LTI_RSA_KEY;
 
         $typeid = helper::add_type($type, $config);
 
@@ -679,7 +678,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->clientid = "Test client ID";
@@ -700,7 +699,7 @@ MwIDAQAB
 
         $this->assertEquals($typeid, $token->typeid);
         $this->assertEquals(json_encode(array_values($scopes)), $token->scope);
-        $this->assertEquals($token->timecreated + LTI_ACCESS_TOKEN_LIFE, $token->validuntil);
+        $this->assertEquals($token->timecreated + \core_ltix\constants::LTI_ACCESS_TOKEN_LIFE, $token->validuntil);
         $this->assertNull($token->lastaccess);
     }
 
@@ -717,7 +716,7 @@ MwIDAQAB
 
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
+        $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
         $type->toolproxyid = $proxy->id;

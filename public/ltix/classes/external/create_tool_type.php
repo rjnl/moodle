@@ -56,8 +56,6 @@ class create_tool_type extends external_api {
      * @throws \moodle_exception If the tool type could not be created
      */
     public static function execute(string $cartridgeurl, string $key = '', string $secret = ''): array {
-        global $CFG;
-        require_once($CFG->dirroot . '/ltix/constants.php');
 
         $params = self::validate_parameters(self::execute_parameters(),
             array(
@@ -78,11 +76,11 @@ class create_tool_type extends external_api {
         if (!empty($cartridgeurl)) {
             $type = new \stdClass();
             $data = new \stdClass();
-            $type->state = LTI_TOOL_STATE_CONFIGURED;
+            $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
             $data->lti_coursevisible = 1;
-            $data->lti_sendname = LTI_SETTING_DELEGATE;
-            $data->lti_sendemailaddr = LTI_SETTING_DELEGATE;
-            $data->lti_acceptgrades = LTI_SETTING_DELEGATE;
+            $data->lti_sendname = \core_ltix\constants::LTI_SETTING_DELEGATE;
+            $data->lti_sendemailaddr = \core_ltix\constants::LTI_SETTING_DELEGATE;
+            $data->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_DELEGATE;
             $data->lti_forcessl = 0;
 
             if (!empty($key)) {

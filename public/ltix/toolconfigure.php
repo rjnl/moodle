@@ -35,7 +35,7 @@ admin_externalpage_setup('ltixtoolconfigure');
 if ($cartridgeurl) {
     $type = new stdClass();
     $data = new stdClass();
-    $type->state = LTI_TOOL_STATE_CONFIGURED;
+    $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
     $data->lti_coursevisible = 1;
     \core_ltix\helper::load_type_from_cartridge($cartridgeurl, $data);
     \core_ltix\helper::add_type($type, $data);

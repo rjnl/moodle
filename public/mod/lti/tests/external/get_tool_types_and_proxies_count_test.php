@@ -59,7 +59,7 @@ final class get_tool_types_and_proxies_count_test extends externallib_advanced_t
             $proxyid = helper::add_tool_proxy($config);
 
             $ltigenerator->create_tool_types([
-                'state' => LTI_TOOL_STATE_CONFIGURED,
+                'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
                 'name' => "Test tool $i",
                 'description' => "Example description $i",
                 'toolproxyid' => $proxyid,

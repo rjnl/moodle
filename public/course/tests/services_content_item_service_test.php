@@ -119,8 +119,8 @@ final class services_content_item_service_test extends \advanced_testcase {
         $ltigenerator->create_tool_types([
             'name' => 'site tool',
             'baseurl' => 'http://example.com',
-            'coursevisible' => LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
-            'state' => LTI_TOOL_STATE_CONFIGURED
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
         $cis = new content_item_service(new content_item_readonly_repository());
         $this->setUser($user); // This is needed since the underlying lti code needs the global user despite the api accepting user.
