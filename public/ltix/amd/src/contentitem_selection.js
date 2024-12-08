@@ -52,6 +52,9 @@ export default class ContentItemSelection {
     /** @property {string|null} defaultText Default text to pass to the tool inside the deep_linking_settings claim. */
     defaultText = null;
 
+    /** @property {array|null} flags Array of flags controlling tool behaviour. */
+    flags = null;
+
     /** @property {Object|null} modal The modal object. */
     modal = null;
 
@@ -62,10 +65,11 @@ export default class ContentItemSelection {
      * @param {int} contextID The context ID.
      * @param {string|null} defaultTitle Default title to pass to the tool inside the deep_linking_settings claim.
      * @param {string|null} defaultText Default text to pass to the tool inside the deep_linking_settings claim.
+     * @param {array|null} flags Array of flags controlling tool behaviour.
      * @returns {void}
      */
-    static async init(toolID, contextID, defaultTitle = null, defaultText = null) {
-        const contentItem = new this(toolID, contextID, defaultTitle, defaultText);
+    static async init(toolID, contextID, defaultTitle = null, defaultText = null, flags = []) {
+        const contentItem = new this(toolID, contextID, defaultTitle, defaultText, flags);
         contentItem.registerEventListeners();
     }
 
@@ -76,13 +80,15 @@ export default class ContentItemSelection {
      * @param {int} contextID The context ID.
      * @param {string|null} defaultTitle Default title to pass to the tool inside the deep_linking_settings claim.
      * @param {string|null} defaultText Default text to pass to the tool inside the deep_linking_settings claim.
+     * @param {array|null} flags Array of flags controlling tool behaviour.
      * @returns {void}
      */
-    constructor(toolID, contextID, defaultTitle = null, defaultText = null) {
+    constructor(toolID, contextID, defaultTitle = null, defaultText = null, flags = []) {
         this.toolID = toolID;
         this.contextID = contextID;
         this.defaultTitle = defaultTitle;
         this.defaultText = defaultText;
+        this.flags = flags;
     }
 
     /**
@@ -147,6 +153,11 @@ export default class ContentItemSelection {
                 defaulttext: this.defaultText
             }
         };
+
+        // Include local network access flag if CFG permits that.
+        if (this.flags['ltiallowlocalnetwork'] !== undefined) {
+            context.localNetworkAccess = this.flags['ltiallowlocalnetwork'];
+        }
 
         return Templates.render('core_ltix/contentitem_selection', context);
     }

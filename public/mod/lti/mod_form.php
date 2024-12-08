@@ -518,11 +518,15 @@ class mod_lti_mod_form extends moodleform_mod {
         $this->add_action_buttons();
 
         if ($supportscontentitemselection) {
-            $jsparams = [$COURSE->id];
-            // If local-network-access is enabled, pass the tool URL as well.
-            $jsparams[] = (isset($CFG->ltiallowlocalnetwork) && $CFG->ltiallowlocalnetwork) ? $tooltype->baseurl : '';
-
-            $PAGE->requires->js_call_amd('mod_lti/mod_form', 'init', $jsparams);
+            // TODO: move flag generation code into core_ltix. It's not the responsibility of clients.
+            //  Also consider wrapping this whole lot inside a core_ltix placement API, so we can enforce flags internally.
+            $selectionurl = $config['toolurl_ContentItemSelectionRequest'] ?? $tooltype->baseurl;
+            $flags = [
+                ...((isset($CFG->ltiallowlocalnetwork) && $CFG->ltiallowlocalnetwork)
+                    ? ['ltiallowlocalnetwork' => $selectionurl] : [])
+            ];
+            $jsparams = [$tooltypeid, $this->context->id, null, null, $flags];
+            $PAGE->requires->js_call_amd('mod_lti/activity_contentitem_selection', 'init', $jsparams);
         }
     }
 
