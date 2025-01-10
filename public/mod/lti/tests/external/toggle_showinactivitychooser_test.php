@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_lti\external\toggle_showinactivitychooser
  */
-class toggle_showinactivitychooser_test extends externallib_advanced_testcase {
+final class toggle_showinactivitychooser_test extends externallib_advanced_testcase {
 
     /**
      * Test toggle_showinactivitychooser for course tool.

@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @copyright  2023 onwards Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class helper_test extends lti_testcase {
+final class helper_test extends lti_testcase {
 
     /**
      * Test the split parameters function

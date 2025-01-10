@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_tool_types_test extends lti_testcase {
+final class get_tool_types_test extends lti_testcase {
 
     /**
      * Setup method.
