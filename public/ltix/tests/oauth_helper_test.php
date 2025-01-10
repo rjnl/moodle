@@ -49,7 +49,7 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \core_ltix\oauth_helper
  */
-class oauth_helper_test extends lti_testcase {
+final class oauth_helper_test extends lti_testcase {
 
     /**
      * Test lti_get_jwt_message_type_mapping().

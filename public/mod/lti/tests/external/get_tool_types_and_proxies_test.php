@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_tool_types_and_proxies_test extends externallib_advanced_testcase {
+final class get_tool_types_and_proxies_test extends externallib_advanced_testcase {
 
     /**
      * This method runs before every test.
