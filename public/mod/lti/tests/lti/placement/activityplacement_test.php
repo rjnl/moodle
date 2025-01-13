@@ -40,4 +40,27 @@ final class activityplacement_test extends \advanced_testcase {
             placements_manager::get_instance()->get_deeplinking_placement_instance('mod_lti:activityplacement')
         );
     }
+
+    /**
+     * Confirm that the placement instance can invoke that capabilities are thrown exceptions when needed or null otherwise.
+     *
+     * @return void
+     */
+    public function test_content_item_selection_capabilities(): void {
+        $this->resetAfterTest();
+        // Create a test course with some phony users.
+        $course = $this->getDataGenerator()->create_course();
+        $context = \context_course::instance($course->id);
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course);
+        // Get our placement instance to run capabilities checks against
+        $placementinstance = placements_manager::get_instance()->get_deeplinking_placement_instance('mod_lti:activityplacement');
+
+        // Confirm that students cannot select a content item, but teachers can.
+        $this->setUser($teacher);
+        $this->assertEquals(null, $placementinstance->content_item_selection_capabilities($context));
+        $this->setUser($student);
+        $this->expectException(\Exception::class);
+        $placementinstance->content_item_selection_capabilities($context);
+    }
 }

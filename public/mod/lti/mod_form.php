@@ -524,7 +524,7 @@ class mod_lti_mod_form extends moodleform_mod {
                 ...((isset($CFG->ltiallowlocalnetwork) && $CFG->ltiallowlocalnetwork)
                     ? ['ltiallowlocalnetwork' => $selectionurl] : [])
             ];
-            $jsparams = [$tooltypeid, $this->context->id, null, null, $flags];
+            $jsparams = [$tooltypeid, $this->context->id, 'mod_lti:activityplacement', null, null, $flags];
             $PAGE->requires->js_call_amd('mod_lti/activity_contentitem_selection', 'init', $jsparams);
         }
     }

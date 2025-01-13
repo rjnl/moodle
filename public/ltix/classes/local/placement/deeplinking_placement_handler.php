@@ -16,6 +16,8 @@
 
 namespace core_ltix\local\placement;
 
+use core\context;
+
 /**
  * Abstract class modelling deep linking placements.
  *
@@ -24,4 +26,11 @@ namespace core_ltix\local\placement;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class deeplinking_placement_handler implements placement_handler {
+    /**
+     * Additional capabilities that need to be checked during deep linking.
+     *
+     * @param context $context The context.
+     */
+    public function content_item_selection_capabilities(context $context): void {
+    }
 }

@@ -22,16 +22,34 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_ltix\local\placement\placements_manager;
+
 require_once('../config.php');
 require_once($CFG->dirroot . '/mod/lti/lib.php');
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
 $id = required_param('id', PARAM_INT);
 $contextid = required_param('contextid', PARAM_INT);
+$placementtype = required_param('placementtype', PARAM_RAW);
 $title = optional_param('title', '', PARAM_TEXT);
 $text = optional_param('text', '', PARAM_RAW);
 
 $context = \context_helper::instance_by_id($contextid);
+$course = $DB->get_record('course', ['id' => $context->get_course_context()->instanceid], '*', MUST_EXIST);
+
+// Confirm that the user is logged in.
+if ($context instanceof context_course) {
+    require_login($course);
+} else if ($context instanceof context_module) {
+    $cm = get_coursemodule_from_id('', $context->instanceid, 0, false, MUST_EXIST);
+    require_login($course, true, $cm, true, true);
+} else {
+    require_login();
+}
+
+// Confirm any capability restrictions that implementors may have.
+$placementinstance = placements_manager::get_instance()->get_deeplinking_placement_instance($placementtype);
+$placementinstance->content_item_selection_capabilities($context);
 
 // TODO: Expand the expected context beyond just course.
 // Currently, the expected context is always course due to the lack flexibility of the methods that are used for constructing
@@ -47,20 +65,6 @@ if ($config->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
         unset($SESSION->lti_initiatelogin_status);
     }
 }
-
-$course = $DB->get_record('course', ['id' => $context->get_course_context()->instanceid], '*', MUST_EXIST);
-
-// Check access and capabilities.
-if ($context instanceof context_course) {
-    require_login($course);
-} else if ($context instanceof context_module) {
-    $cm = get_coursemodule_from_id('', $context->instanceid, 0, false, MUST_EXIST);
-    require_login(null, true, $cm, true, true);
-} else {
-    require_login();
-}
-
-// TODO: Assess capability checks.
 
 // Set the return URL. We send the launch container along to help us avoid frames-within-frames when the user returns.
 $returnurlparams = [
