@@ -16,6 +16,7 @@
 
 namespace mod_lti\lti\placement;
 
+use core\context;
 use core_ltix\local\placement\deeplinking_placement_handler;
 
 /**
@@ -29,5 +30,9 @@ class activityplacement extends deeplinking_placement_handler {
 
     public static function instance(): static {
         return new self();
+    }
+
+    public function content_item_selection_capabilities(context $context): void {
+        require_capability('moodle/course:manageactivities', $context);
     }
 }
