@@ -35,7 +35,6 @@
 namespace mod_lti\local;
 
 use core_ltix\lti_testcase;
-use mod_lti\local\types_helper;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -51,7 +50,7 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_lti\local\helper
  */
-final class helper_test extends lti_testcase {
+final class types_helper_test extends lti_testcase {
 
     /**
      * Test fetching tool types for a given course and user.
