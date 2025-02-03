@@ -620,9 +620,16 @@ function upgrade_stale_php_files_present(): bool {
  */
 function upgrade_component_updated(string $component, string $messageplug = '',
         bool $coreinstall = false): void {
+
+    global $CFG;
+
     if (!$coreinstall) {
         update_capabilities($component);
         core_upgrade_time::record_detail('update_capabilities');
+
+        require_once($CFG->dirroot . '/ltix/classes/local/placement/placements_helper.php');
+        \core_ltix\local\placement\placements_helper::update_placement_types($component);
+        core_upgrade_time::record_detail('\core_ltix\placements_helper::update_placement_types');
     }
     log_update_descriptions($component);
     core_upgrade_time::record_detail('log_update_descriptions');
