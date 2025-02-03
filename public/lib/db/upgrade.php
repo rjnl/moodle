@@ -1954,5 +1954,88 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026060500.02);
     }
 
+    if ($oldversion < 2026060500.04) {
+
+        // Define table lti_placement_type to be created.
+        $table = new xmldb_table('lti_placement_type');
+
+        // Adding fields to table lti_placement_type.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('component', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table lti_placement_type.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('type', XMLDB_KEY_UNIQUE, ['type']);
+
+        // Adding indexes to table lti_placement_type.
+        $table->add_index('component', XMLDB_INDEX_NOTUNIQUE, ['component']);
+
+        // Conditionally launch create table for lti_placement_type.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table lti_placement to be created.
+        $table = new xmldb_table('lti_placement');
+
+        // Adding fields to table lti_placement.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('toolid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('placementtypeid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table lti_placement.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('toolid', XMLDB_KEY_FOREIGN, ['toolid'], 'lti_types', ['id']);
+        $table->add_key('placementtypeid', XMLDB_KEY_FOREIGN, ['placementtypeid'], 'lti_placement_type', ['id']);
+
+        // Conditionally launch create table for lti_placement.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table lti_placement_config to be created.
+        $table = new xmldb_table('lti_placement_config');
+
+        // Adding fields to table lti_placement_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('placementid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table lti_placement_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('placementid', XMLDB_KEY_FOREIGN, ['placementid'], 'lti_placement', ['id']);
+        $table->add_key('placementidname', XMLDB_KEY_UNIQUE, ['placementid', 'name']);
+
+        // Conditionally launch create table for lti_placement_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table lti_placement_status to be created.
+        $table = new xmldb_table('lti_placement_status');
+
+        // Adding fields to table lti_placement_status.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('placementid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('contextid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table lti_placement_status.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('placementid', XMLDB_KEY_FOREIGN, ['placementid'], 'lti_placement', ['id']);
+        $table->add_key('contextid', XMLDB_KEY_FOREIGN, ['contextid'], 'context', ['id']);
+        $table->add_key('placementcontext', XMLDB_KEY_UNIQUE, ['placementid', 'contextid']);
+
+        // Conditionally launch create table for lti_placement_status.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026060500.04);
+    }
+
     return true;
 }

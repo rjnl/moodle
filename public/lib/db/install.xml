@@ -5237,5 +5237,58 @@
         <INDEX NAME="componentlink" UNIQUE="true" FIELDS="component, itemtype, itemid, contextid"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="lti_placement_type" COMMENT="Stores all registered placement types.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="type" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Frankenstyle component name"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="type" TYPE="unique" FIELDS="type"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="component" UNIQUE="false" FIELDS="component"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="lti_placement" COMMENT="A placement represents a place a tool can be used and is, at its core, a mapping between lti_types and lti_placement_type.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="toolid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The tool owning the placement."/>
+        <FIELD NAME="placementtypeid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="The placement type id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="toolid" TYPE="foreign" FIELDS="toolid" REFTABLE="lti_types" REFFIELDS="id"/>
+        <KEY NAME="placementtypeid" TYPE="foreign" FIELDS="placementtypeid" REFTABLE="lti_placement_type" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="lti_placement_config" COMMENT="A key:value store for any placement-specific configuration">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="placementid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="placementid" TYPE="foreign" FIELDS="placementid" REFTABLE="lti_placement" REFFIELDS="id"/>
+        <KEY NAME="placementidname" TYPE="unique" FIELDS="placementid, name"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="lti_placement_status" COMMENT="Context-specific status of the placement, for example enabled/disabled at course context.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="placementid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="placementid" TYPE="foreign" FIELDS="placementid" REFTABLE="lti_placement" REFFIELDS="id"/>
+        <KEY NAME="contextid" TYPE="foreign" FIELDS="contextid" REFTABLE="context" REFFIELDS="id"/>
+        <KEY NAME="placementcontext" TYPE="unique" FIELDS="placementid, contextid"/>
+      </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>
