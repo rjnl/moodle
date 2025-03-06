@@ -140,8 +140,9 @@ function xmldb_lti_upgrade($oldversion) {
         // Normally, they'd be loaded after plugin upgrade. Here, they're needed by lti_migration_upgrade_helper.
         \core_ltix\local\placement\placements_manager::update_placement_types('mod_lti');
 
-        $migrationhelper = new lti_migration_upgrade_helper();
+        $migrationhelper = new \mod_lti\lti_migration_upgrade_helper();
         $migrationhelper->create_default_placements();
+        $migrationhelper->create_resource_links();
 
         // Lti savepoint reached.
         upgrade_mod_savepoint(true, 2026061001, 'lti');
