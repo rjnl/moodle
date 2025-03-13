@@ -342,7 +342,7 @@ final class upgradelib_test extends \advanced_testcase {
         $this->resetAfterTest();
         global $DB;
 
-        /** @var mod_lti_generator $ltigenerator */
+        /** @var \mod_lti_generator $ltigenerator */
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
 
         $course1 = $this->getDataGenerator()->create_course();
@@ -388,8 +388,15 @@ final class upgradelib_test extends \advanced_testcase {
         $manuallyconfigureinstance = $ltigenerator->create_instance([
             'course' => $course1->id,
             'toolurl' => 'https://example3.com/launch',
-            'typeid' => null,
+            'typeid' => null, // NOTE: This results in a '0' in the typeid column.
         ]);
+
+        // Instance where typeid = null, which can occur during restore when a tool is not included and can't be linked.
+        $simulatedrestore = $ltigenerator->create_instance([
+            'course' => $course1->id,
+            'toolurl' => 'https://example3.com/launch',
+        ]);
+        $DB->set_field('lti', 'typeid', null, ['id' => $simulatedrestore->id]); // This results in a 'null' in typeid column.
 
         // The ids of all lti instances.
         $instanceids = [
@@ -397,6 +404,7 @@ final class upgradelib_test extends \advanced_testcase {
             $tool1instance2->id,
             $tool2instance->id,
             $manuallyconfigureinstance->id,
+            $simulatedrestore->id,
         ];
 
         // Create the links, verifying that a link is created for each lti instance, and has the same id.
@@ -404,6 +412,7 @@ final class upgradelib_test extends \advanced_testcase {
         $migrationhelper->create_resource_links();
 
         $links = $DB->get_records('lti_resource_link');
+        sort($links);
         $linkids = array_column($links, 'id');
         $this->assertEquals($instanceids, $linkids);
 
