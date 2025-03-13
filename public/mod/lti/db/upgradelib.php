@@ -173,13 +173,16 @@ class lti_migration_upgrade_helper {
      */
     public function create_resource_links(): void {
         global $DB;
-        // Note: existing lti links can have typeid = null under the following circumstances:
-        // a) the link is a legacy, manually-configured instance.
-        // b) the link has been restored, cross-site, where the tool was not restored (site tools aren't).
-        // All lti records will have a corresponding lti_resource_link record created for them.
+        // All lti records need to have a corresponding lti_resource_link record created for them.
+        // Note: existing lti links can have typeid = null or typeid = 0, depending on the circumstance:
+        // a) If the link is a legacy, manually-configured instance, typeid = 0.
+        // b) if the link has been restored, cross-site, where the tool was not restored (site tools aren't), typeid = null.
+        // All links created here will map BOTH nulls and 0s to 0, denoting a link that isn't directly associated with a tool.
         $sql = "INSERT INTO {lti_resource_link} (id, typeid, component, itemtype, itemid, contextid, url, title, text,
                              textformat, gradable, launchcontainer, customparams, icon, servicesalt)
-                     SELECT lti.id, lti.typeid, :component, :itemtype, cm.id, ctx.id, lti.toolurl, lti.name, lti.intro,
+                     SELECT lti.id,
+                            (CASE WHEN lti.typeid IS NULL THEN 0 ELSE lti.typeid END) AS typeid,
+                            :component, :itemtype, cm.id, ctx.id, lti.toolurl, lti.name, lti.intro,
                             lti.introformat, :gradable, lti.launchcontainer, lti.instructorcustomparameters, lti.icon,
                             lti.servicesalt
                        FROM {lti} lti
