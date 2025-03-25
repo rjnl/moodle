@@ -407,6 +407,10 @@ final class upgradelib_test extends \advanced_testcase {
             $simulatedrestore->id,
         ];
 
+        // Delete all existing resource links created as part of instance creation code,
+        // to simulate legacy instances which do not have these links.
+        $DB->delete_records('lti_resource_link');
+
         // Create the links, verifying that a link is created for each lti instance, and has the same id.
         $migrationhelper = new lti_migration_upgrade_helper();
         $migrationhelper->create_resource_links();

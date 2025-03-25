@@ -25,6 +25,8 @@
  */
 namespace mod_lti;
 
+use core_ltix\local\lticore\models\resource_link;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -89,6 +91,14 @@ final class lib_test extends \advanced_testcase {
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(1, $completiondata->completionstate);
 
+        // Verify LTI links removed.
+        $ltiresourcelink = resource_link::get_record([
+            'itemid' => $lti->id,
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement'
+        ]);
+        $this->assertNotEquals(null, $ltiresourcelink->to_record());
+
     }
 
     /**
@@ -104,6 +114,14 @@ final class lib_test extends \advanced_testcase {
 
         // Must not throw notices.
         \core_courseformat\formatactions::cm($course->id)->delete($cm->id);
+
+        // Verify LTI links removed.
+        $ltiresourcelink = resource_link::get_record([
+            'itemid' => $lti->id,
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement'
+        ]);
+        $this->assertEquals(null, $ltiresourcelink);
     }
 
     public function test_lti_core_calendar_provide_event_action(): void {
