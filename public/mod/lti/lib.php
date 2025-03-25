@@ -46,6 +46,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_ltix\local\lticore\models\resource_link;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once(__DIR__ . '/deprecatedlib.php');
@@ -125,6 +127,26 @@ function lti_add_instance($lti, $mform) {
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
+    $ltiresourcelink = [
+        'typeid' => $lti->typeid,
+        'component' => 'mod_lti',
+        'itemtype' => 'mod_lti:activityplacement',
+        'itemid' => $lti->id,
+        'contextid' => $lti->coursemodule,
+        'url' => $lti->toolurl,
+        'title' => $lti->name,
+        'text' => $lti->intro,
+        'textformat' => $lti->introformat,
+        'gradable' => $lti->instructorchoiceacceptgrades,
+        'servicesalt' => $lti->servicesalt,
+        ...(isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
+        ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
+        ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
+    ];
+
+    $rl = new resource_link(0, (object) $ltiresourcelink);
+    $rl->save();
+
     return $lti->id;
 }
 
@@ -177,6 +199,31 @@ function lti_update_instance($lti, $mform) {
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
+    $rl = new resource_link();
+    $ltiresourcelink = $rl->get_record(['itemid' => $lti->id, 'component' => 'mod_lti', 'itemtype' => 'mod_lti:activityplacement']);
+
+    $ltiresourcelinkformvalues = [
+        'typeid' => $lti->typeid,
+        'component' => 'mod_lti',
+        'itemtype' => 'mod_lti:activityplacement',
+        'itemid' => $lti->id,
+        'contextid' => $lti->coursemodule,
+        'url' => $lti->toolurl,
+        'title' => $lti->name,
+        'text' => $lti->intro,
+        'textformat' => $lti->introformat,
+        'gradable' => $lti->instructorchoiceacceptgrades,
+        'servicesalt' => $lti->servicesalt,
+        ...(!isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
+        ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
+        ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
+    ];
+
+    foreach ($ltiresourcelinkformvalues as $name => $value) {
+        $ltiresourcelink->set($name, $value);
+    }
+    $ltiresourcelink->update();
+
     return $DB->update_record('lti', $lti);
 }
 
@@ -216,6 +263,9 @@ function lti_delete_instance($id) {
         foreach ($services as $service) {
             $service->instance_deleted( $id );
         }
+        $rl = new resource_link();
+        $ltiresourcelink = $rl->get_record(['itemid' => $id, 'component' => 'mod_lti', 'itemtype' => 'mod_lti:activityplacement']);
+        $ltiresourcelink->delete();
         return true;
     }
     return false;
