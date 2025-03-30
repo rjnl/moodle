@@ -17,6 +17,7 @@
 namespace core_ltix\local\placement;
 
 use core\context;
+use core_ltix\local\placement\contentitemformatter\content_item_data_formatter;
 
 /**
  * Abstract class modelling deep linking placements.
@@ -32,5 +33,18 @@ abstract class deeplinking_placement_handler implements placement_handler {
      * @param context $context The context.
      */
     public function content_item_selection_capabilities(context $context): void {
+    }
+
+    /**
+     * Returns the content item data formatter, if one is available.
+     *
+     * This method returns a custom content item data formatter that may be implemented by a placement.
+     * The custom formatter is responsible for formatting the content item data returned by the tool.
+     *
+     * @return content_item_data_formatter|null Returns an instance of a `content_item_data_formatter` if a custom
+     *                                          formatter is available, or `null` if no formatter is provided.
+     */
+    public static function get_content_item_data_formatter(): ?content_item_data_formatter {
+        return null;
     }
 }
