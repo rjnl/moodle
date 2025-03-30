@@ -55,11 +55,13 @@ $placementinstance->content_item_selection_capabilities($context);
 // Currently, the expected context is always course due to the lack flexibility of the methods that are used for constructing
 // the login or the content item selection request. This should be improved once these calls are replaced by the builder API.
 
+$messagetype = 'ContentItemSelectionRequest';
 $config = \core_ltix\helper::get_type_type_config($id);
+
 if ($config->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
     if (!isset($SESSION->lti_initiatelogin_status)) {
         echo \core_ltix\helper::initiate_login($context->get_course_context()->instanceid, 0, null, $config,
-            'ContentItemSelectionRequest', $title, $text);
+            $messagetype, $placementtype, $title, $text);
         exit;
     } else {
         unset($SESSION->lti_initiatelogin_status);
@@ -68,14 +70,22 @@ if ($config->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
 
 // Set the return URL. We send the launch container along to help us avoid frames-within-frames when the user returns.
 $returnurlparams = [
-    'contextid' => $course->get_context()->id,
+    'contextid' => $contextid,
     'id' => $id,
     'sesskey' => sesskey()
 ];
 $returnurl = new \moodle_url('/ltix/contentitem_return.php', $returnurlparams);
 
+// Set a unique launch ID session variable to store parameters used during the LTI 1.1 ContentItemSelection process.
+// A similar approach is followed for LTI 1.3 ContentItemSelection, but the session variable is set while building
+// the login request.
+$launchid = "ltilaunch_$messagetype" . rand();
+$SESSION->$launchid = "{$context->get_course_context()->instanceid},{$config->typeid},,{$messagetype},0," .
+    base64_encode($title) . ',' . base64_encode($text) . ",{$placementtype}";
+
 // Prepare the request.
-$request = \core_ltix\helper::build_content_item_selection_request($id, $course, $returnurl, $title, $text, [], []);
+$request = \core_ltix\helper::build_content_item_selection_request($id, $course, $returnurl, $launchid, $title, $text,
+    [], []);
 
 // Get the launch HTML.
 $content = \core_ltix\helper::post_launch_html($request->params, $request->url, false);
