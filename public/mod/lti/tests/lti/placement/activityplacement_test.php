@@ -63,4 +63,19 @@ final class activityplacement_test extends \advanced_testcase {
         $this->expectException(\Exception::class);
         $placementinstance->content_item_selection_capabilities($context);
     }
+
+
+    /**
+     * Confirm that the placement instance returns the correct content item data formatter.
+     *
+     * @return void
+     */
+    public function test_get_content_item_data_formatter(): void {
+        $this->resetAfterTest();
+        $placementinstance = placements_manager::get_instance()->get_deeplinking_placement_instance('mod_lti:activityplacement');
+        // Ensure the correct content item data formatter object is returned.
+        $result = $placementinstance->get_content_item_data_formatter();
+        $this->assertInstanceOf(\mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter::class,
+            $result);
+    }
 }
