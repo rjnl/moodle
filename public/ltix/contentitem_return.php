@@ -57,14 +57,16 @@ if (!empty($jwt)) {
     $consumerkey = $params['oauth_consumer_key'] ?? '';
     $messagetype = $params['lti_message_type'] ?? '';
     $version = $params['lti_version'] ?? '';
-    $items = $params['content_items'] ?? '';
+    $data = $params['data'] ?? '';
+    $contentitemsjson = $params['content_items'] ?? '';
     $errormsg = $params['lti_errormsg'] ?? '';
     $msg = $params['lti_msg'] ?? '';
 } else {
     $consumerkey = required_param('oauth_consumer_key', PARAM_RAW);
     $messagetype = required_param('lti_message_type', PARAM_TEXT);
     $version = required_param('lti_version', PARAM_TEXT);
-    $items = optional_param('content_items', '', PARAM_RAW);
+    $data = optional_param('data', '',PARAM_RAW);
+    $contentitemsjson = optional_param('content_items', '', PARAM_RAW);
     $errormsg = optional_param('lti_errormsg', '', PARAM_TEXT);
     $msg = optional_param('lti_msg', '', PARAM_TEXT);
     \core_ltix\oauth_helper::verify_oauth_signature($id, $consumerkey);
@@ -76,7 +78,8 @@ if ($context instanceof context_course) {
     require_login($course);
 } else if ($context instanceof context_module) {
     $cm = get_coursemodule_from_id('', $context->instanceid, 0, false, MUST_EXIST);
-    require_login(null, true, $cm, true, true);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    require_login($course, true, $cm, true, true);
 } else {
     require_login();
 }
@@ -87,10 +90,55 @@ require_sesskey();
 
 $redirecturl = null;
 $returndata = null;
-if (empty($errormsg) && !empty($items)) {
+if (empty($errormsg) && !empty($contentitemsjson)) {
     try {
-        $returndata = \core_ltix\helper::tool_configuration_from_content_item($id, $messagetype, $version, $consumerkey,
-            $items);
+        $tool = \core_ltix\helper::get_type($id);
+        // Validate parameters.
+        if (!$tool) {
+            throw new \moodle_exception('errortooltypenotfound', 'core_ltix');
+        }
+        // Check lti_message_type. Show debugging if it's not set to ContentItemSelection.
+        // No need to throw exceptions for now since lti_message_type does not seem to be used in this processing at the moment.
+        if ($messagetype !== 'ContentItemSelection') {
+            debugging("lti_message_type is invalid: {$messagetype}. It should be set to 'ContentItemSelection'.",
+                DEBUG_DEVELOPER);
+        }
+        // Check LTI versions from our side and the response's side. Show debugging if they don't match.
+        // No need to throw exceptions for now since LTI version does not seem to be used in this processing at the moment.
+        $expectedversion = $tool->ltiversion;
+
+        if ($version !== $expectedversion) {
+            debugging("lti_version from response does not match the tool's configuration. Tool: {$expectedversion}," .
+                " Response: {$version}", DEBUG_DEVELOPER);
+        }
+
+        $contentitems = json_decode($contentitemsjson);
+        // Check if the content items return data is empty or invalid after decoding.
+        if (empty($contentitems)) {
+            throw new \moodle_exception('errorinvaliddata', 'core_ltix', '', $contentitemsjson);
+        }
+        // Extract and validate the '@graph' property that contains the content items.
+        $contentitems = $contentitems->{'@graph'};
+
+        if (!isset($contentitems) || !is_array($contentitems)) {
+            throw new \moodle_exception('errorinvalidresponseformat', 'core_ltix');
+        }
+
+        $returndata = (object) $contentitems;
+        $launchid = json_decode($data)->launchid ?? '';
+
+        if ($placementtype = explode(',', $SESSION->$launchid)[7]) {
+            unset($SESSION->$launchid);
+            // Get the relevant deep-linking placement instance, based on the received placement type.
+            $placementinstance = \core_ltix\local\placement\placements_manager::get_instance()
+                ->get_deeplinking_placement_instance($placementtype);
+            // Check if the deep-linking placement instance defines a custom formatting logic for the returned content
+            // item data. If a custom formatter is provided, apply it to the content items before passing the data to
+            // the JS module. Otherwise, pass the content item data as-is in their original form.
+            if ($contentitemformatter = $placementinstance::get_content_item_data_formatter()) {
+                $returndata = $contentitemformatter->format($contentitems, $tool);
+            }
+        }
     } catch (moodle_exception $e) {
         $errormsg = $e->getMessage();
     }

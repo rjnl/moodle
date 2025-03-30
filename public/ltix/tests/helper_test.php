@@ -1098,7 +1098,7 @@ final class helper_test extends lti_testcase {
         // Should throw coding_exception on non-array media types.
         $mediatypes = 'image/*,video/*';
         $this->expectException('coding_exception');
-        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', $mediatypes);
+        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', '', $mediatypes);
     }
 
     /**
@@ -1126,7 +1126,7 @@ final class helper_test extends lti_testcase {
         // Should throw coding_exception on non-array presentation targets.
         $targets = 'frame,iframe';
         $this->expectException('coding_exception');
-        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', [], $targets);
+        helper::build_content_item_selection_request($typeid, $course, $returnurl, '', '', '', [], $targets);
     }
 
     /**

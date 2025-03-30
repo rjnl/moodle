@@ -691,7 +691,20 @@ class oauth_helper {
         if ($ok) {
             self::verify_jwt_signature($typeid, $claims['iss'], $jwtparam);
             $params['oauth_consumer_key'] = $claims['iss'];
-            foreach (self::get_jwt_claim_mapping() as $key => $mapping) {
+            // Override the claim mapping for the 'data' claim, since it maps to a different claim in the response JWT.
+            $inboundclaimmap = array_merge(
+                self::get_jwt_claim_mapping(),
+                [
+                    'data' => [
+                        'suffix' => 'dl',
+                        'group' => '',
+                        'claim' => 'data',
+                        'isarray' => false
+                    ],
+                ]
+            );
+
+            foreach ($inboundclaimmap as $key => $mapping) {
                 $claim = \core_ltix\constants::LTI_JWT_CLAIM_PREFIX;
                 if (!empty($mapping['suffix'])) {
                     $claim .= "-{$mapping['suffix']}";
@@ -747,6 +760,7 @@ class oauth_helper {
                 }
             }
         }
+
         if (isset($params['content_items'])) {
             $params['content_items'] = helper::convert_content_items($params['content_items']);
         }

@@ -2603,9 +2603,10 @@ class helper {
      * @param stdClass $course The course object.
      * @param moodle_url $returnurl The return URL in the tool consumer (TC) that the tool provider (TP)
      *                              will use to return the Content-Item message.
+     * @param string $launchid The unique launchid identifier that is stored as a session variable.
      * @param string $title The tool's title, if available.
      * @param string $text The text to display to represent the content item. This value may be a long description of the content item.
-     * @param array $mediatypes Array of MIME types types supported by the TC. If empty, the TC will support ltilink by default.
+     * @param array $mediatypes Array of MIME types supported by the TC. If empty, the TC will support ltilink by default.
      * @param array $presentationtargets Array of ways in which the selected content item(s) can be requested to be opened
      *                                   (via the presentationDocumentTarget element for a returned content item).
      *                                   If empty, "frame", "iframe", and "window" will be supported by default.
@@ -2622,9 +2623,9 @@ class helper {
      * @throws moodle_exception When the LTI tool type does not exist.`
      * @throws coding_exception For invalid media type and presentation target parameters.
      */
-    public static function build_content_item_selection_request($id, $course, moodle_url $returnurl, $title = '', $text = '', $mediatypes = [],
-                                                    $presentationtargets = [], $autocreate = false, $multiple = true,
-                                                    $unsigned = false, $canconfirm = false, $copyadvice = false, $nonce = '') {
+    public static function build_content_item_selection_request($id, $course, moodle_url $returnurl, $launchid = '',
+            $title = '', $text = '', $mediatypes = [], $presentationtargets = [], $autocreate = false, $multiple = true,
+            $unsigned = false, $canconfirm = false, $copyadvice = false, $nonce = '') {
         global $USER;
 
         $tool = self::get_type($id);
@@ -2775,6 +2776,8 @@ class helper {
         $requestparams['content_item_return_url'] = $returnurl->out(false);
         $requestparams['title'] = $title;
         $requestparams['text'] = $text;
+        $requestparams['data'] = json_encode(['launchid' => $launchid]);
+
         if (!$islti13) {
             $signedparams = \core_ltix\oauth_helper::sign_parameters($requestparams, $toolurlout, 'POST', $key, $secret);
         } else {
@@ -3241,16 +3244,18 @@ class helper {
      * @param stdClass|null  $instance  LTI instance
      * @param stdClass       $config    Tool type configuration
      * @param string         $messagetype   LTI message type
+     * @param string         $placementtype The placement type string. e.g. 'mod_lti:activityplacement'.
      * @param string         $title     Title of content item
      * @param string         $text      Description of content item
      * @param int            $foruserid Id of the user targeted by the launch
      * @return string
      */
     public static function initiate_login($courseid, $cmid, $instance, $config, $messagetype = 'basic-lti-launch-request',
-            $title = '', $text = '', $foruserid = 0) {
+            $placementtype = '', $title = '', $text = '', $foruserid = 0) {
         global $SESSION;
 
-        $params = self::build_login_request($courseid, $cmid, $instance, $config, $messagetype, $foruserid, $title, $text);
+        $params = self::build_login_request($courseid, $cmid, $instance, $config, $messagetype, $placementtype, $foruserid,
+            $title, $text);
 
         $r = "<form action=\"" . $config->lti_initiatelogin .
             "\" name=\"ltiInitiateLoginForm\" id=\"ltiInitiateLoginForm\" method=\"post\" " .
@@ -3280,27 +3285,29 @@ class helper {
      * @param stdClass|null  $instance  LTI instance
      * @param stdClass       $config    Tool type configuration
      * @param string         $messagetype   LTI message type
+     * @param string         $placementtype The placement type string. e.g. 'mod_lti:activityplacement'.
      * @param int            $foruserid Id of the user targeted by the launch
      * @param string         $title     Title of content item
      * @param string         $text      Description of content item
      * @return array Login request parameters
      */
-    public static function build_login_request($courseid, $cmid, $instance, $config, $messagetype, $foruserid=0, $title = '', $text = '') {
+    public static function build_login_request($courseid, $cmid, $instance, $config, $messagetype, $placementtype = '',
+            $foruserid = 0, $title = '', $text = '') {
         global $USER, $CFG, $SESSION;
         $ltihint = [];
         if (!empty($instance)) {
             $endpoint = !empty($instance->toolurl) ? $instance->toolurl : $config->lti_toolurl;
             $launchid = 'ltilaunch'.$instance->id.'_'.rand();
             $ltihint['cmid'] = $cmid;
-            $SESSION->$launchid = "{$courseid},{$config->typeid},{$cmid},{$messagetype},{$foruserid},,";
+            $SESSION->$launchid = "{$courseid},{$config->typeid},{$cmid},{$messagetype},{$foruserid},,,{$placementtype}";
         } else {
             $endpoint = $config->lti_toolurl;
             if (($messagetype === 'ContentItemSelectionRequest') && !empty($config->lti_toolurl_ContentItemSelectionRequest)) {
                 $endpoint = $config->lti_toolurl_ContentItemSelectionRequest;
             }
             $launchid = "ltilaunch_$messagetype".rand();
-            $SESSION->$launchid =
-                "{$courseid},{$config->typeid},,{$messagetype},{$foruserid}," . base64_encode($title) . ',' . base64_encode($text);
+            $SESSION->$launchid = "{$courseid},{$config->typeid},,{$messagetype},{$foruserid}," .
+                base64_encode($title) . ',' . base64_encode($text) . ",{$placementtype}";
         }
         $endpoint = trim($endpoint);
         $services = self::get_services();
@@ -3887,8 +3894,8 @@ class helper {
         }
         if ($ok) {
             $launchid = $ltimessagehint->launchid;
-            list($courseid, $typeid, $id, $messagetype, $foruserid, $titleb64, $textb64) = explode(',', $SESSION->$launchid, 7);
-            unset($SESSION->$launchid);
+            list($courseid, $typeid, $id, $messagetype, $foruserid, $titleb64, $textb64) =
+                explode(',', $SESSION->$launchid);
             $config = self::get_type_type_config($typeid);
             $ok = ($clientid === $config->lti_clientid);
             if (!$ok) {
@@ -3951,8 +3958,8 @@ class helper {
                 // Prepare the request.
                 $title = base64_decode($titleb64);
                 $text = base64_decode($textb64);
-                $request = self::build_content_item_selection_request($typeid, $course, $returnurl, $title, $text,
-                    [], [], false, true, false, false, false, $nonce);
+                $request = self::build_content_item_selection_request($typeid, $course, $returnurl, $launchid, $title,
+                    $text, [], [], false, true, false, false, false, $nonce);
                 $endpoint = $request->url;
                 $params = $request->params;
             }
