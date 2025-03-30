@@ -17,7 +17,9 @@
 namespace mod_lti\lti\placement;
 
 use core\context;
+use core_ltix\local\placement\contentitemformatter\content_item_data_formatter;
 use core_ltix\local\placement\deeplinking_placement_handler;
+use mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter;
 
 /**
  * Deep linking placement handler.
@@ -34,5 +36,10 @@ class activityplacement extends deeplinking_placement_handler {
 
     public function content_item_selection_capabilities(context $context): void {
         require_capability('moodle/course:manageactivities', $context);
+    }
+
+    #[\Override]
+    public static function get_content_item_data_formatter(): content_item_data_formatter {
+        return new content_item_to_form_formatter();
     }
 }
