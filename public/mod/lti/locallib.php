@@ -417,10 +417,107 @@ function params_to_string(object $params) {
  * @return stdClass Form config for the item
  */
 function content_item_to_form(object $tool, object $typeconfig, object $item): stdClass {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::content_item_to_form() instead.',
+    global $OUTPUT;
+
+    debugging(__FUNCTION__ . '() is deprecated with no direct replacement. This logic has been moved to the
+        custom formatter \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter.',
         DEBUG_DEVELOPER);
 
-    return \core_ltix\helper::content_item_to_form($tool, $typeconfig, $item);
+    $config = new stdClass();
+    $config->name = '';
+    if (isset($item->title)) {
+        $config->name = $item->title;
+    }
+    if (empty($config->name)) {
+        $config->name = $tool->name;
+    }
+    if (isset($item->text)) {
+        $config->introeditor = [
+            'text' => $item->text,
+            'format' => FORMAT_PLAIN
+        ];
+    } else {
+        $config->introeditor = [
+            'text' => '',
+            'format' => FORMAT_PLAIN
+        ];
+    }
+    if (isset($item->icon->{'@id'})) {
+        $iconurl = new moodle_url($item->icon->{'@id'});
+        // Assign item's icon URL to secureicon or icon depending on its scheme.
+        if (strtolower($iconurl->get_scheme()) === 'https') {
+            $config->secureicon = $iconurl->out(false);
+        } else {
+            $config->icon = $iconurl->out(false);
+        }
+    }
+    if (isset($item->url)) {
+        $url = new moodle_url($item->url);
+        $config->toolurl = $url->out(false);
+        $config->typeid = 0;
+    } else {
+        $config->typeid = $tool->id;
+    }
+    $config->instructorchoiceacceptgrades = \core_ltix\constants::LTI_SETTING_NEVER;
+    $islti2 = $tool->ltiversion === \core_ltix\constants::LTI_VERSION_2;
+    if (!$islti2 && isset($typeconfig->lti_acceptgrades)) {
+        $acceptgrades = $typeconfig->lti_acceptgrades;
+        if ($acceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
+            // We create a line item regardless if the definition contains one or not.
+            $config->instructorchoiceacceptgrades = \core_ltix\constants::LTI_SETTING_ALWAYS;
+            $config->grade_modgrade_point = 100;
+        }
+        if ($acceptgrades == \core_ltix\constants::LTI_SETTING_DELEGATE || $acceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
+            if (isset($item->lineItem)) {
+                $lineitem = $item->lineItem;
+                $config->instructorchoiceacceptgrades = \core_ltix\constants::LTI_SETTING_ALWAYS;
+                $maxscore = 100;
+                if (isset($lineitem->scoreConstraints)) {
+                    $sc = $lineitem->scoreConstraints;
+                    if (isset($sc->totalMaximum)) {
+                        $maxscore = $sc->totalMaximum;
+                    } else if (isset($sc->normalMaximum)) {
+                        $maxscore = $sc->normalMaximum;
+                    }
+                }
+                $config->grade_modgrade_point = $maxscore;
+                $config->lineitemresourceid = '';
+                $config->lineitemtag = '';
+                $config->lineitemsubreviewurl = '';
+                $config->lineitemsubreviewparams = '';
+                if (isset($lineitem->assignedActivity) && isset($lineitem->assignedActivity->activityId)) {
+                    $config->lineitemresourceid = $lineitem->assignedActivity->activityId?:'';
+                }
+                if (isset($lineitem->tag)) {
+                    $config->lineitemtag = $lineitem->tag?:'';
+                }
+                if (isset($lineitem->submissionReview)) {
+                    $subreview = $lineitem->submissionReview;
+                    $config->lineitemsubreviewurl = 'DEFAULT';
+                    if (!empty($subreview->url)) {
+                        $config->lineitemsubreviewurl = $subreview->url;
+                    }
+                    if (isset($subreview->custom)) {
+                        $config->lineitemsubreviewparams = params_to_string($subreview->custom);
+                    }
+                }
+            }
+        }
+    }
+    $config->instructorchoicesendname = \core_ltix\constants::LTI_SETTING_NEVER;
+    $config->instructorchoicesendemailaddr = \core_ltix\constants::LTI_SETTING_NEVER;
+
+    // Since 4.3, the launch container is dictated by the value set in tool configuration and isn't controllable by content items.
+    $config->launchcontainer = \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT;
+
+    if (isset($item->custom)) {
+        $config->instructorcustomparameters = params_to_string($item->custom);
+    }
+
+    // Pass an indicator to the relevant form field.
+    $config->selectcontentindicator = $OUTPUT->pix_icon('i/valid', get_string('yes')) . get_string('contentselected', 'mod_lti');
+
+    return $config;
 }
 
 /**
@@ -438,11 +535,44 @@ function content_item_to_form(object $tool, object $typeconfig, object $item): s
  * @throws lti\OAuthException
  */
 function lti_tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey, $contentitemsjson) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::tool_configuration_from_content_item() instead.',
-        DEBUG_DEVELOPER);
+    debugging(__FUNCTION__ . '() is deprecated. Please use ' .
+        '\mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter instead.', DEBUG_DEVELOPER);
 
-    return \core_ltix\helper::tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey,
-        $contentitemsjson);
+    $tool = \core_ltix\helper::get_type($typeid);
+    // Validate parameters.
+    if (!$tool) {
+        throw new moodle_exception('errortooltypenotfound', 'core_ltix');
+    }
+    // Check lti_message_type. Show debugging if it's not set to ContentItemSelection.
+    // No need to throw exceptions for now since lti_message_type does not seem to be used in this processing at the moment.
+    if ($messagetype !== 'ContentItemSelection') {
+        debugging("lti_message_type is invalid: {$messagetype}. It should be set to 'ContentItemSelection'.",
+            DEBUG_DEVELOPER);
+    }
+    // Check LTI versions from our side and the response's side. Show debugging if they don't match.
+    // No need to throw exceptions for now since LTI version does not seem to be used in this processing at the moment.
+    $expectedversion = $tool->ltiversion;
+    if ($ltiversion !== $expectedversion) {
+        debugging("lti_version from response does not match the tool's configuration. Tool: {$expectedversion}," .
+            " Response: {$ltiversion}", DEBUG_DEVELOPER);
+    }
+
+    $items = json_decode($contentitemsjson);
+    if (empty($items)) {
+        throw new moodle_exception('errorinvaliddata', 'core_ltix', '', $contentitemsjson);
+    }
+    if (!isset($items->{'@graph'}) || !is_array($items->{'@graph'})) {
+        throw new moodle_exception('errorinvalidresponseformat', 'core_ltix');
+    }
+
+    $config = null;
+    $items = $items->{'@graph'};
+    if (!empty($items)) {
+        $contentitemformatter = new \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter();
+        $config = $contentitemformatter->format($items, $tool);
+    }
+
+    return $config;
 }
 
 /**

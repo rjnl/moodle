@@ -1544,10 +1544,10 @@ MwIDAQAB
         $json11 = helper::convert_content_items($contentitemsjson13);
 
         $config = lti_tool_configuration_from_content_item($typeid,
-                                                                          'ContentItemSelection',
-                                                                          $type->ltiversion,
-                                                                          'ConsumerKey',
-                                                                          $json11);
+            'ContentItemSelection',
+            $type->ltiversion,
+            'ConsumerKey',
+            $json11);
         $this->assertDebuggingCalled();
 
         $this->assertEquals($contentitems[0]['url'], $config->toolurl);
@@ -1594,10 +1594,10 @@ MwIDAQAB
         $json11 = helper::convert_content_items($contentitemsjson13);
 
         $config = lti_tool_configuration_from_content_item($typeid,
-                                                                          'ContentItemSelection',
-                                                                          $type->ltiversion,
-                                                                          'ConsumerKey',
-                                                                          $json11);
+            'ContentItemSelection',
+            $type->ltiversion,
+            'ConsumerKey',
+            $json11);
         $this->assertDebuggingCalled();
 
         $this->assertEquals('DEFAULT', $config->lineitemsubreviewurl);
@@ -1637,10 +1637,10 @@ MwIDAQAB
         $json11 = helper::convert_content_items($contentitemsjson13);
 
         $config = lti_tool_configuration_from_content_item($typeid,
-                                                                          'ContentItemSelection',
-                                                                          $type->ltiversion,
-                                                                          'ConsumerKey',
-                                                                          $json11);
+            'ContentItemSelection',
+            $type->ltiversion,
+            'ConsumerKey',
+            $json11);
         $this->assertDebuggingCalled();
 
         $this->assertEquals($contentitems[0]['url'], $config->toolurl);
@@ -1697,10 +1697,10 @@ MwIDAQAB
         $json11 = helper::convert_content_items($contentitemsjson13);
 
         $config = lti_tool_configuration_from_content_item($typeid,
-                                                                          'ContentItemSelection',
-                                                                           $type->ltiversion,
-                                                                           'ConsumerKey',
-                                                                           $json11);
+            'ContentItemSelection',
+            $type->ltiversion,
+            'ConsumerKey',
+            $json11);
         $this->assertDebuggingCalled();
         $this->assertNotNull($config->multiple);
         $this->assertEquals(2, count( $config->multiple ));
@@ -1745,10 +1745,10 @@ MwIDAQAB
         $json11 = helper::convert_content_items($contentitemsjson13);
 
         $config = lti_tool_configuration_from_content_item($typeid,
-                                                                         'ContentItemSelection',
-                                                                         $type->ltiversion,
-                                                                         'ConsumerKey',
-                                                                         $json11);
+            'ContentItemSelection',
+            $type->ltiversion,
+            'ConsumerKey',
+            $json11);
         $this->assertDebuggingCalled();
         $this->assertEquals($contentitems[0]['title'], $config->name);
         $this->assertEquals($contentitems[0]['text'], $config->introeditor['text']);
