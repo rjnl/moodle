@@ -105,6 +105,12 @@ final class placements_manager {
      * @return array the array of placement types.
      */
     private static function load_placement_types(string $component): array {
+        $componentparts = \core_component::normalize_component($component);
+        if (\core_component::is_plugintype_in_deprecation($componentparts[0])) {
+            debugging("Skipping LTI placement type loading for component '$component'. This component is in deprecation.");
+            return [];
+        }
+
         $filepath = \core\component::get_component_directory($component).'/db/lti.php';
 
         $placementtypes = [];

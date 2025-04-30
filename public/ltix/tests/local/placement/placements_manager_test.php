@@ -42,7 +42,7 @@ final class placements_manager_test extends \advanced_testcase {
 
         // Using a fake plugin mock, verify the lti placement types are registered.
         // See: lib/tests/fixtures/fakeplugins/fake/fullfeatured/db/lti.php, where placementtypes + handlers are defined.
-        $this->add_mocked_plugintype('fake', "{$CFG->dirroot}/lib/tests/fixtures/fakeplugins/fake", true);
+        $this->add_mocked_plugintype('fake', "{$CFG->dirroot}/lib/tests/fixtures/fakeplugins/fake");
         $this->add_mocked_plugin('fake', 'fullfeatured', "{$CFG->dirroot}/lib/tests/fixtures/fakeplugins/fake/fullfeatured");
 
         placements_manager::update_placement_types('fake_fullfeatured');
@@ -70,6 +70,27 @@ final class placements_manager_test extends \advanced_testcase {
         $this->assertEquals(0, $DB->count_records('lti_placement_type',
             ['component' => 'fake_fullfeatured', 'type' => 'fake_fullfeatured:thisonetobedeleted']));
         $this->assertEquals(0, $DB->count_records('lti_placement', ['toolid' => 101]));
+    }
+
+    /**
+     * Test updating the placementtype strings for a deprecated component, in which case type loading is prevented.
+     *
+     * @runInSeparateProcess
+     * @return void
+     */
+    public function test_update_placement_types_deprecated_component(): void {
+        $this->resetAfterTest();
+        global $CFG, $DB;
+
+        // Using a DEPRECATED fake plugin mock, verify the lti placement types are NOT registered.
+        // See: lib/tests/fixtures/fakeplugins/fake/fullfeatured/db/lti.php, where placementtypes + handlers are defined.
+        $this->add_mocked_plugintype('fake', "{$CFG->dirroot}/lib/tests/fixtures/fakeplugins/fake", true);
+        $this->add_mocked_plugin('fake', 'fullfeatured', "{$CFG->dirroot}/lib/tests/fixtures/fakeplugins/fake/fullfeatured");
+
+        placements_manager::update_placement_types('fake_fullfeatured');
+        $this->assertDebuggingCalled("Skipping LTI placement type loading for component 'fake_fullfeatured'. ".
+            "This component is in deprecation.");
+        $this->assertEquals(0, $DB->count_records('lti_placement_type', ['component' => 'fake_fullfeatured']));
     }
 
     /**
