@@ -22,6 +22,7 @@ use core_ltix\local\ltiopenid\registration_helper;
 use core_ltix\local\ltiopenid\jwks_helper;
 use core_ltix\local\ltiservice\service_helper;
 use core_component;
+use core_ltix\local\placement\placements_manager;
 use core_text;
 use core_useragent;
 use curl;
@@ -1064,6 +1065,57 @@ class helper {
             return false; // Error loading the xml, so it's not a cartridge.
         }
         return false;
+    }
+
+    /**
+     * Get a list of tools having an enabled placement of the given type in the given context.
+     *
+     * Omits placements for tools not available to the context (e.g. excludes placements for hidden tools).
+     *
+     * @param string $placementtype the placement type string
+     * @param int $contextid the context id
+     * @return array the list of placements
+     * @throws \coding_exception if the placement type is invalid.
+     */
+    public static function get_tools_with_enabled_placement_in_context(string $placementtype, int $contextid): array {
+        global $DB;
+
+        if (!placements_manager::is_valid_placement_type_string($placementtype)) {
+            throw new \coding_exception("Invalid placement type. Should be of the form 'component:placementtypename'.");
+        }
+
+        [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
+            [constants::LTI_COURSEVISIBLE_PRECONFIGURED, constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER],
+            SQL_PARAMS_NAMED
+        );
+
+        $sql = <<<EOF
+            SELECT tool.*, pc.value AS defaultusage, ps.status as placementstatus
+              FROM {lti_placement_type} pt
+              JOIN {lti_placement} p ON (pt.id = p.placementtypeid)
+              JOIN {lti_types} tool ON (tool.id = p.toolid)
+         LEFT JOIN {lti_placement_config} pc ON (pc.placementid = p.id AND pc.name = :defaultusageconfigname)
+         LEFT JOIN {lti_placement_status} ps ON (ps.placementid = p.id AND ps.contextid = :contextid)
+             WHERE pt.type = :placementtype
+               AND tool.coursevisible $visiblesql
+        EOF;
+        $params = [
+                'placementtype' => $placementtype,
+                'defaultusageconfigname' => 'default_usage',
+                'contextid' => $contextid,
+            ] + $visibleparams;
+        $results = $DB->get_records_sql($sql, $params);
+
+        return array_filter($results, function ($result) {
+            if (is_null($result->defaultusage)) {
+                throw new \coding_exception("Bad placement config data. Missing config with name 'default_usage' " .
+                    "(supported values: enabled, disabled).");
+            } else if ($result->defaultusage && is_null($result->placementstatus)) {
+                return $result->defaultusage == "enabled";
+            } else {
+                return $result->placementstatus == 1;
+            }
+        });
     }
 
    /**
