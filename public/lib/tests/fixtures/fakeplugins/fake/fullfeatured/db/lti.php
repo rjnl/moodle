@@ -42,4 +42,9 @@ $placementtypes = [
     'fake/fullfeatured_invalidplacementtypestring' => [
         'handler' => \fake_fullfeatured\lti\placement\myfirstplacementtype::class
     ],
+
+    // Invalid component prefix (core_ltix doesn't match the owning component, fake_fullfeatured).
+    'core_ltix:placementtypestring' => [
+        'handler' => \fake_fullfeatured\lti\placement\myfirstplacementtype::class
+    ],
 ];
