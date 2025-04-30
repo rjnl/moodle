@@ -118,13 +118,21 @@ final class placements_manager {
             require($filepath);
         }
 
-        return array_filter($placementtypes, function($placementtypeinfo, $placementtype) {
+        return array_filter($placementtypes, function($placementtypeinfo, $placementtype) use ($component) {
             $validformat = self::is_valid_placement_type_string($placementtype);
             if (!$validformat) {
                 debugging("Invalid placement type name '$placementtype'. Should be of the format: ".
                     "'frankenstyle_component:placementname'. Loading of this placement type has been skipped.");
+                return false;
             }
-            return $validformat;
+
+            if (self::get_component_string_from_placement_type($placementtype) != $component) {
+                debugging("Invalid placement type name '$placementtype' for component '$component'. The component prefix must ".
+                    "match the component providing the placement. Loading of this placement type has been skipped.");
+                return false;
+            }
+
+            return true;
         }, ARRAY_FILTER_USE_BOTH);
     }
 
@@ -153,13 +161,32 @@ final class placements_manager {
     }
 
     /**
-     * Validate a placement type string follows the COMPONENTNAME:PLACEMENTNAME syntax.
+     * Just return the first token in the placement type string.
+     *
+     * No validation done here, so make sure to call something like {@see self::is_valid_placement_type_string()} for that.
+     *
+     * @param string $placementtype the placement type string.
+     * @return string the component portion of the string.
+     */
+    private static function get_component_string_from_placement_type(string $placementtype): string {
+        return explode(':', $placementtype)[0];
+    }
+
+    /**
+     * Validate a placement type string follows the COMPONENTNAME:PLACEMENTNAME syntax and contains a valid component.
      *
      * @param string $placementtype the placement type string.
      * @return bool true if valid, false otherwise.
      */
-    private static function is_valid_placement_type_string(string $placementtype): bool {
-        return preg_match('/^[a-z]+_[a-z_0-9]+:[a-z_0-9]+$/', $placementtype);
+    public static function is_valid_placement_type_string(string $placementtype): bool {
+        if (!preg_match('/^[a-z0-9_]+:[a-z0-9_]+$/', $placementtype)) {
+            return false;
+        }
+
+        return in_array(
+            self::get_component_string_from_placement_type($placementtype),
+            \core_component::get_component_names(includecore: true)
+        );
     }
 
     /**
