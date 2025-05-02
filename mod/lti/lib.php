@@ -334,52 +334,59 @@ function lti_get_course_content_items(\core_course\local\entity\content_item $de
  * @return array the array of content items.
  */
 function mod_lti_get_all_content_items(\core_course\local\entity\content_item $defaultmodulecontentitem): array {
-    global $OUTPUT, $CFG;
-    require_once($CFG->dirroot . '/mod/lti/locallib.php'); // For access to constants.
+    global $OUTPUT, $DB;
 
-    $types = [];
+    [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
+        [\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER],
+        SQL_PARAMS_NAMED
+    );
 
-    foreach (\core_ltix\helper::get_lti_types() as $ltitype) {
-        if ($ltitype->coursevisible != \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER) {
-            continue;
-        }
-        $type           = new stdClass();
-        $type->id       = $ltitype->id;
-        $type->modclass = MOD_CLASS_ACTIVITY;
-        $type->name     = 'lti_type_' . $ltitype->id;
-        // Clean the name. We don't want tags here.
-        $type->title    = clean_param($ltitype->name, PARAM_NOTAGS);
+    $sql = <<<EOF
+            SELECT t.*
+            FROM {lti_types} t
+            JOIN {lti_placement} p ON t.id = p.toolid
+            JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+            LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
+            WHERE t.state = :active
+                AND t.coursevisible $visiblesql
+                AND pc.value = :placementconfigvalue
+        EOF;
+    $params = [
+            'placementtype' => 'mod_lti:activityplacement',
+            'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'placementconfigname' => 'default_usage',
+            'placementconfigvalue' => 'enabled',
+        ] + $visibleparams;
+
+    $tools = $DB->get_records_sql($sql, $params);
+
+    return array_map(function($tool) use ($defaultmodulecontentitem, $OUTPUT) {
+        $title = new \core_course\local\entity\string_title(clean_param($tool->name, PARAM_NOTAGS));
+
         $trimmeddescription = trim($ltitype->description ?? '');
-        $type->help = '';
-        if ($trimmeddescription != '') {
-            // Clean the description. We don't want tags here.
-            $type->help     = clean_param($trimmeddescription, PARAM_NOTAGS);
-            $type->helplink = get_string('modulename_shortcut_link', 'lti');
-        }
-        if (empty($ltitype->icon)) {
-            $type->icon = $OUTPUT->pix_icon('monologo', '', 'lti', array('class' => 'icon'));
-        } else {
-            $type->icon = html_writer::empty_tag('img', array('src' => $ltitype->icon, 'alt' => $ltitype->name, 'class' => 'icon'));
-        }
-        $type->link = new moodle_url('/course/modedit.php', array('add' => 'lti', 'return' => 0, 'typeid' => $ltitype->id));
+        $help = $trimmeddescription != '' ? clean_param($trimmeddescription, PARAM_NOTAGS) : '';
+
+        $icon = !empty($tool->icon)
+            ? $OUTPUT->pix_icon('monologo', '', 'lti', array('class' => 'icon'))
+            : html_writer::empty_tag('img', array('src' => $tool->icon, 'alt' => $tool->name, 'class' => 'icon'));
+
+        $link = new moodle_url('/course/modedit.php', array('add' => 'lti', 'return' => 0, 'typeid' => $tool->id));
 
         // Preconfigured tools take their own id + 1. This logic exists because, previously, the entry permitting manual instance
         // creation (the $defaultmodulecontentitem, or 'External tool' item) was included and had the id 1. This logic prevented id
         // collisions.
-        $types[] = new \core_course\local\entity\content_item(
-            $type->id + 1,
-            $type->name,
-            new \core_course\local\entity\string_title($type->title),
-            $type->link,
-            $type->icon,
-            $type->help,
+        return new \core_course\local\entity\content_item(
+            $tool->id + 1,
+            'lti_type_' . $tool->id,
+            $title,
+            $link,
+            $icon,
+            $help,
             $defaultmodulecontentitem->get_archetype(),
             $defaultmodulecontentitem->get_component_name(),
             $defaultmodulecontentitem->get_purpose()
         );
-    }
-
-    return $types;
+    }, $tools);
 }
 
 /**

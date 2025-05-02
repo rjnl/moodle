@@ -95,12 +95,14 @@ final class content_item_readonly_repository_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         /** @var \mod_lti_generator $ltigenerator */
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
-        $ltigenerator->create_tool_types([
+        $toolid = $ltigenerator->create_tool_types([
             'name' => 'site tool',
             'baseurl' => 'http://example.com',
             'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator->create_placement($toolid, $placementtypeid, ['default_usage' => 'enabled']);
         $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         assign_capability('mod/lti:addpreconfiguredinstance', CAP_PROHIBIT, $teacherrole->id,
             \core\context\course::instance($course->id));

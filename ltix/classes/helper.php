@@ -23,6 +23,7 @@ use core_ltix\local\ltiopenid\jwks_helper;
 use core_ltix\local\ltiservice\service_helper;
 use core_component;
 use core_ltix\local\placement\placements_manager;
+use core_ltix\local\placement\placement_status;
 use core_text;
 use core_useragent;
 use curl;
@@ -1073,16 +1074,19 @@ class helper {
      * Omits placements for tools not available to the context (e.g. excludes placements for hidden tools).
      *
      * @param string $placementtype the placement type string
-     * @param int $contextid the context id
+     * @param int $courseid the course id
      * @return array the list of placements
-     * @throws \coding_exception if the placement type is invalid.
+     * @throws coding_exception if the placement type is invalid.
      */
-    public static function get_tools_with_enabled_placement_in_context(string $placementtype, int $contextid): array {
-        global $DB;
+    public static function get_tools_with_enabled_placement_in_course(string $placementtype, int $courseid): array {
+        global $DB, $SITE;
 
         if (!placements_manager::is_valid_placement_type_string($placementtype)) {
-            throw new \coding_exception("Invalid placement type. Should be of the form 'component:placementtypename'.");
+            throw new coding_exception("Invalid placement type. Should be of the form 'component:placementtypename'.");
         }
+
+        $coursecontext =  \core\context\course::instance($courseid);
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
 
         [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
             [constants::LTI_COURSEVISIBLE_PRECONFIGURED, constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER],
@@ -1090,84 +1094,35 @@ class helper {
         );
 
         $sql = <<<EOF
-            SELECT tool.*, pc.value AS defaultusage, ps.status as placementstatus
-              FROM {lti_placement_type} pt
-              JOIN {lti_placement} p ON (pt.id = p.placementtypeid)
-              JOIN {lti_types} tool ON (tool.id = p.toolid)
-         LEFT JOIN {lti_placement_config} pc ON (pc.placementid = p.id AND pc.name = :defaultusageconfigname)
-         LEFT JOIN {lti_placement_status} ps ON (ps.placementid = p.id AND ps.contextid = :contextid)
-             WHERE pt.type = :placementtype
-               AND tool.coursevisible $visiblesql
+            SELECT t.*
+            FROM {lti_types} t
+            JOIN {lti_placement} p ON t.id = p.toolid
+            JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+            LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
+            LEFT JOIN {lti_placement_status} ps ON p.id = ps.placementid AND ps.contextid = :contextid
+            LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid
+            WHERE t.state = :active
+                AND t.course IN (:courseid, :siteid)
+                AND (tc.id IS NULL OR tc.categoryid = :categoryid)
+                AND t.coursevisible $visiblesql
+                AND (
+                    ps.status = :placementenabledstatus
+                    OR (ps.status IS NULL AND pc.value = :placementconfigvalue)
+                )
         EOF;
         $params = [
-                'placementtype' => $placementtype,
-                'defaultusageconfigname' => 'default_usage',
-                'contextid' => $contextid,
-            ] + $visibleparams;
-        $results = $DB->get_records_sql($sql, $params);
+            'placementtype' => $placementtype,
+            'contextid' => $coursecontext->id,
+            'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'siteid' => $SITE->id,
+            'courseid' => $courseid,
+            'categoryid' => $coursecategory,
+            'placementenabledstatus' => placement_status::ENABLED->value,
+            'placementconfigname' => 'default_usage',
+            'placementconfigvalue' => 'enabled',
+        ] + $visibleparams;
 
-        return array_filter($results, function ($result) {
-            if (is_null($result->defaultusage)) {
-                throw new \coding_exception("Bad placement config data. Missing config with name 'default_usage' " .
-                    "(supported values: enabled, disabled).");
-            } else if ($result->defaultusage && is_null($result->placementstatus)) {
-                return $result->defaultusage == "enabled";
-            } else {
-                return $result->placementstatus == 1;
-            }
-        });
-    }
-
-   /**
-     * Returns all LTI tool types (preconfigured tools) visible in the given course.
-     *
-     * This list will contain both site level tools and course-level tools.
-     *
-     * @param int $courseid the id of the course.
-     * @param int $userid the id of the user.
-     * @param array $coursevisible options for 'coursevisible' field, which will default to
-     *        [LTI_COURSEVISIBLE_PRECONFIGURED, LTI_COURSEVISIBLE_ACTIVITYCHOOSER] if omitted.
-     * @return \stdClass[] the array of tool type objects.
-     */
-    public static function get_lti_types_by_course(int $courseid, int $userid, array $coursevisible = []): array {
-        global $DB, $SITE;
-
-        if (empty($coursevisible)) {
-            $coursevisible = [\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER];
-        }
-        [$coursevisiblesql, $coursevisparams] = $DB->get_in_or_equal($coursevisible, SQL_PARAMS_NAMED, 'coursevisible');
-        [$coursevisiblesql1, $coursevisparams1] = $DB->get_in_or_equal($coursevisible, SQL_PARAMS_NAMED, 'coursevisible');
-        [$coursevisibleoverriddensql, $coursevisoverriddenparams] = $DB->get_in_or_equal(
-            $coursevisible,
-            SQL_PARAMS_NAMED,
-            'coursevisibleoverridden');
-
-        $coursecond = implode(" OR ", ["t.course = :courseid", "t.course = :siteid"]);
-        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
-        $query = "SELECT *
-                    FROM (SELECT t.*, c.coursevisible as coursevisibleoverridden
-                            FROM {lti_types} t
-                       LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid
-                       LEFT JOIN {lti_coursevisible} c ON c.typeid = t.id AND c.courseid = $courseid
-                           WHERE (t.coursevisible $coursevisiblesql
-                                 OR (c.coursevisible $coursevisiblesql1 AND t.coursevisible NOT IN (:lticoursevisibleno)))
-                             AND ($coursecond)
-                             AND t.state = :active
-                             AND (tc.id IS NULL OR tc.categoryid = :categoryid)) tt
-                   WHERE tt.coursevisibleoverridden IS NULL
-                      OR tt.coursevisibleoverridden $coursevisibleoverriddensql";
-
-        return $DB->get_records_sql(
-            $query,
-            [
-                'siteid' => $SITE->id,
-                'courseid' => $courseid,
-                'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
-                'categoryid' => $coursecategory,
-                'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
-                'lticoursevisibleno' => \core_ltix\constants::LTI_COURSEVISIBLE_NO,
-            ] + $coursevisparams + $coursevisparams1 + $coursevisoverriddenparams
-        );
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**

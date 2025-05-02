@@ -355,15 +355,18 @@ final class lib_test extends \advanced_testcase {
         global $DB, $CFG;
         require_once($CFG->dirroot . '/mod/lti/locallib.php');
 
+        /** @var \core_ltix_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
         $admin = get_admin();
         $time = time();
-        $course = $this->getDataGenerator()->create_course();
-        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $course1 = $this->getDataGenerator()->create_course();
+        $teacher1 = $this->getDataGenerator()->create_and_enrol($course1, 'editingteacher');
         $course2 = $this->getDataGenerator()->create_course();
         $teacher2 = $this->getDataGenerator()->create_and_enrol($course2, 'editingteacher');
 
         // Create some preconfigured tools.
-        $sitetoolrecord = (object) [
+        $sitetoolrecordid = $ltigenerator->create_tool_types([
             'name' => 'Site level tool which is available in the activity chooser',
             'baseurl' => 'http://example.com',
             'createdby' => $admin->id,
@@ -372,9 +375,9 @@ final class lib_test extends \advanced_testcase {
             'timecreated' => $time,
             'timemodified' => $time,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
-        ];
-        $sitetoolrecordnonchooser = (object) [
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED
+        ]);
+        $sitetoolrecordnonchooserid = $ltigenerator->create_tool_types([
             'name' => 'Site level tool which is NOT available in the course activity chooser',
             'baseurl' => 'http://example2.com',
             'createdby' => $admin->id,
@@ -384,19 +387,19 @@ final class lib_test extends \advanced_testcase {
             'timemodified' => $time,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED
-        ];
-        $course1toolrecord = (object) [
+        ]);
+        $course1toolrecordid = $ltigenerator->create_tool_types([
             'name' => 'Course created tool which is available in the activity chooser',
             'baseurl' => 'http://example3.com',
-            'createdby' => $teacher->id,
-            'course' => $course->id,
+            'createdby' => $teacher1->id,
+            'course' => $course1->id,
             'ltiversion' => 'LTI-1p0',
             'timecreated' => $time,
             'timemodified' => $time,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
-        ];
-        $course2toolrecord = (object) [
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED
+        ]);
+        $course2toolrecordid = $ltigenerator->create_tool_types([
             'name' => 'Course created tool which is available in the activity chooser',
             'baseurl' => 'http://example4.com',
             'createdby' => $teacher2->id,
@@ -405,16 +408,15 @@ final class lib_test extends \advanced_testcase {
             'timecreated' => $time,
             'timemodified' => $time,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
-        ];
-        $tool1id = $DB->insert_record('lti_types', $sitetoolrecord);
-        $tool2id = $DB->insert_record('lti_types', $sitetoolrecordnonchooser);
-        $tool3id = $DB->insert_record('lti_types', $course1toolrecord);
-        $tool4id = $DB->insert_record('lti_types', $course2toolrecord);
-        $sitetoolrecord->id = $tool1id;
-        $sitetoolrecordnonchooser->id = $tool2id;
-        $course1toolrecord->id = $tool3id;
-        $course2toolrecord->id = $tool4id;
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED
+        ]);
+
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+
+        $ltigenerator->create_placement($sitetoolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
+        $ltigenerator->create_placement($sitetoolrecordnonchooserid, $placementtypeid, ['default_usage' => 'disabled']);
+        $ltigenerator->create_placement($course1toolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
+        $ltigenerator->create_placement($course2toolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
 
         $defaultmodulecontentitem = new \core_course\local\entity\content_item(
             '1',
@@ -429,18 +431,18 @@ final class lib_test extends \advanced_testcase {
         );
 
         // The get_lti_types_by_course method (used by the callbacks) assumes the global user.
-        $this->setUser($teacher);
+        $this->setUser($teacher1);
 
         // Teacher in course1 should be able to see the site preconfigured tool and the tool created in course1.
-        $courseitems = lti_get_course_content_items($defaultmodulecontentitem, $teacher, $course);
+        $courseitems = lti_get_course_content_items($defaultmodulecontentitem, $teacher1, $course1);
         $this->assertCount(2, $courseitems);
         $ids = [];
         foreach ($courseitems as $item) {
             $ids[] = $item->get_id();
         }
-        $this->assertContains($sitetoolrecord->id + 1, $ids);
-        $this->assertContains($course1toolrecord->id + 1, $ids);
-        $this->assertNotContains($sitetoolrecordnonchooser->id + 1, $ids);
+        $this->assertContains($sitetoolrecordid + 1, $ids);
+        $this->assertContains($course1toolrecordid + 1, $ids);
+        $this->assertNotContains($sitetoolrecordnonchooserid + 1, $ids);
 
         // The content items for teacher2 in course2 include the site preconfigured tool and the tool created in course2.
         $this->setUser($teacher2);
@@ -450,9 +452,9 @@ final class lib_test extends \advanced_testcase {
         foreach ($course2items as $item) {
             $ids[] = $item->get_id();
         }
-        $this->assertContains($sitetoolrecord->id + 1, $ids);
-        $this->assertContains($course2toolrecord->id + 1, $ids);
-        $this->assertNotContains($sitetoolrecordnonchooser->id + 1, $ids);
+        $this->assertContains($sitetoolrecordid + 1, $ids);
+        $this->assertContains($course2toolrecordid + 1, $ids);
+        $this->assertNotContains($sitetoolrecordnonchooserid + 1, $ids);
 
         // Removing the capability to use preconfigured (site or course level) tools, should result in no content items.
         $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
@@ -469,9 +471,9 @@ final class lib_test extends \advanced_testcase {
         foreach ($allitems as $item) {
             $ids[] = $item->get_id();
         }
-        $this->assertContains($sitetoolrecord->id + 1, $ids);
-        $this->assertContains($course1toolrecord->id + 1, $ids);
-        $this->assertContains($course2toolrecord->id + 1, $ids);
-        $this->assertNotContains($sitetoolrecordnonchooser->id + 1, $ids);
+        $this->assertContains($sitetoolrecordid + 1, $ids);
+        $this->assertContains($course1toolrecordid + 1, $ids);
+        $this->assertContains($course2toolrecordid + 1, $ids);
+        $this->assertNotContains($sitetoolrecordnonchooserid + 1, $ids);
     }
 }

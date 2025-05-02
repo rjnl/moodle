@@ -1108,78 +1108,133 @@ final class helper_test extends lti_testcase {
     }
 
     /**
-     * Test getting a list of tools with an enabled placement in the context.
+     * Test getting a list of tools with an enabled placement in the course context.
      *
+     * @param int $toolcoursevisible
+     * @param int $toolstate
+     * @param string $placementdefault
+     * @param bool $placementoverride
+     * @param int $expectedcount
      * @return void
+     * @dataProvider get_placement_overrides_provider
      */
-    public function test_get_tools_with_enabled_placement_in_context(): void {
+    public function test_get_tools_with_enabled_placement_in_course(
+        $toolcoursevisible,
+        $toolstate,
+        $placementdefault,
+        $placementoverride,
+        $expectedcount,
+    ): void {
         $this->resetAfterTest();
 
         /** @var \core_ltix_generator $ltigenerator */
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
 
-        $tool1id = $ltigenerator->create_tool_types([
-            'name' => 'Example tool',
-            'baseurl' => 'http://example.com/tool/1',
-            'lti_coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
-        ]);
-        $tool2id = $ltigenerator->create_tool_types([
-            'name' => 'Example tool 2',
-            'baseurl' => 'http://example.com/tool/2',
-            'lti_coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
-        ]);
-        $tool3id = $ltigenerator->create_tool_types([
-            'name' => 'Example tool 3 - HIDDEN',
-            'baseurl' => 'http://example.com/tool/3',
-            'lti_coursevisible' => constants::LTI_COURSEVISIBLE_NO,
-        ]);
-
-        // Create a couple of placements with associated config.
-        $placementtype1 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:myplacement');
-        $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
-        $placementtype3 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:testinghidden');
-
-        $placementconfig1 = [
-            'default_usage' => 'enabled',
-            'supports_deep_linking' => 1,
-            'deep_linking_url' => 'https://example.com/deep_link_launch'
-        ];
-        $placementconfig2 = [
-            'default_usage' => 'disabled',
-            'supports_deep_linking' => 0,
-        ];
-        $placementconfig3 = [
-            'default_usage' => 'enabled',
-            'supports_deep_linking' => 0,
-        ];
-        $placementconfig4 = [
-            'default_usage' => 'enabled',
-            'supports_deep_linking' => 0,
-        ];
-        $tool1placement1 = $ltigenerator->create_placement($tool1id, $placementtype1->id, $placementconfig1);
-        $tool1placement2 = $ltigenerator->create_placement($tool1id, $placementtype2->id, $placementconfig2);
-        $tool2placement1 = $ltigenerator->create_placement($tool2id, $placementtype1->id, $placementconfig3);
-        $tool3placement1 = $ltigenerator->create_placement($tool3id, $placementtype3->id, $placementconfig4);
-
-        // Override the placement status for tool2placement1 in a context.
         $course = $this->getDataGenerator()->create_course();
         $context = \core\context\course::instance($course->id);
-        $ltigenerator->create_placement_status_in_context($tool2placement1->id, placement_status::DISABLED, $context->id);
 
-        // Despite 2 tool using $placementtype1, tool2 has a status of DISABLED in the context and is omitted.
-        $type1tools = helper::get_tools_with_enabled_placement_in_context($placementtype1->type, $context->id);
-        $this->assertCount(1, $type1tools);
+        $toolid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'lti_coursevisible' => $toolcoursevisible,
+            'state' => $toolstate
+        ]);
 
-        // Tool 1's second placement has default_usage=disabled so, despite the tool being visible to courses, won't be included
-        // unless overridden at the course context.
-        $type2tools = helper::get_tools_with_enabled_placement_in_context($placementtype2->type, $context->id);
-        $this->assertCount(0, $type2tools);
+        // Create a couple of placement types with associated config.
+        $placementtype1 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:myplacement');
+        $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
 
-        // Verify that despite a placement config being present, any hidden tools are not listed.
-        $type3tools = helper::get_tools_with_enabled_placement_in_context($placementtype3->type, $context->id);
-        $this->assertCount(0, $type3tools);
+        // Create placements for each types
+        $placement1 = $ltigenerator->create_placement($toolid, $placementtype1->id, [
+            'default_usage' => $placementdefault,
+            'supports_deep_linking' => 0,
+        ]);
+        $placement2 = $ltigenerator->create_placement($toolid, $placementtype2->id, [
+            'default_usage' => $placementdefault,
+            'supports_deep_linking' => 0,
+        ]);
 
-        // TODO: verify the specific data being returned...eventually moving to objects + repo.
+        // Overrides placements with the value from data provider
+        if ($placementoverride !== null) {
+            $ltigenerator->create_placement_status_in_context($placement1->id, $placementoverride, $context->id);
+            $ltigenerator->create_placement_status_in_context($placement2->id, $placementoverride, $context->id);
+        }
+
+        $type1tools = helper::get_tools_with_enabled_placement_in_course($placementtype1->type, $course->id);
+        $type2tools = helper::get_tools_with_enabled_placement_in_course($placementtype2->type, $course->id);
+
+        $this->assertCount($expectedcount, $type1tools);
+        $this->assertCount($expectedcount, $type2tools);
+
+        if ($expectedcount > 0) {
+            $this->assertSame('Example tool', $type1tools[$toolid]->name);
+            $this->assertSame('Example tool', $type2tools[$toolid]->name);
+        }
     }
 
+    /**
+     * Data provider for testing get_tools_with_enabled_placement_in_course.
+     *
+     * @return array[] the test case data.
+     */
+    public static function get_placement_overrides_provider(): array {
+        return [
+            'Default YES, Override NULL' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'enabled',
+                'placementoverride' => null,
+                'expectedcount' => 1,
+            ],
+            'Default YES, Override YES' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'enabled',
+                'placementoverride' => placement_status::ENABLED,
+                'expectedcount' => 1,
+            ],
+            'Default YES, Override NO' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'enabled',
+                'placementoverride' => placement_status::DISABLED,
+                'expectedcount' => 0,
+            ],
+            'Default NO, Override NULL' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'disabled',
+                'placementoverride' => null,
+                'expectedcount' => 0,
+            ],
+            'Default NO, Override YES' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'disabled',
+                'placementoverride' => placement_status::ENABLED,
+                'expectedcount' => 1,
+            ],
+            'Default NO, Override NO' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'disabled',
+                'placementoverride' => placement_status::DISABLED,
+                'expectedcount' => 0,
+            ],
+            'Tool is hidden' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_NO,
+                'toolstate' => constants::LTI_TOOL_STATE_CONFIGURED,
+                'placementdefault' => 'enabled',
+                'placementoverride' => null,
+                'expectedcount' => 0,
+            ],
+            'Tool is pending' => [
+                'toolcoursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                'toolstate' => constants::LTI_TOOL_STATE_PENDING,
+                'placementdefault' => 'enabled',
+                'placementoverride' => null,
+                'expectedcount' => 0,
+            ],
+        ];
+    }
 }

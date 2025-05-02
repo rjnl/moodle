@@ -889,8 +889,14 @@ function lti_get_types_for_add_instance() {
 function lti_get_configured_types($courseid, $sectionreturn = 0) {
     global $OUTPUT, $USER;
     $types = [];
-    $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id,
-        [\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER]);
+
+    $context = \core\context\course::instance($courseid);
+
+    if (!has_capability('mod/lti:addpreconfiguredinstance', $context, $USER->id)) {
+        return [];
+    }
+
+    $preconfiguredtypes = \core_ltix\helper::get_tools_with_enabled_placement_in_course('mod_lti:activityplacement', $courseid);
 
     foreach ($preconfiguredtypes as $ltitype) {
         $type           = new stdClass();

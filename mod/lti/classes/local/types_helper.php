@@ -37,13 +37,59 @@ class types_helper {
      * @param array $coursevisible options for 'coursevisible' field, which will default to
      *        [LTI_COURSEVISIBLE_PRECONFIGURED, LTI_COURSEVISIBLE_ACTIVITYCHOOSER] if omitted.
      * @return \stdClass[] the array of tool type objects.
+     *
+     * DO NOT USE: This method is retained for backward compatibility on legacy tools and does not fully follow the latest
+     * architecture. Please use core_ltix\helper::get_tools_with_enabled_placement_in_course() for new implementations.
      */
     public static function get_lti_types_by_course(int $courseid, int $userid, array $coursevisible = []): array {
+        global $DB, $SITE;
+
         if (!has_capability('mod/lti:addpreconfiguredinstance', course::instance($courseid), $userid)) {
             return [];
         }
 
-        return \core_ltix\helper::get_lti_types_by_course($courseid, $userid, $coursevisible);
+        if (empty($coursevisible)) {
+            $coursevisible = [
+                \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
+            ];
+        }
+        [$coursevisiblesql, $coursevisparams] = $DB->get_in_or_equal($coursevisible, SQL_PARAMS_NAMED, 'coursevisible');
+        [$coursevisiblesql1, $coursevisparams1] = $DB->get_in_or_equal($coursevisible, SQL_PARAMS_NAMED, 'coursevisible');
+        [$coursevisibleoverriddensql, $coursevisoverriddenparams] = $DB->get_in_or_equal(
+            $coursevisible,
+            SQL_PARAMS_NAMED,
+            'coursevisibleoverridden');
+
+        $coursecond = implode(" OR ", ["t.course = :courseid", "t.course = :siteid"]);
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+        $query = "SELECT *
+                    FROM (SELECT t.*, c.coursevisible as coursevisibleoverridden
+                            FROM {lti_types} t
+                       LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid
+                       LEFT JOIN {lti_coursevisible} c ON c.typeid = t.id AND c.courseid = $courseid
+                       JOIN {lti_placement} p ON t.id = p.toolid
+                       JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+                           WHERE (t.coursevisible $coursevisiblesql
+                                 OR (c.coursevisible $coursevisiblesql1 AND t.coursevisible NOT IN (:lticoursevisibleno)))
+                             AND ($coursecond)
+                             AND t.state = :active
+                             AND (tc.id IS NULL OR tc.categoryid = :categoryid)) tt
+                   WHERE tt.coursevisibleoverridden IS NULL
+                      OR tt.coursevisibleoverridden $coursevisibleoverriddensql";
+
+        return $DB->get_records_sql(
+            $query,
+            [
+                'siteid' => $SITE->id,
+                'courseid' => $courseid,
+                'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+                'categoryid' => $coursecategory,
+                'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+                'lticoursevisibleno' => \core_ltix\constants::LTI_COURSEVISIBLE_NO,
+                'placementtype' => 'mod_lti:activityplacement', // hardcoded as per migration on the legacy tools
+            ] + $coursevisparams + $coursevisparams1 + $coursevisoverriddenparams
+        );
     }
 
     /**
