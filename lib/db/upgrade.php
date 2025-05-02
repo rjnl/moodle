@@ -1708,6 +1708,9 @@ function xmldb_main_upgrade($oldversion) {
         $table->add_key('toolid', XMLDB_KEY_FOREIGN, ['toolid'], 'lti_types', ['id']);
         $table->add_key('placementtypeid', XMLDB_KEY_FOREIGN, ['placementtypeid'], 'lti_placement_type', ['id']);
 
+        // Adding indexes to table lti_placement.
+        $table->add_index('toolplacementtype', XMLDB_INDEX_UNIQUE, ['toolid', 'placementtypeid']);
+
         // Conditionally launch create table for lti_placement.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);

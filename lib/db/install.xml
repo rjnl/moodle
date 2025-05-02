@@ -5220,6 +5220,9 @@
         <KEY NAME="toolid" TYPE="foreign" FIELDS="toolid" REFTABLE="lti_types" REFFIELDS="id"/>
         <KEY NAME="placementtypeid" TYPE="foreign" FIELDS="placementtypeid" REFTABLE="lti_placement_type" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="toolplacementtype" UNIQUE="true" FIELDS="toolid, placementtypeid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="lti_placement_config" COMMENT="A key:value store for any placement-specific configuration">
       <FIELDS>
