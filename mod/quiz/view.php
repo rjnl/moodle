@@ -137,25 +137,27 @@ $gradeitem = grade_item::fetch([
     'courseid' => $course->id,
 ]);
 
-if ($gradeitem) {
-    if ($CFG->recovergradesdefault && $gradeitem->refresh_grades($USER->id)) {
-        $grade = $gradeitem->get_grade($USER->id, false);
-        if ($grade->overridden) {
-            if ($gradeitem->needsupdate) {
-                // It is Error, but let's be consistent with the old code.
-                $mygrade = 0;
-            } else {
-                $mygrade = $grade->finalgrade;
-            }
-            $mygradeoverridden = true;
-        }
+if ($gradeitem && !$canpreview) {
+    // Get grade from the gradebook because it could be overridden.
+    $grade = $gradeitem->get_grade($USER->id, false);
 
-        if (!empty($grade->feedback)) {
-            $gradebookfeedback = $grade->feedback;
-        }
-    } else {
-        // It is Error, but let's be consistent with the old code.
+    if (is_null($grade->finalgrade)) {
+        // There is no grade in the gradebook. Maybe the user was re-enrolled without recovering grades.
+        // We don't want to show grade of the old attempt.
         $mygrade = 0;
+    } else if ($grade->overridden) {
+        if ($gradeitem->needsupdate) {
+            // It is Error, but let's be consistent with the old code.
+            $mygrade = 0;
+        } else {
+            // Get the overridden grade from gradebook.
+            $mygrade = $grade->finalgrade;
+        }
+        $mygradeoverridden = true;
+    }
+
+    if (!empty($grade->feedback)) {
+        $gradebookfeedback = $grade->feedback;
     }
 }
 
