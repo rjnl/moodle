@@ -57,13 +57,19 @@
             <div class="overflow-auto">
                 <h6 class="d-flex mb-1">
                     <a{{!
-                        }} class="text-truncate"{{!
                         }} data-type="event"{{!
                         }} data-action="view-event"{{!
                         }} data-event-id="{{id}}"{{!
                         }} href="{{viewurl}}"{{!
                         }} title="{{name}}"{{!
-                    }}>{{{name}}}</a>
+                    }}>
+                        <span class="multiline">
+                            <span class="visually-hidden">{{{name}}}</span>
+                            <span aria-hidden="true">
+                                {{#shortentext}} 110, {{{name}}} {{/shortentext}}
+                            </span>
+                        </span>
+                    </a>
                 </h6>
                 <div class="date small">{{{formattedtime}}}</div>
             </div>
