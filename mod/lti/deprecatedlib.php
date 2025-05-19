@@ -30,3 +30,12 @@ function lti_get_shortcuts() {
         'The callback get_shortcuts() is now removed. Please use get_course_content_items and get_all_content_items instead.'
     );
 }
+
+/**
+ * @deprecated since Moodle 4.3. Please use \mod_lti\local\types_helper::get_lti_types_by_course() instead.
+ */
+#[\core\attribute\deprecated('lti_get_lti_types_by_course()', since: '4.3', mdl: 'MDL-78597', final: true)]
+function lti_get_lti_types_by_course($courseid, $coursevisible = null) {
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
+    return [];
+}
