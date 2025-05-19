@@ -1,0 +1,5 @@
+issueNumber: MDL-84825
+notes:
+  mod_lti:
+    - message: final deprecation on function lti_get_lti_types_by_course
+      type: removed
