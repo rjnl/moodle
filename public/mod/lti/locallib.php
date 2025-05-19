@@ -844,23 +844,6 @@ function lti_filter_tool_types(array $tools, $state) {
 }
 
 /**
- * Returns all lti types visible in this course
- *
- * @deprecated since Moodle 4.3
- * @param int $courseid The id of the course to retieve types for
- * @param array $coursevisible options for 'coursevisible' field,
- *        default [LTI_COURSEVISIBLE_PRECONFIGURED, LTI_COURSEVISIBLE_ACTIVITYCHOOSER]
- * @return stdClass[] All the lti types visible in the given course
- */
-function lti_get_lti_types_by_course($courseid, $coursevisible = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \mod_lti\local\types_helper::get_lti_types_by_course() instead.',
-        DEBUG_DEVELOPER);
-
-    global $USER;
-    return \mod_lti\local\types_helper::get_lti_types_by_course($courseid, $USER->id, $coursevisible ?? []);
-}
-
-/**
  * Returns tool types for lti add instance and edit page
  *
  * @return array Array of lti types
