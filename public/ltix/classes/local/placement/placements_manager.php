@@ -163,7 +163,7 @@ final class placements_manager {
     /**
      * Just return the first token in the placement type string.
      *
-     * No validation done here, so make sure to call something like {@see self::is_valid_placement_type_string()} for that.
+     * No validation done here, so make sure to call something like {@see self::is_valid_placement_type()} for that.
      *
      * @param string $placementtype the placement type string.
      * @return string the component portion of the string.
@@ -178,7 +178,7 @@ final class placements_manager {
      * @param string $placementtype the placement type string.
      * @return bool true if valid, false otherwise.
      */
-    public static function is_valid_placement_type_string(string $placementtype): bool {
+    private static function is_valid_placement_type_string(string $placementtype): bool {
         if (!preg_match('/^[a-z0-9_]+:[a-z0-9_]+$/', $placementtype)) {
             return false;
         }
@@ -187,6 +187,19 @@ final class placements_manager {
             self::get_component_string_from_placement_type($placementtype),
             \core_component::get_component_names(includecore: true)
         );
+    }
+
+    /**
+     * Validate both the format of a given placement type and its implementation (existence) in the system.
+     *
+     * @param string $placementtype The placement type string.
+     * @return bool true if valid, false otherwise.
+     */
+    public static function is_valid_placement_type(string $placementtype): bool {
+        global $DB;
+
+        return self::is_valid_placement_type_string($placementtype) &&
+            $DB->record_exists('lti_placement_type', ['type' => $placementtype]);
     }
 
     /**
