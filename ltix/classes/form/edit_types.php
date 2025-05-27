@@ -234,6 +234,39 @@ class edit_types extends moodleform {
         $mform->setAdvanced('lti_secureicon');
         $mform->addHelpButton('lti_secureicon', 'secure_icon_url', 'core_ltix');
 
+
+        // Placement.
+        $mform->addElement('header', 'toolplacement', get_string('placement', 'core_ltix'));
+        /// TODO - remove from final code.
+            $mform->setExpanded('toolplacement');
+
+        // Get placement types from lti_placement_types.
+        $placements = [];
+        //$records = $DB->get_records('lti_placement_type', [], 'id ASC');
+        $registeredplacementtypes = $DB->get_records_menu('lti_placement_type', null, 'id ASC', 'id,type');
+        foreach ($registeredplacementtypes as $key => $value) {
+            $placements[$key] = get_string($value, 'core_ltix');
+        }
+
+        $options = [
+            'multiple' => true,
+            'noselectionstring' => get_string('lti_tool_placements_emptyconfig', 'core_ltix'),
+        ];
+        $mform->addElement('autocomplete', 'toolplacements', get_string('lti_tool_placements', 'core_ltix'), $placements, $options);
+        $mform->addHelpButton('toolplacements', 'lti_tool_placements', 'core_ltix');
+
+        // Add placement configuration options to the form.
+        // This ideally should depend on the selection of the "toolplacements" element.
+        foreach ($registeredplacementtypes as $key => $value) {
+            // Deduce the name of the method to call from the placement type.
+            $placementtypefunc = 'add_' . str_replace(':', '_', $value) . '_elements';
+            if (method_exists($this, $placementtypefunc)) {
+                $this->$placementtypefunc($mform);
+            } else {
+                debugging("Placement configuration method for Placement '{$value}' not found.", DEBUG_DEVELOPER);
+            }
+        }
+
         // Restrict to course categories.
         if (empty($this->_customdata->iscoursetool) || !$this->_customdata->iscoursetool) {
             $mform->addElement('header', 'coursecategory', get_string('restricttocategory', 'core_ltix'));
@@ -344,6 +377,72 @@ class edit_types extends moodleform {
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
 
+    }
+
+    /**
+     * Adds the Activity chooser placement section to the form.
+     *
+     * @param MoodleQuickForm $mform
+     */
+    protected function add_mod_lti_activityplacement_elements(&$mform) {
+        global $OUTPUT;
+
+        $prefix = 'placement_activitychooser_'; // Prefix for form elements.
+
+        $mform->addElement('header', 'toolplacement-activitychooser', get_string('placement_activitychooser', 'core_ltix'));
+        $description = get_string('placement_activitychooserdescription', 'core_ltix');
+        $mform->addElement('html', $OUTPUT->render_from_template('core_ltix/placementdescription', ['placementdescription' => $description]));
+
+        $mform->addElement('advcheckbox', $prefix . 'default_usage', get_string('default_usage', 'core_ltix'));
+        $mform->addHelpButton($prefix . 'default_usage', 'default_usage', 'core_ltix');
+
+        $mform->addElement('advcheckbox', $prefix . 'deeplinking', get_string('lti_deeplinking', 'core_ltix'));
+        $mform->addHelpButton($prefix . 'deeplinking', 'lti_deeplinking', 'core_ltix');
+
+        $mform->addElement('text', $prefix . 'deeplinkingurl',
+            get_string('lti_deeplinkingurl', 'core_ltix'), ['size' => '64']);
+        $mform->setType($prefix . 'deeplinkingurl', PARAM_URL);
+        $mform->addHelpButton($prefix . 'deeplinkingurl', 'lti_deeplinkingurl', 'core_ltix');
+        $mform->disabledIf($prefix . 'deeplinkingurl', $prefix . 'deeplinking', 'notchecked');
+
+        $mform->addElement('advcheckbox', $prefix . 'resourcelinking', get_string('lti_resourcelinking', 'core_ltix'));
+        $mform->addHelpButton($prefix . 'resourcelinking', 'lti_resourcelinking', 'core_ltix');
+
+        $mform->addElement('text', $prefix . 'resourcelinkingurl',
+            get_string('lti_resourcelinkingurl', 'core_ltix'), ['size' => '64']);
+        $mform->setType($prefix . 'resourcelinkingurl', PARAM_URL);
+        $mform->addHelpButton($prefix . 'resourcelinkingurl', 'lti_resourcelinkingurl', 'core_ltix');
+        $mform->disabledIf($prefix . 'resourcelinkingurl', $prefix . 'resourcelinking', 'notchecked');
+
+        $mform->addElement('text', $prefix . 'iconurl', get_string('icon_url', 'core_ltix'), ['size' => '64']);
+        $mform->setType($prefix . 'iconurl', PARAM_URL);
+        $mform->addHelpButton($prefix . 'iconurl', 'icon_url', 'core_ltix');
+
+        $mform->addElement('text', $prefix . 'text', get_string('lti_placementtext', 'core_ltix'), ['size' => '64']);
+        $mform->setType($prefix . 'text', PARAM_TEXT);
+        $mform->addHelpButton($prefix . 'text', 'lti_placementtext', 'core_ltix');
+    }
+
+    /**
+     * Adds the Assignment selection placement section to the form.
+     *
+     * @param MoodleQuickForm $mform
+     */
+    protected function add_mod_assign_assignselectionplacement_elements(&$mform) {
+        global $OUTPUT;
+
+        $prefix = 'placement_assignselection_'; // Prefix for form elements.
+
+        $mform->addElement('header', 'toolplacement-assignselection', get_string('placement_assignselection', 'core_ltix'));
+        $description = get_string('placement_assignselectiondescription', 'core_ltix');
+        $mform->addElement('html', $OUTPUT->render_from_template('core_ltix/placementdescription', ['placementdescription' => $description]));
+
+        $mform->addElement('advcheckbox', $prefix . 'default_usage', get_string('default_usage', 'core_ltix'));
+        $mform->addHelpButton($prefix . 'default_usage', 'default_usage', 'core_ltix');
+
+        $mform->addElement('text', $prefix . 'text', get_string('lti_placementtext', 'core_ltix'), ['size' => '64']);
+        $mform->setType($prefix . 'text', PARAM_TEXT);
+        $mform->addHelpButton($prefix . 'text', 'lti_placementtext', 'core_ltix');
     }
 
     /**

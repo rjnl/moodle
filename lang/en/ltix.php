@@ -372,3 +372,35 @@ $string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
 
+// RT - TODO: Update Help strings and order/sort the identifiers.
+$string['placement'] = 'Placement';
+$string['lti_tool_placements'] = 'Placements';
+$string['lti_tool_placements_emptyconfig'] = 'To ensure the LTI tool is usable within Moodle, please configure its placement. Without proper placement settings, the tool won\'t be accessible to users.';
+$string['lti_tool_placements_help'] = 'Placements determine where the tool can be accessed within Moodle, eg. in the activity chooser or assignment selection. Select the placements where this tool will be available.<br>You can then configure the placement settings for each selected placement.';
+
+$string['mod_lti:activityplacement'] = 'Activity chooser';
+$string['mod_assign:assignselectionplacement'] = 'Assignment selection';
+
+$string['placement_activitychooser'] = 'Placement: Activity chooser';
+$string['placement_activitychooserdescription'] = 'Lets you add an external tool as a new activity option in your course.';
+$string['lti_deeplinking'] = 'LTI Deep Linking Request';
+$string['lti_deeplinking_help'] = 'If ticked, you can set the deep linking url for this placement.';
+$string['lti_deeplinkingurl'] = 'LTI Deep Linking URL';
+$string['lti_deeplinkingurl_help'] = 'If set, this URL will be used to launch the tool for deep linking requests.';
+
+$string['lti_resourcelinking'] = 'LTI Resource Linking Request';
+$string['lti_resourcelinking_help'] = 'If ticked, you can set the resource linking url for this placement.';
+$string['lti_resourcelinkingurl'] = 'LTI Resource Linking URL';
+$string['lti_resourcelinkingurl_help'] = 'If set, this URL will be used to launch the tool for resource linking requests.';
+
+$string['lti_placementtext'] = 'Text';
+$string['lti_placementtext_help'] = 'Text help.';
+
+$string['placement_assignselection'] = 'Placement: Assignment selection';
+$string['placement_assignselectiondescription'] = 'Helps you set up assignments using an external tool from within the course.';
+
+$string['errorsavingplacement'] = 'Error! Cannot save placement record.';
+$string['errorsavingplacementconfig'] = 'Error! Cannot save placement config record.';
+
+$string['default_usage'] = 'Enabled by default';
+$string['default_usage_help'] = 'If ticked, the placement will be available for use.';

@@ -1270,6 +1270,210 @@ class helper {
         $DB->update_record('lti_types', (object) array('id' => $id, 'state' => $state));
     }
 
+    /**
+     * Load the placement configuration from the database.
+     * @param int $toolid The tool id.
+     * @return object The placement configuration.
+     */
+    public static function load_placement_config($toolid) {
+        global $DB;
+
+        $config = new \stdClass();
+
+        // Get the placement types for this tool.
+        $toolplacements = $DB->get_records('lti_placement', ['toolid' => $toolid]);
+
+        $placementids = [];
+        $config->toolplacements = [];
+        foreach ($toolplacements as $placement) {
+            $config->toolplacements[] = $placement->placementtypeid;
+            $placementids[] = $placement->id;
+        }
+
+        // Get the placement config.
+        $records = $DB->get_records_list('lti_placement_config', 'placementid', $placementids);
+
+        // Append the form element prefix to the config values.
+        $elementprefix = 'placement_';
+        foreach ($records as $record) {
+            $config->{$elementprefix . $record->name} = $record->value;
+
+            // If the 'deeplinkingurl' and/or 'resourcelinkingurl' are set,
+            // also set the values for their respective checkboxes so that they're enabled in the form.
+            if (str_ends_with($record->name, '_deeplinkingurl') && !empty($record->value)) {
+                // If the 'deeplinkingurl' is set, also set the 'deeplinking' checkbox value.
+                $config->{$elementprefix . str_replace('deeplinkingurl', 'deeplinking', $record->name)} = 1;
+            } else if (str_ends_with($record->name, '_resourcelinkingurl') && !empty($record->value)) {
+                // If the 'resourcelinkingurl' is set, also set the 'resourcelinking' checkbox value.
+                $config->{$elementprefix . str_replace('resourcelinkingurl', 'resourcelinking', $record->name)} = 1;
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * Save the placement configuration for a tool type.
+     * @param object $type
+     * @param object $config
+     */
+    public static function save_placement_config($type, $config) {
+        global $DB;
+
+        // Update placement type config.
+        $placementtypeids = $config->toolplacements;
+
+        $placementtypes = $DB->get_records('lti_placement_type');
+
+        foreach ($placementtypeids as $key => $value) {
+            // Get the place type record.
+            $placementtype = $placementtypes[$value];
+
+            // Insert the placement record.
+            $record = new \stdClass();
+            $record->toolid = $type->id;
+            $record->placementtypeid = $placementtype->id;
+
+            // Save the placement record.
+            try {
+                // Attempt to insert first.
+                $placementid = $DB->insert_record('lti_placement', $record);
+            } catch (\Exception $e) {
+                // Check if the record already exists.
+                $existingrecord = $DB->get_record('lti_placement', ['toolid' => $type->id, 'placementtypeid' => $placementtype->id]);
+
+                if ($existingrecord) {
+                    $placementid = $existingrecord->id;
+                } else {
+                    // Nothing found, this is weird. We can't proceed.
+                    // Throw an exception.
+                    throw new \moodle_exception('errorsavingplacement', 'core_ltix');
+                }
+            }
+
+            //  Save config for mod_lti:activityplacement.
+            // Add each placement config as a separate entry.
+            if (strpos($placementtype->type, 'activityplacement') !== false) {
+                $record = new \stdClass();
+                $record->placementid = $placementid;
+
+                $elementprefix = 'placement_activitychooser_';
+                $keyprefix = 'activitychooser_';
+
+                $record->name = $keyprefix . 'default_usage';
+                if (isset($config->{$elementprefix . 'default_usage'})) {
+                    $record->value = $config->{$elementprefix . 'default_usage'};
+                } else {
+                    $record->value = 0;
+                }
+                self::insert_or_update_placement_config($record);
+
+                if (isset($config->{$elementprefix . 'deeplinking'})
+                    && $config->{$elementprefix . 'deeplinking'} == 1) {
+                    $record->name = $keyprefix . 'deeplinkingurl';
+                    $record->value = $config->{$elementprefix . 'deeplinkingurl'};
+
+                    self::insert_or_update_placement_config($record);
+                }
+
+                if (isset($config->{$elementprefix . 'resourcelinking'})
+                    && $config->{$elementprefix . 'resourcelinking'} == 1) {
+                    $record->name = $keyprefix . 'resourcelinkingurl';
+                    $record->value = $config->{$elementprefix . 'resourcelinkingurl'};
+
+                    self::insert_or_update_placement_config($record);
+                }
+
+                if (isset($config->{$elementprefix . 'iconurl'})) {
+                    $record->name = $keyprefix . 'iconurl';
+                    $record->value = $config->{$elementprefix . 'iconurl'};
+
+                    self::insert_or_update_placement_config($record);
+                }
+
+                if (isset($config->{$elementprefix . 'text'})) {
+                    $record->name = $keyprefix . 'text';
+                    $record->value = $config->{$elementprefix . 'text'};
+
+                    self::insert_or_update_placement_config($record);
+                }
+            }
+
+            //  Save config for mod_assign:assignselectionplacement.
+            if (strpos($placementtype->type, 'assignselectionplacement') !== false) {
+                $record = new \stdClass();
+                $record->placementid = $placementid;
+
+                $elementprefix = 'placement_assignselection_';
+                $keyprefix = 'assignselection_';
+
+                $record->name = $keyprefix . 'default_usage';
+                if (isset($config->{$elementprefix . 'default_usage'})) {
+                    $record->value = $config->{$elementprefix . 'default_usage'};
+                } else {
+                    $record->value = 0;
+                }
+                self::insert_or_update_placement_config($record);
+
+                if (isset($config->{$elementprefix . 'text'})) {
+                    $record->name = $keyprefix . 'text';
+                    $record->value = $config->{$elementprefix . 'text'};
+
+                    self::insert_or_update_placement_config($record);
+                }
+            }
+        }
+
+        // Remove any placement config records that are not in the current list.
+        $idstoremove = array_diff(array_keys($placementtypes), $placementtypeids);
+
+        if (!empty($idstoremove)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($idstoremove);
+
+            // Delete placement config record from lti_placement_config table.
+            $DB->delete_records_select('lti_placement_config',
+                'placementid IN (
+                    SELECT id FROM {lti_placement} lp WHERE lp.toolid = ?
+                    AND lp.placementtypeid ' . $insql . ')',
+                [$type->id, ...$inparams]
+            );
+
+            // Delete placement record from lti_placement table.
+            $DB->delete_records_select('lti_placement',
+                'toolid = ? AND placementtypeid ' . $insql,
+                [$type->id, ...$inparams]
+            );
+        }
+    }
+
+    /**
+     * Insert or update a placement config record.
+     *
+     * @param object $record Placement config record
+     * @throws \moodle_exception if unable to save
+     */
+    protected static function insert_or_update_placement_config($record) {
+        global $DB;
+
+        try {
+            // Attempt to insert first.
+            $DB->insert_record('lti_placement_config', $record);
+        } catch (\Exception $e) {
+            // Check if the record already exists.
+            $existingrecord = $DB->get_record('lti_placement_config',
+                ['placementid' => $record->placementid, 'name' => $record->name]);
+
+            if ($existingrecord) {
+                $record->id = $existingrecord->id;
+                $DB->update_record('lti_placement_config', $record);
+            } else {
+                // Nothing found, this is weird. We shouldn't proceed.
+                // Throw an exception.
+                throw new \moodle_exception('errorsavingplacementconfig', 'core_ltix');
+            }
+        }
+    }
+
     public static function update_type($type, $config) {
         global $DB, $CFG;
 
