@@ -171,69 +171,118 @@ final class placements_manager_test extends \advanced_testcase {
     }
 
     /**
-     * Test the placementtype string validation.
+     * Test is_valid_placement_type().
      *
-     * @dataProvider placement_string_provider
-     * @param string $placementtype the placementtype string to check
-     * @param bool $expected whether the result is expected to be valid or not.
+     * @dataProvider is_valid_placement_type_provider
+     * @param string $placementtype The placement type to check.
+     * @param string $component The name of the component.
+     * @param bool $isinsystem Whether the placement type is supported by the system.
+     * @param bool $expected The expected result.
      * @return void
      */
-    public function test_is_valid_placement_type_string(string $placementtype, bool $expected): void {
-        $this->assertEquals($expected, placements_manager::is_valid_placement_type_string($placementtype));
+    public function test_is_valid_placement_type(string $placementtype, string $component, bool $isinsystem,
+            bool $expected): void {
+
+        if ($isinsystem) {
+            $this->resetAfterTest();
+            $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+            $ltigenerator->create_placement_type(['component' => $component, 'placementtype' => $placementtype]);
+        }
+
+        $this->assertEquals($expected, placements_manager::is_valid_placement_type($placementtype));
     }
 
     /**
-     * Provider for testing is_valid_placement_type_string().
+     * Data provider for test_is_valid_placement_type().
+     *
      * @return array
      */
-    public static function placement_string_provider(): array {
+    public static function is_valid_placement_type_provider(): array {
         return [
-            'valid placement type - frankenstyle component' => [
+            'Valid placement type string format (frankenstyle component), supported by the system' => [
                 'placementtype' => 'core_ltix:cat',
+                'component' => 'core_ltix',
+                'isinsystem' => true,
                 'expected' => true
             ],
-            'valid placement type - core component' => [
+            'Valid placement type string format (core component), supported by the system' => [
                 'placementtype' => 'core:cat',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => true
             ],
-            'valid placement type, underscore and numbers' => [
+            'Valid placement type string format (underscore and numbers), supported by the system' => [
                 'placementtype' => 'core:cat_dog09',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => true
             ],
-            'invalid example 1 - missing delimiter and placement string' => [
+            'Valid placement type string format (underscore and numbers), not supported by the system' => [
+                'placementtype' => 'core_ltix:unsupported',
+                'component' => 'core_ltix',
+                'isinsystem' => false,
+                'expected' => false
+            ],
+            'Invalid placement type string format (missing delimiter and placement string), not supported by the system ' => [
                 'placementtype' => 'core_ltix',
+                'component' => 'core_ltix',
+                'isinsystem' => false,
                 'expected' => false
             ],
-            'invalid example 2 - invalid component name' => [
+            // NOTE: The following test scenarios are not real-world cases, but are used solely for testing purposes.
+            // An invalid placement type string format would never be supported by the system in practice.
+            'Invalid placement type string format (missing delimiter and placement string), supported by the system' => [
+                'placementtype' => 'core_ltix',
+                'component' => 'core_ltix',
+                'isinsystem' => true,
+                'expected' => false
+            ],
+            'Invalid placement type string format (invalid component name), supported by the system' => [
                 'placementtype' => 'x_z:y',
+                'component' => 'x_z',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 3 - empty placement string' => [
+            'Invalid placement type string format (empty placement string), supported by the system' => [
                 'placementtype' => 'core_ltix:',
+                'component' => 'core_ltix',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 4 - invalid delimiter' => [
+            'Invalid placement type string format (invalid delimiter), supported by the system' => [
                 'placementtype' => 'core_ltix/cat',
+                'component' => 'core_ltix',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 5 - too many colons' => [
+            'Invalid placement type string format (too many colons), supported by the system' => [
                 'placementtype' => 'core::cat',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 6 - too many colons and components' => [
+            'Invalid placement type string format (too many colons and components), supported by the system' => [
                 'placementtype' => 'core:ltix:cat',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 7 - leading colon' => [
+            'Invalid placement type string format (leading colon), supported by the system' => [
                 'placementtype' => ':cat',
+                'component' => '',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 8 - slash in placement string' => [
+            'Invalid placement type string format (slash in placement string), supported by the system' => [
                 'placementtype' => 'core:cat/dog',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => false
             ],
-            'invalid example 9 - uppercase in placement string' => [
+            'Invalid placement type string format (uppercase in placement string), supported by the system' => [
                 'placementtype' => 'core:Cat',
+                'component' => 'core',
+                'isinsystem' => true,
                 'expected' => false
             ]
         ];
