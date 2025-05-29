@@ -144,12 +144,14 @@ if ($data = $form->get_data()) {
         $type->id = $id;
         \core_ltix\helper::load_type_if_cartridge($data);
         \core_ltix\helper::update_type($type, $data);
+        \core_ltix\helper::update_placement_config($type, $data);
 
         redirect($redirect);
     } else {
         $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         \core_ltix\helper::load_type_if_cartridge($data);
-        \core_ltix\helper::add_type($type, $data);
+        $type->id = \core_ltix\helper::add_type($type, $data);
+        \core_ltix\helper::update_placement_config($type, $data);
 
         redirect($redirect);
     }
@@ -168,7 +170,11 @@ echo $OUTPUT->heading(get_string('toolsetup', 'core_ltix'));
 echo $OUTPUT->box_start('generalbox');
 
 if ($action == 'update') {
-    $form->set_data($type);
+    // Get the placement config linked to this tool.
+    $placementconfig = \core_ltix\helper::load_placement_config($id);
+
+    $mergeddata = (object) array_merge((array)$type, (array)$placementconfig);
+    $form->set_data($mergeddata);
 }
 
 $form->display();

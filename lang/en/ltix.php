@@ -372,3 +372,23 @@ $string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
 
+// RT - TODO: Update Help strings and order/sort the identifiers.
+$string['mod_lti:activityplacement'] = 'Activity chooser';
+
+$string['placement_activitychooser'] = 'Placement: Activity chooser';
+$string['placement_activitychooserdescription'] = 'Lets you add an external tool as a new activity option in your course.';
+$string['lti_deeplinking'] = 'LTI Deep Linking Request';
+$string['lti_deeplinking_help'] = 'If ticked, you can set the deep linking url for this placement.';
+$string['lti_deeplinkingurl'] = 'LTI Deep Linking URL';
+$string['lti_deeplinkingurl_help'] = 'If set, this URL will be used to launch the tool for deep linking requests.';
+
+$string['lti_resourcelinking'] = 'LTI Resource Linking Request';
+$string['lti_resourcelinking_help'] = 'If ticked, you can set the resource linking url for this placement.';
+$string['lti_resourcelinkingurl'] = 'LTI Resource Linking URL';
+$string['lti_resourcelinkingurl_help'] = 'If set, this URL will be used to launch the tool for resource linking requests.';
+
+$string['lti_placementtext'] = 'Text';
+$string['lti_placementtext_help'] = 'Text help??';
+
+$string['errorsavingplacement'] = 'Error! Cannot save placement record.';
+$string['errorsavingplacementconfig'] = 'Error! Cannot save placement config record.';
