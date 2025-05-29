@@ -1284,12 +1284,12 @@ class helper {
         // Get the placement types for this tool.
         $toolplacements = $DB->get_records_menu('lti_placement', ['toolid' => $toolid], 'id ASC', 'id,placementtypeid');
 
+        $config->toolplacements = array_values($toolplacements);
+
         // Get the placement configs for this tool.
-        $records = $DB->get_records_list('lti_placement_config', 'placementid', array_keys($toolplacements));
+        $configrecords = $DB->get_records_list('lti_placement_config', 'placementid', array_keys($toolplacements));
 
-        $registeredplacementtypes = $DB->get_records_menu('lti_placement_type', null, 'id ASC', 'id,type');
-
-        foreach ($records as $record) {
+        foreach ($configrecords as $record) {
             // Suffix to append to the config element names so that they match the form element names.
             $elementsuffix = '_placement_' . $toolplacements[$record->placementid];
 
@@ -1314,18 +1314,24 @@ class helper {
     public static function update_placement_config($type, $config) {
         global $DB;
 
+        // Update placement type config.
+        $placementtypeids = $config->toolplacements;
+
         $registeredplacementtypes = $DB->get_records('lti_placement_type');
 
-        foreach ($registeredplacementtypes as $placementtype) {
+        foreach ($placementtypeids as $pid) {
+            // Get the placement type record.
+            $placementtype = $registeredplacementtypes[$pid];
+
             // Placement record.
-            $record = new \stdClass();
-            $record->toolid = $type->id;
-            $record->placementtypeid = $placementtype->id;
+            $newrecord = new \stdClass();
+            $newrecord->toolid = $type->id;
+            $newrecord->placementtypeid = $placementtype->id;
 
             // Save the placement record.
             try {
                 // Attempt to insert first.
-                $placementid = $DB->insert_record('lti_placement', $record);
+                $placementid = $DB->insert_record('lti_placement', $newrecord);
             } catch (\Exception $e) {
                 // Check if the record already exists.
                 $existingrecord = $DB->get_record('lti_placement',
@@ -1340,6 +1346,7 @@ class helper {
                 }
             }
 
+            // Now save the placement config for this placement.
             // Suffix used for the config element names in $config.
             $elementsuffix = "_placement_{$placementtype->id}";
 
@@ -1363,7 +1370,6 @@ class helper {
                 if ($name == "deeplinking{$elementsuffix}" || $name == "resourcelinking{$elementsuffix}") {
                     // If the checkbox is not checked, we should delete any existing url config for this placement.
                     if ($value != 1) {
-                        // Delete the config record, if it exists.
                         $DB->delete_records('lti_placement_config', [
                             'placementid' => $placementid,
                             'name' => str_replace($elementsuffix, 'url', $name),
@@ -1383,6 +1389,27 @@ class helper {
 
                 self::insert_or_update_placement_config($configrow);
             }
+        }
+
+        // Remove any placement config records that are not in the current list.
+        $idstoremove = array_diff(array_keys($registeredplacementtypes), $placementtypeids);
+
+        if (!empty($idstoremove)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($idstoremove);
+
+            // Delete configs for the placement.
+            $DB->delete_records_select('lti_placement_config',
+                'placementid IN (
+                    SELECT id FROM {lti_placement} lp WHERE lp.toolid = ?
+                    AND lp.placementtypeid ' . $insql . ')',
+                [$type->id, ...$inparams]
+            );
+
+            // Delete placement.
+            $DB->delete_records_select('lti_placement',
+                'toolid = ? AND placementtypeid ' . $insql,
+                [$type->id, ...$inparams]
+            );
         }
     }
 

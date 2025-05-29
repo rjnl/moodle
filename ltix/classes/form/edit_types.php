@@ -234,19 +234,28 @@ class edit_types extends moodleform {
         $mform->setAdvanced('lti_secureicon');
         $mform->addHelpButton('lti_secureicon', 'secure_icon_url', 'core_ltix');
 
+        // Placement.
+        $mform->addElement('header', 'toolplacement', get_string('placement', 'core_ltix'));
+
         // Get registered placement types.
         $registeredplacementtypes = $DB->get_records_menu('lti_placement_type', null, 'id ASC', 'id,type');
 
-        // For each registered placement type, add the configuration options to the form.
-        // Each placement type should have a method to add it's config elements to the form.
+        $placementsoptions = [];
         foreach ($registeredplacementtypes as $key => $value) {
-            // Deduce the name of the method to call from the placement type.
-            $placementtypefunc = 'add_' . str_replace(':', '_', $value) . '_elements';
-            if (method_exists($this, $placementtypefunc)) {
-                $this->$placementtypefunc($mform, $key);
-            } else {
-                debugging("Placement configuration method for Placement '{$value}' not found.", DEBUG_DEVELOPER);
-            }
+            $placementsoptions[$key] = get_string($value, 'core_ltix');
+        }
+
+        $options = [
+            'multiple' => true,
+            'noselectionstring' => get_string('lti_tool_placements_emptyconfig', 'core_ltix'),
+        ];
+        $mform->addElement('autocomplete', 'toolplacements', get_string('lti_tool_placements', 'core_ltix'), $placementsoptions, $options);
+        $mform->addHelpButton('toolplacements', 'lti_tool_placements', 'core_ltix');
+
+        // Add placement configuration options to the form.
+        // This ideally should depend on the selection of the "toolplacements" element.
+        foreach ($registeredplacementtypes as $key => $value) {
+            $this->add_placement_config_elements($mform, $key, explode(':', $value)[1]);
         }
 
         // Restrict to course categories.
@@ -362,18 +371,20 @@ class edit_types extends moodleform {
     }
 
     /**
-     * Adds the Activity chooser placement section to the form.
+     * Adds the placement config section to the form.
      *
      * @param MoodleQuickForm $mform
      * @param int $placementtypeid The ID of the placement type.
+     * @param string $nameidentifier The name of the placement type.
      */
-    protected function add_mod_lti_activityplacement_elements(&$mform, $placementtypeid) {
+    protected function add_placement_config_elements(&$mform, $placementtypeid, $nameidentifier) {
         global $OUTPUT;
 
+        // In the future we will have more placement types, so use a suffix to avoid duplicate element names.
         $suffix = "_placement_{$placementtypeid}"; // Use placement type id as suffix.
 
-        $mform->addElement('header', 'toolplacement-activitychooser', get_string('placement_activitychooser', 'core_ltix'));
-        $description = get_string('placement_activitychooserdescription', 'core_ltix');
+        $mform->addElement('header', 'toolplacement'.$suffix, get_string('placement_'.$nameidentifier, 'core_ltix'));
+        $description = get_string('placement_'.$nameidentifier.'description', 'core_ltix');
         $mform->addElement('html',
             $OUTPUT->render_from_template('core_ltix/placementdescription', ['placementdescription' => $description])
         );

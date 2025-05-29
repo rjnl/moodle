@@ -25,6 +25,8 @@ Feature: Configure placements for a tool
     And I set the following fields in the "Tool settings" "fieldset" to these values:
       | Tool name        | Test Tool 2                     |
       | Tool URL         | http://example.com              |
+    And I expand all fieldsets
+    And I set the field "Placements" in the "Placement" "fieldset" to "Activity chooser"
     And I set the following fields in the "Placement: Activity chooser" "fieldset" to these values:
       | LTI Deep Linking Request     | 1                      |
       | LTI Deep Linking URL         | http://deeplink        |
@@ -33,6 +35,7 @@ Feature: Configure placements for a tool
     And I press "Save changes"
     Then I should see "Test Tool 2"
     And I click on "Edit" "link"
+    And "Activity chooser" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Activity chooser" "fieldset" match these values:
       | LTI Deep Linking Request     | 1                      |
       | LTI Deep Linking URL         | http://deeplink        |
@@ -49,7 +52,9 @@ Feature: Configure placements for a tool
     And I navigate to "LTI > Manage tools" in site administration
     And I should see "Test Tool 1"
     When I click on "Edit" "link"
+    And I expand all fieldsets
     Then I should see "Placement: Activity chooser"
+    And I set the field "Placements" in the "Placement" "fieldset" to "Activity chooser"
     And I set the following fields in the "Placement: Activity chooser" "fieldset" to these values:
       | LTI Deep Linking Request     | 1                      |
       | LTI Deep Linking URL         | http://deeplink        |
@@ -57,6 +62,7 @@ Feature: Configure placements for a tool
       | Text                         | Some text for the tool |
     And I press "Save changes"
     And I click on "Edit" "link"
+    Then "Activity chooser" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Activity chooser" "fieldset" match these values:
       | LTI Deep Linking Request     | 1                      |
       | LTI Deep Linking URL         | http://deeplink        |
