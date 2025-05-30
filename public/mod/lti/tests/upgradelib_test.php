@@ -360,16 +360,11 @@ final class upgradelib_test extends \advanced_testcase {
             'coursevisible' => lti_migration_upgrade_helper::LEGACY_LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'lti_contentitem' => 1,
         ]);
-        // A link created using tool1 in course 1.
-        $tool1instance1 = $ltigenerator->create_instance([
-            'course' => $course1->id,
-            'typeid' => $tool1id,
-        ]);
-        // Another link created using tool1 in course 2.
-        $tool1instance2 = $ltigenerator->create_instance([
-            'course' => $course2->id,
-            'typeid' => $tool1id,
-        ]);
+
+        // Create tool1 instance in course1.
+        $tool1instance1id = $this->create_legacy_instance($course1, $tool1id);
+        // Create tool1 instance in course2.
+        $tool1instance2id = $this->create_legacy_instance($course2, $tool1id);
 
         // Course tool.
         $tool2id = $ltigenerator->create_course_tool_types([
@@ -379,40 +374,25 @@ final class upgradelib_test extends \advanced_testcase {
             'baseurl' => 'https://example2.com/launch',
             'coursevisible' => lti_migration_upgrade_helper::LEGACY_LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'lti_contentitem' => 1,
-            'course' => $course1->id,
-        ]);
-        // A link created using tool2 in course 2.
-        $tool2instance = $ltigenerator->create_instance([
             'course' => $course2->id,
-            'typeid' => $tool2id,
         ]);
 
+        // Create tool2 instance in course2.
+        $tool2instanceid = $this->create_legacy_instance($course2, $tool2id);
         // Manually configured instance (legacy).
-        $manuallyconfigureinstance = $ltigenerator->create_instance([
-            'course' => $course1->id,
-            'toolurl' => 'https://example3.com/launch',
-            'typeid' => null, // NOTE: This results in a '0' in the typeid column.
-        ]);
-
-        // Instance where typeid = null, which can occur during restore when a tool is not included and can't be linked.
-        $simulatedrestore = $ltigenerator->create_instance([
-            'course' => $course1->id,
-            'toolurl' => 'https://example3.com/launch',
-        ]);
-        $DB->set_field('lti', 'typeid', null, ['id' => $simulatedrestore->id]); // This results in a 'null' in typeid column.
+        $manuallyconfigureinstanceid = $this->create_legacy_instance($course1, null, 'https://example3.com/launch');
+        // Simulate restored tool instance. Instance where typeid = null, which can occur during restore when a tool is
+        // not included and can't be linked.
+        $restoredinstanceid = $this->create_legacy_instance($course1, null, 'https://example3.com/launch');
 
         // The ids of all lti instances.
         $instanceids = [
-            $tool1instance1->id,
-            $tool1instance2->id,
-            $tool2instance->id,
-            $manuallyconfigureinstance->id,
-            $simulatedrestore->id,
+            $tool1instance1id,
+            $tool1instance2id,
+            $tool2instanceid,
+            $manuallyconfigureinstanceid,
+            $restoredinstanceid,
         ];
-
-        // Delete all existing resource links created as part of instance creation code,
-        // to simulate legacy instances which do not have these links.
-        $DB->delete_records('lti_resource_link');
 
         // Create the links, verifying that a link is created for each lti instance, and has the same id.
         $migrationhelper = new lti_migration_upgrade_helper();
@@ -435,5 +415,42 @@ final class upgradelib_test extends \advanced_testcase {
         ]);
         $newlink->save();
         $this->assertEquals(max($instanceids) + 1, $newlink->get('id'));
+    }
+
+
+    /**
+     * Creates a simulated legacy LTI instance without resource links.
+     *
+     * This method inserts LTI instance data directly into the relevant database tables, intentionally skipping the
+     * creation of resource links in order to accurately simulate a legacy tool instance. It serves as an alternative to
+     * the generator method create_instance(), which is not suitable for creating legacy instances since it always
+     * automatically creates resource links for any new instance.
+     *
+     * @param object $course The course object
+     * @param int|null $typeid Type ID of the LTI tool
+     * @param string $toolurl The tool's URL
+     * @return int The ID od the created tool instance
+     */
+    private function create_legacy_instance(object $course, ?int $typeid, string $toolurl = ''): int {
+        global $DB;
+
+        $toolinstanceid = $DB->insert_record('lti', [
+            'course' => $course->id,
+            'typeid' => $typeid,
+            'toolurl' => $toolurl,
+        ]);
+
+        $cmdid = $DB->insert_record('course_modules', [
+            'course' => $course->id,
+            'module' => $DB->get_field('modules', 'id', ['name' => 'lti']),
+            'instance' => $toolinstanceid
+        ]);
+
+        $DB->insert_record('context', [
+            'contextlevel' => CONTEXT_MODULE,
+            'instanceid' => $cmdid
+        ]);
+
+        return $toolinstanceid;
     }
 }

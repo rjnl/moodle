@@ -19,7 +19,10 @@ Feature: Restoring Moodle 2 backup restores LTI configuration
   Scenario: Backup and restore course with preconfigured site LTI tool on the same site
     Given the following "core_ltix > tool types" exist:
       | name         | description           | baseurl                | coursevisible | state |
-      | My site tool | Site tool description | https://www.moodle.org | 2             | 1     |
+      | My site tool | Site tool description | https://www.moodle.org | 1             | 1     |
+    And the following "core_ltix > tool placements" exist:
+      | tool         | placementtype             | config_default_usage |
+      | My site tool | mod_lti:activityplacement | enabled              |
     And the following "mod_lti > tool instances" exist:
       | name          | tool         | course |
       | My LTI module | My site tool | C1     |
@@ -39,6 +42,9 @@ Feature: Restoring Moodle 2 backup restores LTI configuration
     Given the following "core_ltix > course tools" exist:
       | name           | description         | baseurl                                 | course | lti_resourcekey | lti_password | lti_launchcontainer |
       | My course tool | Example description | http://www.example.com/lti/provider.php | C1     | my key          | my secret    | 5                   |
+    And the following "core_ltix > tool placements" exist:
+      | tool           | placementtype             | config_default_usage |
+      | My course tool | mod_lti:activityplacement | enabled              |
     # In the first course create an LTI module that uses a course preconfigured tool
     And the following "mod_lti > tool instances" exist:
       | name                 | tool           | course |
