@@ -1955,12 +1955,21 @@ MwIDAQAB
      * Test for_user is passed as parameter when specified.
      */
     public function test_lti_get_launch_data_with_for_user(): void {
+        global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
         $config = new \stdClass();
         $config->lti_organizationid = '';
         $course = $this->getDataGenerator()->create_course();
         $type = $this->create_type($config);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $type->id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $link = $this->create_instance($type, $course);
         $launchdata = lti_get_launch_data($link, '', '', 345);
         $this->assertDebuggingCalled();
@@ -1972,12 +1981,21 @@ MwIDAQAB
      * Test default orgid is host if not specified in config (tool installed in earlier version of Moodle).
      */
     public function test_lti_get_launch_data_default_organizationid_unset_usehost(): void {
+        global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
         $config = new \stdClass();
         $config->lti_organizationid = '';
         $course = $this->getDataGenerator()->create_course();
         $type = $this->create_type($config);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $type->id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $link = $this->create_instance($type, $course);
         $launchdata = lti_get_launch_data($link);
         $this->assertDebuggingCalled();
@@ -1988,6 +2006,7 @@ MwIDAQAB
      * Test default org id is set to host when config is usehost.
      */
     public function test_lti_get_launch_data_default_organizationid_set_usehost(): void {
+        global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
         $config = new \stdClass();
@@ -1995,6 +2014,14 @@ MwIDAQAB
         $config->lti_organizationid_default = \core_ltix\constants::LTI_DEFAULT_ORGID_SITEHOST;
         $course = $this->getDataGenerator()->create_course();
         $type = $this->create_type($config);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $type->id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $link = $this->create_instance($type, $course);
         $launchdata = lti_get_launch_data($link);
         $this->assertDebuggingCalled();
@@ -2005,6 +2032,7 @@ MwIDAQAB
      * Test default org id is set to site id when config is usesiteid.
      */
     public function test_lti_get_launch_data_default_organizationid_set_usesiteid(): void {
+        global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
         $config = new \stdClass();
@@ -2012,6 +2040,14 @@ MwIDAQAB
         $config->lti_organizationid_default = \core_ltix\constants::LTI_DEFAULT_ORGID_SITEID;
         $course = $this->getDataGenerator()->create_course();
         $type = $this->create_type($config);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $type->id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $link = $this->create_instance($type, $course);
         $launchdata = lti_get_launch_data($link);
         $this->assertDebuggingCalled();
@@ -2022,6 +2058,7 @@ MwIDAQAB
      * Test orgid can be overridden in which case default is ignored.
      */
     public function test_lti_get_launch_data_default_organizationid_orgid_override(): void {
+        global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
         $config = new \stdClass();
@@ -2029,6 +2066,14 @@ MwIDAQAB
         $config->lti_organizationid_default = \core_ltix\constants::LTI_DEFAULT_ORGID_SITEID;
         $course = $this->getDataGenerator()->create_course();
         $type = $this->create_type($config);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $type->id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $link = $this->create_instance($type, $course);
         $launchdata = lti_get_launch_data($link);
         $this->assertDebuggingCalled();
@@ -2461,6 +2506,7 @@ MwIDAQAB
         $type->description = "Example description";
         $type->clientid = "Test client ID";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+        $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
 
         $configbase = new \stdClass();
         $configbase->lti_acceptgrades = \core_ltix\constants::LTI_SETTING_NEVER;

@@ -38,12 +38,22 @@ final class lineitem_test extends \advanced_testcase {
      * Test updating the line item with submission review.
      */
     public function test_execute_put_nosubreview(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
         $resourceid = 'test-resource-id';
         $tag = 'tag';
         $course = $this->getDataGenerator()->create_course();
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
 
         // The 1st item in the array is the items count.
 
@@ -80,6 +90,8 @@ final class lineitem_test extends \advanced_testcase {
      * Test updating the line item with submission review.
      */
     public function test_execute_put_withsubreview(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
         $resourceid = 'test-resource-id';
@@ -88,6 +100,14 @@ final class lineitem_test extends \advanced_testcase {
         $subreviewparams = 'a=2';
         $course = $this->getDataGenerator()->create_course();
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
 
         // The 1st item in the array is the items count.
 
@@ -129,6 +149,8 @@ final class lineitem_test extends \advanced_testcase {
      * Test updating the line item with submission review.
      */
     public function test_execute_put_addsubreview(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
         $resourceid = 'test-resource-id';
@@ -136,6 +158,14 @@ final class lineitem_test extends \advanced_testcase {
         $subreviewurl = 'https://subreview.example.com';
         $course = $this->getDataGenerator()->create_course();
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
 
         // The 1st item in the array is the items count.
 
@@ -178,13 +208,22 @@ final class lineitem_test extends \advanced_testcase {
      * @return void
      */
     public function test_sequential_score_posts(): void {
-        global $CFG;
+        global $CFG, $DB;
+
         require_once($CFG->dirroot . '/mod/lti/locallib.php');
         $this->resetAfterTest();
         $resourceid = 'test-resource-id';
         $tag = 'tag';
         $course = $this->getDataGenerator()->create_course();
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $user = $this->getDataGenerator()->create_and_enrol($course);
 
         // Create mod instance with line item - nothing pushed via services yet.
@@ -300,6 +339,7 @@ final class lineitem_test extends \advanced_testcase {
         $type->description = "Example description";
         $type->clientid = "Test client ID";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+        $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
 
         $config = new \stdClass();
         $config->ltixservice_gradesynchronization = 2;

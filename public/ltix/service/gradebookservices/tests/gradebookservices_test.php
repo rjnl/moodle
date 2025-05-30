@@ -45,12 +45,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * that can be retrieved using the gradebook service API.
      */
     public function test_lti_add_coupled_lineitem(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $course = $this->getDataGenerator()->create_course();
         $resourceid = 'test-resource-id';
         $tag = 'tag';
@@ -80,12 +90,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * that can be retrieved using the gradebook service API.
      */
     public function test_lti_add_coupled_lineitem_default_subreview(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $course = $this->getDataGenerator()->create_course();
         $resourceid = 'test-resource-id';
         $tag = 'tag';
@@ -130,12 +150,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * the line items should be actually passed.
      */
     public function test_get_launch_parameters_coupled(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $course = $this->getDataGenerator()->create_course();
 
         $ltiinstance = $this->create_graded_lti($typeid, $course, 'resource-id', 'tag', 'https://subreview.url', 'sub=review');
@@ -161,12 +191,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * launch is submission review.
      */
     public function test_get_launch_parameters_coupled_subreview_override(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $course = $this->getDataGenerator()->create_course();
 
         $ltiinstance = $this->create_graded_lti($typeid, $course, 'resource-id', 'tag',
@@ -189,12 +229,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * launch is submission review.
      */
     public function test_get_launch_parameters_coupled_subreview_override_default(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
         $course = $this->getDataGenerator()->create_course();
 
         $ltiinstance = $this->create_graded_lti($typeid, $course, 'resource-id', 'tag',
@@ -217,12 +267,22 @@ final class gradebookservices_test extends \advanced_testcase {
      * if there is a single line item attached to that lti instance.
      */
     public function test_get_launch_parameters_decoupled(): void {
+        global $DB;
+
         $this->resetAfterTest();
         $this->setAdminUser();
 
         // Create a tool type, associated with that proxy.
 
         $typeid = $this->create_type();
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
 
         $course = $this->getDataGenerator()->create_course();
 
@@ -402,6 +462,7 @@ final class gradebookservices_test extends \advanced_testcase {
         $type->description = "Example description";
         $type->clientid = "Test client ID";
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
+        $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
 
         $config = new \stdClass();
         $config->ltixservice_gradesynchronization = 2;
