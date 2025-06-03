@@ -1105,4 +1105,89 @@ final class helper_test extends lti_testcase {
         ];
     }
 
+    /**
+     * Test the insert_or_update_placement_config() helper function.
+     *
+     * @covers ::insert_or_update_placement_config
+     */
+    public function test_insert_or_update_placement_config(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Create a dummy placement record to reference.
+        $placement = new \stdClass();
+        $placement->toolid = 1;
+        $placement->placementtypeid = 1;
+        $placementid = $DB->insert_record('lti_placement', $placement);
+
+        // Insert a new config.
+        $record = new \stdClass();
+        $record->placementid = $placementid;
+        $record->name = 'testconfig';
+        $record->value = 'foo';
+
+        helper::insert_or_update_placement_config($record);
+
+        $dbrecord = $DB->get_records('lti_placement_config', [
+            'placementid' => $placementid,
+            'name' => 'testconfig',
+        ]);
+
+        $this->assertNotEmpty($dbrecord);
+        $this->assertEquals(1, count($dbrecord));
+        $this->assertEquals('foo', reset($dbrecord)->value);
+
+        // Update the config.
+        $record->value = 'bar';
+        helper::insert_or_update_placement_config($record);
+
+        $dbrecord2 = $DB->get_record('lti_placement_config', [
+            'placementid' => $placementid,
+            'name' => 'testconfig',
+        ]);
+
+        $this->assertNotEmpty($dbrecord2);
+        $this->assertEquals('bar', $dbrecord2->value);
+    }
+
+    /**
+     * Test the test_load_placement_config() helper function.
+     *
+     * @covers ::test_load_placement_config
+     */
+    public function test_load_placement_config(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Create a placement for this tool.
+        $toolid = 1;
+        $placementtypeid = 1;
+        $placement = new \stdClass();
+        $placement->toolid = $toolid;
+        $placement->placementtypeid = $placementtypeid;
+        $placementid = $DB->insert_record('lti_placement', $placement);
+
+        // Create a placement config.
+        $config = new \stdClass();
+        $config->placementid = $placementid;
+        $config->name = 'deeplinkingurl';
+        $config->value = 'http://deeplink.example.com';
+        helper::insert_or_update_placement_config($config);
+
+        // Call the method under test.
+        $result = helper::load_placement_config($toolid);
+
+        // Property'toolplacements' should exist.
+        $this->assertObjectHasProperty('toolplacements', $result);
+        // Placement type id should exist.
+        $this->assertContains('1', $result->toolplacements);
+
+        // Assert the config property is correct.
+        $suffix = '_placement_' . $placementtypeid;
+        $this->assertEquals('http://deeplink.example.com', $result->{'deeplinkingurl' . $suffix});
+        // Checkbox property is set to 1.
+        $this->assertEquals(1, $result->{'deeplinking' . $suffix});
+    }
 }
