@@ -183,6 +183,49 @@ class core_ltix_generator extends testing_module_generator {
     }
 
     /**
+     * Create a tool placement.
+     *
+     * Note:
+     * - The toolid and placementtypeid keys are required. A placement cannot be created without these.
+     * - Placement config can be provided using a 'config_' prefix on any config array keys.
+     * e.g. 'config_mykey' => 'test' would set 'mykey' to the value 'test'.
+     * - The default_usage config key can be omitted and will be defaulted to 'enabled' in such cases.
+     *
+     * @param array $data the tool placement data, including config.
+     * @return stdClass the tool placement, including config which can be accessed via the 'config' property.
+     */
+    public function create_tool_placements(array $data): stdClass {
+        global $DB;
+
+        // Sensible defaults, permitting the placement to be enabled in all courses without the need for state overrides.
+        $data['config_default_usage'] = $data['config_default_usage'] ?? 'enabled';
+
+        $placement = array_filter(
+            $data,
+            fn($val, $key) => !str_contains($key, 'config_'),
+            ARRAY_FILTER_USE_BOTH
+        );
+        $placementconfig = array_diff_key($data, $placement);
+        $placement = (object) $placement;
+        $placement->id = $DB->insert_record('lti_placement', $placement);
+
+        $setconfig = [];
+        foreach ($placementconfig as $name => $value) {
+            $configname = substr($name, strlen('config_'));
+            $configrow = (object) [
+                'placementid' => $placement->id,
+                'name' => $configname,
+                'value' => $value,
+            ];
+            $DB->insert_record('lti_placement_config', $configrow);
+            $setconfig[$configname] = $value;
+        }
+        $placement->config = $setconfig;
+
+        return $placement;
+    }
+
+    /**
      * Generate a placement status override for the placement in the context.
      *
      * @param int $placementid the id of the tool placement.
