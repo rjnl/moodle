@@ -50,6 +50,12 @@ class behat_core_ltix_generator extends behat_generator_base {
                 'required' => ['baseurl', 'course'],
                 'switchids' => ['course' => 'course']
             ],
+            'tool placements' => [
+                'singular' => 'tool placement',
+                'datagenerator' => 'tool_placements',
+                'required' => ['placementtype', 'tool'],
+                'switchids' => ['tool' => 'toolid', 'placementtype' => 'placementtypeid']
+            ],
         ];
     }
 
@@ -71,5 +77,35 @@ class behat_core_ltix_generator extends behat_generator_base {
         }
 
         return implode(',', $ids);
+    }
+
+    /**
+     * Handles the switchid ['tool' => 'toolid'] for finding a tool by name.
+     *
+     * @param string $name the name of the tool.
+     * @return int the id of the tool type identified by the name $name.
+     */
+    protected function get_tool_id(string $name): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('lti_types', 'id', ['name' => $name])) {
+            throw new coding_exception('The specified tool with name "' . $name . '" does not exist');
+        }
+        return (int) $id;
+    }
+
+    /**
+     * Handles the switchid ['placementtype' => 'placementtypeid'] for finding a placement type by name.
+     *
+     * @param string $type the type string of the placement type.
+     * @return int the id of the placement type identified by the type $name.
+     */
+    protected function get_placementtype_id(string $type): int {
+        global $DB;
+
+        if (!$id = $DB->get_field('lti_placement_type', 'id', ['type' => $type])) {
+            throw new coding_exception('The specified placement type with type "' . $type . '" does not exist');
+        }
+        return (int) $id;
     }
 }
