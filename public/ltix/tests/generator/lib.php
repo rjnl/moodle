@@ -150,39 +150,6 @@ class core_ltix_generator extends testing_module_generator {
     }
 
     /**
-     * Create a tool placement of the given type for testing.
-     *
-     * @param int $toolid the tool id.
-     * @param int $placementtypeid the id of the placement type.
-     * @param array $placementconfig the array of placement config in the form of ['configname' => 'configvalue'].
-     * @return stdClass the placement record.
-     */
-    public function create_placement(int $toolid, int $placementtypeid, array $placementconfig = []): stdClass {
-        global $DB;
-
-        $placement = (object) [
-            'toolid' => $toolid,
-            'placementtypeid' => $placementtypeid
-        ];
-        $placement->id = $DB->insert_record('lti_placement', $placement);
-
-        if (empty($placementconfig)) {
-            $placementconfig = ['default_usage' => 'disabled'];
-        }
-
-        foreach ($placementconfig as $name => $value) {
-            $configrow = (object) [
-                'placementid' => $placement->id,
-                'name' => $name,
-                'value' => $value,
-            ];
-            $DB->insert_record('lti_placement_config', $configrow);
-        }
-
-        return $placement;
-    }
-
-    /**
      * Create a tool placement.
      *
      * Note:

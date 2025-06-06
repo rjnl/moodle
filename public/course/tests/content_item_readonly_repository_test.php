@@ -102,7 +102,7 @@ final class content_item_readonly_repository_test extends \advanced_testcase {
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
         $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
-        $ltigenerator->create_placement($toolid, $placementtypeid, ['default_usage' => 'enabled']);
+        $ltigenerator->create_tool_placements(['toolid' => $toolid, 'placementtypeid' => $placementtypeid]);
         $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
         assign_capability('mod/lti:addpreconfiguredinstance', CAP_PROHIBIT, $teacherrole->id,
             \core\context\course::instance($course->id));

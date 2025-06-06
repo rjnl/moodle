@@ -131,13 +131,21 @@ final class types_helper_test extends lti_testcase {
         // Creating placements as part of core_ltix architecture migration
         $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
         $otherplacementtype = $ltigenerator->create_placement_type('core_ltix', 'other:placementtype');
-
-        $ltigenerator->create_placement($tool1id, $placementtypeid);
-        $ltigenerator->create_placement($tool2id, $placementtypeid);
-        $ltigenerator->create_placement($tool3id, $placementtypeid);
-        $ltigenerator->create_placement($tool4id, $placementtypeid);
-        $ltigenerator->create_placement($tool5id, $placementtypeid);
-        $ltigenerator->create_placement($tool6id, $otherplacementtype->id);
+        $toolplacementsmap = [
+            $tool1id => $placementtypeid,
+            $tool2id => $placementtypeid,
+            $tool3id => $placementtypeid,
+            $tool4id => $placementtypeid,
+            $tool5id => $placementtypeid,
+            $tool6id => $otherplacementtype->id,
+        ];
+        foreach ($toolplacementsmap as $toolid => $placementtypeid) {
+            $ltigenerator->create_tool_placements([
+                'toolid' => $toolid,
+                'placementtypeid' => $placementtypeid,
+                'config_default_usage' => 'disabled',
+            ]);
+        }
 
         // Request using the default 'coursevisible' param will include all tools
         // except the one configured as:
