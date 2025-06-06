@@ -14,14 +14,22 @@ Feature: Add tools
     And the following "course enrolments" exist:
       | user | course | role |
       | teacher1 | C1 | editingteacher |
-    # A site tool configured to show as a preconfigured tool and in the activity chooser.
+    # A site tool configured to show in courses.
     And the following "core_ltix > tool types" exist:
-      | name            | baseurl                                   | coursevisible | state |
-      | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
+      | name            | baseurl                                | coursevisible | state |
+      | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
+    # Configure the site tool's activity chooser placement, so it will be shown in the activity chooser.
+    And the following "core_ltix > tool placements" exist:
+      | tool            | placementtype             | config_default_usage |
+      | Teaching Tool 1 | mod_lti:activityplacement | enabled              |
     # A course tool in course 1.
     And the following "core_ltix > course tools" exist:
-      | name          | baseurl                                   | course |
+      | name          | baseurl                                | course |
       | Course tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     |
+    # Configure the course tool's activity chooser placement, so it will be shown in the activity chooser.
+    And the following "core_ltix > tool placements" exist:
+      | tool          | placementtype             | config_default_usage |
+      | Course tool 1 | mod_lti:activityplacement | enabled              |
 
   @javascript
   Scenario: Add a site tool via the activity picker
