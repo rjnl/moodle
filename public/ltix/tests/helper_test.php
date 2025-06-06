@@ -1145,13 +1145,17 @@ final class helper_test extends lti_testcase {
         $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
 
         // Create placements for each types
-        $placement1 = $ltigenerator->create_placement($toolid, $placementtype1->id, [
-            'default_usage' => $placementdefault,
-            'supports_deep_linking' => 0,
+        $placement1 = $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $placementtype1->id,
+            'config_default_usage' => $placementdefault,
+            'config_supports_deep_linking' => 0,
         ]);
-        $placement2 = $ltigenerator->create_placement($toolid, $placementtype2->id, [
-            'default_usage' => $placementdefault,
-            'supports_deep_linking' => 0,
+        $placement2 = $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $placementtype2->id,
+            'config_default_usage' => $placementdefault,
+            'config_supports_deep_linking' => 0,
         ]);
 
         // Overrides placements with the value from data provider

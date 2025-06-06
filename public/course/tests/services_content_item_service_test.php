@@ -122,11 +122,10 @@ final class services_content_item_service_test extends \advanced_testcase {
             'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
-        $ltigenerator->create_placement(
-            $toolid,
-            $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']),
-            ['default_usage' => 'enabled']
-        );
+        $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']),
+        ]);
         $cis = new content_item_service(new content_item_readonly_repository());
         $this->setUser($user); // This is needed since the underlying lti code needs the global user despite the api accepting user.
 

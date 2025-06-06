@@ -404,10 +404,24 @@ final class lib_test extends \advanced_testcase {
 
         $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
 
-        $ltigenerator->create_placement($sitetoolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
-        $ltigenerator->create_placement($sitetoolrecordnonchooserid, $placementtypeid, ['default_usage' => 'disabled']);
-        $ltigenerator->create_placement($course1toolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
-        $ltigenerator->create_placement($course2toolrecordid, $placementtypeid, ['default_usage' => 'enabled']);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $sitetoolrecordid,
+            'placementtypeid' => $placementtypeid,
+        ]);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $sitetoolrecordnonchooserid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'disabled',
+        ]);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $course1toolrecordid,
+            'placementtypeid' => $placementtypeid,
+        ]);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $course2toolrecordid,
+            'placementtypeid' => $placementtypeid,
+        ]);
+
 
         $defaultmodulecontentitem = new \core_course\local\entity\content_item(
             '1',
