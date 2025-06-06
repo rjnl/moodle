@@ -131,8 +131,8 @@ function lti_add_instance($lti, $mform) {
         'typeid' => $lti->typeid,
         'component' => 'mod_lti',
         'itemtype' => 'mod_lti:activityplacement',
-        'itemid' => $lti->id,
-        'contextid' => $lti->coursemodule,
+        'itemid' => $lti->coursemodule,
+        'contextid' => \core\context\module::instance($lti->coursemodule)->id,
         'url' => $lti->toolurl,
         'title' => $lti->name,
         'text' => $lti->intro,
@@ -200,20 +200,23 @@ function lti_update_instance($lti, $mform) {
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
     $rl = new resource_link();
-    $ltiresourcelink = $rl->get_record(['itemid' => $lti->id, 'component' => 'mod_lti', 'itemtype' => 'mod_lti:activityplacement']);
+    $ltiresourcelink = $rl->get_record([
+        'itemid' => $lti->coursemodule,
+        'component' => 'mod_lti',
+        'itemtype' => 'mod_lti:activityplacement'
+    ]);
 
     $ltiresourcelinkformvalues = [
         'typeid' => $lti->typeid,
         'component' => 'mod_lti',
         'itemtype' => 'mod_lti:activityplacement',
-        'itemid' => $lti->id,
-        'contextid' => $lti->coursemodule,
+        'itemid' => $lti->coursemodule,
+        'contextid' => \core\context\module::instance($lti->coursemodule)->id,
         'url' => $lti->toolurl,
         'title' => $lti->name,
         'text' => $lti->intro,
         'textformat' => $lti->introformat,
         'gradable' => $lti->instructorchoiceacceptgrades,
-        'servicesalt' => $lti->servicesalt,
         ...(!isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
         ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
         ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
@@ -264,7 +267,11 @@ function lti_delete_instance($id) {
             $service->instance_deleted( $id );
         }
         $rl = new resource_link();
-        $ltiresourcelink = $rl->get_record(['itemid' => $id, 'component' => 'mod_lti', 'itemtype' => 'mod_lti:activityplacement']);
+        $ltiresourcelink = $rl->get_record([
+            'itemid' => $cm->id,
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement'
+        ]);
         $ltiresourcelink->delete();
         return true;
     }

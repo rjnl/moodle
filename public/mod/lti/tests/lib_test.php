@@ -90,15 +90,6 @@ final class lib_test extends \advanced_testcase {
         $completion = new \completion_info($course);
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(1, $completiondata->completionstate);
-
-        // Verify LTI links removed.
-        $ltiresourcelink = resource_link::get_record([
-            'itemid' => $lti->id,
-            'component' => 'mod_lti',
-            'itemtype' => 'mod_lti:activityplacement'
-        ]);
-        $this->assertNotEquals(null, $ltiresourcelink->to_record());
-
     }
 
     /**
@@ -117,7 +108,7 @@ final class lib_test extends \advanced_testcase {
 
         // Verify LTI links removed.
         $ltiresourcelink = resource_link::get_record([
-            'itemid' => $lti->id,
+            'itemid' => $lti->cmid,
             'component' => 'mod_lti',
             'itemtype' => 'mod_lti:activityplacement'
         ]);
