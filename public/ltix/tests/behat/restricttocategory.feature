@@ -27,7 +27,11 @@ Feature: Make an LTI only available to specific course categories
     And the following "core_ltix > tool types" exist:
       | name            | description        | baseurl                                | coursevisible | state | lti_coursecategories |
       | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | catb                 |
-      | Teaching Tool 2 | Tool 2 description | /ltix/tests/fixtures/tool_provider.php | 2             | 1     | catca                |
+      | Teaching Tool 2 | Tool 2 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | catca                |
+    # Configure Teaching Tool 2's activity chooser placement, so it will be shown in the activity chooser.
+    And the following "core_ltix > tool placements" exist:
+      | tool            | placementtype             | config_default_usage |
+      | Teaching Tool 2 | mod_lti:activityplacement | enabled              |
 
   Scenario: Tool is set to "Show as preconfigured tool when adding an external tool" on parent category
     Given I am on the "Course 2" course page logged in as teacher1

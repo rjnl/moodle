@@ -14,9 +14,14 @@ Feature: Content-Item support
     And the following "course enrolments" exist:
       | user | course | role |
       | teacher1 | C1 | editingteacher |
+    # A site tool configured to show in courses.
     And the following "core_ltix > tool types" exist:
       | name            | description        | baseurl                                | coursevisible | state | lti_contentitem |
-      | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 2             | 1     | 1               |
+      | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | 1               |
+    # Configure the site tool's activity chooser placement, so it will be shown in the activity chooser.
+    And the following "core_ltix > tool placements" exist:
+      | tool            | placementtype             | config_default_usage | config_supports_deep_linking |
+      | Teaching Tool 1 | mod_lti:activityplacement | enabled              | 1                            |
 
   @javascript
   Scenario: Tool that supports Deep Linking should be able to configure a tool via the Select content button
