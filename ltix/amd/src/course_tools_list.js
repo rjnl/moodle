@@ -31,6 +31,7 @@ import {getString, getStrings} from 'core/str';
 import {refreshTableContent} from 'core_table/dynamic';
 import * as Selectors from 'core_table/local/dynamic/selectors';
 import {toggleShowInActivityChooser} from "./repository";
+import ModalForm from 'core_form/modalform';
 
 /**
  * Initialise module.
@@ -88,6 +89,32 @@ export const init = () => {
                 courseShowInActivityChooser.dataset.courseid,
                 showInActivityChooserStateToggle,
             );
+        }
+
+        // Manage placements context menu.
+        const courseToolManagePlacements = event.target.closest('[data-action="manage-placements"]');
+        if (courseToolManagePlacements) {
+            event.preventDefault();
+
+            const modalForm = new ModalForm({
+                modalConfig: {
+                    title: getString('manageplacements', 'core_ltix'),
+                },
+                formClass: '\\core_ltix\\form\\manage_placements_form',
+                args: {
+                    toolid: courseToolManagePlacements.dataset.toolid,
+                    courseid: courseToolManagePlacements.dataset.courseid,
+                },
+                saveButtonText: getString('apply', 'core'),
+                returnFocus: courseToolManagePlacements,
+            });
+
+            // Show a toast notification when the form is submitted.
+            modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
+                addToast(getString('placementstatussaved', 'core_ltix'));
+            });
+
+            modalForm.show();
         }
     });
 };
