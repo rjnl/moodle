@@ -200,17 +200,8 @@ class course_external_tools_list extends system_report {
             ->add_callback(function($field, $row) {
                 global $OUTPUT;
 
-                // Lock actions for site-level preconfigured tools.
-                if (get_site()->id == $row->course) {
-                    return \html_writer::div(
-                        \html_writer::div(
-                            $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'core_ltix')
-                        ), 'tool-action-icon-container'), 'd-flex justify-content-end'
-                    );
-                }
-
                 // Lock actions when the user can't add course tools.
-                if (!has_capability('moodle/ltix:addcoursetool', \context_course::instance($row->course))) {
+                if (!has_capability('moodle/ltix:addcoursetool', \context_course::instance($this->course->id))) {
                     return \html_writer::div(
                         \html_writer::div(
                             $OUTPUT->pix_icon('t/locked', get_string('courseexternaltoolsnoeditpermissions', 'core_ltix')
@@ -224,25 +215,43 @@ class course_external_tools_list extends system_report {
                     'btn btn-icon d-flex'); // TODO check 'actions' lang string with UX.
 
                 $menu->add(new \action_menu_link(
-                    new \moodle_url('/ltix/coursetooledit.php', ['course' => $row->course, 'typeid' => $row->id]),
-                    null,
-                    get_string('edit', 'core'),
-                    null
-                ));
-
-                $menu->add(new \action_menu_link(
                     new \moodle_url('#'),
                     null,
-                    get_string('delete', 'core'),
+                    get_string('manageplacements', 'core_ltix'),
                     null,
                     [
-                        'data-action' => 'course-tool-delete',
-                        'data-course-tool-id' => $row->id,
-                        'data-course-tool-name' => $row->name,
-                        'data-course-tool-usage' => $this->perrowtoolusage,
-                        'class' => 'text-danger',
-                    ],
+                        'data-action' => 'manage-placements',
+                        'data-toolid' => $row->id,
+                        'data-courseid' => $this->course->id,
+                    ]
                 ));
+
+                if (get_site()->id != $row->course) {
+                    $divider = new \core\output\action_menu\filler();
+                    $divider->primary = false;
+                    $menu->add($divider);
+
+                    $menu->add(new \action_menu_link(
+                        new \moodle_url('/ltix/coursetooledit.php', ['course' => $row->course, 'typeid' => $row->id]),
+                        null,
+                        get_string('edit', 'core'),
+                        null
+                    ));
+
+                    $menu->add(new \action_menu_link(
+                        new \moodle_url('#'),
+                        null,
+                        get_string('delete', 'core'),
+                        null,
+                        [
+                            'data-action' => 'course-tool-delete',
+                            'data-course-tool-id' => $row->id,
+                            'data-course-tool-name' => $row->name,
+                            'data-course-tool-usage' => $this->perrowtoolusage,
+                            'class' => 'text-danger',
+                        ],
+                    ));
+                }
 
                 return $OUTPUT->render($menu);
             });

@@ -1126,6 +1126,45 @@ class helper {
     }
 
     /**
+     * Get placement status records for a tool in a course.
+     *
+     * @param int $toolid the LTI tool id
+     * @param int $courseid the course id
+     * @return array the list of placements and their statuses.
+     */
+    public static function get_placement_status_for_tool(int $toolid, int $courseid): array {
+        global $DB;
+
+        $sql = <<<EOF
+            SELECT
+                pt.id AS placementtypeid,
+                pt.type,
+                pt.component,
+                CASE
+                    WHEN ps.status IS NOT NULL THEN ps.status
+                    WHEN pc.value = :placementconfigvalue THEN 1
+                    ELSE 0
+                END AS status
+            FROM {lti_placement_type} pt
+            JOIN {lti_placement} p ON p.placementtypeid = pt.id
+            LEFT JOIN {lti_placement_status} ps ON ps.placementid = p.id AND ps.contextid = :contextid
+            LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
+            WHERE p.toolid = :toolid
+            GROUP BY pt.id, pt.type, ps.status, pc.value
+            ORDER BY pt.id ASC
+        EOF;
+
+        $params = [
+            'toolid' => $toolid,
+            'contextid' => \core\context\course::instance($courseid)->id,
+            'placementconfigname' => 'default_usage',
+            'placementconfigvalue' => 'enabled',
+        ];
+
+        return $DB->get_records_sql($sql, $params);
+    }
+
+    /**
      * Override coursevisible for a given tool on course level.
      *
      * @param int $tooltypeid Type ID
