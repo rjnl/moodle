@@ -157,8 +157,11 @@ Tools listed on this page are separated into three categories:
 $string['manage_external_tools'] = 'Manage tools';
 $string['manage_tools'] = 'Manage preconfigured tools';
 $string['manage_tool_proxies'] = 'Manage external tool registrations';
+$string['manageplacements'] = 'Manage placements';
 $string['manuallyaddtype'] = 'Alternatively, you can <a href="{$a}">configure a tool manually</a>.';
 $string['miscellaneous'] = 'Miscellaneous';
+$string['mod_lti:activityplacement'] = 'Activity chooser';
+$string['mod_lti:activityplacement_description'] = 'Active.<br>Lets you add an external tool as a  new activity option in your course.';
 $string['name'] = 'Name';
 $string['never'] = 'Never';
 $string['new_window'] = 'New window';
@@ -206,6 +209,7 @@ along with the consumer key from the tool provider.
 Tools which do not require secure communication from Moodle and do not provide additional services (such as grade reporting)
 may not require a shared secret.';
 $string['pending'] = 'Pending';
+$string['placementstatussaved'] = 'Placement status saved.';
 $string['privacy'] = 'Privacy';
 $string['privacy:metadata:core_ltix'] = 'The LTI subsystem stores user data for LTI submissions and tools';
 $string['privacy:metadata:courseid'] = 'The ID of the course the user is accessing the LTI Consumer from';
@@ -371,4 +375,3 @@ $string['update'] = 'Update';
 $string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
-
