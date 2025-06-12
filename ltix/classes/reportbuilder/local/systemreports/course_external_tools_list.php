@@ -18,6 +18,7 @@ namespace core_ltix\reportbuilder\local\systemreports;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core_ltix\local\placement\placement_status;
 use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\column;
 use core_ltix\reportbuilder\local\entities\tool_types;
@@ -128,6 +129,54 @@ class course_external_tools_list extends system_report {
         ];
 
         $this->add_columns_from_entities($columns);
+
+        // Add a column to show all placement types for each tool.
+        $this->add_column(new column(
+            'activeplacement',
+            new \lang_string('activeplacement', 'core_ltix'),
+            $tooltypesentity->get_entity_name()
+        ))
+            ->set_type(column::TYPE_TEXT)
+            ->set_is_sortable(false)
+            ->add_field("{$entitymainalias}.id")
+            ->add_callback(function($toolid) {
+                global $DB;
+
+                $coursecontext = \core\context\course::instance($this->course->id);
+
+                $sql = "SELECT pt.type
+                        FROM {lti_types} t
+                        JOIN {lti_placement} p ON t.id = p.toolid
+                        JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id
+                        LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
+                        LEFT JOIN {lti_placement_status} ps ON p.id = ps.placementid AND ps.contextid = :contextid
+                        WHERE t.id = :toolid
+                          AND t.course = :courseid
+                          AND (
+                            ps.status = :placementenabledstatus
+                            OR (ps.status IS NULL AND pc.value = :placementconfigvalue)
+                          )";
+
+                $placements = $DB->get_records_sql($sql, [
+                    'toolid' => $toolid,
+                    'courseid' => $this->course->id,
+                    'contextid' => $coursecontext->id,
+                    'placementenabledstatus' => placement_status::ENABLED->value,
+                    'placementconfigname' => 'default_usage',
+                    'placementconfigvalue' => 'enabled',
+                ]);
+
+                if (empty($placements)) {
+                    return '';
+                }
+
+                $placementnames = [];
+                foreach ($placements as $placement) {
+                    $placementnames[] = get_string($placement->type, 'core_ltix');
+                }
+
+                return implode(', ', $placementnames);
+            });
 
         // Tool usage column using a custom SQL subquery (defined in initialise method) to count tool instances within the course.
         // TODO: This should be replaced with proper column aggregation once that's added to system_report instances in MDL-76392.
