@@ -19,6 +19,7 @@ namespace core_ltix\reportbuilder\local\systemreports;
 defined('MOODLE_INTERNAL') || die();
 
 use core\output\html_writer;
+use core_ltix\local\placement\placement_status;
 use core_reportbuilder\local\helpers\database;
 use core_reportbuilder\local\report\column;
 use core_ltix\reportbuilder\local\entities\tool_types;
@@ -109,7 +110,13 @@ class course_external_tools_list extends system_report {
      * @return void
      */
     protected function add_columns(tool_types $tooltypesentity): void {
+        global $DB;
         $entitymainalias = $tooltypesentity->get_table_alias('lti_types');
+
+        $placementalias = database::generate_alias('lti_placement');
+        $placementtypealias = database::generate_alias('lti_placement_type');
+        $placementstatusalias = database::generate_alias('lti_placement_status');
+        $placementconfigalias = database::generate_alias('lti_placement_config');
 
         $columns = [
             'tool_types:name',
@@ -117,6 +124,51 @@ class course_external_tools_list extends system_report {
         ];
 
         $this->add_columns_from_entities($columns);
+
+        // Add a column to show enabled placement types for each tool.
+        $this->add_column(new column(
+            'activeplacements',
+            new \lang_string('activeplacements', 'core_ltix'),
+            $tooltypesentity->get_entity_name()
+        ))
+            ->set_type(column::TYPE_TEXT)
+            ->set_is_sortable(false)
+            ->add_join(
+                "LEFT JOIN (
+                    SELECT
+                        {$placementalias}.toolid,
+                        " . $DB->sql_group_concat("{$placementtypealias}.type", ",", "{$placementtypealias}.id") . "
+                        AS placementtypes,
+                        " . $DB->sql_group_concat("{$placementtypealias}.component", ",", "{$placementtypealias}.id") . "
+                        AS placementtypecomponents
+                    FROM {lti_placement} {$placementalias}
+                    JOIN {lti_placement_type} {$placementtypealias}
+                        ON {$placementtypealias}.id = {$placementalias}.placementtypeid
+                    LEFT JOIN {lti_placement_status} {$placementstatusalias}
+                        ON {$placementstatusalias}.placementid = {$placementalias}.id
+                        AND {$placementstatusalias}.contextid = " . \core\context\course::instance($this->course->id)->id . "
+                    LEFT JOIN {lti_placement_config} {$placementconfigalias}
+                        ON {$placementconfigalias}.placementid = {$placementalias}.id
+                        AND {$placementconfigalias}.name = 'default_usage'
+                    WHERE {$placementstatusalias}.status = " . placement_status::ENABLED->value . "
+                        OR ({$placementstatusalias}.status IS NULL AND {$placementconfigalias}.value = 'enabled')
+                    GROUP BY {$placementalias}.toolid
+                ) tool_placements ON tool_placements.toolid = {$entitymainalias}.id"
+            )
+            ->add_fields("tool_placements.placementtypes, tool_placements.placementtypecomponents")
+            ->add_callback(function($field, \stdClass $row): string {
+                $placementtypes = explode(',', $row->placementtypes ?? '');
+                $placementtypecomponents = explode(',', $row->placementtypecomponents ?? '');
+
+                if (empty($placementtypes[0])) {
+                    return '';
+                }
+
+                foreach ($placementtypes as $key => $type) {
+                    $placementnames[] = get_string($type, $placementtypecomponents[$key]);
+                }
+                return implode(', ', $placementnames);
+            });
 
         // Attempt to create a dummy actions column, working around the limitations of the official actions feature.
         $this->add_column(new column(

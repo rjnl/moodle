@@ -387,3 +387,4 @@ $string['update'] = 'Update';
 $string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
+$string['activeplacements'] = 'Active placements';
