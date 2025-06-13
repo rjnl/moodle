@@ -150,3 +150,57 @@ Feature: Add tools
     And the "id_instructorchoicesendname" "checkbox" should be disabled
     And the "id_instructorchoicesendemailaddr" "checkbox" should be disabled
     And the "id_instructorchoiceacceptgrades" "checkbox" should be disabled
+
+Scenario Outline: Users without permission sees the lock icon
+    Given the following "role capability" exists:
+      | role                        | editingteacher    |
+      | moodle/ltix:addcoursetool   | <capabilitystate> |
+    And I am on the "Course 1" course page logged in as teacher1
+    When I navigate to "LTI External tools" in current page administration
+    Then I should see "Teaching Tool 1" in the "reportbuilder-table" "table"
+    And I should see "Course tool 1" in the "reportbuilder-table" "table"
+    And "You don't have permission to edit this tool" "icon" <viewlockicon> exist in the "Teaching Tool 1" "table_row"
+    And "You don't have permission to edit this tool" "icon" <viewlockicon> exist in the "Course tool 1" "table_row"
+
+    Examples:
+      | capabilitystate | viewlockicon |
+      | prohibit        | should       |
+      | allow           | should not   |
+
+  Scenario Outline: View manage placements context menu
+    Given the following "role capability" exists:
+      | role                        | editingteacher |
+      | moodle/ltix:addcoursetool   | allow          |
+    And I am on the "Course 1" course page logged in as teacher1
+    When I navigate to "LTI External tools" in current page administration
+    Then the "Manage placements" item <manageplacementmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+    And the "Edit" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+    And the "Delete" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+
+    Examples:
+      | toolname        | manageplacementmenu | editmenu   |
+      | Teaching Tool 1 | should              | should not |
+      | Course tool 1   | should              | should     |
+
+  @javascript
+  Scenario Outline: Configure placement status for a LTI tool
+  Given I am on the "Course 1" course page logged in as teacher1
+    And I navigate to "LTI External tools" in current page administration
+    When I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    Then I should see "Manage placements" in the ".modal-header" "css_element"
+    And I set the field "Activity chooser" to "<fieldvalue>"
+    # Test Cancel first
+    And I click on "Cancel" "button" in the ".modal-footer" "css_element"
+    And I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    And the field "Activity chooser" matches value "<expectedcancelvalue>"
+    # Test Save/Apply
+    And I set the field "Activity chooser" to "<fieldvalue>"
+    And I click on "Apply" "button" in the ".modal-content" "css_element"
+    And I should see "Placement status saved"
+    And I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    And the field "Activity chooser" matches value "<expectedapplyvalue>"
+
+    Examples:
+      | fieldvalue | expectedcancelvalue | expectedapplyvalue |
+      | 1          | 0                   | 1                  |
+      | 0          | 0                   | 0                  |
