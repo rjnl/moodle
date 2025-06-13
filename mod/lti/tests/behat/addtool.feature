@@ -10,17 +10,17 @@ Feature: Add tools
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
     And the following "courses" exist:
       | fullname | shortname | category |
-      | Course 1 | C1 | 0 |
+      | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user | course | role |
-      | teacher1 | C1 | editingteacher |
+      | user     | course | role           |
+      | teacher1 | C1     | editingteacher |
     # A site tool configured to show as a preconfigured tool and in the activity chooser.
     And the following "core_ltix > tool types" exist:
-      | name            | baseurl                                   | coursevisible | state |
+      | name            | baseurl                                | coursevisible | state |
       | Teaching Tool 1 | /ltix/tests/fixtures/tool_provider.php | 2             | 1     |
     # A course tool in course 1.
     And the following "core_ltix > course tools" exist:
-      | name          | baseurl                                   | course |
+      | name          | baseurl                                | course |
       | Course tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     |
 
   @javascript
@@ -142,3 +142,53 @@ Feature: Add tools
     And the "id_instructorchoicesendname" "checkbox" should be disabled
     And the "id_instructorchoicesendemailaddr" "checkbox" should be disabled
     And the "id_instructorchoiceacceptgrades" "checkbox" should be disabled
+
+  Scenario Outline: Users without permission sees the lock icon
+    Given the following "role capability" exists:
+      | role                        | editingteacher    |
+      | moodle/ltix:addcoursetool   | <capabilitystate> |
+    And I am on the "Course 1" course page logged in as teacher1
+    When I navigate to "LTI External tools" in current page administration
+    Then I should see "Teaching Tool 1" in the "reportbuilder-table" "table"
+    And I should see "Course tool 1" in the "reportbuilder-table" "table"
+    And "You don't have permission to edit this tool" "icon" <viewlockicon> exist in the "Teaching Tool 1" "table_row"
+    And "You don't have permission to edit this tool" "icon" <viewlockicon> exist in the "Course tool 1" "table_row"
+
+    Examples:
+      | capabilitystate | viewlockicon |
+      | prohibit        | should       |
+      | allow           | should not   |
+
+  Scenario Outline: View manage placements context menu
+    Given the following "role capability" exists:
+      | role                        | editingteacher |
+      | moodle/ltix:addcoursetool   | allow          |
+    And I am on the "Course 1" course page logged in as teacher1
+    When I navigate to "LTI External tools" in current page administration
+    Then the "Manage placements" item <manageplacementmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+    And the "Edit" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+    And the "Delete" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
+
+    Examples:
+      | toolname        | manageplacementmenu | editmenu   |
+      | Teaching Tool 1 | should              | should not |
+      | Course tool 1   | should              | should     |
+
+
+  @javascript
+  Scenario: Configure a placement status for a LTI tool
+  Given I am on the "Course 1" course page logged in as teacher1
+    And I navigate to "LTI External tools" in current page administration
+    When I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    Then I should see "Manage placements" in the ".modal-header" "css_element"
+    And I set the field "Activity chooser" to "1"
+    # Test Cancel first
+    And I click on "Cancel" "button" in the ".modal-footer" "css_element"
+    And I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    And the field "Activity chooser" matches value "0"
+    # Test Save/Apply
+    And I set the field "Activity chooser" to "1"
+    And I click on "Apply" "button" in the ".modal-content" "css_element"
+    And I should see "Placement status saved"
+    And I choose the "Manage placements" item in the "Actions" action menu of the "Course tool 1" "table_row"
+    And the field "Activity chooser" matches value "1"
