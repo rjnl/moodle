@@ -137,25 +137,23 @@ $gradeitem = grade_item::fetch([
     'courseid' => $course->id,
 ]);
 
-if ($gradeitem) {
-    if ($CFG->recovergradesdefault && $gradeitem->refresh_grades($USER->id)) {
-        $grade = $gradeitem->get_grade($USER->id, false);
-        if ($grade->overridden) {
-            if ($gradeitem->needsupdate) {
-                // It is Error, but let's be consistent with the old code.
-                $mygrade = 0;
-            } else {
-                $mygrade = $grade->finalgrade;
-            }
-            $mygradeoverridden = true;
-        }
+if (!$canpreview && $gradeitem) {
+    $grade = $gradeitem->get_grade($USER->id, false);
 
-        if (!empty($grade->feedback)) {
-            $gradebookfeedback = $grade->feedback;
+    if ($grade->overridden) {
+        if ($gradeitem->needsupdate) {
+            // It is Error, but let's be consistent with the old code.
+            $mygrade = 0;
+        } else {
+            $mygrade = $grade->finalgrade;
         }
+        $mygradeoverridden = true;
     } else {
-        // It is Error, but let's be consistent with the old code.
-        $mygrade = 0;
+        $mygrade = $grade->finalgrade;
+    }
+
+    if (!empty($grade->feedback)) {
+        $gradebookfeedback = $grade->feedback;
     }
 }
 
@@ -170,7 +168,7 @@ $PAGE->add_body_class('limitedwidth');
 $output = $PAGE->get_renderer('mod_quiz');
 
 // Print table with existing attempts.
-if ($attempts) {
+if ((!is_null($mygrade) || $canpreview) && $attempts) {
     // Work out which columns we need, taking account what data is available in each attempt.
     list($someoptions, $alloptions) = quiz_get_combined_reviewoptions($quiz, $attempts);
 
