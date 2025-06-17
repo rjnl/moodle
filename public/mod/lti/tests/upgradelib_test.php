@@ -184,11 +184,11 @@ final class upgradelib_test extends \advanced_testcase {
             'expected_placement_statuses' => [
                 [
                     'contextid' => \core\context\course::instance($course1->id)->id,
-                    'status' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                    'status' => \core_ltix\local\placement\placement_status::DISABLED,
                 ],
                 [
                     'contextid' => \core\context\course::instance($course2->id)->id,
-                    'status' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+                    'status' => \core_ltix\local\placement\placement_status::ENABLED,
                 ],
             ],
         ];
@@ -326,7 +326,10 @@ final class upgradelib_test extends \advanced_testcase {
                 $this->assertEquals(count($tool['expected_placement_statuses']), count($placementstatuses));
                 foreach ($tool['expected_placement_statuses'] as $expectedplacementstatus) {
                     $this->assertArrayHasKey($expectedplacementstatus['contextid'], $placementstatuses);
-                    $this->assertEquals($expectedplacementstatus['status'], $placementstatuses[$expectedplacementstatus['contextid']]);
+                    $this->assertEquals(
+                        $expectedplacementstatus['status']->value,
+                        $placementstatuses[$expectedplacementstatus['contextid']]
+                    );
                 }
             }
         }

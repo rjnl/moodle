@@ -154,7 +154,7 @@ class lti_migration_upgrade_helper {
             ) SELECT
                 p.id AS placementid,
                 ctx.id AS contextid,
-                (CASE WHEN lcv.coursevisible = :coursevisibleactchooser THEN 2 ELSE 1 END) AS status
+                (CASE WHEN lcv.coursevisible = :coursevisibleactchooser THEN 1 ELSE 0 END) AS status
               FROM {lti_types} tool
               JOIN {lti_coursevisible} lcv ON (tool.id = lcv.typeid)
               JOIN {context} ctx ON (ctx.contextlevel = :coursecontextlevel AND ctx.instanceid = lcv.courseid)
