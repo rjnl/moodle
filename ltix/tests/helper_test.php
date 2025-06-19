@@ -1241,4 +1241,144 @@ final class helper_test extends lti_testcase {
             ],
         ];
     }
+    /**
+     * Test the insert_or_update_placement_config() helper function.
+     *
+     * @covers ::insert_or_update_placement_config
+     */
+    public function test_insert_or_update_placement_config(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Create a dummy placement record to reference.
+        $placement = new \stdClass();
+        $placement->toolid = 1;
+        $placement->placementtypeid = 1;
+        $placementid = $DB->insert_record('lti_placement', $placement);
+
+        // Insert a new config.
+        $record = new \stdClass();
+        $record->placementid = $placementid;
+        $record->name = 'testconfig';
+        $record->value = 'foo';
+
+        helper::insert_or_update_placement_config($record);
+
+        $dbrecord = $DB->get_records('lti_placement_config', [
+            'placementid' => $placementid,
+            'name' => 'testconfig',
+        ]);
+
+        $this->assertNotEmpty($dbrecord);
+        $this->assertEquals(1, count($dbrecord));
+        $this->assertEquals('foo', reset($dbrecord)->value);
+
+        // Update the config.
+        $record->value = 'bar';
+        helper::insert_or_update_placement_config($record);
+
+        $dbrecord2 = $DB->get_record('lti_placement_config', [
+            'placementid' => $placementid,
+            'name' => 'testconfig',
+        ]);
+
+        $this->assertNotEmpty($dbrecord2);
+        $this->assertEquals('bar', $dbrecord2->value);
+    }
+
+    /**
+     * Test the test_load_placement_config() helper function.
+     *
+     * @covers ::test_load_placement_config
+     * @dataProvider load_placement_config_provider
+     */
+    public function test_load_placement_config($toolid, $placementtypeid, $configdata): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Create a placement for this tool.
+        $placement = new \stdClass();
+        $placement->toolid = $toolid;
+        $placement->placementtypeid = $placementtypeid;
+        $placementid = $DB->insert_record('lti_placement', $placement);
+
+        // Save each placement config.
+        foreach ($configdata as $key => $value) {
+            $config = new \stdClass();
+            $config->placementid = $placementid;
+            $config->name = $key;
+            $config->value = $value;
+
+            helper::insert_or_update_placement_config($config);
+        }
+
+        $result = helper::load_placement_config($toolid);
+
+        // Property'toolplacements' should exist.
+        $this->assertObjectHasProperty('toolplacements', $result);
+        // Placement type id should exist.
+        $this->assertContains('1', $result->toolplacements);
+
+        // Each config property gets a suffix based on the placement type id.
+        $suffix = '_placement_' . $placementtypeid;
+
+        // Assert each config property is correct.
+        foreach ($configdata as $key => $value) {
+            $this->assertEquals($value, $result->{$key . $suffix});
+        }
+
+    }
+
+    /**
+     * Data provider for testing load_placement_config.
+     *
+     * @return array[] the test case data.
+     */
+    public static function load_placement_config_provider(): array {
+        return [
+            'Tool 1 with placement config' =>
+                [
+                    'toolid' => 1,
+                    'placementtypeid' => 1,
+                    'configdata' => [
+                        'supports_deep_linking' => 1,
+                        'deep_linking_url' => 'http://deeplink.example.com',
+                        'icon_url' => 'https://icon.example.com',
+                    ],
+                ],
+            'Tool 2 with placement config' =>
+                [
+                    'toolid' => 2,
+                    'placementtypeid' => 1,
+                    'configdata' => [
+                        'supports_deep_linking' => 0,
+                        'supports_resource_linking' => 1,
+                        'resource_linking_url' => 'http://resourcelink.example.com',
+                        'icon_url' => 'https://icon2.example.com',
+                        'text' => 'Example text',
+                    ],
+                ],
+            'Tool 3 with placement config' =>
+                [
+                    'toolid' => 1,
+                    'placementtypeid' => 1,
+                    'configdata' => [
+                        'supports_deep_linking' => 1,
+                        'deep_linking_url' => 'http://deeplink3.example.com',
+                        'supports_resource_linking' => 1,
+                        'resource_linking_url' => 'http://resourcelink3.example.com',
+                        'icon_url' => 'https://icon3.example.com',
+                        'text' => 'Example text 3',
+                    ],
+                ],
+            'Tool 4 with no placement config' =>
+                [
+                    'toolid' => 4,
+                    'placementtypeid' => 1,
+                    'configdata' => [],
+                ],
+        ];
+    }
 }

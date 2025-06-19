@@ -174,7 +174,7 @@ class edit_types extends moodleform {
                 $options = array(
                     \core_ltix\constants::LTI_COURSEVISIBLE_NO => get_string('show_in_course_no', 'core_ltix'),
                     \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED => get_string('show_in_course_preconfigured', 'core_ltix'),
-                    \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER => get_string('show_in_course_activity_chooser', 'core_ltix'),
+                    // \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER => get_string('show_in_course_activity_chooser', 'core_ltix'),
                 );
                 if ($istool) {
                     // LTI2 tools can not be matched by URL, they have to be either in preconfigured tools or in activity chooser.
@@ -188,7 +188,7 @@ class edit_types extends moodleform {
                 $mform->setDefault('lti_coursevisible', '1');
             }
         } else {
-            $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER);
+            $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED);
         }
         $mform->setType('lti_coursevisible', PARAM_INT);
 
@@ -233,6 +233,30 @@ class edit_types extends moodleform {
         $mform->setType('lti_secureicon', PARAM_URL);
         $mform->setAdvanced('lti_secureicon');
         $mform->addHelpButton('lti_secureicon', 'secure_icon_url', 'core_ltix');
+
+        // Placement.
+        $mform->addElement('header', 'toolplacement', get_string('placement', 'core_ltix'));
+
+        // Get registered placement types.
+        $registeredplacementtypes = $DB->get_records_menu('lti_placement_type', null, 'id ASC', 'id,type');
+
+        $placementsoptions = [];
+        foreach ($registeredplacementtypes as $key => $value) {
+            $placementsoptions[$key] = get_string($value, 'core_ltix');
+        }
+
+        $options = [
+            'multiple' => true,
+            'noselectionstring' => get_string('lti_tool_placements_emptyconfig', 'core_ltix'),
+        ];
+        $mform->addElement('autocomplete', 'toolplacements', get_string('lti_tool_placements', 'core_ltix'), $placementsoptions, $options);
+        $mform->addHelpButton('toolplacements', 'lti_tool_placements', 'core_ltix');
+
+        // Add placement configuration options to the form.
+        // This ideally should depend on the selection of the "toolplacements" element.
+        foreach ($registeredplacementtypes as $key => $value) {
+            $this->add_placement_config_elements($mform, $key, explode(':', $value)[1]);
+        }
 
         // Restrict to course categories.
         if (empty($this->_customdata->iscoursetool) || !$this->_customdata->iscoursetool) {
@@ -344,6 +368,52 @@ class edit_types extends moodleform {
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
 
+    }
+
+    /**
+     * Adds the placement config section to the form.
+     *
+     * @param MoodleQuickForm $mform
+     * @param int $placementtypeid The ID of the placement type.
+     * @param string $nameidentifier The name of the placement type.
+     */
+    protected function add_placement_config_elements(&$mform, $placementtypeid, $nameidentifier) {
+        global $OUTPUT;
+
+        // In the future we will have more placement types, so use a suffix to avoid duplicate element names.
+        $suffix = "_placement_{$placementtypeid}"; // Use placement type id as suffix.
+
+        $mform->addElement('header', 'toolplacement'.$suffix, get_string('placement_'.$nameidentifier, 'core_ltix'));
+        $description = get_string('placement_'.$nameidentifier.'description', 'core_ltix');
+        $mform->addElement('html',
+            $OUTPUT->render_from_template('core_ltix/placementdescription', ['placementdescription' => $description])
+        );
+
+        $mform->addElement('advcheckbox', 'supports_deep_linking'.$suffix, get_string('lti_deeplinking', 'core_ltix'));
+        $mform->addHelpButton('supports_deep_linking'.$suffix, 'lti_deeplinking', 'core_ltix');
+
+        $mform->addElement('text', 'deep_linking_url'.$suffix,
+            get_string('lti_deeplinkingurl', 'core_ltix'), ['size' => '64']);
+        $mform->setType('deep_linking_url'.$suffix, PARAM_URL);
+        $mform->addHelpButton('deep_linking_url'.$suffix, 'lti_deeplinkingurl', 'core_ltix');
+        $mform->disabledIf('deep_linking_url'.$suffix, 'supports_deep_linking'.$suffix, 'notchecked');
+
+        $mform->addElement('advcheckbox', 'supports_resource_linking'.$suffix, get_string('lti_resourcelinking', 'core_ltix'));
+        $mform->addHelpButton('supports_resource_linking'.$suffix, 'lti_resourcelinking', 'core_ltix');
+
+        $mform->addElement('text', 'resource_linking_url'.$suffix,
+            get_string('lti_resourcelinkingurl', 'core_ltix'), ['size' => '64']);
+        $mform->setType('resource_linking_url'.$suffix, PARAM_URL);
+        $mform->addHelpButton('resource_linking_url'.$suffix, 'lti_resourcelinkingurl', 'core_ltix');
+        $mform->disabledIf('resource_linking_url'.$suffix, 'supports_resource_linking'.$suffix, 'notchecked');
+
+        $mform->addElement('text', 'icon_url'.$suffix, get_string('icon_url', 'core_ltix'), ['size' => '64']);
+        $mform->setType('icon_url'.$suffix, PARAM_URL);
+        $mform->addHelpButton('icon_url'.$suffix, 'icon_url', 'core_ltix');
+
+        $mform->addElement('text', 'text'.$suffix, get_string('lti_placementtext', 'core_ltix'), ['size' => '64']);
+        $mform->setType('text'.$suffix, PARAM_TEXT);
+        $mform->addHelpButton('text'.$suffix, 'lti_placementtext', 'core_ltix');
     }
 
     /**
