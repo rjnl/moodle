@@ -42,12 +42,9 @@ export const init = () => {
         if (courseToolDelete) {
             event.preventDefault();
 
-            // A different message is used in the modal if the tool has usages within the course.
-            const usage = courseToolDelete.dataset.courseToolUsage;
-            const deleteBodyStringId = usage > 0 ? 'deletecoursetoolwithusageconfirm' : 'deletecoursetoolconfirm';
             const requiredStrings = [
                 {key: 'deletecoursetool', component: 'core_ltix', param: courseToolDelete.dataset.courseToolName},
-                {key: deleteBodyStringId, component: 'core_ltix', param: courseToolDelete.dataset.courseToolName},
+                {key: 'deletecoursetoolconfirm', component: 'core_ltix', param: courseToolDelete.dataset.courseToolName},
                 {key: 'delete', component: 'core', param: courseToolDelete.dataset.courseToolName},
                 {key: 'coursetooldeleted', component: 'core_ltix', param: courseToolDelete.dataset.courseToolName}
             ];
