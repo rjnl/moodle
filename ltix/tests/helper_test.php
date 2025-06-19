@@ -1241,4 +1241,344 @@ final class helper_test extends lti_testcase {
             ],
         ];
     }
+
+    /**
+     * Test the insert_or_update_placement_config() helper function.
+     *
+     * @covers ::insert_or_update_placement_config
+     * @dataProvider insert_or_update_placement_config_provider
+     * @param string|null $existingvalue The pre-existing value for the placement config, or null if not pre-existing
+     *                                   (config won't be pre-created).
+     * @param string $newvalue The new value to be added to the placement config.
+     * @param string $expectedvalue The expected value for placement config after addition.
+     * @return void
+     */
+    public function test_insert_or_update_placement_config(?string $existingvalue, string $newvalue, string $expectedvalue): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+
+        $placementdata = [
+            'toolid' => 1,
+            'placementtypeid' => $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']),
+        ];
+
+        if (!empty($existingvalue)) {
+            $placementdata["config_testconfig"] = $existingvalue;
+        }
+
+        // Create a dummy placement record to reference.
+        $placement = $ltigenerator->create_tool_placements($placementdata);
+
+        $newconfig = [
+            'placementid' => $placement->id,
+            'name' => 'testconfig',
+            'value' => $newvalue,
+        ];
+
+        helper::insert_or_update_placement_config((object)$newconfig);
+
+        // Fetch the config and verify the returned value.
+        $configrecord = $DB->get_records('lti_placement_config', [
+            'placementid' => $placement->id,
+            'name' => 'testconfig',
+        ]);
+
+        $this->assertCount(1, $configrecord);
+        $this->assertEquals($expectedvalue, reset($configrecord)->value);
+    }
+
+    /**
+     * Data provider for testing insert_or_update_placement_config().
+     *
+     * @return array[] the test case data.
+     */
+    public static function insert_or_update_placement_config_provider(): array {
+        return [
+            'Tool placement without a pre-existing placement config' =>
+                [
+                    null,
+                    'foo',
+                    'foo',
+                ],
+            'Tool placement with a pre-exising placement config' =>
+                [
+                    'foo',
+                    'bar',
+                    'bar',
+                ],
+        ];
+    }
+
+    /**
+     * Test the load_placement_config() helper function.
+     *
+     * @covers ::test_load_placement_config
+     * @dataProvider load_placement_config_provider
+     * @param array $placementsdata Data used for pre-creating tool placements and respective configs.
+     * @param object $expected The expected result from the method call.
+     * @return void
+     */
+    public function test_load_placement_config(array $placementsdata, object $expected): void {
+
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        foreach ($placementsdata as $placementdata) {
+            $data = [
+                'toolid' => 1,
+                'placementtypeid' => $placementdata['placementtypeid'],
+            ];
+
+            foreach ($placementdata['configdata'] as $configname => $configvalue) {
+                $data["config_{$configname}"] = $configvalue;
+            }
+
+            $ltigenerator->create_tool_placements($data);
+        }
+
+        $result = helper::load_placement_config(1);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Data provider for testing load_placement_config.
+     *
+     * @return array[] the test case data.
+     */
+    public static function load_placement_config_provider(): array {
+        return [
+            'Single tool placement with configuration' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                    ],
+                    (object)[
+                        'toolplacements' => [1],
+                        'deep_linking_url_placementconfig1' => 'http://deeplink.example.com',
+                        'icon_url_placementconfig1' => 'https://icon.example.com',
+                        // This is a configuration option set by the create_tool_placements() generator function.
+                        'default_usage_placementconfig1' => 'enabled',
+                    ],
+                ],
+            'Multiple tool placements with configuration' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 2,
+                            'configdata' => [
+                                'resource_linking_url' => 'http://resourcelink.example.com',
+                                'icon_url' => 'https://icon2.example.com',
+                                'text' => 'Example text',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 3,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink3.example.com',
+                                'resource_linking_url' => 'http://resourcelink3.example.com',
+                                'icon_url' => 'https://icon3.example.com',
+                                'text' => 'Example text 3',
+                            ],
+                        ],
+                    ],
+                    (object)[
+                        'toolplacements' => [1, 2, 3],
+                        'deep_linking_url_placementconfig1' => 'http://deeplink.example.com',
+                        'icon_url_placementconfig1' => 'https://icon.example.com',
+                        'default_usage_placementconfig1' => 'enabled', // Set by create_tool_placements() generator function.
+                        'resource_linking_url_placementconfig2' => 'http://resourcelink.example.com',
+                        'icon_url_placementconfig2' => 'https://icon2.example.com',
+                        'text_placementconfig2' => 'Example text',
+                        'default_usage_placementconfig2' => 'enabled', // Set by create_tool_placements() generator function.
+                        'deep_linking_url_placementconfig3' => 'http://deeplink3.example.com',
+                        'resource_linking_url_placementconfig3' => 'http://resourcelink3.example.com',
+                        'icon_url_placementconfig3' => 'https://icon3.example.com',
+                        'text_placementconfig3' => 'Example text 3',
+                        'default_usage_placementconfig3' => 'enabled', // Set by create_tool_placements() generator function.
+                    ],
+                ],
+            'No tool placements' =>
+                [
+                    [],
+                    (object)[
+                        'toolplacements' => [],
+                    ],
+                ],
+        ];
+    }
+
+    /**
+     * Test the delete_tool_placements_by_type() helper function.
+     *
+     * @covers ::delete_tool_placements_by_type
+     * @dataProvider delete_tool_placements_by_type_provider
+     * @param array $placementsdata Data used for pre-creating tool placements and respective configs.
+     * @param array $placementtypeids An array of placement type IDs associated with the tool placements to delete.
+     */
+    public function test_delete_tool_placements_by_type(array $placementsdata, array $placementtypeids): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        // Array storing the placement IDs of placements to be deleted, for easier validation post-deletion.
+        $placementstodelete = [];
+        // Array storing the placement IDs of placements that should not be deleted, for easier validation after deletion.
+        $remainingplacements = [];
+
+        foreach ($placementsdata as $placementdata) {
+            $data = [
+                'toolid' => 1,
+                'placementtypeid' => $placementdata['placementtypeid'],
+            ];
+
+            foreach ($placementdata['configdata'] as $configname => $configvalue) {
+                $data["config_{$configname}"] = $configvalue;
+            }
+
+            $placement = $ltigenerator->create_tool_placements($data);
+
+            // If the created placement is supposed to be deleted later, include its ID to the $placementstodelete array.
+            if (in_array($placementdata['placementtypeid'], $placementtypeids)) {
+                $placementstodelete[] = $placement->id;
+            } else { // Otherwise include its ID to the $remainingplacements array.
+                $remainingplacements[] = $placement->id;
+            }
+        }
+
+        helper::delete_tool_placements_by_type(1, $placementtypeids);
+
+        // Verify that the placements and their associated configs have been successfully removed.
+        foreach ($placementstodelete as $placementid) {
+            $placement = $DB->get_record('lti_placement' , ['id' => $placementid]);
+            $placementconfigs = $DB->get_records('lti_placement_config', ['placementid' => $placementid]);
+
+            $this->assertEmpty($placement);
+            $this->assertEmpty($placementconfigs);
+        }
+
+        // Verify that the placements and their associated configs that should not have been removed are still present.
+        foreach ($remainingplacements as $placementid) {
+            $placement = $DB->get_record('lti_placement' , ['id' => $placementid]);
+            $placementconfigs = $DB->get_records('lti_placement_config', ['placementid' => $placementid]);
+
+            $this->assertNotEmpty($placement);
+            $this->assertNotEmpty($placementconfigs);
+        }
+    }
+
+    /**
+     * Data provider for testing delete_tool_placements_by_type().
+     *
+     * @return array[] the test case data.
+     */
+    public static function delete_tool_placements_by_type_provider(): array {
+        return [
+            'Delete all pre-existing tool placements and their configurations (one available)' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                    ],
+                    [1],
+                ],
+            'Delete all pre-existing tool placements and their configurations (multiple available)' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 2,
+                            'configdata' => [
+                                'resource_linking_url' => 'http://resourcelink.example.com',
+                                'icon_url' => 'https://icon2.example.com',
+                                'text' => 'Example text',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 3,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink3.example.com',
+                                'resource_linking_url' => 'http://resourcelink3.example.com',
+                                'icon_url' => 'https://icon3.example.com',
+                                'text' => 'Example text 3',
+                            ],
+                        ],
+                    ],
+                    [1, 2, 3],
+                ],
+            'Delete some pre-existing tool placements and their configurations' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 2,
+                            'configdata' => [
+                                'resource_linking_url' => 'http://resourcelink.example.com',
+                                'icon_url' => 'https://icon2.example.com',
+                                'text' => 'Example text',
+                            ],
+                        ],
+                        [
+                            'placementtypeid' => 3,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink3.example.com',
+                                'resource_linking_url' => 'http://resourcelink3.example.com',
+                                'icon_url' => 'https://icon3.example.com',
+                                'text' => 'Example text 3',
+                            ],
+                        ],
+                    ],
+                    [1, 3],
+                ],
+            'Attempt deleting non-existing tool placements' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                        ],
+                    ],
+                    [2],
+                ],
+        ];
+    }
 }

@@ -1277,6 +1277,149 @@ class helper {
         $DB->update_record('lti_types', (object) array('id' => $id, 'state' => $state));
     }
 
+    /**
+     * Load the placement configuration from the database.
+     *
+     * @param int $toolid The tool id.
+     * @return object The placement configuration.
+     */
+    public static function load_placement_config(int $toolid): object {
+        global $DB;
+
+        $config = new \stdClass();
+
+        // Get the placement types for this tool.
+        $toolplacements = $DB->get_records_menu('lti_placement', ['toolid' => $toolid], 'id ASC', 'id,placementtypeid');
+
+        $config->toolplacements = array_values($toolplacements);
+
+        // Get the placement configs for this tool.
+        $configrecords = $DB->get_records_list('lti_placement_config', 'placementid', array_keys($toolplacements));
+
+        foreach ($configrecords as $record) {
+            // Suffix to append to the config element names so that they match the form element names.
+            $elementsuffix = '_placementconfig' . $toolplacements[$record->placementid];
+
+            $config->{$record->name . $elementsuffix} = $record->value;
+        }
+
+        return $config;
+    }
+
+    /**
+     * Save the placement configuration for a tool type.
+     *
+     * @param object $type The tool type object.
+     * @param object $config The placement configuration.
+     * @return void
+     */
+    public static function update_placement_config(object $type, object $config): void {
+        global $DB;
+
+        // Update placement type config.
+        $placementtypeids = $config->toolplacements;
+
+        $registeredplacementtypes = $DB->get_records('lti_placement_type');
+
+        foreach ($placementtypeids as $pid) {
+            // Get the placement type record.
+            $placementtype = $registeredplacementtypes[$pid];
+            $placementdata = [
+                'toolid' => $type->id,
+                'placementtypeid' => $placementtype->id,
+            ];
+
+            // Check if the record already exists.
+            $existingrecord = $DB->get_record('lti_placement', $placementdata);
+
+            // Use the existing placement ID if found; otherwise, insert a new record and return its ID.
+            $placementid = $existingrecord ? $existingrecord->id : $DB->insert_record('lti_placement', $placementdata);
+
+            // Now save the placement config for this placement.
+            // Suffix used for the config element names in $config.
+            $elementsuffix = "_placementconfig{$placementtype->id}";
+
+            // Get config for this placement type from $config.
+            $placementconfig = array_filter(
+                get_object_vars($config),
+                fn($val, $key) => str_ends_with($key, $elementsuffix),
+                ARRAY_FILTER_USE_BOTH
+            );
+
+            // Disabled if there are no config for this placement type.
+            $placementconfig["default_usage{$elementsuffix}"] = empty($placementconfig) ? 'disabled' : 'enabled';
+
+            // Save the config values.
+            foreach ($placementconfig as $name => $value) {
+                $configrow = (object) [
+                    'placementid' => $placementid,
+                    'name' => str_replace($elementsuffix, '', $name),
+                    'value' => $value,
+                ];
+
+                self::insert_or_update_placement_config($configrow);
+            }
+        }
+
+        // Remove any placement config records that are not in the current list.
+        $idstoremove = array_diff(array_keys($registeredplacementtypes), $placementtypeids);
+
+        if (!empty($idstoremove)) {
+            self::delete_tool_placements_by_type($type->id, $idstoremove);
+        }
+    }
+
+    /**
+     * Insert or update a placement config record.
+     *
+     * @param object $record Placement config record.
+     * @return void
+     */
+    public static function insert_or_update_placement_config(object $record): void {
+        global $DB;
+
+        // Check if the record already exists.
+        $existingrecord = $DB->get_record('lti_placement_config', [
+            'placementid' => $record->placementid,
+            'name' => $record->name,
+        ]);
+
+        // Update the existing placement config if found; otherwise, insert a new record.
+        if ($existingrecord) {
+            $record->id = $existingrecord->id;
+            $DB->update_record('lti_placement_config', $record);
+        } else {
+            $DB->insert_record('lti_placement_config', $record);
+        }
+    }
+
+    /**
+     * Removes tool placements and related config based on the provided placement type IDs.
+     *
+     * @param int $toolid The tool ID.
+     * @param array $placementtypeids The placement type IDs corresponding to the placements to be deleted.
+     * @return void
+     */
+    public static function delete_tool_placements_by_type(int $toolid, array $placementtypeids): void {
+        global $DB;
+
+        [$insql, $inparams] = $DB->get_in_or_equal($placementtypeids);
+
+        // Delete configs for the placement.
+        $DB->delete_records_select('lti_placement_config',
+            "placementid IN (
+                    SELECT id FROM {lti_placement} lp WHERE lp.toolid = ?
+                    AND lp.placementtypeid {$insql})",
+            [$toolid, ...$inparams]
+        );
+
+        // Delete placement.
+        $DB->delete_records_select('lti_placement',
+            "toolid = ? AND placementtypeid {$insql}",
+            [$toolid, ...$inparams]
+        );
+    }
+
     public static function update_type($type, $config) {
         global $DB, $CFG;
 

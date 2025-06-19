@@ -133,6 +133,17 @@ $string['keytype_help'] = 'The authentication method used to validate the tool.'
 $string['keytype_keyset'] = 'Keyset URL';
 $string['keytype_rsa'] = 'RSA key';
 $string['lti_administration'] = 'Edit preconfigured tool';
+$string['lti_deeplinkingurl'] = 'Deep Linking Request URL';
+$string['lti_deeplinkingurl_help'] = 'If set, this URL will be used to launch the tool for deep linking requests.';
+$string['lti_placementtext'] = 'Text';
+$string['lti_placementtext_help'] = 'Allows you to specify the text that will be displayed for the LTI link associated with this placement.';
+$string['lti_resourcelinkingurl'] = 'Resource Linking Request URL';
+$string['lti_resourcelinkingurl_help'] = 'If set, this URL will be used to launch the tool for resource linking requests.';
+$string['lti_tool_placements'] = 'Placements';
+$string['lti_tool_placements_config_warning'] = 'To ensure the LTI tool is usable within Moodle, please configure its placements. Without proper placement settings, the tool won\'t be accessible to users.';
+$string['lti_tool_placements_help'] = 'Allows you to specify where the tool is visible and accessible by selecting from the available placements.
+
+Selected placements will display their corresponding configuration sections below in the form.';
 $string['ltix_launch_error'] = 'An error occurred when launching the external tool:';
 $string['ltix_launch_error_tool_request'] = '<p>
 To submit a request for an administrator to complete the tool configuration, click <a href="{$a->admin_request_url}" target="_top">here</a>.
@@ -206,6 +217,8 @@ along with the consumer key from the tool provider.
 Tools which do not require secure communication from Moodle and do not provide additional services (such as grade reporting)
 may not require a shared secret.';
 $string['pending'] = 'Pending';
+$string['placement'] = 'Placement';
+$string['placement_header'] = 'Placement: {$a}';
 $string['privacy'] = 'Privacy';
 $string['privacy:metadata:core_ltix'] = 'The LTI subsystem stores user data for LTI submissions and tools';
 $string['privacy:metadata:courseid'] = 'The ID of the course the user is accessing the LTI Consumer from';
@@ -279,6 +292,7 @@ $string['restricttocategory_help'] = 'To restrict use of this tool to courses wi
 $string['return_to_course'] = 'Click <a href="{$a->link}" target="_top">here</a> to return to the course.';
 $string['secure_icon_url'] = 'Secure icon URL';
 $string['secure_icon_url_help'] = 'Similar to the icon URL, but used when the site is accessed securely through SSL. This field is to prevent the browser from displaying a warning about an insecure image.';
+$string['select'] = 'Select...';
 $string['services'] = 'Services';
 $string['services_help'] = 'Select those services which you wish to offer to the tool provider.  More than one service can be selected.';
 $string['share_email_admin'] = 'Share launcher\'s email with tool';
@@ -371,4 +385,3 @@ $string['update'] = 'Update';
 $string['usage'] = 'Usage count';
 $string['useraccountinformation'] = 'User account information';
 $string['userpersonalinformation'] = 'User personal information';
-

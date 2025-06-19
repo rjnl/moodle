@@ -64,12 +64,14 @@ if ($form->is_cancelled()) {
         $type = (object) ['id' => $data->typeid];
         \core_ltix\helper::load_type_if_cartridge($data);
         \core_ltix\helper::update_type($type, $data);
+        \core_ltix\helper::update_placement_config($type, $data);
         $redirecturl = new moodle_url('/ltix/coursetools.php', ['id' => $courseid]);
         $notice = get_string('courseexternaltooleditsuccess', 'core_ltix');
     } else {
         $type = (object) ['state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED, 'course' => $data->course];
         \core_ltix\helper::load_type_if_cartridge($data);
-        \core_ltix\helper::add_type($type, $data);
+        $type->id = \core_ltix\helper::add_type($type, $data);
+        \core_ltix\helper::update_placement_config($type, $data);
         $redirecturl = new moodle_url('/ltix/coursetools.php', ['id' => $courseid]);
         $notice = get_string('courseexternaltooladdsuccess', 'core_ltix', $type->name);
     }
@@ -82,7 +84,11 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($pageheading);
 
 if (!empty($typeid)) {
-    $form->set_data($type);
+    // Get the placement config linked to this tool.
+    $placementconfig = \core_ltix\helper::load_placement_config($typeid);
+    // Combine tool and placement configuration data.
+    $data = (object) array_merge((array) $type, (array) $placementconfig);
+    $form->set_data($data);
 }
 $form->display();
 
