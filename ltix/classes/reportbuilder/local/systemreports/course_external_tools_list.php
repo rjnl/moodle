@@ -151,7 +151,7 @@ class course_external_tools_list extends system_report {
                         LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
                         LEFT JOIN {lti_placement_status} ps ON p.id = ps.placementid AND ps.contextid = :contextid
                         WHERE t.id = :toolid
-                          AND t.course = :courseid
+
                           AND (
                             ps.status = :placementenabledstatus
                             OR (ps.status IS NULL AND pc.value = :placementconfigvalue)
