@@ -300,6 +300,7 @@ $string['show_in_course_no'] = 'Do not show; use only when a matching tool URL i
 $string['show_in_course_preconfigured'] = 'Show as preconfigured tool when adding an external tool';
 $string['siteid'] = 'Site ID';
 $string['sitehost'] = 'Site hostname';
+$string['sitetool'] = 'Site tool';
 $string['successfullycreatedtooltype'] = 'Successfully created new tool!';
 $string['successfullyfetchedtoolconfigurationfromcontent'] = 'Successfully fetched tool configuration from the selected content.';
 $string['tool_settings'] = 'Tool settings';
