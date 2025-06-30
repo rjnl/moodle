@@ -1241,4 +1241,105 @@ final class helper_test extends lti_testcase {
             ],
         ];
     }
+
+    /**
+     * Test get_placement_status_for_tool.
+     *
+     * @param string $placementdefault the default usage for the placement.
+     * @param \core_ltix\local\placement\placement_status|null $placementoverride the override status for the placement, or null.
+     * @param int $expectedstatus the expected status of the placement.
+     * @return void
+     * @covers ::get_placement_status_for_tool
+     * @dataProvider get_placement_status_provider
+     */
+    public function test_get_placement_status_for_tool(
+        string $placementdefault,
+        ?\core_ltix\local\placement\placement_status $placementoverride,
+        int $expectedstatus,
+    ): void {
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        $course = $this->getDataGenerator()->create_course();
+        $context = \core\context\course::instance($course->id);
+
+        $toolid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'lti_coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => constants::LTI_TOOL_STATE_CONFIGURED,
+        ]);
+
+        // Create a couple of placement types with associated config.
+        $placementtype1 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:myplacement');
+        $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
+
+        // Create placements for each types.
+        $placement1 = $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $placementtype1->id,
+            'config_default_usage' => $placementdefault,
+            'config_text' => 'Some text 1',
+        ]);
+        $placement2 = $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $placementtype2->id,
+            'config_default_usage' => $placementdefault,
+            'config_text' => 'Some text 2',
+        ]);
+
+        // Override placements with the value from data provider.
+        if ($placementoverride !== null) {
+            $ltigenerator->create_placement_status_in_context($placement1->id, $placementoverride, $context->id);
+            $ltigenerator->create_placement_status_in_context($placement2->id, $placementoverride, $context->id);
+        }
+
+        // Call the method being tested.
+        $statusrecords = helper::get_placement_status_for_tool($toolid, $course->id);
+
+        foreach ($statusrecords as $record) {
+            $this->assertEquals($expectedstatus, $record->status);
+        }
+    }
+
+    /**
+     * Data provider for testing get_placement_status_for_tool.
+     *
+     * @return array[] the test case data.
+     */
+    public static function get_placement_status_provider(): array {
+        return [
+            'Default YES, Override NULL' => [
+                'placementdefault' => 'enabled',
+                'placementoverride' => null,
+                'expectedstatus' => 1,
+            ],
+            'Default YES, Override ENABLED' => [
+                'placementdefault' => 'enabled',
+                'placementoverride' => placement_status::ENABLED,
+                'expectedstatus' => 1,
+            ],
+            'Default YES, Override DISABLED' => [
+                'placementdefault' => 'enabled',
+                'placementoverride' => placement_status::DISABLED,
+                'expectedstatus' => 0,
+            ],
+            'Default NO, Override NULL' => [
+                'placementdefault' => 'disabled',
+                'placementoverride' => null,
+                'expectedstatus' => 0,
+            ],
+            'Default NO, Override ENABLED' => [
+                'placementdefault' => 'disabled',
+                'placementoverride' => placement_status::ENABLED,
+                'expectedstatus' => 1,
+            ],
+            'Default NO, Override DISABLED' => [
+                'placementdefault' => 'disabled',
+                'placementoverride' => placement_status::DISABLED,
+                'expectedstatus' => 0,
+            ],
+        ];
+    }
 }
