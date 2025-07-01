@@ -262,6 +262,11 @@ class edit_types extends moodleform {
         // The visibility of these sections should depend on the selection of the "toolplacements" element.
         foreach ($registeredplacementtypes as $key => $value) {
             $this->add_placement_config_elements($mform, $key, $value);
+
+            // Dynamically hide it depending on the toolplacements[] field.
+            $unrelatedplacementtypeids = array_diff(array_keys($registeredplacementtypes), [$key]);
+            $unrelatedplacementtypeids = array_merge($unrelatedplacementtypeids, ['']); // Include blank entry to represent no selection.
+            $mform->hideIf("placement_{$key}", 'toolplacements[]', 'in', $unrelatedplacementtypeids);
         }
 
         // Restrict to course categories.
