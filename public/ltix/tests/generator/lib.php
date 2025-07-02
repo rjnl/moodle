@@ -135,15 +135,14 @@ class core_ltix_generator extends testing_module_generator {
     /**
      * Create a placement type for testing.
      *
-     * @param string $component the component owning the placement type. e.g. core_ltix, mod_forum.
-     * @param string $placementtype the placement type string.
+     * @param array $data the tool placement type data, which must include 'placementtype' and 'component' keys.
      * @return stdClass the placementtype record.
      */
-    public function create_placement_type(string $component, string $placementtype): stdClass {
+    public function create_placement_type(array $data): stdClass {
         global $DB;
         $placementtype = (object) [
-            'component' => $component,
-            'type' => $placementtype,
+            'component' => $data['component'],
+            'type' => $data['placementtype'],
         ];
         $placementtype->id = $DB->insert_record('lti_placement_type', $placementtype);
         return $placementtype;
