@@ -1141,8 +1141,12 @@ final class helper_test extends lti_testcase {
         ]);
 
         // Create a couple of placement types with associated config.
-        $placementtype1 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:myplacement');
-        $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
+        $placementtype1 = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:myplacement']
+        );
+        $placementtype2 = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:anotherplacement']
+        );
 
         // Create placements for each types
         $placement1 = $ltigenerator->create_tool_placements([
@@ -1272,8 +1276,12 @@ final class helper_test extends lti_testcase {
         ]);
 
         // Create a couple of placement types with associated config.
-        $placementtype1 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:myplacement');
-        $placementtype2 = $ltigenerator->create_placement_type('core_ltix', 'core_ltix:anotherplacement');
+        $placementtype1 = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:myplacement']
+        );
+        $placementtype2 = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:anotherplacement']
+        );
 
         // Create placements for each types.
         $placement1 = $ltigenerator->create_tool_placements([

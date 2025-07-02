@@ -130,7 +130,9 @@ final class types_helper_test extends lti_testcase {
 
         // Creating placements as part of core_ltix architecture migration
         $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
-        $otherplacementtype = $ltigenerator->create_placement_type('core_ltix', 'other:placementtype');
+        $otherplacementtype = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'other:placementtype']
+        );
         $toolplacementsmap = [
             $tool1id => $placementtypeid,
             $tool2id => $placementtypeid,

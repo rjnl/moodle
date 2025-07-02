@@ -50,6 +50,17 @@ class behat_core_ltix_generator extends behat_generator_base {
                 'required' => ['baseurl', 'course'],
                 'switchids' => ['course' => 'course']
             ],
+            // Note: This supports configuring a mock placement type during tests, however, because strings cannot be mocked during
+            // behat runs, the strings must also be defined. Thus, currently only the following placement type mocks are supported
+            // with string support:
+            // - 'core_ltix:mockplacement' (the magic strings 'core_ltix:mockplacement' and 'core_ltix:mockplacement_description'
+            // are defined in lang/en/ltix.php and are only used in tests).
+            'placement types' => [
+                'singular' => 'placement type',
+                'datagenerator' => 'placement_type',
+                'required' => ['placementtype', 'component'],
+                'switchids' => []
+            ],
             'tool placements' => [
                 'singular' => 'tool placement',
                 'datagenerator' => 'tool_placements',
