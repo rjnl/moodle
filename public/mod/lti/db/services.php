@@ -156,7 +156,8 @@ $functions = array(
 
     'mod_lti_toggle_showinactivitychooser' => array(
         'classname'     => 'mod_lti\external\toggle_showinactivitychooser',
-        'description'   => 'Toggle showinactivitychooser for a tool type in a course',
+        'description'   => '** DEPRECATED ** Please do not call this function any more (will be removed in Moodle 6.0).'
+            . 'Toggle showinactivitychooser for a tool type in a course',
         'type'          => 'write',
         'capabilities'  => 'moodle/ltix:addcoursetool',
         'ajax'          => true

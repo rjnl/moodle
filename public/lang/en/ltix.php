@@ -92,7 +92,6 @@ $string['delete'] = 'Delete';
 $string['deletecoursetool'] = 'Delete {$a}';
 $string['deletecoursetoolconfirm'] = 'This will delete {$a} from the available LTI tools in your course. If there are any activities using this tool, they will no longer work.<br><br>Are you sure you want to delete {$a}?';
 $string['delete_confirmation'] = 'Are you sure you want to delete this preconfigured tool?';
-$string['dontshowinactivitychooser'] = 'Don\'t show in activity chooser';
 $string['duplicateregurl'] = 'This registration URL is already in use';
 $string['dynreg_update_btn_new'] = 'Register as a new external tool';
 $string['dynreg_update_btn_update'] = 'Update';
@@ -309,7 +308,6 @@ to users based on actions within the tool.';
 $string['share_name_admin'] = 'Share launcher\'s name with tool';
 $string['share_name_admin_help'] = 'Specify whether the full name of the user launching the tool should be shared with the tool provider.
 The tool provider may need launchers\' names to show meaningful information within the tool.';
-$string['showinactivitychooser'] = 'Show in activity chooser';
 $string['show_in_course_activity_chooser'] = 'Show in activity chooser and as a preconfigured tool';
 $string['show_in_course_lti1'] = 'Tool configuration usage';
 $string['show_in_course_lti1_help'] = 'This tool may be shown in the activity chooser for a teacher to select to add to a course. Alternatively, it may be shown in the preconfigured tool drop-down menu when adding an external tool to a course. A further option is for the tool configuration to only be used if the exact tool URL is entered when adding an external tool to a course.';

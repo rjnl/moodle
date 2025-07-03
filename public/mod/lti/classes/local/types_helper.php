@@ -91,24 +91,4 @@ class types_helper {
             ] + $coursevisparams + $coursevisparams1 + $coursevisoverriddenparams
         );
     }
-
-    /**
-     * Override coursevisible for a given tool on course level.
-     *
-     * @deprecated since Moodle 4.4
-     * @param int $tooltypeid Type ID
-     * @param int $courseid Course ID
-     * @param \core\context\course $context Course context
-     * @param bool $showinactivitychooser Show or not show in activity chooser
-     * @return bool True if the coursevisible was changed, false otherwise.
-     */
-    public static function override_type_showinactivitychooser(int $tooltypeid, int $courseid, \core\context\course $context, bool $showinactivitychooser): bool {
-        debugging(__FUNCTION__ . '() is deprecated. ' .
-            'Please use \core_ltix\helper::override_type_showinactivitychooser() instead.',
-            DEBUG_DEVELOPER);
-
-        return \core_ltix\helper::override_type_showinactivitychooser($tooltypeid, $courseid, $context,
-            $showinactivitychooser);
-    }
-
 }

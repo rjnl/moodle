@@ -16,9 +16,12 @@
 
 namespace mod_lti\external;
 
+use context_course;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_value;
+use core_ltix\constants;
+use core_ltix\local\placement\placement_status;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +40,7 @@ class toggle_showinactivitychooser extends external_api {
     /**
      * Get parameter definition.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_function_parameters
      */
     public static function execute_parameters(): external_function_parameters {
@@ -51,22 +54,78 @@ class toggle_showinactivitychooser extends external_api {
     /**
      * Toggles showinactivitychooser setting.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @param int $tooltypeid the id of the course external tool type.
      * @param int $courseid the id of the course we are in.
      * @param bool $showinactivitychooser Show in activity chooser setting.
      * @return bool true or false
      */
+    #[\core\attribute\deprecated(null, since: '5.1', reason: 'This method should not be used', mdl: 'MDL-85927')]
     public static function execute(int $tooltypeid, int $courseid, bool $showinactivitychooser): bool {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\toggle_showinactivitychooser instead.',
-                  DEBUG_DEVELOPER);
-        return \core_ltix\external\toggle_showinactivitychooser::execute($tooltypeid, $courseid, $showinactivitychooser);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
+        // If the tool is configured with the placement 'mod_lti:activitychooser', and the user has permission,
+        // change the value of the placement status and return true.
+        // Otherwise, if it's a tool that isn't available to the current course category, throw.
+        // Otherwise, return false.
+        global $DB, $SITE;
+        $coursecontext = context_course::instance($courseid);
+        require_capability('moodle/ltix:addcoursetool', $coursecontext);
+
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+        $sql = <<<EOF
+            SELECT p.id, tc.categoryid
+              FROM {lti_types} t
+              JOIN {lti_placement} p ON t.id = p.toolid
+              JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+         LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid
+             WHERE t.id = :toolid
+               AND t.state = :active
+               AND t.course IN (:courseid, :siteid)
+               AND t.coursevisible = :coursevisible
+        EOF;
+
+        $params = [
+            'placementtype' => 'mod_lti:activityplacement',
+            'toolid' => $tooltypeid,
+            'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'courseid' => $courseid,
+            'siteid' => $SITE->id,
+            'coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+        ];
+
+        $placement = $DB->get_records_sql($sql, $params);
+
+        if (empty($placement)) {
+            return false;
+        }
+        $placement = array_pop($placement);
+
+        // If the tool is restricted to a different category, throw.
+        if (!is_null($placement->categoryid) && $placement->categoryid != $coursecategory) {
+            throw new \moodle_exception('You are not allowed to change this setting for this tool.');
+        }
+
+        $status = $DB->get_record('lti_placement_status', ['placementid' => $placement->id, 'contextid' => $coursecontext->id]);
+        if (!$status) {
+            $DB->insert_record('lti_placement_status', [
+                'placementid' => $placement->id,
+                'contextid' => $coursecontext->id,
+                'status' => $showinactivitychooser ? placement_status::ENABLED->value : placement_status::DISABLED->value,
+            ]);
+        } else {
+            $DB->update_record('lti_placement_status', [
+                'id' => $status->id,
+                'status' => $showinactivitychooser ? placement_status::ENABLED->value : placement_status::DISABLED->value,
+            ]);
+        }
+        return true;
     }
 
     /**
      * Get service returns definition.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_value
      */
     public static function execute_returns(): external_value {

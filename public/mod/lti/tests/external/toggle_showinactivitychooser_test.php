@@ -17,7 +17,7 @@
 namespace mod_lti\external;
 
 use core_external\external_api;
-use core_ltix\helper;
+use core_ltix\local\placement\placement_status;
 use externallib_advanced_testcase;
 
 defined('MOODLE_INTERNAL') || die();
@@ -32,13 +32,14 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @package    mod_lti
  * @copyright  2023 Ilya Tregubov <ilya.a.tregubov@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_lti\external\toggle_showinactivitychooser
+ * @covers \mod_lti\external\toggle_showinactivitychooser
  */
 final class toggle_showinactivitychooser_test extends externallib_advanced_testcase {
 
     /**
      * Test toggle_showinactivitychooser for course tool.
-     * @covers ::execute
+     *
+     * @return void
      */
     public function test_toggle_showinactivitychooser_course_tool(): void {
         global $DB;
@@ -48,89 +49,107 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
-        $typeid = helper::add_type(
-            (object) [
-                'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
-                'course' => $course->id,
-                'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
-            ],
-            (object) [
-                'lti_typename' => "My course tool",
-                'lti_toolurl' => 'http://example.com',
-                'lti_ltiversion' => 'LTI-1p0',
-                'lti_coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER
-            ]
-        );
+        // Create a course tool with the 'mod_lti:activityplacement' placement configured for use.
+        /** @var \mod_lti_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $typeid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'lti_coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'course' => $course->id,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => placement_status::ENABLED->value,
+        ]);
+
+        // Set the placement status to disabled.
         $result = toggle_showinactivitychooser::execute($typeid, $course->id, false);
         $this->assertDebuggingCalled();
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
+        $toolplacementstatuses = array_filter(
+            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            fn($x) => $x->type == 'mod_lti:activityplacement'
+        );
+        $placementstatus = array_pop($toolplacementstatuses);
+        $this->assertEquals(placement_status::DISABLED->value, $placementstatus->status);
 
-        $sql = "SELECT lt.coursevisible coursevisible
-                  FROM {lti_types} lt
-                 WHERE lt.id = ?";
-        $actual = $DB->get_record_sql($sql, [$typeid]);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible);
-
+        // Set the placement status to enabled.
         $result = toggle_showinactivitychooser::execute($typeid, $course->id, true);
         $this->assertDebuggingCalled();
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
-        $actual = $DB->get_record_sql($sql, [$typeid]);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible);
+        $toolplacementstatuses = array_filter(
+            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            fn($x) => $x->type == 'mod_lti:activityplacement'
+        );
+        $placementstatus = array_pop($toolplacementstatuses);
+        $this->assertEquals(placement_status::ENABLED->value, $placementstatus->status);
     }
 
     /**
      * Test toggle_showinactivitychooser for site tool.
-     * @covers ::execute
+     *
+     * @return void
      */
     public function test_toggle_showinactivitychooser_site_tool(): void {
         global $DB;
-
         $this->resetAfterTest();
 
         $coursecat1 = $this->getDataGenerator()->create_category();
         $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
-
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
-        $typeid = $this->getDataGenerator()->get_plugin_generator('mod_lti')->create_tool_types([
+        // Create a site tool configured with the 'mod_lti:activityplacement' placement.
+        /** @var \mod_lti_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $typeid = $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 1',
             'baseurl' => 'http://example.com/tool/1',
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'lti_coursecategories' => $coursecat1->id
         ]);
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => placement_status::ENABLED->value,
+        ]);
 
+        // Set the placement status to disabled.
         $result = toggle_showinactivitychooser::execute($typeid, $course->id, false);
         $this->assertDebuggingCalled();
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
+        $toolplacementstatuses = array_filter(
+            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            fn($x) => $x->type == 'mod_lti:activityplacement'
+        );
+        $placementstatus = array_pop($toolplacementstatuses);
+        $this->assertEquals(placement_status::DISABLED->value, $placementstatus->status);
 
-        $sql = "SELECT lt.coursevisible coursevisible1, lc.coursevisible AS coursevisible2
-                  FROM {lti_types} lt
-             LEFT JOIN {lti_coursevisible} lc ON lt.id = lc.typeid
-                 WHERE lt.id = ?
-                   AND lc.courseid = ?";
-        $actual = $DB->get_record_sql($sql, [$typeid, $course->id]);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible2);
-
+        // Set the placement status to enabled.
         $result = toggle_showinactivitychooser::execute($typeid, $course->id, true);
         $this->assertDebuggingCalled();
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
-
-        $actual = $DB->get_record_sql($sql, [$typeid, $course->id]);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible2);
+        $toolplacementstatuses = array_filter(
+            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            fn($x) => $x->type == 'mod_lti:activityplacement'
+        );
+        $placementstatus = array_pop($toolplacementstatuses);
+        $this->assertEquals(placement_status::ENABLED->value, $placementstatus->status);
     }
 
     /**
      * Test toggle_showinactivitychooser for tools restricted to course categories
      *
-     * @covers ::execute
      * @return void
      */
     public function test_toggle_showinactivitychooser_course_category_restricted_tools(): void {
@@ -143,21 +162,32 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
         $this->setUser($editingteacher);
 
+        /** @var \mod_lti_generator $ltigenerator */
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
-
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
         $tool1id = $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 1',
             'baseurl' => 'http://example.com/tool/1',
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'lti_coursecategories' => $coursecat1->id
+        ]);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $tool1id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => placement_status::ENABLED->value,
         ]);
         $tool2id = $ltigenerator->create_tool_types([
             'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
             'baseurl' => 'http://example.com/tool/1',
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'lti_coursecategories' => $coursecat2->id
+        ]);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $tool2id,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => placement_status::ENABLED->value,
         ]);
 
         // Teacher in course 1, category 1 is allowed to toggle the coursevisible for the tool in category 1.
@@ -166,14 +196,12 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
 
-        $sql = "SELECT lt.coursevisible coursevisible1, lc.coursevisible AS coursevisible2
-                  FROM {lti_types} lt
-             LEFT JOIN {lti_coursevisible} lc ON lt.id = lc.typeid
-                 WHERE lt.id = ?
-                   AND lc.courseid = ?";
-        $actual = $DB->get_record_sql($sql, [$tool1id, $course->id]);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER, $actual->coursevisible1);
-        $this->assertEquals(\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, $actual->coursevisible2);
+        $toolplacementstatuses = array_filter(
+            \core_ltix\helper::get_placement_status_for_tool($tool1id, $course->id),
+            fn($x) => $x->type == 'mod_lti:activityplacement'
+        );
+        $placementstatus = array_pop($toolplacementstatuses);
+        $this->assertEquals(placement_status::DISABLED->value, $placementstatus->status);
 
         // Teacher in course 1, category 1 is NOT allowed to toggle the coursevisible for the tool in category 2.
         try {
@@ -189,7 +217,6 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
     /**
      * Test toggle_showinactivitychooser for a hidden site tool.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_toggleshowinactivitychooser_hidden_site_tool(): void {
@@ -208,10 +235,44 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
             'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_NO,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
         ]);
+
         $tool = $DB->get_record('lti_types', ['name' => 'site tool dont show']);
         $result = toggle_showinactivitychooser::execute($tool->id, $course->id, false);
         $this->assertDebuggingCalled();
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertFalse($result);
+    }
+
+    /**
+     * Test verifying that toggling the activity chooser placment isn't possible if the placement isn't configured.
+     *
+     * @return void
+     */
+    public function test_toggleshowinactivitychooser_no_placement(): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $editingteacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $this->setUser($editingteacher);
+
+        // Create a course tool without any placement configuration.
+        // Overriding a placement status should not be possible if the placement is not configured.
+        /** @var \mod_lti_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $typeid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'lti_coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'course' => $course->id,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+
+        // Set the placement status to disabled.
+        $result = toggle_showinactivitychooser::execute($typeid, $course->id, false);
+        $this->assertDebuggingCalled();
+        $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
+        $this->assertFalse($result);
+        $this->assertEquals(0, $DB->count_records('lti_placement_status'));
     }
 }

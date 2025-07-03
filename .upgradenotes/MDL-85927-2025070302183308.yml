@@ -1,0 +1,8 @@
+issueNumber: MDL-85927
+notes:
+  core_ltix:
+    - message: |
+        The toggle_showinactivitychooser() method has been deprecated
+        without a replacement. Placement management is now managed in
+        core_ltix via the LTI External tools page.
+      type: deprecated
