@@ -3424,13 +3424,6 @@ $functions = array(
         'capabilities'  => 'moodle/ltix:addcoursetool',
         'ajax'          => true,
     ],
-    'core_ltix_toggle_showinactivitychooser' => [
-        'classname'     => 'core_ltix\external\toggle_showinactivitychooser',
-        'description'   => 'Toggle showinactivitychooser for a tool type in a course',
-        'type'          => 'write',
-        'capabilities'  => 'moodle/ltix:addcoursetool',
-        'ajax'          => true,
-    ],
     'core_ltix_is_cartridge' => [
         'classname'     => 'core_ltix\external\is_cartridge',
         'description'   => 'Determine if the given url is for a cartridge',
