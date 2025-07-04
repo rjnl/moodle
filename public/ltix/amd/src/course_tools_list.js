@@ -97,7 +97,12 @@ export const init = () => {
 
             // Show a toast notification when the form is submitted.
             modalForm.addEventListener(modalForm.events.FORM_SUBMITTED, () => {
-                addToast(getString('placementstatussaved', 'core_ltix'));
+                addToast(getString('placementstatussaved', 'core_ltix'))
+                .then(() => {
+                    const tableRoot = courseToolManagePlacements.closest(Selectors.main.region);
+                    return refreshTableContent(tableRoot);
+                })
+                .catch(Notification.exception);
             });
 
             modalForm.show();
