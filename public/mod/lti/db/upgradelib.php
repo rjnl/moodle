@@ -24,6 +24,22 @@ namespace mod_lti;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lti_migration_upgrade_helper {
+
+    /**
+     * Note: The upgrade code needs to migrate legacy coursevisible data to the new LTI architecture.
+     *
+     * As part of this process, it needs to be aware of the following coursevisible values:
+     * 0: {@see \core_ltix\constants::LTI_COURSEVISIBLE_NO} (currently valid)
+     * 1: {@see \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED} (currently valid)
+     * 2: LTI_COURSEVISIBLE_ACTIVITYCHOOSER (a now-defunct value)
+     *
+     * This const is only included here as a reference to that original value, allowing named references during the following
+     * upgrade code.
+     *
+     * @var int the value of the now-defunc const LTI_COURSEVISIBLE_ACTIVITYCHOOSER, on which the upgrade code operates.
+     */
+    const LEGACY_LTI_COURSEVISIBLE_ACTIVITYCHOOSER = 2;
+
     /**
      * Create a placement of type 'mod_lti:activityplacement' for existing tools, where applicable.
      *
@@ -76,7 +92,10 @@ class lti_migration_upgrade_helper {
                FROM {lti_types} tool
               WHERE tool.coursevisible != :coursevisiblehidden
         EOF;
-        $DB->execute($placementsql, ['placementtypeid' => $placementtypeid, 'coursevisiblehidden' => 0]);
+        $DB->execute(
+            $placementsql,
+            ['placementtypeid' => $placementtypeid, 'coursevisiblehidden' => \core_ltix\constants::LTI_COURSEVISIBLE_NO]
+        );
 
         // Conditionally set 'default_usage config' config value.
         $defaultusageconfigsql = <<<EOF
@@ -94,7 +113,7 @@ class lti_migration_upgrade_helper {
         EOF;
         $DB->execute($defaultusageconfigsql, [
             'name' => 'default_usage',
-            'coursevisibleactchooser' => 2,
+            'coursevisibleactchooser' => self::LEGACY_LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'placementtypeid' => $placementtypeid
         ]);
 
@@ -161,7 +180,7 @@ class lti_migration_upgrade_helper {
               JOIN {lti_placement} p ON (p.toolid = tool.id)
         EOF;
         $DB->execute($placementstatussql, [
-            'coursevisibleactchooser' => 2,
+            'coursevisibleactchooser' => self::LEGACY_LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'coursecontextlevel' => CONTEXT_COURSE,
         ]);
     }
