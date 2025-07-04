@@ -107,14 +107,14 @@ class core_ltix_generator extends testing_module_generator {
         }
 
         $type['baseurl'] = (new moodle_url($type['baseurl']))->out(false); // Permits relative URLs in behat features.
-        $type['coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $type['coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
         $type['state'] = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED; // The default for course tools.
 
         // Sensible defaults permitting the tool type to be used in a launch.
         $type['lti_acceptgrades'] = $type['lti_acceptgrades'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
         $type['lti_sendname'] = $type['lti_sendname'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
         $type['lti_sendemailaddr'] = $type['lti_sendemailaddr'] ?? \core_ltix\constants::LTI_SETTING_ALWAYS;
-        $type['lti_coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+        $type['lti_coursevisible'] = $type['coursevisible'] ?? \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
         $type['lti_launchcontainer'] = $type['lti_launchcontainer'] ?? \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS;
 
         // Required for cartridge processing support.

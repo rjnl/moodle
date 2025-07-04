@@ -104,6 +104,7 @@ final class types_helper_test extends lti_testcase {
         $tool4id = $ltigenerator->create_course_tool_types([
             'name' => 'course tool preconfigured and activity chooser',
             'baseurl' => 'http://example.com/tool/4',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
             'course' => $course->id
         ]);
         $tool5id = $ltigenerator->create_tool_types([

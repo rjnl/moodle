@@ -1097,7 +1097,7 @@ class helper {
         $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
 
         [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
-            [constants::LTI_COURSEVISIBLE_PRECONFIGURED, constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER],
+            [constants::LTI_COURSEVISIBLE_PRECONFIGURED],
             SQL_PARAMS_NAMED
         );
 

@@ -98,7 +98,7 @@ final class content_item_readonly_repository_test extends \advanced_testcase {
         $toolid = $ltigenerator->create_tool_types([
             'name' => 'site tool',
             'baseurl' => 'http://example.com',
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
         $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
