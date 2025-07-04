@@ -48,6 +48,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\context\course;
+
 defined('MOODLE_INTERNAL') || die;
 
 global $CFG;
@@ -849,13 +851,40 @@ function lti_filter_tool_types(array $tools, $state) {
  * @return array Array of lti types
  */
 function lti_get_types_for_add_instance() {
-    global $COURSE, $USER;
+    global $COURSE, $USER, $SITE, $DB;
 
     // Always return the 'manual' type option, despite manual config being deprecated, so that we have it for legacy instances.
     $types = [(object) ['name' => get_string('automatic', 'lti'), 'course' => 0, 'toolproxyid' => null]];
 
-    $preconfiguredtypes = \mod_lti\local\types_helper::get_lti_types_by_course($COURSE->id, $USER->id);
-    foreach ($preconfiguredtypes as $type) {
+    if (!has_capability('mod/lti:addpreconfiguredinstance', course::instance($COURSE->id), $USER->id)) {
+        return $types;
+    }
+
+    $coursecond = implode(" OR ", ["t.course = :courseid", "t.course = :siteid"]);
+    $coursecategoryid = $DB->get_field('course', 'category', ['id' => $COURSE->id]);
+    $query = "SELECT *
+                    FROM (SELECT t.*
+                            FROM {lti_types} t
+                            JOIN {lti_placement} p ON t.id = p.toolid
+                            JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+                       LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid                    
+                           WHERE t.coursevisible = :coursevisible
+                             AND ($coursecond)
+                             AND t.state = :active
+                             AND (tc.id IS NULL OR tc.categoryid = :categoryid)) tt";
+
+    $rows = $DB->get_records_sql(
+        $query,
+        [
+            'courseid' => $COURSE->id,
+            'siteid' => $SITE->id,
+            'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'placementtype' => 'mod_lti:activityplacement',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'categoryid' => $coursecategoryid,
+        ]
+    );
+    foreach ($rows as $type) {
         $types[$type->id] = $type;
     }
 
@@ -1710,7 +1739,7 @@ function lti_get_fqid($contexts, $id) {
 function get_tool_type_icon_url(stdClass $type) {
     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_icon_url() instead.',
         DEBUG_DEVELOPER);
-    
+
     return \core_ltix\helper::get_tool_type_icon_url($type);
 }
 
