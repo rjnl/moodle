@@ -340,11 +340,6 @@ function lti_get_course_content_items(\core_course\local\entity\content_item $de
 function mod_lti_get_all_content_items(\core_course\local\entity\content_item $defaultmodulecontentitem): array {
     global $OUTPUT, $DB;
 
-    [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
-        [\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED, \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER],
-        SQL_PARAMS_NAMED
-    );
-
     $sql = <<<EOF
             SELECT t.*
             FROM {lti_types} t
@@ -352,15 +347,16 @@ function mod_lti_get_all_content_items(\core_course\local\entity\content_item $d
             JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
             LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
             WHERE t.state = :active
-                AND t.coursevisible $visiblesql
+                AND t.coursevisible = :coursevisible
                 AND pc.value = :placementconfigvalue
         EOF;
     $params = [
             'placementtype' => 'mod_lti:activityplacement',
             'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'placementconfigname' => 'default_usage',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'placementconfigvalue' => 'enabled',
-        ] + $visibleparams;
+        ];
 
     $tools = $DB->get_records_sql($sql, $params);
 

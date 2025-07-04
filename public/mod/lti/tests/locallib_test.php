@@ -2355,9 +2355,9 @@ MwIDAQAB
             $type->description = "Example description $uniqueid";
             $type->toolproxyid = $toolproxyid;
             $type->baseurl = $this->getExternalTestFileUrl("/test$uniqueid.html");
-            $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+            $type->coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
             $config = new \stdClass();
-            $config->lti_coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
+            $config->lti_coursevisible = \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED;
 
             $type->id = helper::add_type($type, $config);
             return $type;
