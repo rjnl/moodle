@@ -119,7 +119,7 @@ final class services_content_item_service_test extends \advanced_testcase {
         $toolid = $ltigenerator->create_tool_types([
             'name' => 'site tool',
             'baseurl' => 'http://example.com',
-            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
             'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
         ]);
         $ltigenerator->create_tool_placements([
