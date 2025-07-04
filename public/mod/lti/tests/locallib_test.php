@@ -2288,6 +2288,166 @@ MwIDAQAB
     }
 
     /**
+     * Test covering lti_get_types_for_add_instance(), which only exists to support the legacy, manually configured instance form.
+     *
+     * @covers ::lti_get_types_for_add_instance
+     * @return void
+     */
+    public function test_lti_get_types_for_add_instance(): void {
+        $this->resetAfterTest();
+
+        global $DB, $COURSE;
+        $coursecat1 = $this->getDataGenerator()->create_category();
+        $coursecat2 = $this->getDataGenerator()->create_category();
+        $course = $this->getDataGenerator()->create_course(['category' => $coursecat1->id]);
+        $course2 = $this->getDataGenerator()->create_course(['category' => $coursecat2->id]);
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $teacher2 = $this->getDataGenerator()->create_and_enrol($course2, 'editingteacher');
+
+        // Create the following tool types for testing:
+        // - Site tool configured as "Do not show" (LTI_COURSEVISIBLE_NO).
+        // - Site tool configured as "Show as a preconfigured tool only" (LTI_COURSEVISIBLE_PRECONFIGURED).
+        // - Site tool configured as "Show as a preconfigured tool" (LTI_COURSEVISIBLE_PRECONFIGURED) but with the activity chooser
+        // placement enabled.
+        // - Course tool which defaults to LTI_COURSEVISIBLE_PRECONFIGURED but with the activity chooser placement enabled.
+        // - Site tool configured to "Show as a preconfigured tool", with the activity chooser placement enabled and restricted to
+        // a course category.
+        // Additional tools to ensure that these are always excluded after core_ltix migration:
+        // - Site tool configured to "Show as a preconfigured tool" but configured with another placement type (not act. chooser).
+        // - Site tool configured to "Show as a preconfigured tool" but without any placement configured.
+
+        /** @var \mod_lti_generator $ltigenerator */
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('mod_lti');
+        $tool1id = $ltigenerator->create_tool_types([
+            'name' => 'site tool do not show',
+            'baseurl' => 'http://example.com/tool/1',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_NO,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $tool2id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured only',
+            'baseurl' => 'http://example.com/tool/2',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $tool3id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser',
+            'baseurl' => 'http://example.com/tool/3',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+        $tool4id = $ltigenerator->create_course_tool_types([
+            'name' => 'course tool preconfigured and activity chooser',
+            'baseurl' => 'http://example.com/tool/4',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'course' => $course->id
+        ]);
+        $tool5id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, restricted to category 2',
+            'baseurl' => 'http://example.com/tool/5',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat2->id
+        ]);
+        $tool6id = $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, on another placement type',
+            'baseurl' => 'http://example.com/tool/6',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat2->id
+        ]);
+        $ltigenerator->create_tool_types([
+            'name' => 'site tool preconfigured and activity chooser, without any placement',
+            'baseurl' => 'http://example.com/tool/7',
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'lti_coursecategories' => $coursecat2->id
+        ]);
+
+        // Creating placements as part of core_ltix architecture migration
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $otherplacementtype = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'other:placementtype']
+        );
+        $toolplacementsmap = [
+            $tool1id => ['placementtypeid' => $placementtypeid, 'config_default_usage' => 'disabled'],
+            $tool2id => ['placementtypeid' => $placementtypeid, 'config_default_usage' => 'disabled'],
+            $tool3id => ['placementtypeid' => $placementtypeid, 'config_default_usage' => 'enabled'],
+            $tool4id => ['placementtypeid' => $placementtypeid, 'config_default_usage' => 'enabled'],
+            $tool5id => ['placementtypeid' => $placementtypeid, 'config_default_usage' => 'enabled'],
+            $tool6id => ['placementtypeid' => $otherplacementtype->id, 'config_default_usage' => 'enabled'],
+            // Note: tool 7 has no placement created for it.
+        ];
+        foreach ($toolplacementsmap as $toolid => $placementconfig) {
+            $ltigenerator->create_tool_placements([
+                'toolid' => $toolid,
+                'placementtypeid' => $placementconfig['placementtypeid'],
+                'config_default_usage' => $placementconfig['config_default_usage'],
+            ]);
+        }
+
+        // A request to show all preconfigured tools for teacher1 in course1.
+        // This will include all tools except:
+        // - those tools configured with coursevisible = "Do not show" (LTI_COURSEVISIBLE_NO).
+        // - those tools restricted to category 2.
+        // - those tools not configured with the activity chooser placement type (i.e. are using another placement instead).
+        // - those tools without any placement
+        $this->setUser($teacher);
+        $COURSE = $course;
+        $coursetooltypes = lti_get_types_for_add_instance();
+        $this->assertCount(4, $coursetooltypes);
+        // Verify the list contains the "Automatic, based on tool URL" option, which is always present.
+        $this->assertEquals(0, $coursetooltypes[0]->course);
+        $this->assertStringContainsString('Automatic, based', $coursetooltypes[0]->name);
+        // Verify the list contains 3 other tools too.
+        $expected = [
+            'http://example.com/tool/2',
+            'http://example.com/tool/3',
+            'http://example.com/tool/4',
+        ];
+        sort($expected);
+        $actual = array_column($coursetooltypes, 'baseurl');
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+
+        // Now for teacher2 in course2.
+        // This will include all tools except:
+        // - those tools configured with coursevisible = "Do not show" (LTI_COURSEVISIBLE_NO).
+        // - course tools created in course 1
+        // - those tools not configured with the activity chooser placement type (i.e. are using another placement instead).
+        // - those tools without any placement
+        $COURSE = $course2;
+        $this->setUser($teacher2);
+        $coursetooltypes = lti_get_types_for_add_instance();
+        $this->assertCount(4, $coursetooltypes);
+        // Verify the list contains the "Automatic, based on tool URL" option, which is always present.
+        $this->assertEquals(0, $coursetooltypes[0]->course);
+        $this->assertStringContainsString('Automatic, based', $coursetooltypes[0]->name);
+        // Verify the list contains 3 other tools too.
+        $expected = [
+            'http://example.com/tool/2',
+            'http://example.com/tool/3',
+            'http://example.com/tool/5',
+        ];
+        sort($expected);
+        $actual = array_column($coursetooltypes, 'baseurl');
+        sort($actual);
+        $this->assertEquals($expected, $actual);
+
+        // Request for a teacher who cannot use preconfigured tools in the course.
+        $this->setUser($teacher);
+        $COURSE = $course;
+        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        assign_capability('mod/lti:addpreconfiguredinstance', CAP_PROHIBIT, $teacherrole->id,
+            \core\context\course::instance($course->id));
+        $coursetooltypes = lti_get_types_for_add_instance();
+        $this->assertCount(1, $coursetooltypes);
+        // Verify the list contains the "Automatic, based on tool URL" option, which is always present.
+        $this->assertEquals(0, $coursetooltypes[0]->course);
+        $this->assertStringContainsString('Automatic, based', $coursetooltypes[0]->name);
+    }
+
+    /**
      * Create an LTI Tool.
      *
      * @param object $config tool config.
