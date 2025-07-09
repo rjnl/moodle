@@ -141,13 +141,14 @@ Feature: Manage course tools
     And I set the field "Mock placement" to "<fieldvalue>"
     And I click on "Apply" "button" in the ".modal-content" "css_element"
     And I should see "Placement status saved"
+    And I <activeplacementvisible> see "Mock placement" in the "Site tool 1" "table_row"
     And I choose the "Manage placements" item in the "Actions" action menu of the "Site tool 1" "table_row"
     And the field "Mock placement" matches value "<expectedapplyvalue>"
 
     Examples:
-      | fieldvalue | expectedcancelvalue | expectedapplyvalue |
-      | 0          | 1                   | 0                  |
-      | 1          | 1                   | 1                  |
+      | fieldvalue | expectedcancelvalue | expectedapplyvalue | activeplacementvisible |
+      | 0          | 1                   | 0                  | should not             |
+      | 1          | 1                   | 1                  | should                 |
 
   @javascript
   Scenario Outline: Verify default placement status in course
