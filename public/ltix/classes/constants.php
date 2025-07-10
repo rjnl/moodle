@@ -52,7 +52,6 @@ class constants
 
     const LTI_COURSEVISIBLE_NO = 0;
     const LTI_COURSEVISIBLE_PRECONFIGURED = 1;
-    const LTI_COURSEVISIBLE_ACTIVITYCHOOSER = 2;
 
     const LTI_VERSION_1 = 'LTI-1p0';
     const LTI_VERSION_2 = 'LTI-2p0';

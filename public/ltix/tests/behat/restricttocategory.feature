@@ -65,7 +65,7 @@ Feature: Make an LTI only available to specific course categories
     And I click on "catb" "link"
     And I set the following fields to these values:
       | Tool name | Teaching Tool 3 |
-      | Tool configuration usage | Do not show; use only when a matching tool URL is entered |
+      | Tool configuration usage | Do not show; use only when a matching tool URL is found |
       | catb | 1 |
     # If parent is selected, child should be selected.
     And the field "catcb" matches value "1"
