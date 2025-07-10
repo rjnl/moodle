@@ -18,7 +18,7 @@ Feature: Create/edit tool configuration that has Deep Linking support
     When I follow "configure a tool manually"
     And I set the field "Tool name" to "Test tool"
     And I set the field "Tool URL" to local url "/ltix/tests/fixtures/tool_provider.php"
-    And I set the field "Tool configuration usage" to "Show in activity chooser and as a preconfigured tool"
+    And I set the field "Tool configuration usage" to "Show as preconfigured tool in courses"
     And I expand all fieldsets
     And I set the field "Supports Deep Linking (Content-Item Message)" to "1"
     And I press "Save changes"

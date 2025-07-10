@@ -171,24 +171,25 @@ class edit_types extends moodleform {
         if (!empty($this->_customdata->isadmin)) {
             // Only site-level preconfigured tools allow the control of course visibility in the site admin tool type form.
             if (empty($this->_customdata->iscoursetool) || !$this->_customdata->iscoursetool) {
-                $options = array(
-                    \core_ltix\constants::LTI_COURSEVISIBLE_NO => get_string('show_in_course_no', 'core_ltix'),
-                    \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED => get_string('show_in_course_preconfigured', 'core_ltix'),
-                    \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER => get_string('show_in_course_activity_chooser', 'core_ltix'),
-                );
-                if ($istool) {
-                    // LTI2 tools can not be matched by URL, they have to be either in preconfigured tools or in activity chooser.
-                    unset($options[\core_ltix\constants::LTI_COURSEVISIBLE_NO]);
-                    $stringname = 'show_in_course_lti2';
-                } else {
+
+                // Only LTI 1px tools can be matched by URL and therefore can either be shown as preconfigured tools in course, or
+                // can be hidden. So, display the form element allowing one of these two options to be selected for 1px tools.
+                // LTI 2p0 tools ($istool=true) are always preconfigured tools so no selection is required.
+                if (!$istool) {
+                    $options = array(
+                        \core_ltix\constants::LTI_COURSEVISIBLE_NO => get_string('show_in_course_no', 'core_ltix'),
+                        \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED => get_string('show_in_course_preconfigured', 'core_ltix'),
+                    );
                     $stringname = 'show_in_course_lti1';
+                    $mform->addElement('select', 'lti_coursevisible', get_string($stringname, 'core_ltix'), $options);
+                    $mform->addHelpButton('lti_coursevisible', $stringname, 'core_ltix');
+                    $mform->setDefault('lti_coursevisible', '1');
+                } else {
+                    $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED);
                 }
-                $mform->addElement('select', 'lti_coursevisible', get_string($stringname, 'core_ltix'), $options);
-                $mform->addHelpButton('lti_coursevisible', $stringname, 'core_ltix');
-                $mform->setDefault('lti_coursevisible', '1');
             }
         } else {
-            $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_ACTIVITYCHOOSER);
+            $mform->addElement('hidden', 'lti_coursevisible', \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED);
         }
         $mform->setType('lti_coursevisible', PARAM_INT);
 

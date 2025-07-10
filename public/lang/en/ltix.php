@@ -308,13 +308,10 @@ to users based on actions within the tool.';
 $string['share_name_admin'] = 'Share launcher\'s name with tool';
 $string['share_name_admin_help'] = 'Specify whether the full name of the user launching the tool should be shared with the tool provider.
 The tool provider may need launchers\' names to show meaningful information within the tool.';
-$string['show_in_course_activity_chooser'] = 'Show in activity chooser and as a preconfigured tool';
 $string['show_in_course_lti1'] = 'Tool configuration usage';
-$string['show_in_course_lti1_help'] = 'This tool may be shown in the activity chooser for a teacher to select to add to a course. Alternatively, it may be shown in the preconfigured tool drop-down menu when adding an external tool to a course. A further option is for the tool configuration to only be used if the exact tool URL is entered when adding an external tool to a course.';
-$string['show_in_course_lti2'] = 'Tool configuration usage';
-$string['show_in_course_lti2_help'] = 'This tool can be shown in the activity chooser for a teacher to select to add to a course or in the preconfigured tool drop-down menu when adding an external tool to a course.';
-$string['show_in_course_no'] = 'Do not show; use only when a matching tool URL is entered';
-$string['show_in_course_preconfigured'] = 'Show as preconfigured tool when adding an external tool';
+$string['show_in_course_lti1_help'] = 'This tool may be shown in courses as a preconfigured tool, or may be hidden, and instead the configuration used only when a matching tool URL is found during a launch.';
+$string['show_in_course_no'] = 'Do not show; use only when a matching tool URL is found';
+$string['show_in_course_preconfigured'] = 'Show as preconfigured tool in courses';
 $string['siteid'] = 'Site ID';
 $string['sitehost'] = 'Site hostname';
 $string['sitetool'] = 'Site tool';
@@ -322,7 +319,7 @@ $string['successfullycreatedtooltype'] = 'Successfully created new tool!';
 $string['successfullyfetchedtoolconfigurationfromcontent'] = 'Successfully fetched tool configuration from the selected content.';
 $string['tool_settings'] = 'Tool settings';
 $string['tooldescription'] = 'Tool description';
-$string['tooldescription_help'] = 'The description of the tool that will be displayed to teachers in the activity list.
+$string['tooldescription_help'] = 'The description of the tool that will be displayed to teachers.
 
 This should describe what the tool is for and what it does and any additional information the teacher may need to know.';
 $string['tooldetailsaccesstokenurl'] = 'Access token URL';
