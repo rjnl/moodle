@@ -146,5 +146,32 @@ function xmldb_lti_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2025110601, 'lti');
     }
 
+    if ($oldversion < 2025110602) {
+        // Now that all migration tasks have taken place, migrate the value of the 'coursevisible' field for any tools using
+        // LTI_COURSEVISIBLE_ACTIVITYCHOOSER to LTI_COURSEVISIBLE_PRECONFIGURED.
+        // Tool inclusion in the activity chooser now controlled via the placement configuration, not this field value.
+        $sql = "UPDATE {lti_types}
+                   SET coursevisible = :coursevisiblepreconfigured
+                 WHERE coursevisible = :coursevisibleactivitychooser";
+        $DB->execute($sql, [
+            'coursevisiblepreconfigured' => 1,
+            'coursevisibleactivitychooser' => 2,
+        ]);
+
+        // Also migrate types config values, since coursevisible is also stored there.
+        $sql = "UPDATE {lti_types_config}
+                   SET value = :coursevisiblepreconfigured
+                 WHERE name = :coursevisiblename
+                   AND value = :coursevisibleactivitychooser";
+        $DB->execute($sql, [
+            'coursevisiblepreconfigured' => 1,
+            'coursevisiblename' => 'coursevisible',
+            'coursevisibleactivitychooser' => 2,
+        ]);
+
+        // Lti savepoint reached.
+        upgrade_mod_savepoint(true, 2025110602, 'lti');
+    }
+
     return true;
 }
