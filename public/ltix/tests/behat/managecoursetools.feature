@@ -132,6 +132,7 @@ Feature: Manage course tools
     And I navigate to "LTI External tools" in current page administration
     When I choose the "Manage placements" item in the "Actions" action menu of the "Site tool 1" "table_row"
     Then I should see "Manage placements" in the ".modal-header" "css_element"
+    And I should not see "There are no available placements for this tool" in the ".modal-body" "css_element"
     And I set the field "Mock placement" to "<fieldvalue>"
     # Test Cancel first
     And I click on "Cancel" "button" in the ".modal-footer" "css_element"
@@ -149,6 +150,27 @@ Feature: Manage course tools
       | fieldvalue | expectedcancelvalue | expectedapplyvalue | activeplacementvisible |
       | 0          | 1                   | 0                  | should not             |
       | 1          | 1                   | 1                  | should                 |
+
+  @javascript
+  Scenario Outline: There are no placements to manage
+    # A site tool configured to show in courses.
+    Given the following "core_ltix > tool types" exist:
+      | name        | baseurl                                | coursevisible | state |
+      | Site tool 1 | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
+    # A course tool in course 1.
+    And the following "core_ltix > course tools" exist:
+      | name          | baseurl                                | course |
+      | Course tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     |
+    And I am on the "Course 1" course page logged in as teacher1
+    And I navigate to "LTI External tools" in current page administration
+    When I choose the "Manage placements" item in the "Actions" action menu of the "<toolname>" "table_row"
+    Then I should see "There are no available placements for this tool" in the ".modal-body" "css_element"
+    And the "Apply" "button" should be disabled
+
+    Examples:
+      | toolname      |
+      | Site tool 1   |
+      | Course tool 1 |
 
   @javascript
   Scenario Outline: Verify default placement status in course
