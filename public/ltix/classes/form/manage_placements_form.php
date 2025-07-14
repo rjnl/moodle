@@ -99,6 +99,22 @@ class manage_placements_form extends \core_form\dynamic_form {
 
         $statusrecords = helper::get_placement_status_for_tool($toolid, $courseid);
 
+        if (empty($statusrecords)) {
+            global $OUTPUT;
+
+            // No placements available for this tool in this course so display a notice.
+            $notice = new \core\output\notification(
+                get_string('noplacements_message', 'core_ltix'),
+                \core\output\notification::NOTIFY_WARNING,
+                false,
+                get_string('noplacements_title', 'core_ltix'),
+                'i/warning'
+            );
+            $mform->addElement('html', $OUTPUT->render($notice));
+
+            return;
+        }
+
         foreach ($statusrecords as $record) {
             $id = $record->placementtypeid;
             $type = $record->type;

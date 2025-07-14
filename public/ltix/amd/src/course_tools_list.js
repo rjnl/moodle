@@ -105,6 +105,23 @@ export const init = () => {
                 .catch(Notification.exception);
             });
 
+            // Enable the "save" button when there are placements to manage.
+            modalForm.addEventListener(modalForm.events.LOADED, () => {
+                const modalElement = modalForm.modal.getRoot()[0];
+                const saveButton = modalElement.querySelector('[data-action="save"]');
+                saveButton.disabled = true; // Keep disabled initially.
+
+                // Form elements are added dynamically, so we need to wait for the form to be fully loaded.
+                setTimeout(() => {
+                    const placementsElement = modalElement.querySelector('input[name^="placementtype_"]');
+
+                    // Yes, there are placements.
+                    if (placementsElement) {
+                        saveButton.disabled = false; // Enable the save button.
+                    }
+                }, 500);
+            });
+
             modalForm.show();
         }
     });
