@@ -400,6 +400,13 @@ class edit_types extends moodleform {
         // In the future we will have more placement types, so use a suffix to avoid duplicate element names.
         $suffix = "_placementconfig{$placementtypeid}"; // Use placement type id as suffix.
 
+        if (!$this->_customdata->iscoursetool) {
+            $mform->addElement('advcheckbox', 'default_usage' . $suffix,
+                get_string('lti_default_usage', 'core_ltix'), get_string('active'), null, ['disabled', 'enabled']);
+            $mform->setType('default_usage' . $suffix, PARAM_ALPHA);
+            $mform->addHelpButton('default_usage' . $suffix, 'lti_default_usage', 'core_ltix');
+        }
+
         $mform->addElement('text', 'deep_linking_url' . $suffix,
             get_string('lti_deeplinkingurl', 'core_ltix'), ['size' => '64']);
         $mform->setType('deep_linking_url' . $suffix, PARAM_URL);

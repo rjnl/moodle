@@ -1385,8 +1385,10 @@ class helper {
                 ARRAY_FILTER_USE_BOTH
             );
 
-            // Disabled if there are no config for this placement type.
-            $placementconfig["default_usage{$elementsuffix}"] = empty($placementconfig) ? 'disabled' : 'enabled';
+            // Placements should have the default_usage config set. If not set, set it to 'enabled' (e.g., for course tool).
+            if (!isset($placementconfig["default_usage{$elementsuffix}"])) {
+                $placementconfig["default_usage{$elementsuffix}"] = 'enabled';
+            }
 
             // Save the config values.
             foreach ($placementconfig as $name => $value) {
