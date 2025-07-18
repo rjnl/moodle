@@ -353,9 +353,11 @@ class mod_lti_mod_form extends moodleform_mod {
         $mform->addElement('html', "<div data-attribute='dynamic-import' hidden aria-hidden='true' role='alert'></div>");
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        // For tools supporting content selection, add the 'Select content button'.
         $config = \core_ltix\helper::get_type_config($tooltypeid);
-        $supportscontentitemselection = !empty($config['contentitem']);
+
+        // For tools supporting content selection, add the 'Select content button'.
+        $placementconfig = \core_ltix\helper::get_placement_config_by_placement_type($tooltypeid, 'mod_lti:activityplacement');
+        $supportscontentitemselection = !empty($placementconfig->deep_linking_url);
 
         if ($supportscontentitemselection) {
             $contentitemurl = new moodle_url('/mod/lti/contentitem.php');
