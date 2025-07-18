@@ -17,6 +17,7 @@ Feature: Configure placements for a tool
     And I expand the "Placements" autocomplete
     And I should see "Mock placement" in the "Placements" "autocomplete"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
+      | Default state                |  |
       | Deep Linking Request URL     |  |
       | Resource Linking Request URL |  |
       | Icon URL                     |  |
@@ -35,6 +36,7 @@ Feature: Configure placements for a tool
     And I click on "Edit" "link"
     When I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
     And I set the following fields in the "Placement: Mock placement" "fieldset" to these values:
+      | Default state                | 1                      |
       | Deep Linking Request URL     | http://deep.link       |
       | Resource Linking Request URL | http://resource.link   |
       | Icon URL                     | https://icon           |
@@ -43,6 +45,7 @@ Feature: Configure placements for a tool
     And I click on "Edit" "link"
     Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
+      | Default state                | 1                      |
       | Deep Linking Request URL     | http://deep.link       |
       | Resource Linking Request URL | http://resource.link   |
       | Icon URL                     | https://icon           |
@@ -76,9 +79,11 @@ Feature: Configure placements for a tool
       | Icon URL                     | https://icon           |
       | Text                         | Some text for the tool |
     And I press "Save changes"
+    # Course tool placement should be enabled by default, so it should show in the Active placements column
+    Then I should see "Mock placement" in the "Course Tool 1" "table_row"
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
-    Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
+    And "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
       | Deep Linking Request URL     | http://deep.link       |
       | Resource Linking Request URL | http://resource.link   |
@@ -94,8 +99,8 @@ Feature: Configure placements for a tool
       | placementtype           | component |
       | core_ltix:mockplacement | core_ltix |
     And the following "core_ltix > tool placements" exist:
-      | tool        | placementtype           | config_deep_linking_url | config_icon_url | config_text            |
-      | Site Tool 1 | core_ltix:mockplacement | http://deeplink         | https://icon    | Some text for the tool |
+      | tool        | placementtype             | config_default_usage | config_deep_linking_url | config_icon_url | config_text            |
+      | Site Tool 1 | core_ltix:mockplacement   | 1                    | http://deeplink         | https://icon    | Some text for the tool |
     And I log in as "admin"
     And I navigate to "LTI > Manage tools" in site administration
     And I click on "Edit" "link"
@@ -107,6 +112,7 @@ Feature: Configure placements for a tool
     And I click on "Edit" "link"
     Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
+      | Default state                |                                 |
       | Deep Linking Request URL     | http://deep.link.updated        |
       | Resource Linking Request URL |                                 |
       | Icon URL                     | https://icon                    |
@@ -117,6 +123,7 @@ Feature: Configure placements for a tool
     And I click on "Edit" "link"
     And "Mock placement" "autocomplete_selection" should not exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
+      | Default state                |   |
       | Deep Linking Request URL     |   |
       | Resource Linking Request URL |   |
       | Icon URL                     |   |
@@ -141,7 +148,7 @@ Feature: Configure placements for a tool
       | core_ltix:mockplacement | core_ltix |
     And the following "core_ltix > tool placements" exist:
       | tool          | placementtype             | config_deep_linking_url | config_icon_url | config_text            |
-      | Course Tool 1 | core_ltix:mockplacement | http://deeplink         | https://icon    | Some text for the tool |
+      | Course Tool 1 | core_ltix:mockplacement   | http://deeplink         | https://icon    | Some text for the tool |
     And I am on the "Course 1" course page logged in as teacher1
     And I navigate to "LTI External tools" in current page administration
     And I open the action menu in "Course Tool 1" "table_row"
@@ -151,9 +158,11 @@ Feature: Configure placements for a tool
       | Deep Linking Request URL     | http://deep.link.updated        |
       | Text                         | Some text for the tool (edited) |
     And I press "Save changes"
+    # Course tool placement should be enabled by default, so it should show in the Active placements column
+    Then I should see "Mock placement" in the "Course Tool 1" "table_row"
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
-    Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
+    And "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
     And the following fields in the "Placement: Mock placement" "fieldset" match these values:
       | Deep Linking Request URL     | http://deep.link.updated        |
       | Resource Linking Request URL |                                 |
@@ -162,6 +171,7 @@ Feature: Configure placements for a tool
     # Deselect the placement and verify the related configurations are removed upon saving.
     And I click on "Mock placement" "autocomplete_selection"
     And I press "Save changes"
+    And I should not see "Mock placement" in the "Course Tool 1" "table_row"
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     And "Mock placement" "autocomplete_selection" should not exist in the "Placement" "fieldset"
