@@ -1173,6 +1173,41 @@ class helper {
     }
 
     /**
+     * Get placement configuration for a specific tool and placement type.
+     *
+     * @param int $toolid The tool ID to get placement config for
+     * @param string $placementtype The placement type string
+     * @return stdClass Object containing placement configuration
+     */
+    public static function get_placement_config_by_placement_type(int $toolid, string $placementtype): stdClass {
+        global $DB;
+
+        if (!placements_manager::is_valid_placement_type_string($placementtype)) {
+            throw new coding_exception("Invalid placement type. Should be of the form 'component:placementtypename'.");
+        }
+
+        $sql = "SELECT c.name, c.value
+                  FROM {lti_placement_config} c
+                  JOIN {lti_placement} p ON p.id = c.placementid
+                  JOIN {lti_placement_type} pt ON pt.id = p.placementtypeid
+                 WHERE p.toolid = :toolid AND pt.type = :placementtype";
+
+        $params = [
+            'toolid' => $toolid,
+            'placementtype' => $placementtype,
+        ];
+
+        $configrecords = $DB->get_records_sql($sql, $params);
+
+        $configs = new stdClass();
+        foreach ($configrecords as $record) {
+            $configs->{$record->name} = $record->value;
+        }
+
+        return $configs;
+    }
+
+    /**
      * Returns configuration details for the tool
      *
      * @param int $typeid Basic LTI tool typeid

@@ -1730,4 +1730,119 @@ final class helper_test extends lti_testcase {
                 ],
         ];
     }
+
+    /**
+     * Test get_placement_config_by_placement_type() with data provider.
+     *
+     * @covers ::get_placement_config_by_placement_type
+     * @dataProvider get_placement_config_by_placement_type_provider
+     * @param array $placementconfig The configuration data and the expected value for the placement.
+     * @param array $expected The expected configuration data to be returned.
+     * @param string $placementtypestr The placement type string to be used for the test.
+     * @param bool $expectexception Whether to expect an exception to be thrown.
+     * @return void
+     */
+    public function test_get_placement_config_by_placement_type(
+        array $placementconfig,
+        array $expected,
+        string $placementtypestr,
+        bool $expectexception
+    ): void {
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        $toolid = $ltigenerator->create_tool_types([
+            'name' => 'Test tool',
+            'baseurl' => 'http://example.com/tool',
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+        ]);
+
+        $placementtype = $ltigenerator->create_placement_type([
+            'component' => 'core_ltix',
+            'placementtype' => 'core_ltix:myplacement',
+        ]);
+
+        // Only create tool placement if placement type string is valid.
+        if ($placementtypestr) {
+            $data = [
+                'toolid' => $toolid,
+                'placementtypeid' => $placementtype->id,
+            ];
+            if ($placementconfig !== []) {
+                foreach ($placementconfig as $key => $value) {
+                    $data['config_' . $key] = $value;
+                }
+            }
+            $ltigenerator->create_tool_placements($data);
+        }
+
+        if ($expectexception) {
+            $this->expectException(\coding_exception::class);
+            \core_ltix\helper::get_placement_config_by_placement_type($toolid, $placementtypestr);
+        } else {
+            $config = \core_ltix\helper::get_placement_config_by_placement_type($toolid, $placementtypestr);
+
+            // Test each expected property exists and matches.
+            foreach ($expected as $key => $value) {
+                $this->assertEquals($value, $config->$key);
+            }
+
+            // Test no unexpected properties exist.
+            $configarray = (array)$config;
+            $this->assertCount(count($expected), $configarray);
+        }
+    }
+
+    /**
+     * Data provider for testing get_placement_config_by_placement_type().
+     *
+     * @return array[] the test case data.
+     */
+    public static function get_placement_config_by_placement_type_provider(): array {
+        return [
+            'Valid config returned' => [
+                [
+                    'default_usage' => 'disabled',
+                    'deep_linking_url' => 'http://deeplink.example.com',
+                    'icon_url' => 'https://icon.example.com',
+                ],
+                [
+                    'default_usage' => 'disabled',
+                    'deep_linking_url' => 'http://deeplink.example.com',
+                    'icon_url' => 'https://icon.example.com',
+                ],
+                'core_ltix:myplacement',
+                false,
+            ],
+            'Valid placement type with no config filled' => [
+                [],
+                [
+                    'default_usage' => 'enabled', // Set to enabled, if not set.
+                ],
+                'core_ltix:myplacement',
+                false,
+            ],
+            'Invalid placement type string' => [
+                [
+                    'default_usage' => 'enabled',
+                    'deep_linking_url' => 'http://deeplink.example.com',
+                    'icon_url' => 'https://icon.example.com',
+                ],
+                [],
+                'invalid placement type',
+                true,
+            ],
+            'Nonexistent placement type' => [
+                [
+                    'default_usage' => 'enabled',
+                    'deep_linking_url' => 'http://deeplink.example.com',
+                    'icon_url' => 'https://icon.example.com',
+                ],
+                [],
+                'nonexistent:type',
+                true,
+            ],
+        ];
+    }
 }
