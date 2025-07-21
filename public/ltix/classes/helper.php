@@ -1298,24 +1298,17 @@ class helper {
     }
 
     /**
-     * Delete a Basic LTI configuration
+     * Delete a Basic LTI configuration and its associated placement data.
      *
      * @param int $id Configuration id
      */
     public static function delete_type($id) {
         global $DB;
 
-        // We should probably just copy the launch URL to the tool instances in this case... using a single query.
-        /*
-        $instances = $DB->get_records('lti', array('typeid' => $id));
-        foreach ($instances as $instance) {
-            $instance->typeid = 0;
-            $DB->update_record('lti', $instance);
-        }*/
-
-        $DB->delete_records('lti_types', array('id' => $id));
-        $DB->delete_records('lti_types_config', array('typeid' => $id));
-        $DB->delete_records('lti_types_categories', array('typeid' => $id));
+        $DB->delete_records('lti_types', ['id' => $id]);
+        $DB->delete_records('lti_types_config', ['typeid' => $id]);
+        $DB->delete_records('lti_types_categories', ['typeid' => $id]);
+        self::delete_tool_placements($id);
     }
 
     public static function set_state_for_type($id, $state) {
