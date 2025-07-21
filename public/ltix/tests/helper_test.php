@@ -1107,6 +1107,96 @@ final class helper_test extends lti_testcase {
         ];
     }
 
+
+    /**
+     * Test the delete_type() helper function.
+     *
+     * @covers ::delete_type
+     */
+    public function test_delete_type(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        // Create some courses.
+        $course1 = $this->getDataGenerator()->create_course();
+        $course1context = \core\context\course::instance($course1->id);
+        $course2 = $this->getDataGenerator()->create_course();
+        $course2context = \core\context\course::instance($course2->id);
+
+        // Create a placement type.
+        $placementtype = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:myplacement']
+        );
+
+        // Create a site tool.
+        $sitetoolid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+        ]);
+
+        // Create a placement for the site tool.
+        $sitetoolplacement = $ltigenerator->create_tool_placements([
+            'toolid' => $sitetoolid,
+            'placementtypeid' => $placementtype->id,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
+
+        // Create a course tool in course2.
+        $coursetoolid = $ltigenerator->create_course_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'course' => $course2->id,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED
+        ]);
+
+        // Create a placement for the course tool.
+        $coursetoolplacement = $ltigenerator->create_tool_placements([
+            'toolid' => $coursetoolid,
+            'placementtypeid' => $placementtype->id,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
+
+        // Set a placement status override for the site tool placement in course 1.
+        $ltigenerator->create_placement_status_in_context($sitetoolplacement->id, placement_status::DISABLED,
+            $course1context->id);
+        // Set a placement status override for the course tool placement.
+        $ltigenerator->create_placement_status_in_context($coursetoolplacement->id, placement_status::DISABLED,
+            $course2context->id);
+
+        // Attempt to delete the site tool.
+        helper::delete_type($sitetoolid);
+
+        // Verify that the site tool and its associated placement configuration data have been removed.
+        $this->assertEmpty(helper::get_type($sitetoolid));
+        $this->assertEmpty(helper::get_type_config($sitetoolid));
+        $this->assertFalse($DB->get_record('lti_placement', ['id' => $sitetoolplacement->id]));
+        $this->assertEmpty($DB->get_records('lti_placement_config', ['placementid' => $sitetoolplacement->id]));
+        $this->assertEmpty($DB->get_records('lti_placement_status', ['placementid' => $sitetoolplacement->id]));
+
+        // Verify that the course tool placement and its associated data still exist.
+        $this->assertNotEmpty(helper::get_type($coursetoolid));
+        $this->assertNotEmpty(helper::get_type_config($coursetoolid));
+        $this->assertNotFalse($DB->get_record('lti_placement', ['id' => $coursetoolplacement->id]));
+        $this->assertNotEmpty($DB->get_records('lti_placement_config', ['placementid' => $coursetoolplacement->id]));
+        $this->assertNotEmpty($DB->get_records('lti_placement_status', ['placementid' => $coursetoolplacement->id]));
+
+        // Attempt to delete the course tool.
+        helper::delete_type($coursetoolid);
+
+        // Verify that the course tool and its associated placement configuration data have been removed.
+        $this->assertEmpty(helper::get_type($coursetoolid));
+        $this->assertEmpty(helper::get_type_config($coursetoolid));
+        $this->assertFalse($DB->get_record('lti_placement', ['id' => $coursetoolplacement->id]));
+        $this->assertEmpty($DB->get_records('lti_placement_config', ['placementid' => $coursetoolplacement->id]));
+        $this->assertEmpty($DB->get_records('lti_placement_status', ['placementid' => $coursetoolplacement->id]));
+    }
+
     /**
      * Test getting a list of tools with an enabled placement in the course context.
      *
