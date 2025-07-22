@@ -1537,14 +1537,14 @@ final class helper_test extends lti_testcase {
     }
 
     /**
-     * Test the delete_tool_placements_by_type() helper function.
+     * Test the delete_tool_placements() helper function.
      *
-     * @covers ::delete_tool_placements_by_type
-     * @dataProvider delete_tool_placements_by_type_provider
+     * @covers ::delete_tool_placements
+     * @dataProvider delete_tool_placements_provider
      * @param array $placementsdata Data used for pre-creating tool placements and respective configs.
      * @param array $placementtypeids An array of placement type IDs associated with the tool placements to delete.
      */
-    public function test_delete_tool_placements_by_type(array $placementsdata, array $placementtypeids): void {
+    public function test_delete_tool_placements(array $placementsdata, array $placementtypeids): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -1568,43 +1568,48 @@ final class helper_test extends lti_testcase {
 
             $placement = $ltigenerator->create_tool_placements($data);
 
+            $ltigenerator->create_placement_status_in_context($placement->id, $placementdata['statusoverride'],
+                \core\context\system::instance()->id);
+
             // If the created placement is supposed to be deleted later, include its ID to the $placementstodelete array.
-            if (in_array($placementdata['placementtypeid'], $placementtypeids)) {
+            if (empty($placementtypeids) || in_array($placementdata['placementtypeid'], $placementtypeids)) {
                 $placementstodelete[] = $placement->id;
             } else { // Otherwise include its ID to the $remainingplacements array.
                 $remainingplacements[] = $placement->id;
             }
         }
 
-        helper::delete_tool_placements_by_type(1, $placementtypeids);
+        helper::delete_tool_placements(1, $placementtypeids);
 
-        // Verify that the placements and their associated configs have been successfully removed.
+        // Verify that the placements data has been successfully removed.
         foreach ($placementstodelete as $placementid) {
-            $placement = $DB->get_record('lti_placement' , ['id' => $placementid]);
+            $placement = $DB->get_record('lti_placement', ['id' => $placementid]);
+            $this->assertFalse($placement);
             $placementconfigs = $DB->get_records('lti_placement_config', ['placementid' => $placementid]);
-
-            $this->assertEmpty($placement);
             $this->assertEmpty($placementconfigs);
+            $placementstatusoverrides = $DB->get_records('lti_placement_status', ['placementid' => $placementid]);
+            $this->assertEmpty($placementstatusoverrides);
         }
 
-        // Verify that the placements and their associated configs that should not have been removed are still present.
+        // Verify that the placements data that should not have been removed is still present.
         foreach ($remainingplacements as $placementid) {
-            $placement = $DB->get_record('lti_placement' , ['id' => $placementid]);
+            $placement = $DB->get_record('lti_placement', ['id' => $placementid]);
+            $this->assertIsObject($placement);
             $placementconfigs = $DB->get_records('lti_placement_config', ['placementid' => $placementid]);
-
-            $this->assertNotEmpty($placement);
             $this->assertNotEmpty($placementconfigs);
+            $placementstatusoverrides = $DB->get_records('lti_placement_status', ['placementid' => $placementid]);
+            $this->assertNotEmpty($placementstatusoverrides);
         }
     }
 
     /**
-     * Data provider for testing delete_tool_placements_by_type().
+     * Data provider for testing delete_tool_placements().
      *
      * @return array[] the test case data.
      */
-    public static function delete_tool_placements_by_type_provider(): array {
+    public static function delete_tool_placements_provider(): array {
         return [
-            'Delete all pre-existing tool placements and their configurations (one available)' =>
+            'Delete all existing tool placements (multiple available) and config without passing placement type IDs' =>
                 [
                     [
                         [
@@ -1613,19 +1618,7 @@ final class helper_test extends lti_testcase {
                                 'deep_linking_url' => 'http://deeplink.example.com',
                                 'icon_url' => 'https://icon.example.com',
                             ],
-                        ],
-                    ],
-                    [1],
-                ],
-            'Delete all pre-existing tool placements and their configurations (multiple available)' =>
-                [
-                    [
-                        [
-                            'placementtypeid' => 1,
-                            'configdata' => [
-                                'deep_linking_url' => 'http://deeplink.example.com',
-                                'icon_url' => 'https://icon.example.com',
-                            ],
+                            'statusoverride' => placement_status::DISABLED
                         ],
                         [
                             'placementtypeid' => 2,
@@ -1634,6 +1627,54 @@ final class helper_test extends lti_testcase {
                                 'icon_url' => 'https://icon2.example.com',
                                 'text' => 'Example text',
                             ],
+                            'statusoverride' => placement_status::DISABLED
+                        ],
+                        [
+                            'placementtypeid' => 3,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink3.example.com',
+                                'resource_linking_url' => 'http://resourcelink3.example.com',
+                                'icon_url' => 'https://icon3.example.com',
+                                'text' => 'Example text 3',
+                            ],
+                            'statusoverride' => placement_status::ENABLED
+                        ],
+                    ],
+                    [],
+                ],
+            'Delete all existing tool placements (one available) and data by passing placement type ID' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                            'statusoverride' => placement_status::ENABLED
+                        ],
+                    ],
+                    [1],
+                ],
+            'Delete all existing tool placements (multiple available) and config by passing placement type IDs' =>
+                [
+                    [
+                        [
+                            'placementtypeid' => 1,
+                            'configdata' => [
+                                'deep_linking_url' => 'http://deeplink.example.com',
+                                'icon_url' => 'https://icon.example.com',
+                            ],
+                            'statusoverride' => placement_status::DISABLED
+                        ],
+                        [
+                            'placementtypeid' => 2,
+                            'configdata' => [
+                                'resource_linking_url' => 'http://resourcelink.example.com',
+                                'icon_url' => 'https://icon2.example.com',
+                                'text' => 'Example text',
+                            ],
+                            'statusoverride' => placement_status::DISABLED
                         ],
                         [
                             'placementtypeid' => 3,
@@ -1644,11 +1685,12 @@ final class helper_test extends lti_testcase {
                                 'icon_url' => 'https://icon3.example.com',
                                 'text' => 'Example text 3',
                             ],
+                            'statusoverride' => placement_status::ENABLED
                         ],
                     ],
                     [1, 2, 3],
                 ],
-            'Delete some pre-existing tool placements and their configurations' =>
+            'Delete only a few of the existing tool placements and config by passing placement type IDs' =>
                 [
                     [
                         [
@@ -1657,6 +1699,7 @@ final class helper_test extends lti_testcase {
                                 'deep_linking_url' => 'http://deeplink.example.com',
                                 'icon_url' => 'https://icon.example.com',
                             ],
+                            'statusoverride' => placement_status::ENABLED
                         ],
                         [
                             'placementtypeid' => 2,
@@ -1665,6 +1708,7 @@ final class helper_test extends lti_testcase {
                                 'icon_url' => 'https://icon2.example.com',
                                 'text' => 'Example text',
                             ],
+                            'statusoverride' => placement_status::DISABLED
                         ],
                         [
                             'placementtypeid' => 3,
@@ -1675,6 +1719,7 @@ final class helper_test extends lti_testcase {
                                 'icon_url' => 'https://icon3.example.com',
                                 'text' => 'Example text 3',
                             ],
+                            'statusoverride' => placement_status::ENABLED
                         ],
                     ],
                     [1, 3],
@@ -1688,6 +1733,7 @@ final class helper_test extends lti_testcase {
                                 'deep_linking_url' => 'http://deeplink.example.com',
                                 'icon_url' => 'https://icon.example.com',
                             ],
+                            'statusoverride' => placement_status::ENABLED
                         ],
                     ],
                     [2],

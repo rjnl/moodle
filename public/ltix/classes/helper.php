@@ -1414,7 +1414,7 @@ class helper {
         $idstoremove = array_diff(array_keys($registeredplacementtypes), $placementtypeids);
 
         if (!empty($idstoremove)) {
-            self::delete_tool_placements_by_type($type->id, $idstoremove);
+            self::delete_tool_placements($type->id, $idstoremove);
         }
     }
 
@@ -1443,30 +1443,37 @@ class helper {
     }
 
     /**
-     * Removes tool placements and related config based on the provided placement type IDs.
+     * Removes tool placements and related config.
      *
      * @param int $toolid The tool ID.
-     * @param array $placementtypeids The placement type IDs corresponding to the placements to be deleted.
+     * @param array $placementtypeids (optional) Array of placement type IDs used to specify only specific tool placements
+     *                                to delete. If not specified, all tool placements will be deleted.
      * @return void
      */
-    public static function delete_tool_placements_by_type(int $toolid, array $placementtypeids): void {
+    public static function delete_tool_placements(int $toolid, array $placementtypeids = []): void {
         global $DB;
 
-        [$insql, $inparams] = $DB->get_in_or_equal($placementtypeids);
+        $sqlparams = ['toolid' => $toolid];
+        $wheresql = "toolid = :toolid";
 
-        // Delete configs for the placement.
-        $DB->delete_records_select('lti_placement_config',
-            "placementid IN (
-                    SELECT id FROM {lti_placement} lp WHERE lp.toolid = ?
-                    AND lp.placementtypeid {$insql})",
-            [$toolid, ...$inparams]
-        );
+        // Add placement type filter if placement type IDs have been provided.
+        if (!empty($placementtypeids)) {
+            [$insql, $inparams] = $DB->get_in_or_equal($placementtypeids, SQL_PARAMS_NAMED);
+            $wheresql .= " AND placementtypeid $insql";
+            $sqlparams += $inparams;
+        }
 
-        // Delete placement.
-        $DB->delete_records_select('lti_placement',
-            "toolid = ? AND placementtypeid {$insql}",
-            [$toolid, ...$inparams]
-        );
+        // Build subquery used for both placement config and placement status deletions.
+        $subquery = "placementid IN (SELECT id FROM {lti_placement} WHERE $wheresql)";
+
+        // Delete related placement configs.
+        $DB->delete_records_select('lti_placement_config', $subquery, $sqlparams);
+
+        // Delete related placement statuses.
+        $DB->delete_records_select('lti_placement_status', $subquery, $sqlparams);
+
+        // Delete the placements.
+        $DB->delete_records_select('lti_placement', $wheresql, $sqlparams);
     }
 
     public static function update_type($type, $config) {
