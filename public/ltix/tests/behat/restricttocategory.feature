@@ -45,8 +45,7 @@ Feature: Make an LTI only available to specific course categories
 
   Scenario: View a course in a category in which no tools are available
     Given I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
-    # The following assertion should be possible, but due to a bug in calculating the count of visible course tools, is not.
-    # Then I should see "There are no LTI External tools yet"
+    Then I should see "There are no LTI External tools yet"
     And I should not see "Teaching Tool 1"
     And I should not see "Teaching Tool 2"
 
