@@ -9,8 +9,7 @@ Feature: Configure placements for a tool
     Given the following "core_ltix > placement types" exist:
       | placementtype           | component |
       | core_ltix:mockplacement | core_ltix |
-    And I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
+    And I am on the "core_ltix > manage tools" page logged in as admin
     When I click on "configure a tool manually" "link"
     Then "Placements" "autocomplete" should exist in the "Placement" "fieldset"
     And the field "Placements" matches value ""
@@ -32,8 +31,7 @@ Feature: Configure placements for a tool
     And the following "core_ltix > placement types" exist:
       | placementtype           | component |
       | core_ltix:mockplacement | core_ltix |
-    And I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
+    And I am on the "core_ltix > manage tools" page logged in as admin
     And I click on "Edit" "link"
     When I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
     And "Placement: Mock placement" "fieldset" should be visible
@@ -70,8 +68,7 @@ Feature: Configure placements for a tool
     And the following "core_ltix > placement types" exist:
       | placementtype           | component |
       | core_ltix:mockplacement | core_ltix |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     When I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
@@ -104,8 +101,7 @@ Feature: Configure placements for a tool
     And the following "core_ltix > tool placements" exist:
       | tool        | placementtype             | config_default_usage | config_deep_linking_url | config_icon_url | config_text            |
       | Site Tool 1 | core_ltix:mockplacement   | 1                    | http://deeplink         | https://icon    | Some text for the tool |
-    And I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
+    And I am on the "core_ltix > manage tools" page logged in as admin
     And I click on "Edit" "link"
     # Edit several configuration options for the placement and verify the changes are applied.
     When I set the following fields in the "Placement: Mock placement" "fieldset" to these values:
@@ -154,8 +150,7 @@ Feature: Configure placements for a tool
     And the following "core_ltix > tool placements" exist:
       | tool          | placementtype             | config_deep_linking_url | config_icon_url | config_text            |
       | Course Tool 1 | core_ltix:mockplacement   | http://deeplink         | https://icon    | Some text for the tool |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     # Edit several configuration options for the placement and verify the changes are applied.

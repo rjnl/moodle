@@ -4,17 +4,15 @@ Feature: Create/edit tool configuration that has Deep Linking support
   As an admin
   I need to be able to configure external tool registrations that support Deep Linking.
 
-  Background:
-    Given I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
-
   Scenario: Verifying ContentItemSelectionRequest selection support in external tool registration
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     When I follow "Manage external tool registrations"
     And I follow "Configure a new external tool registration"
     Then I should see "ContentItemSelectionRequest" in the "Capabilities" "select"
 
   @javascript
   Scenario: Creating and editing tool configuration that has Content-Item support
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     When I follow "configure a tool manually"
     And I set the field "Tool name" to "Test tool"
     And I set the field "Tool URL" to local url "/ltix/tests/fixtures/tool_provider.php"

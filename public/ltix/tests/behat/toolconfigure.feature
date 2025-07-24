@@ -4,12 +4,9 @@ Feature: Configure tool types
   As an admin
   I need to be able to add, remove and configure tool types
 
-  Background:
-    Given I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
-
   @javascript
   Scenario: Add a tool type from a cartridge URL
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     When I set the field "url" to local url "/ltix/tests/fixtures/ims_cartridge_basic_lti_link.xml"
     And I press "Add Legacy LTI"
     Then I should see "Enter your consumer key and shared secret"
@@ -18,6 +15,7 @@ Feature: Configure tool types
 
   @javascript
   Scenario: Try to add a non-existent cartridge
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     When I set the field "url" to local url "/ltix/tests/fixtures/nonexistent.xml"
     And I press "Add Legacy LTI"
     Then I should see "Enter your consumer key and shared secret"
@@ -26,6 +24,7 @@ Feature: Configure tool types
 
   @javascript
   Scenario: Attempt to add a tool type from a configuration URL, then cancel
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     When I set the field "url" to local url "/ltix/tests/fixtures/tool_provider.php"
     And I press "Add Legacy LTI"
     Then I should see "Cancel"

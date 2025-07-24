@@ -21,8 +21,7 @@ Feature: Manage course tools
       | enableasyncbackup | 0 |
 
   Scenario: Create a course tool from the zero state
-    Given I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    Given I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     And I should see "LTI External tools are add-on apps"
     And I should see "There are no LTI External tools yet."
     When I click on "Add tool" "link"
@@ -45,8 +44,7 @@ Feature: Manage course tools
       | Site tool 1 | Site tool 1 description | https://example.com/tool1 | 1             | 1     |
       | Site tool 2 | Site tool 2 description | https://example.com/tool2 | 0             | 1     |
       | Site tool 3 | Site tool 3 description | https://example.com/tool3 | 1             | 2     |
-    And I am on the "Course 1" course page logged in as teacher1
-    When I navigate to "LTI External tools" in current page administration
+    When I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     Then I should see "Site tool 1" in the "reportbuilder-table" "table"
     And the "Manage placements" item should exist in the "Actions" action menu of the "Site tool 1" "table_row"
     And the "Edit" item should not exist in the "Actions" action menu of the "Site tool 1" "table_row"
@@ -66,8 +64,7 @@ Feature: Manage course tools
     And the following "role capability" exists:
       | role                        | editingteacher    |
       | moodle/ltix:addcoursetool   | <capabilitystate> |
-    When I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    When I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     Then I should see "Site tool 1" in the "reportbuilder-table" "table"
     And I should see "Course tool 1" in the "reportbuilder-table" "table"
     And "You don't have permission to edit this tool" "icon" <viewlockicon> exist in the "Site tool 1" "table_row"
@@ -90,8 +87,7 @@ Feature: Manage course tools
     And the following "role capability" exists:
       | role                        | editingteacher |
       | moodle/ltix:addcoursetool   | allow          |
-    When I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    When I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     Then the "Manage placements" item <manageplacementmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
     And the "Edit" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
     And the "Delete" item <editmenu> exist in the "Actions" action menu of the "<toolname>" "table_row"
@@ -128,8 +124,7 @@ Feature: Manage course tools
       | tool          | placementtype           | config_default_usage |
       | Site tool 1   | core_ltix:mockplacement | enabled              |
       | Course tool 1 | core_ltix:mockplacement | enabled              |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     When I choose the "Manage placements" item in the "Actions" action menu of the "Site tool 1" "table_row"
     Then I should see "Manage placements" in the ".modal-header" "css_element"
     And I should not see "There are no available placements for this tool" in the ".modal-body" "css_element"
@@ -161,8 +156,7 @@ Feature: Manage course tools
     And the following "core_ltix > course tools" exist:
       | name          | baseurl                                | course |
       | Course tool 1 | /ltix/tests/fixtures/tool_provider.php | C1     |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     When I choose the "Manage placements" item in the "Actions" action menu of the "<toolname>" "table_row"
     Then I should see "There are no available placements for this tool" in the ".modal-body" "css_element"
     And the "Apply" "button" should be disabled
@@ -183,8 +177,7 @@ Feature: Manage course tools
     And the following "core_ltix > tool placements" exist:
       | tool        | placementtype           | config_default_usage |
       | Site tool 2 | core_ltix:mockplacement | <default_usage>      |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     When I choose the "Manage placements" item in the "Actions" action menu of the "Site tool 2" "table_row"
     Then the field "Mock placement" matches value "<expectedvalue>"
 
@@ -198,8 +191,7 @@ Feature: Manage course tools
     Given the following "core_ltix > course tools" exist:
       | name      | description         | baseurl                  | course |
       | Test tool | Example description | https://example.com/tool | C1     |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     And the "Edit" item should exist in the "Actions" action menu of the "Test tool" "table_row"
     And the "Delete" item should exist in the "Actions" action menu of the "Test tool" "table_row"
     When I open the action menu in "Test tool" "table_row"
@@ -223,8 +215,7 @@ Feature: Manage course tools
     | description | Example description [count]         |
     | baseurl     | https://www.example.com/tool[count] |
     | course      | C1                                  |
-    And I am on the "Course 1" course page logged in as teacher1
-    When I navigate to "LTI External tools" in current page administration
+    When I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     Then I should see "Test tool 1" in the "reportbuilder-table" "table"
     And I click on "Name" "link"
     And I should see "Test tool 20" in the "reportbuilder-table" "table"
@@ -237,8 +228,7 @@ Feature: Manage course tools
       | name         | description         | baseurl                          | course |
       | Test tool    | Example description | https://example.com/tool         | C1     |
       | Another tool | Example 123         | https://another.example.com/tool | C1     |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    Given I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     When I open the action menu in "Test tool" "table_row"
     And I choose "Delete" in the open action menu
     Then I should see "This will delete Test tool from the available LTI tools in your course."
@@ -253,8 +243,7 @@ Feature: Manage course tools
 
   @javascript
   Scenario: Add a course tool using a cartridge URL
-    Given I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
+    Given I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     When I click on "Add tool" "link"
     And I set the following fields to these values:
       | Tool name        | Test tool 1             |
