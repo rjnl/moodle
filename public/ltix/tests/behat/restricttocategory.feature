@@ -34,8 +34,7 @@ Feature: Make an LTI only available to specific course categories
       | Teaching Tool 2 | mod_lti:activityplacement | enabled              |
 
   Scenario: Tool is set to "Show as preconfigured tool when adding an external tool" on parent category
-    Given I am on the "Course 2" course page logged in as teacher1
-    When I navigate to "LTI External tools" in current page administration
+    Given I am on the "Course 2" "core_ltix > Course tools" page logged in as teacher1
     Then I should see "Teaching Tool 1" in the "reportbuilder-table" "table"
     And I should not see "Teaching Tool 2" in the "reportbuilder-table" "table"
 
@@ -57,8 +56,7 @@ Feature: Make an LTI only available to specific course categories
 
   @javascript
   Scenario: Editing and saving selected parent / child categories
-    Given I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I expand all fieldsets
@@ -100,16 +98,14 @@ Feature: Make an LTI only available to specific course categories
     And the following "core_ltix > course tools" exist:
       | name          | description         | baseurl                  | course |
       | Course Tool 1 | Example description | https://example.com/tool | C1     |
-    And I log in as "admin"
-    And I am on "Course 1" course homepage with editing mode on
-    And I navigate to "LTI External tools" in current page administration
+    And I am on the "Course 1" "core_ltix > Course tools" page logged in as admin
     When I click on "Add tool" "link"
     And I should not see "Restrict to category"
     And I press "Cancel"
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
     And I should not see "Restrict to category"
-    And I navigate to "LTI > Manage tools" in site administration
+    And I am on the "core_ltix > manage tools" page
     And I follow "Manage preconfigured tools"
     And I follow "Add preconfigured tool"
     And I should see "Restrict to category"

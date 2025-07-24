@@ -14,13 +14,12 @@ Feature: Navigate existing LTI tool types using pagination
   @javascript
   Scenario: View tool types using pagination controls
     # First page (default landing page).
-    Given I log in as "admin"
-    When I navigate to "General > LTI > Manage tools" in site administration
+    Given I am on the "core_ltix > manage tools" page logged in as admin
     And I should see "Test tool 30"
     And I should not see "Test tool 70"
     # Using the 'page 2' link.
-    And I click on "2" "link"
-    And I should see "Test tool 70"
+    When I click on "2" "link"
+    Then I should see "Test tool 70"
     And I should not see "Test tool 30"
     # Using the 'First page' link.
     And I click on "First" "link"
