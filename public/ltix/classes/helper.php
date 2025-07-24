@@ -1551,18 +1551,6 @@ class helper {
 
         $type->forcessl = !empty($config->lti_forcessl) ? $config->lti_forcessl : 0;
         $config->lti_forcessl = $type->forcessl;
-        if (isset($config->lti_contentitem)) {
-            $type->contentitem = !empty($config->lti_contentitem) ? $config->lti_contentitem : 0;
-            $config->lti_contentitem = $type->contentitem;
-        }
-        if (isset($config->lti_toolurl_ContentItemSelectionRequest)) {
-            if (!empty($config->lti_toolurl_ContentItemSelectionRequest)) {
-                $type->toolurl_ContentItemSelectionRequest = $config->lti_toolurl_ContentItemSelectionRequest;
-            } else {
-                $type->toolurl_ContentItemSelectionRequest = '';
-            }
-            $config->lti_toolurl_ContentItemSelectionRequest = $type->toolurl_ContentItemSelectionRequest;
-        }
 
         $type->timemodified = time();
 
@@ -1815,14 +1803,6 @@ class helper {
 
         if (isset($config['coursevisible'])) {
             $type->lti_coursevisible = $config['coursevisible'];
-        }
-
-        if (isset($config['contentitem'])) {
-            $type->lti_contentitem = $config['contentitem'];
-        }
-
-        if (isset($config['toolurl_ContentItemSelectionRequest'])) {
-            $type->lti_toolurl_ContentItemSelectionRequest = $config['toolurl_ContentItemSelectionRequest'];
         }
 
         if (isset($config['debuglaunch'])) {
@@ -2677,11 +2657,7 @@ class helper {
         }
 
         // Set the tool URL.
-        if (!empty($typeconfig['toolurl_ContentItemSelectionRequest'])) {
-            $toolurl = new moodle_url($typeconfig['toolurl_ContentItemSelectionRequest']);
-        } else {
-            $toolurl = new moodle_url($typeconfig['toolurl']);
-        }
+        $toolurl = new moodle_url($typeconfig['toolurl']);
 
         // Check if SSL is forced.
         if (!empty($typeconfig['forcessl'])) {
@@ -3301,9 +3277,6 @@ class helper {
             $SESSION->$launchid = "{$courseid},{$config->typeid},{$cmid},{$messagetype},{$foruserid},,,{$placementtype}";
         } else {
             $endpoint = $config->lti_toolurl;
-            if (($messagetype === 'ContentItemSelectionRequest') && !empty($config->lti_toolurl_ContentItemSelectionRequest)) {
-                $endpoint = $config->lti_toolurl_ContentItemSelectionRequest;
-            }
             $launchid = "ltilaunch_$messagetype".rand();
             $SESSION->$launchid = "{$courseid},{$config->typeid},,{$messagetype},{$foruserid}," .
                 base64_encode($title) . ',' . base64_encode($text) . ",{$placementtype}";

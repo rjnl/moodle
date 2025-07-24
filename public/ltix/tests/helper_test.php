@@ -746,7 +746,6 @@ final class helper_test extends lti_testcase {
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
         $data = new \stdClass();
-        $data->lti_contentitem = true;
         $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
@@ -774,7 +773,6 @@ final class helper_test extends lti_testcase {
         // Create a tool type, associated with that proxy.
         $type = new \stdClass();
         $data = new \stdClass();
-        $data->lti_contentitem = true;
         $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         $type->name = "Test tool";
         $type->description = "Example description";
