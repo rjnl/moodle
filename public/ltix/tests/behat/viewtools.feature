@@ -5,26 +5,28 @@ Feature: Navigate existing LTI tool types using pagination
   I need to view existing tools
 
   Background:
-    Given 100 "core_ltix > tool types" exist with the following data:
+    Given 70 "core_ltix > tool types" exist with the following data:
       |name        |Test tool [count]                  |
       |description |Example description [count]        |
       |baseurl     |https://www.example.com/tool[count]|
-    And I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
 
+  # Note: 60 entries per page, and ordering is lexical.
   @javascript
-  Scenario: View first page of tool types.
-    Then I should see "Test tool 30"
-    And "Test tool 70" "text" should not be visible
-
-  @javascript
-  Scenario: View second page of tool types using page 2 button.
-    When I click on "2" "link"
-    Then I should see "Test tool 70"
-    And "Test tool 30" "text" should not be visible
-
-  @javascript
-  Scenario: View last page of tool types using page 2 button.
-    When I click on "Last" "link"
-    Then I should see "Test tool 70"
-    And "Test tool 30" "text" should not be visible
+  Scenario: View tool types using pagination controls
+    # First page (default landing page).
+    Given I log in as "admin"
+    When I navigate to "General > LTI > Manage tools" in site administration
+    And I should see "Test tool 30"
+    And I should not see "Test tool 70"
+    # Using the 'page 2' link.
+    And I click on "2" "link"
+    And I should see "Test tool 70"
+    And I should not see "Test tool 30"
+    # Using the 'First page' link.
+    And I click on "First" "link"
+    And I should see "Test tool 30"
+    And I should not see "Test tool 70"
+    # Using the 'Last page link.
+    And I click on "Last" "link"
+    And I should see "Test tool 70"
+    And I should not see "Test tool 30"
