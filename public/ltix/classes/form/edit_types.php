@@ -207,21 +207,6 @@ class edit_types extends moodleform {
         $mform->addHelpButton('lti_launchcontainer', 'default_launch_container', 'core_ltix');
         $mform->setType('lti_launchcontainer', PARAM_INT);
 
-        $mform->addElement('advcheckbox', 'lti_contentitem', get_string('contentitem_deeplinking', 'core_ltix'));
-        $mform->addHelpButton('lti_contentitem', 'contentitem_deeplinking', 'core_ltix');
-        if ($istool) {
-            $mform->disabledIf('lti_contentitem', null);
-        }
-
-        $mform->addElement('text', 'lti_toolurl_ContentItemSelectionRequest',
-            get_string('toolurl_contentitemselectionrequest', 'core_ltix'), array('size' => '64'));
-        $mform->setType('lti_toolurl_ContentItemSelectionRequest', PARAM_URL);
-        $mform->addHelpButton('lti_toolurl_ContentItemSelectionRequest', 'toolurl_contentitemselectionrequest', 'core_ltix');
-        $mform->disabledIf('lti_toolurl_ContentItemSelectionRequest', 'lti_contentitem', 'notchecked');
-        if ($istool) {
-            $mform->disabledIf('lti_toolurl__ContentItemSelectionRequest', null);
-        }
-
         $mform->addElement('hidden', 'oldicon');
         $mform->setType('oldicon', PARAM_URL);
 
@@ -430,20 +415,6 @@ class edit_types extends moodleform {
         $mform->addElement('text', 'text' . $suffix, get_string('lti_placementtext', 'core_ltix'), ['size' => '64']);
         $mform->setType('text' . $suffix, PARAM_TEXT);
         $mform->addHelpButton('text' . $suffix, 'lti_placementtext', 'core_ltix');
-    }
-
-    /**
-     * Retrieves the data of the submitted form.
-     *
-     * @return stdClass
-     */
-    public function get_data() {
-        $data = parent::get_data();
-        if ($data && !empty($this->_customdata->istool)) {
-            // Content item checkbox is disabled in tool settings, so this cannot be edited. Just unset it.
-            unset($data->lti_contentitem);
-        }
-        return $data;
     }
 
     /**

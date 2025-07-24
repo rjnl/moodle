@@ -723,7 +723,6 @@ MwIDAQAB
         $type->baseurl = $this->getExternalTestFileUrl('/test.html');
 
         $data = new \stdClass();
-        $data->lti_contentitem = true;
 
         $typeid = helper::add_type($type, $data);
 

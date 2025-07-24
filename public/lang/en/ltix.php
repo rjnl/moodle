@@ -49,8 +49,6 @@ $string['clientidadmin'] = 'Client ID';
 $string['clientidadmin_help'] = 'The client ID is a unique value used to identify a tool. It is created automatically for each tool which uses the JWT security profile introduced in LTI 1.3 and should be part of the details passed to the tool provider so that they can configure the connection at their end.';
 $string['configured'] = 'Configured';
 $string['confirmtoolactivation'] = 'Are you sure you would like to activate this tool?';
-$string['contentitem_deeplinking'] = 'Supports Deep Linking (Content-Item Message)';
-$string['contentitem_deeplinking_help'] = 'If ticked, the option \'Select content\' will be available when adding an external tool.';
 $string['contentitem_multiple_description'] = 'The following items will be added to your course:';
 $string['contentitem_multiple_graded'] = 'Graded activity (Maximum grade: {$a})';
 $string['contentselected'] = 'Content selected';
@@ -375,8 +373,6 @@ A base URL of *quiz.tool.com* would match the following:
 If two different tool configurations are for the same domain, the most specific match will be used.
 
 You can also insert a cartridge URL if you have one and the details for the tool will be automatically filled.';
-$string['toolurl_contentitemselectionrequest'] = 'Content Selection URL';
-$string['toolurl_contentitemselectionrequest_help'] = 'The Content Selection URL will be used to launch the content selection page from the tool provider. If it is empty, the Tool URL will be used';
 $string['toolurlplaceholder'] = 'Tool URL...';
 $string['tooltypes'] = 'Tools';
 $string['typename'] = 'Tool name';
