@@ -33,8 +33,20 @@ Feature: Configure placements for a tool
       | core_ltix:mockplacement | core_ltix |
     And I am on the "core_ltix > manage tools" page logged in as admin
     And I click on "Edit" "link"
+    And the field "Placements" matches value ""
+    # The placement fieldset and its fields should be hidden when no placement is selected.
+    And "Placement: Mock placement" "fieldset" should not be visible
+    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
+    # Selecting a placement will show the respective fieldset and its fields.
     When I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
     And "Placement: Mock placement" "fieldset" should be visible
+    And I should see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Text" in the "Placement: Mock placement" "fieldset"
     And I set the following fields in the "Placement: Mock placement" "fieldset" to these values:
       | Default state                | 1                      |
       | Deep Linking Request URL     | http://deep.link       |
@@ -71,8 +83,20 @@ Feature: Configure placements for a tool
     And I am on the "Course 1" "core_ltix > Course tools" page logged in as teacher1
     And I open the action menu in "Course Tool 1" "table_row"
     And I choose "Edit" in the open action menu
+    And the field "Placements" matches value ""
+    # The placement fieldset and its fields should be hidden when no placement is selected.
+    And "Placement: Mock placement" "fieldset" should not be visible
+    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
+    # Selecting a placement will show the respective fieldset and its fields.
     When I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
     And "Placement: Mock placement" "fieldset" should be visible
+    And I should see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should see "Text" in the "Placement: Mock placement" "fieldset"
     And I set the following fields in the "Placement: Mock placement" "fieldset" to these values:
       | Deep Linking Request URL     | http://deep.link       |
       | Resource Linking Request URL | http://resource.link   |
@@ -119,6 +143,11 @@ Feature: Configure placements for a tool
       | Text                         | Some text for the tool (edited) |
     # Deselect the placement and verify the related configurations are removed upon saving.
     And I click on "Mock placement" "autocomplete_selection"
+    And "Placement: Mock placement" "fieldset" should not be visible
+    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
     And I press "Save changes"
     And I click on "Edit" "link"
     And "Mock placement" "autocomplete_selection" should not exist in the "Placement" "fieldset"
@@ -170,6 +199,11 @@ Feature: Configure placements for a tool
       | Text                         | Some text for the tool (edited) |
     # Deselect the placement and verify the related configurations are removed upon saving.
     And I click on "Mock placement" "autocomplete_selection"
+    And "Placement: Mock placement" "fieldset" should not be visible
+    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
+    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
     And I press "Save changes"
     And I should not see "Mock placement" in the "Course Tool 1" "table_row"
     And I open the action menu in "Course Tool 1" "table_row"
@@ -181,85 +215,3 @@ Feature: Configure placements for a tool
       | Resource Linking Request URL |   |
       | Icon URL                     |   |
       | Text                         |   |
-
-  @javascript
-  Scenario: Placement fieldset is shown based on selected placement option for site tool
-    Given the following "core_ltix > placement types" exist:
-      | placementtype           | component |
-      | core_ltix:mockplacement | core_ltix |
-    And I log in as "admin"
-    And I navigate to "LTI > Manage tools" in site administration
-    And I click on "configure a tool manually" "link"
-    And "Placements" "autocomplete" should exist in the "Placement" "fieldset"
-    # It should be hidden when nothing is selected in the beginning
-    And the field "Placements" matches value ""
-    And "Placement: Mock placement" "fieldset" should not be visible
-    And I should not see "Default state" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
-    # Selecting a placement will show the respective fieldset
-    When I expand the "Placements" autocomplete
-    And I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
-    Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
-    And "Placement: Mock placement" "fieldset" should be visible
-    And I should see "Default state" in the "Placement: Mock placement" "fieldset"
-    And I should see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Text" in the "Placement: Mock placement" "fieldset"
-    # Removing the selected value will hide the fieldset
-    And I click on "Mock placement" "autocomplete_selection"
-    And "Placement: Mock placement" "fieldset" should not be visible
-    And I should not see "Default state" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
-
-  @javascript
-  Scenario: Placement fieldset is shown based on selected placement option for course tool
-    Given the following "users" exist:
-      | username | firstname | lastname | Given email    |
-      | teacher1 | Teacher   | 1        | t1@example.com |
-    And the following "courses" exist:
-      | fullname | shortname |
-      | Course 1 | C1        |
-    And the following "course enrolments" exist:
-      | user     | course | role           |
-      | teacher1 | C1     | editingteacher |
-    And the following "core_ltix > course tools" exist:
-      | name          | description         | baseurl                  | course |
-      | Course Tool 1 | Example description | https://example.com/tool | C1     |
-    And the following "core_ltix > placement types" exist:
-      | placementtype           | component |
-      | core_ltix:mockplacement | core_ltix |
-    And I am on the "Course 1" course page logged in as teacher1
-    And I navigate to "LTI External tools" in current page administration
-    And I open the action menu in "Course Tool 1" "table_row"
-    And I choose "Edit" in the open action menu
-    And "Placements" "autocomplete" should exist in the "Placement" "fieldset"
-    # It should be hidden when nothing is selected in the beginning
-    And the field "Placements" matches value ""
-    And "Placement: Mock placement" "fieldset" should not be visible
-    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
-    # Selecting a placement will show the respective fieldset
-    When I expand the "Placements" autocomplete
-    And I set the field "Placements" in the "Placement" "fieldset" to "Mock placement"
-    Then "Mock placement" "autocomplete_selection" should exist in the "Placement" "fieldset"
-    And "Placement: Mock placement" "fieldset" should be visible
-    And I should see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should see "Text" in the "Placement: Mock placement" "fieldset"
-    # Removing the selected value will hide the fieldset
-    And I click on "Mock placement" "autocomplete_selection"
-    And "Placement: Mock placement" "fieldset" should not be visible
-    And I should not see "Deep Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Resource Linking Request URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Icon URL" in the "Placement: Mock placement" "fieldset"
-    And I should not see "Text" in the "Placement: Mock placement" "fieldset"
