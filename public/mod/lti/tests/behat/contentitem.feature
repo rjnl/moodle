@@ -20,8 +20,8 @@ Feature: Content-Item support
       | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | 1               |
     # Configure the site tool's activity chooser placement, so it will be shown in the activity chooser.
     And the following "core_ltix > tool placements" exist:
-      | tool            | placementtype             | config_default_usage | config_supports_deep_linking |
-      | Teaching Tool 1 | mod_lti:activityplacement | enabled              | 1                            |
+      | tool            | placementtype             | config_default_usage | config_supports_deep_linking | config_deep_linking_url  |
+      | Teaching Tool 1 | mod_lti:activityplacement | enabled              | 1                            | https://tool.example.com |
 
   @javascript
   Scenario: Tool that supports Deep Linking should be able to configure a tool via the Select content button
