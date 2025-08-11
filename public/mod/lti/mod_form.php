@@ -356,7 +356,7 @@ class mod_lti_mod_form extends moodleform_mod {
         $config = \core_ltix\helper::get_type_config($tooltypeid);
 
         // For tools supporting content selection, add the 'Select content button'.
-        $placementconfig = \core_ltix\helper::get_placement_config_by_placement_type($tooltypeid, 'mod_lti:activityplacement');
+        $placementconfig = \core_ltix\local\placement\placement_repository::get_placement_config_by_placement_type($tooltypeid, 'mod_lti:activityplacement');
         $supportscontentitemselection = !empty($placementconfig->deep_linking_url);
 
         if ($supportscontentitemselection) {
