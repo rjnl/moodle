@@ -95,11 +95,11 @@ if ($data = $form->get_data()) {
     if (!empty($id)) {
         $type->id = $id;
         \core_ltix\helper::update_type($type, $data);
-        \core_ltix\helper::update_placement_config($type, $data);
+        \core_ltix\local\placement\placement_repository::update_placement_config($type, $data);
     } else {
         $type->state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED;
         \core_ltix\helper::add_type($type, $data);
-        \core_ltix\helper::update_placement_config($type, $data);
+        \core_ltix\local\placement\placement_repository::update_placement_config($type, $data);
     }
     redirect($redirect);
 } else if ($form->is_cancelled()) {
@@ -117,7 +117,7 @@ echo $OUTPUT->box_start('generalbox');
 
 if ($action == 'update') {
     // Get the placement config linked to this tool.
-    $placementconfig = \core_ltix\helper::load_placement_config($id);
+    $placementconfig = \core_ltix\local\placement\placement_repository::load_placement_config($id);
 
     $mergeddata = (object) array_merge((array) $type, (array) $placementconfig);
     $form->set_data($mergeddata);
