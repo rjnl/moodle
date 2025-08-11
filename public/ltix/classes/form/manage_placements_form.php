@@ -19,8 +19,8 @@ namespace core_ltix\form;
 use context_course;
 use context;
 use moodle_url;
-use core_ltix\helper;
 use core_ltix\local\placement\placement_status;
+use core_ltix\local\placement\placement_repository;
 
 /**
  * Manage placements form
@@ -97,7 +97,7 @@ class manage_placements_form extends \core_form\dynamic_form {
         $courseid = $this->optional_param('courseid', null, PARAM_INT);
         $toolid = $this->optional_param('toolid', null, PARAM_INT);
 
-        $statusrecords = helper::get_placement_status_for_tool($toolid, $courseid);
+        $statusrecords = placement_repository::get_placement_status_for_tool($toolid, $courseid);
 
         if (empty($statusrecords)) {
             global $OUTPUT;

@@ -22,8 +22,6 @@ use core_ltix\local\ltiopenid\registration_helper;
 use core_ltix\local\ltiopenid\jwks_helper;
 use core_ltix\local\ltiservice\service_helper;
 use core_component;
-use core_ltix\local\placement\placements_manager;
-use core_ltix\local\placement\placement_status;
 use core_text;
 use core_useragent;
 use curl;
@@ -37,6 +35,7 @@ use moodle_url;
 use stdClass;
 use Firebase\JWT\JWT;
 use ltixservice_basicoutcomes\local\service\basicoutcomes;
+use core_ltix\local\placement\placement_repository;
 
 /**
  * Helper class specifically dealing with LTI tools.
@@ -1077,80 +1076,6 @@ class helper {
     }
 
     /**
-     * Get placement status records for a tool in a course.
-     *
-     * @param int $toolid the LTI tool id
-     * @param int $courseid the course id
-     * @return array the list of placements and their statuses.
-     */
-    public static function get_placement_status_for_tool(int $toolid, int $courseid): array {
-        global $DB;
-
-        $sql = <<<EOF
-            SELECT
-                pt.id AS placementtypeid,
-                pt.type,
-                pt.component,
-                CASE
-                    WHEN ps.status IS NOT NULL THEN ps.status
-                    WHEN pc.value = :placementconfigvalue THEN 1
-                    ELSE 0
-                END AS status
-            FROM {lti_placement_type} pt
-            JOIN {lti_placement} p ON p.placementtypeid = pt.id
-            LEFT JOIN {lti_placement_status} ps ON ps.placementid = p.id AND ps.contextid = :contextid
-            LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
-            WHERE p.toolid = :toolid
-            GROUP BY pt.id, pt.type, ps.status, pc.value
-            ORDER BY pt.id ASC
-        EOF;
-
-        $params = [
-            'toolid' => $toolid,
-            'contextid' => \core\context\course::instance($courseid)->id,
-            'placementconfigname' => 'default_usage',
-            'placementconfigvalue' => 'enabled',
-        ];
-
-        return $DB->get_records_sql($sql, $params);
-    }
-
-    /**
-     * Get placement configuration for a specific tool and placement type.
-     *
-     * @param int $toolid The tool ID to get placement config for
-     * @param string $placementtype The placement type string
-     * @return stdClass Object containing placement configuration
-     */
-    public static function get_placement_config_by_placement_type(int $toolid, string $placementtype): stdClass {
-        global $DB;
-
-        if (!placements_manager::is_valid_placement_type($placementtype)) {
-            throw new coding_exception("Invalid placement type.");
-        }
-
-        $sql = "SELECT c.name, c.value
-                  FROM {lti_placement_config} c
-                  JOIN {lti_placement} p ON p.id = c.placementid
-                  JOIN {lti_placement_type} pt ON pt.id = p.placementtypeid
-                 WHERE p.toolid = :toolid AND pt.type = :placementtype";
-
-        $params = [
-            'toolid' => $toolid,
-            'placementtype' => $placementtype,
-        ];
-
-        $configrecords = $DB->get_records_sql($sql, $params);
-
-        $configs = new stdClass();
-        foreach ($configrecords as $record) {
-            $configs->{$record->name} = $record->value;
-        }
-
-        return $configs;
-    }
-
-    /**
      * Returns configuration details for the tool
      *
      * @param int $typeid Basic LTI tool typeid
@@ -1229,165 +1154,13 @@ class helper {
         $DB->delete_records('lti_types', ['id' => $id]);
         $DB->delete_records('lti_types_config', ['typeid' => $id]);
         $DB->delete_records('lti_types_categories', ['typeid' => $id]);
-        self::delete_tool_placements($id);
+        placement_repository::delete_tool_placements($id);
     }
 
     public static function set_state_for_type($id, $state) {
         global $DB;
 
         $DB->update_record('lti_types', (object) array('id' => $id, 'state' => $state));
-    }
-
-    /**
-     * Load the placement configuration from the database.
-     *
-     * @param int $toolid The tool id.
-     * @return object The placement configuration.
-     */
-    public static function load_placement_config(int $toolid): object {
-        global $DB;
-
-        $config = new \stdClass();
-
-        // Get the placement types for this tool.
-        $toolplacements = $DB->get_records_menu('lti_placement', ['toolid' => $toolid], 'id ASC', 'id,placementtypeid');
-
-        $config->toolplacements = array_values($toolplacements);
-
-        // Get the placement configs for this tool.
-        $configrecords = $DB->get_records_list('lti_placement_config', 'placementid', array_keys($toolplacements));
-
-        foreach ($configrecords as $record) {
-            // Suffix to append to the config element names so that they match the form element names.
-            $elementsuffix = '_placementconfig' . $toolplacements[$record->placementid];
-
-            $config->{$record->name . $elementsuffix} = $record->value;
-        }
-
-        return $config;
-    }
-
-    /**
-     * Save the placement configuration for a tool type.
-     *
-     * @param object $type The tool type object.
-     * @param object $config The placement configuration.
-     * @return void
-     */
-    public static function update_placement_config(object $type, object $config): void {
-        global $DB;
-
-        // Update placement type config.
-        $placementtypeids = $config->toolplacements;
-
-        $registeredplacementtypes = $DB->get_records('lti_placement_type');
-
-        foreach ($placementtypeids as $pid) {
-            // Get the placement type record.
-            $placementtype = $registeredplacementtypes[$pid];
-            $placementdata = [
-                'toolid' => $type->id,
-                'placementtypeid' => $placementtype->id,
-            ];
-
-            // Check if the record already exists.
-            $existingrecord = $DB->get_record('lti_placement', $placementdata);
-
-            // Use the existing placement ID if found; otherwise, insert a new record and return its ID.
-            $placementid = $existingrecord ? $existingrecord->id : $DB->insert_record('lti_placement', $placementdata);
-
-            // Now save the placement config for this placement.
-            // Suffix used for the config element names in $config.
-            $elementsuffix = "_placementconfig{$placementtype->id}";
-
-            // Get config for this placement type from $config.
-            $placementconfig = array_filter(
-                get_object_vars($config),
-                fn($val, $key) => str_ends_with($key, $elementsuffix),
-                ARRAY_FILTER_USE_BOTH
-            );
-
-            // Placements should have the default_usage config set. If not set, set it to 'enabled' (e.g., for course tool).
-            if (!isset($placementconfig["default_usage{$elementsuffix}"])) {
-                $placementconfig["default_usage{$elementsuffix}"] = 'enabled';
-            }
-
-            // Save the config values.
-            foreach ($placementconfig as $name => $value) {
-                $configrow = (object) [
-                    'placementid' => $placementid,
-                    'name' => str_replace($elementsuffix, '', $name),
-                    'value' => $value,
-                ];
-
-                self::insert_or_update_placement_config($configrow);
-            }
-        }
-
-        // Remove any placement config records that are not in the current list.
-        $idstoremove = array_diff(array_keys($registeredplacementtypes), $placementtypeids);
-
-        if (!empty($idstoremove)) {
-            self::delete_tool_placements($type->id, $idstoremove);
-        }
-    }
-
-    /**
-     * Insert or update a placement config record.
-     *
-     * @param object $record Placement config record.
-     * @return void
-     */
-    public static function insert_or_update_placement_config(object $record): void {
-        global $DB;
-
-        // Check if the record already exists.
-        $existingrecord = $DB->get_record('lti_placement_config', [
-            'placementid' => $record->placementid,
-            'name' => $record->name,
-        ]);
-
-        // Update the existing placement config if found; otherwise, insert a new record.
-        if ($existingrecord) {
-            $record->id = $existingrecord->id;
-            $DB->update_record('lti_placement_config', $record);
-        } else {
-            $DB->insert_record('lti_placement_config', $record);
-        }
-    }
-
-    /**
-     * Removes tool placements and related config.
-     *
-     * @param int $toolid The tool ID.
-     * @param array $placementtypeids (optional) Array of placement type IDs used to specify only specific tool placements
-     *                                to delete. If not specified, all tool placements will be deleted.
-     * @return void
-     */
-    public static function delete_tool_placements(int $toolid, array $placementtypeids = []): void {
-        global $DB;
-
-        $sqlparams = ['toolid' => $toolid];
-        $wheresql = "toolid = :toolid";
-
-        // Add placement type filter if placement type IDs have been provided.
-        if (!empty($placementtypeids)) {
-            [$insql, $inparams] = $DB->get_in_or_equal($placementtypeids, SQL_PARAMS_NAMED);
-            $wheresql .= " AND placementtypeid $insql";
-            $sqlparams += $inparams;
-        }
-
-        // Build subquery used for both placement config and placement status deletions.
-        $subquery = "placementid IN (SELECT id FROM {lti_placement} WHERE $wheresql)";
-
-        // Delete related placement configs.
-        $DB->delete_records_select('lti_placement_config', $subquery, $sqlparams);
-
-        // Delete related placement statuses.
-        $DB->delete_records_select('lti_placement_status', $subquery, $sqlparams);
-
-        // Delete the placements.
-        $DB->delete_records_select('lti_placement', $wheresql, $sqlparams);
     }
 
     public static function update_type($type, $config) {
