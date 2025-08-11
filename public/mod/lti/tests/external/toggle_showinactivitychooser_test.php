@@ -72,7 +72,7 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
         $toolplacementstatuses = array_filter(
-            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            \core_ltix\local\placement\placement_repository::get_placement_status_for_tool($typeid, $course->id),
             fn($x) => $x->type == 'mod_lti:activityplacement'
         );
         $placementstatus = array_pop($toolplacementstatuses);
@@ -84,7 +84,7 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
         $toolplacementstatuses = array_filter(
-            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            \core_ltix\local\placement\placement_repository::get_placement_status_for_tool($typeid, $course->id),
             fn($x) => $x->type == 'mod_lti:activityplacement'
         );
         $placementstatus = array_pop($toolplacementstatuses);
@@ -128,7 +128,7 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
         $toolplacementstatuses = array_filter(
-            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            \core_ltix\local\placement\placement_repository::get_placement_status_for_tool($typeid, $course->id),
             fn($x) => $x->type == 'mod_lti:activityplacement'
         );
         $placementstatus = array_pop($toolplacementstatuses);
@@ -140,7 +140,7 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $result = external_api::clean_returnvalue(toggle_showinactivitychooser::execute_returns(), $result);
         $this->assertTrue($result);
         $toolplacementstatuses = array_filter(
-            \core_ltix\helper::get_placement_status_for_tool($typeid, $course->id),
+            \core_ltix\local\placement\placement_repository::get_placement_status_for_tool($typeid, $course->id),
             fn($x) => $x->type == 'mod_lti:activityplacement'
         );
         $placementstatus = array_pop($toolplacementstatuses);
@@ -197,7 +197,7 @@ final class toggle_showinactivitychooser_test extends externallib_advanced_testc
         $this->assertTrue($result);
 
         $toolplacementstatuses = array_filter(
-            \core_ltix\helper::get_placement_status_for_tool($tool1id, $course->id),
+            \core_ltix\local\placement\placement_repository::get_placement_status_for_tool($tool1id, $course->id),
             fn($x) => $x->type == 'mod_lti:activityplacement'
         );
         $placementstatus = array_pop($toolplacementstatuses);
