@@ -16,8 +16,8 @@ Feature: Content-Item support
       | teacher1 | C1 | editingteacher |
     # A site tool configured to show in courses.
     And the following "core_ltix > tool types" exist:
-      | name            | description        | baseurl                                | coursevisible | state | lti_contentitem |
-      | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     | 1               |
+      | name            | description        | baseurl                                | coursevisible | state |
+      | Teaching Tool 1 | Tool 1 description | /ltix/tests/fixtures/tool_provider.php | 1             | 1     |
     # Configure the site tool's activity chooser placement, so it will be shown in the activity chooser.
     And the following "core_ltix > tool placements" exist:
       | tool            | placementtype             | config_default_usage | config_supports_deep_linking | config_deep_linking_url  |
