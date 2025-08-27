@@ -89,4 +89,61 @@ class placement_repository {
 
         return $DB->record_exists_sql($sql, $params);
     }
+
+    /**
+     * Get a list of tools having an enabled placement of the given type in the given context.
+     *
+     * Omits placements for tools not available to the context (e.g. excludes placements for hidden tools).
+     *
+     * @param string $placementtype the placement type string
+     * @param int $courseid the course id
+     * @return array the list of placements
+     * @throws coding_exception if the placement type is invalid.
+     */
+    public static function get_tools_with_enabled_placement_in_course(string $placementtype, int $courseid): array {
+        global $DB, $SITE;
+
+        if (!placements_manager::is_valid_placement_type($placementtype)) {
+            throw new coding_exception("Invalid placement type.");
+        }
+
+        $coursecontext =  \core\context\course::instance($courseid);
+        $coursecategory = $DB->get_field('course', 'category', ['id' => $courseid]);
+
+        [$visiblesql, $visibleparams] = $DB->get_in_or_equal(
+            [\core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED],
+            SQL_PARAMS_NAMED
+        );
+
+        $sql = <<<EOF
+            SELECT t.*
+            FROM {lti_types} t
+            JOIN {lti_placement} p ON t.id = p.toolid
+            JOIN {lti_placement_type} pt ON p.placementtypeid = pt.id AND pt.type = :placementtype
+            LEFT JOIN {lti_placement_config} pc ON p.id = pc.placementid AND pc.name = :placementconfigname
+            LEFT JOIN {lti_placement_status} ps ON p.id = ps.placementid AND ps.contextid = :contextid
+            LEFT JOIN {lti_types_categories} tc ON t.id = tc.typeid
+            WHERE t.state = :active
+                AND t.course IN (:courseid, :siteid)
+                AND (tc.id IS NULL OR tc.categoryid = :categoryid)
+                AND t.coursevisible $visiblesql
+                AND (
+                    ps.status = :placementenabledstatus
+                    OR (ps.status IS NULL AND pc.value = :placementconfigvalue)
+                )
+        EOF;
+        $params = [
+                'placementtype' => $placementtype,
+                'contextid' => $coursecontext->id,
+                'active' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+                'siteid' => $SITE->id,
+                'courseid' => $courseid,
+                'categoryid' => $coursecategory,
+                'placementenabledstatus' => placement_status::ENABLED->value,
+                'placementconfigname' => 'default_usage',
+                'placementconfigvalue' => 'enabled',
+            ] + $visibleparams;
+
+        return $DB->get_records_sql($sql, $params);
+    }
 }
