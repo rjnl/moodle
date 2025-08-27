@@ -1016,7 +1016,10 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
         return [];
     }
 
-    $preconfiguredtypes = \core_ltix\helper::get_tools_with_enabled_placement_in_course('mod_lti:activityplacement', $courseid);
+    $preconfiguredtypes = \core_ltix\local\placement\placement_repository::get_tools_with_enabled_placement_in_course(
+        'mod_lti:activityplacement',
+        $courseid
+    );
 
     foreach ($preconfiguredtypes as $ltitype) {
         $type           = new stdClass();
