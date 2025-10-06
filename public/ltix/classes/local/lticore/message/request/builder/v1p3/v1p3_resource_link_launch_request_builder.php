@@ -36,6 +36,7 @@ class v1p3_resource_link_launch_request_builder extends v1p3_launch_request_buil
      * @param int $userid the id of the user performing the launch.
      * @param array $roles the LIS or extension roles the launching user has for this launch.
      * @param array $extraclaims any optional extra claims.
+     * @param string $messagetype the message type for this request.
      */
     public function __construct(
         protected \stdClass $toolconfig,
@@ -44,6 +45,7 @@ class v1p3_resource_link_launch_request_builder extends v1p3_launch_request_buil
         int $userid,
         array $roles = [],
         array $extraclaims = [],
+        string $messagetype = 'LtiResourceLinkRequest',
     ) {
         // TODO: this WILL be called in the subreview launch builder. Just a note to remember to check that.
         //  Once that's there, this can all be deleted - it's not needed at all in RLL launches.
@@ -55,7 +57,7 @@ class v1p3_resource_link_launch_request_builder extends v1p3_launch_request_buil
 
         parent::__construct(
             toolconfig: $toolconfig,
-            messagetype: 'LtiResourceLinkRequest',
+            messagetype: $messagetype,
             issuer: $issuer,
             targetlinkuri: $this->resolve_target_link_uri(),
             loginhint: strval($userid),

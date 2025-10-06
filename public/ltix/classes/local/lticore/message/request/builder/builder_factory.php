@@ -20,13 +20,16 @@ use core\context;
 use core_ltix\helper;
 use core_ltix\local\lticore\exception\lti_exception;
 use core_ltix\local\lticore\facades\service\resource_link_launch_service_facade;
+use core_ltix\local\lticore\facades\service\submission_review_launch_service_facade;
 use core_ltix\local\lticore\message\payload\custom\custom_param_parser;
 use core_ltix\local\lticore\message\payload\lis_vocab_converter;
 use core_ltix\local\lticore\message\payload\lti_1px_payload_converter;
 use core_ltix\local\lticore\message\payload\v1p1_resource_link_launch_payload_builder;
 use core_ltix\local\lticore\message\payload\v1p3_resource_link_launch_payload_builder;
+use core_ltix\local\lticore\message\payload\v1p3_submission_review_launch_payload_builder;
 use core_ltix\local\lticore\message\request\builder\v1p1\v1p1_resource_link_launch_request_builder;
 use core_ltix\local\lticore\message\request\builder\v1p3\v1p3_resource_link_launch_request_builder;
+use core_ltix\local\lticore\message\request\builder\v1p3\v1p3_submission_review_launch_request_builder;
 
 /**
  * Simple factory handling the creation of all LTI request builders.
@@ -38,7 +41,6 @@ use core_ltix\local\lticore\message\request\builder\v1p3\v1p3_resource_link_laun
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class builder_factory {
-
     /**
      * Get a builder instance based on launch config.
      *
@@ -52,9 +54,54 @@ class builder_factory {
         if ($launchconfig->toolconfig->lti_ltiversion === \core_ltix\constants::LTI_VERSION_1P3) {
             $issuer = $CFG->wwwroot;
 
-            // Resource Link launches.
-            if (!empty($launchconfig->resourcelink)) {
+            // Submission Review launches.
+            if ($launchconfig->messagetype === 'LtiSubmissionReviewRequest') { // Should we use \Packback\Lti1p3\LtiConstants::MESSAGE_TYPE_SUBMISSIONREVIEW ?
+                // Submission review launches may or may not have a resource link.
+                // Following the same pattern as resource link launches for now.
 
+                $servicefacade = new submission_review_launch_service_facade(
+                    toolconfig: $launchconfig->toolconfig,
+                    context: $launchconfig->context,
+                    userid: $launchconfig->user->id,
+                    resourcelink: $launchconfig->resourcelink
+                );
+                $customparamparser = new custom_param_parser(
+                    sourcedatamap: helper::get_capabilities(),
+                    servicefacade: $servicefacade,
+                    context: $launchconfig->context,
+                    user: $launchconfig->user
+                );
+                $claimconverter = new lti_1px_payload_converter(
+                    lisvocabconverter: new lis_vocab_converter()
+                );
+                $extraclaims = (new v1p3_submission_review_launch_payload_builder(
+                    toolconfig: $launchconfig->toolconfig,
+                    resourcelink: $launchconfig->resourcelink,
+                    user: $launchconfig->user,
+                    servicefacade: $servicefacade,
+                    customparamparser: $customparamparser,
+                    claimconverter: $claimconverter,
+                ))->get_claims();
+
+                // TODO: course context is an assumption in this code...what happens if we can't get it?
+                $coursecontext = context::instance_by_id($launchconfig->resourcelink->get('contextid'))->get_course_context();
+
+                // TODO: I think it's actually better to use the resource link context and let that be the decider for the roles
+                //  the role code can very likely call into the placement implementation at a later point to resolve specific
+                //  context roles the placement knows about. Just blindly using course is too limited and not in line with the old
+                //  code in helper::get_ims_role(), which DOES check at the mod context.
+
+                return new v1p3_submission_review_launch_request_builder(
+                    toolconfig: $launchconfig->toolconfig,
+                    resourcelink: $launchconfig->resourcelink,
+                    issuer: $issuer,
+                    userid: $launchconfig->user->id,
+                    foruser: \core_user::get_user($launchconfig->foruserid),
+                    returnurl: $launchconfig->returnurl,
+                    roles: \core_ltix\helper::get_lti_message_roles($launchconfig->user->id, $coursecontext),
+                    extraclaims: $extraclaims
+                );
+            } else if (!empty($launchconfig->resourcelink)) { // Resource Link launches.
                 $servicefacade = new resource_link_launch_service_facade(
                     toolconfig: $launchconfig->toolconfig,
                     context: $launchconfig->context,

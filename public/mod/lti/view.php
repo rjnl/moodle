@@ -198,10 +198,10 @@ $launchurl = new moodle_url('/ltix/launch.php', ['id' => $link->get('id')]);
 
 
 if ($action) {
-    $launchurl->param('action', $action);;
+    $launchurl->param('action', $action);
 }
 if ($foruserid) {
-    $launchurl->param('user', $foruserid);;
+    $launchurl->param('user', $foruserid);
 }
 unset($SESSION->lti_initiatelogin_status);
 if (($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW)) {

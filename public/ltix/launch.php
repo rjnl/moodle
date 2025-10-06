@@ -38,9 +38,9 @@ require_once('../config.php');
 global $PAGE, $OUTPUT, $USER;
 require_login(null, false);
 
-// TODO: implement support for submission review launches at this endpoint, which will very likely involve supporting some
-//  extra optional params.
 $linkid = required_param('id', PARAM_INT);
+$action = optional_param('action', '', PARAM_TEXT);
+$foruserid = optional_param('user', 0, PARAM_INT); // For Submission review launches.
 
 // TODO: how are we going to launch legacy, manually configured instances...
 //  these may need to continue to be launched via mod_lti's launch, where the specific 'grab tool config from instance' logic can
@@ -83,14 +83,32 @@ if (is_null($toolconfig)) {
 //  This would then allow require_course_login() checks based on the course coming from the context (and error if one can't be found).
 //  Later, we could expand launch to permit other contexts and require_capability() etc based on those (e.g. admin launches).
 
+if ($action === 'gradeReport') {
+    $messagetype = 'LtiSubmissionReviewRequest';
+
+    $returnurlparams = [
+        'course' => $context->get_course_context()->instanceid,
+        // Using link's launch container. MDL-86149 will introduce placement_service::get_launch_container_for_link().
+        'launch_container' => $link->get('launchcontainer'),
+        // 'sesskey' => sesskey()
+    ];
+
+    // Add the return URL. We send the launch container along to help us avoid frames-within-frames when the user returns.
+    $url = new \moodle_url('/ltix/return.php', $returnurlparams);
+    $returnurl = $url->out(false);
+}
+
 $launchconfig = (object) [
     'toolconfig' => $toolconfig,
     'context' => $context,
     'user' => $USER,
-    'resourcelink' => $link
+    'resourcelink' => $link,
     // TODO: perhaps we can be explicit about message type here.
     //  That way, the factory won't have to infer that based on other information like resourcelink being present (which may be the
     //  case for several types of launches (e.g. resourcelink, submissionreview).
+    'messagetype' => $messagetype ?? '',
+    'foruserid' => $foruserid,
+    'returnurl' => $returnurl ?? '',
 ];
 $requestbuilderfactory = \core\di::get(builder_factory::class);
 echo $requestbuilderfactory->get_request_builder($launchconfig)
