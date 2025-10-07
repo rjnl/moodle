@@ -1,0 +1,6 @@
+issueNumber: MDL-80122
+notes:
+  mod_lti:
+    - message: get_tool_type_icon_url() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_icon_url() instead.
+      type: deprecated

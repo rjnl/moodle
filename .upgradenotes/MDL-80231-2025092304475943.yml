@@ -1,0 +1,19 @@
+issueNumber: MDL-80231
+notes:
+  mod_lti:
+    - message: >
+        The event class \mod_lti\event\unknown_service_api_called is deprecated since Moodle 5.1.
+        Please use \core_ltix\event\unknown_service_api_called instead.
+      type: deprecated
+    - message: >
+        The class \mod_lti\local\ltiservice\resource_base is deprecated since Moodle 5.1.
+        Please use \core_ltix\local\ltiservice\resource_base instead.
+      type: deprecated
+    - message: >
+        The class \mod_lti\local\ltiservice\response is deprecated since Moodle 5.1.
+        Please use \core_ltix\local\ltiservice\response instead.
+      type: deprecated
+    - message: >
+        The class \mod_lti\local\ltiservice\service_base is deprecated since Moodle 5.1.
+        Please use \core_ltix\local\ltiservice\service_base instead.
+      type: deprecated
