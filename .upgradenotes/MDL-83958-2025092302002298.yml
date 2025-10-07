@@ -1,0 +1,8 @@
+issueNumber: MDL-83958
+notes:
+  mod_lti:
+    - message: >-
+        lti_tool_configuration_from_content_item() is deprecated. Please use
+        \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter
+        instead.
+      type: deprecated

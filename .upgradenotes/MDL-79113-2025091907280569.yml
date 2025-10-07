@@ -1,0 +1,450 @@
+issueNumber: MDL-79113
+notes:
+  mod_lti:
+    - message: >-
+        The lti_get_jwt_message_type_mapping() function is deprecated. Please
+        use \core_ltix\oauth_helper::get_jwt_message_type_mapping() instead.
+      type: deprecated
+    - message: >-
+        The lti_get_jwt_claim_mapping() function is deprecated. Please use
+        \core_ltix\oauth_helper::get_jwt_claim_mapping() instead.
+      type: deprecated
+    - message: >-
+        lti_get_instance_type() is deprecated. Please use
+        \core_ltix\helper::get_instance_type() instead.
+      type: deprecated
+    - message: >-
+        lti_get_launch_data() is deprecated. Please use
+        \core_ltix\helper::get_launch_data() instead.
+      type: deprecated
+    - message: >-
+        lti_launch_tool() is deprecated. Please use
+        \core_ltix\helper::launch_tool() instead.
+      type: deprecated
+    - message: >-
+        lti_register() is deprecated. Please use
+        \core_ltix\helper::register() instead.
+      type: deprecated
+    - message: >-
+        lti_build_registration_request() is deprecated. Please use
+        \core_ltix\helper::build_registration_request() instead.
+      type: deprecated
+    - message: >-
+        lti_get_organizationid() is deprecated. Please use
+        \core_ltix\helper::get_organizationid() instead.
+      type: deprecated
+    - message: >-
+        lti_build_sourcedid() is deprecated. Please use
+        \core_ltix\helper::build_sourcedid() instead.
+      type: deprecated
+    - message: >-
+        lti_build_request() is deprecated. Please use
+        \core_ltix\helper::build_request() instead.
+      type: deprecated
+    - message: >-
+        lti_build_request_lti2() is deprecated. Please use
+        \core_ltix\helper::build_request_lti2() instead.
+      type: deprecated
+    - message: >-
+        lti_build_standard_message() is deprecated. Please use
+        \core_ltix\helper::build_standard_message() instead.
+      type: deprecated
+    - message: >-
+        lti_build_custom_parameters() is deprecated. Please use
+        \core_ltix\helper::build_custom_parameters() instead.
+      type: deprecated
+    - message: >-
+        lti_build_content_item_selection_request() is deprecated. Please use
+        \core_ltix\helper::build_content_item_selection_request() instead.
+      type: deprecated
+    - message: >-
+        lti_verify_oauth_signature() is deprecated. Please use
+        \core_ltix\oauth_helper::verify_oauth_signature() instead.
+      type: deprecated
+    - message: >-
+        lti_verify_with_keyset() is deprecated. Please use
+        \core_ltix\oauth_helper::verify_with_keyset() instead.
+      type: deprecated
+    - message: >-
+        lti_verify_jwt_signature() is deprecated. Please use
+        \core_ltix\oauth_helper::verify_jwt_signature() instead.
+      type: deprecated
+    - message: >-
+        params_to_string() is deprecated. Please use
+        \core_ltix\helper::params_to_string() instead.
+      type: deprecated
+    - message: >-
+        content_item_to_form() is deprecated. There is no direct replacement;
+        the logic has moved to
+        \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter.
+      type: deprecated
+    - message: >-
+        lti_convert_content_items() is deprecated. Please use
+        \core_ltix\helper::convert_content_items() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_table() is deprecated. Please use
+        \core_ltix\helper::get_tool_table() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxy_table() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_table() instead.
+      type: deprecated
+    - message: >-
+        lti_get_enabled_capabilities() is deprecated. Please use
+        \core_ltix\helper::get_enabled_capabilities() instead.
+      type: deprecated
+    - message: >-
+        lti_split_parameters() is deprecated. Please use
+        \core_ltix\helper::split_parameters() instead.
+      type: deprecated
+    - message: >-
+        lti_split_custom_parameters() is deprecated. Please use
+        \core_ltix\helper::split_custom_parameters() instead.
+      type: deprecated
+    - message: >-
+        lti_get_custom_parameters() is deprecated. Please use
+        \core_ltix\helper::get_custom_parameters() instead.
+      type: deprecated
+    - message: >-
+        lti_parse_custom_parameter() is deprecated. Please use
+        \core_ltix\helper::parse_custom_parameter() instead.
+      type: deprecated
+    - message: >-
+        lti_calculate_custom_parameter() is deprecated. Please use
+        \core_ltix\helper::calculate_custom_parameter() instead.
+      type: deprecated
+    - message: >-
+        get_course_history() is deprecated. Please use
+        \core_ltix\helper::get_course_history() instead.
+      type: deprecated
+    - message: >-
+        lti_map_keyname() is deprecated. Please use
+        \core_ltix\helper::map_keyname() instead.
+      type: deprecated
+    - message: >-
+        lti_get_ims_role() is deprecated. Please use
+        \core_ltix\helper::get_ims_role() instead.
+      type: deprecated
+    - message: >-
+        lti_get_type_config() is deprecated. Please use
+        \core_ltix\helper::get_type_config() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tools_by_url() is deprecated. Please use
+        \core_ltix\helper::get_tools_by_url() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tools_by_domain() is deprecated. Please use
+        \core_ltix\helper::get_tools_by_domain() instead.
+      type: deprecated
+    - message: >-
+        lti_filter_get_types() is deprecated. Please use
+        \core_ltix\helper::filter_get_types() instead.
+      type: deprecated
+    - message: >-
+        lti_filter_tool_types() is deprecated. Please use
+        \core_ltix\helper::filter_tool_types() instead.
+      type: deprecated
+    - message: >-
+        lti_get_domain_from_url() is deprecated. Please use
+        \core_ltix\helper::get_domain_from_url() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_by_url_match() is deprecated. Please use
+        \core_ltix\helper::get_tool_by_url_match() instead.
+      type: deprecated
+    - message: >-
+        lti_get_url_thumbprint() is deprecated. Please use
+        \core_ltix\helper::get_url_thumbprint() instead.
+      type: deprecated
+    - message: >-
+        lti_get_best_tool_by_url() is deprecated. Please use
+        \core_ltix\helper::get_best_tool_by_url() instead.
+      type: deprecated
+    - message: >-
+        lti_get_shared_secrets_by_key() is deprecated. Please use
+        \core_ltix\helper::get_shared_secrets_by_key() instead.
+      type: deprecated
+    - message: >-
+        lti_delete_type() is deprecated. Please use
+        \core_ltix\helper::delete_type() instead.
+      type: deprecated
+    - message: >-
+        lti_set_state_for_type() is deprecated. Please use
+        \core_ltix\helper::set_state_for_type() instead.
+      type: deprecated
+    - message: >-
+        lti_get_config() is deprecated. Please use
+        \core_ltix\helper::get_config() instead.
+      type: deprecated
+    - message: >-
+        lti_get_type_config_from_instance() is deprecated. Please use
+        \core_ltix\helper::get_type_config_from_instance() instead.
+      type: deprecated
+    - message: >-
+        lti_get_type_type_config() is deprecated. Please use
+        \core_ltix\helper::get_type_type_config() instead.
+      type: deprecated
+    - message: >-
+        lti_prepare_type_for_save() is deprecated. Please use
+        \core_ltix\helper::prepare_type_for_save() instead.
+      type: deprecated
+    - message: >-
+        lti_update_type() is deprecated. Please use
+        \core_ltix\helper::update_type() instead.
+      type: deprecated
+    - message: >-
+        lti_type_add_categories() is deprecated. Please use
+        \core_ltix\helper::type_add_categories() instead.
+      type: deprecated
+    - message: >-
+        lti_add_type() is deprecated. Please use
+        \core_ltix\helper::add_type() instead.
+      type: deprecated
+    - message: >-
+        lti_filter_tool_proxy_types() is deprecated. Please use
+        \core_ltix\helper::filter_tool_proxy_types() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxy_from_guid() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_from_guid() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxies_from_registration_url() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxies_from_registration_url() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxy() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxies() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxies() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_proxy_config() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_config() instead.
+      type: deprecated
+    - message: >-
+        lti_add_tool_proxy() is deprecated. Please use
+        \core_ltix\helper::add_tool_proxy() instead.
+      type: deprecated
+    - message: >-
+        lti_update_tool_proxy() is deprecated. Please use
+        \core_ltix\helper::update_tool_proxy() instead.
+      type: deprecated
+    - message: >-
+        lti_delete_tool_proxy() is deprecated. Please use
+        \core_ltix\helper::delete_tool_proxy() instead.
+      type: deprecated
+    - message: >-
+        lti_get_lti_types_and_proxies() is deprecated. Please use
+        \core_ltix\helper::get_lti_types_and_proxies() instead.
+      type: deprecated
+    - message: >-
+        lti_get_lti_types_and_proxies_count() is deprecated. Please use
+        \core_ltix\helper::get_lti_types_and_proxies_count() instead.
+      type: deprecated
+    - message: >-
+        lti_add_config() is deprecated. Please use
+        \core_ltix\helper::add_config() instead.
+      type: deprecated
+    - message: >-
+        lti_update_config() is deprecated. Please use
+        \core_ltix\helper::update_config() instead.
+      type: deprecated
+    - message: >-
+        lti_get_tool_settings() is deprecated. Please use
+        \core_ltix\helper::get_tool_settings() instead.
+      type: deprecated
+    - message: >-
+        lti_set_tool_settings() is deprecated. Please use
+        \core_ltix\helper::set_tool_settings() instead.
+      type: deprecated
+    - message: >-
+        lti_sign_parameters() is deprecated. Please use
+        \core_ltix\oauth_helper::sign_parameters() instead.
+      type: deprecated
+    - message: >-
+        lti_sign_jwt() is deprecated. Please use
+        \core_ltix\oauth_helper::sign_jwt() instead.
+      type: deprecated
+    - message: >-
+        lti_convert_from_jwt() is deprecated. Please use
+        \core_ltix\oauth_helper::convert_from_jwt() instead.
+      type: deprecated
+    - message: >-
+        lti_post_launch_html() is deprecated. Please use
+        \core_ltix\helper::post_launch_html() instead.
+      type: deprecated
+    - message: >-
+        lti_initiate_login() is deprecated. Please use
+        \core_ltix\helper::initiate_login() instead.
+      type: deprecated
+    - message: >-
+        lti_build_login_request() is deprecated. Please use
+        \core_ltix\helper::build_login_request() instead.
+      type: deprecated
+    - message: >-
+        lti_get_type() is deprecated. Please use
+        \core_ltix\helper::get_type() instead.
+      type: deprecated
+    - message: >-
+        lti_get_launch_container() is deprecated. Please use
+        \core_ltix\helper::get_launch_container() instead.
+      type: deprecated
+    - message: >-
+        lti_request_is_using_ssl() is deprecated. Please use
+        \core_ltix\helper::request_is_using_ssl() instead.
+      type: deprecated
+    - message: >-
+        lti_ensure_url_is_https() is deprecated. Please use
+        \core_ltix\helper::ensure_url_is_https() instead.
+      type: deprecated
+    - message: >-
+        lti_should_log_request() is deprecated. Please use
+        \core_ltix\helper::should_log_request() instead.
+      type: deprecated
+    - message: >-
+        lti_log_request() is deprecated. Please use
+        \core_ltix\helper::log_request() instead.
+      type: deprecated
+    - message: >-
+        lti_log_response() is deprecated. Please use
+        \core_ltix\helper::log_response() instead.
+      type: deprecated
+    - message: >-
+        lti_get_type_config_by_instance() is deprecated. Please use
+        \core_ltix\helper::get_type_config_by_instance() instead.
+      type: deprecated
+    - message: >-
+        lti_force_type_config_settings() is deprecated. Please use
+        \core_ltix\helper::force_type_config_settings() instead.
+      type: deprecated
+    - message: >-
+        lti_get_capabilities() is deprecated. Please use
+        \core_ltix\helper::get_capabilities() instead.
+      type: deprecated
+    - message: >-
+        lti_get_services() is deprecated. Please use
+        \core_ltix\helper::get_services() instead.
+      type: deprecated
+    - message: >-
+        lti_get_service_by_name() is deprecated. Please use
+        \core_ltix\local\ltiservice\service_helper::get_service_by_name()
+        instead.
+      type: deprecated
+    - message: >-
+        lti_get_service_by_resource_id() is deprecated. Please use
+        \core_ltix\helper::get_service_by_resource_id() instead.
+      type: deprecated
+    - message: >-
+        lti_get_permitted_service_scopes() is deprecated. Please use
+        \core_ltix\helper::get_permitted_service_scopes() instead.
+      type: deprecated
+    - message: >-
+        lti_get_contexts() is deprecated. Please use
+        \core_ltix\helper::get_contexts() instead.
+      type: deprecated
+    - message: >-
+        lti_get_fqid() is deprecated. Please use
+        \core_ltix\helper::get_fqid() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_edit_url() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_edit_url() instead.
+      type: deprecated
+    - message: >-
+        get_tool_proxy_edit_url() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_edit_url() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_course_url() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_course_url() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_urls() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_urls() instead.
+      type: deprecated
+    - message: >-
+        get_tool_proxy_urls() is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_urls() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_state_info() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_state_info() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_config() deprecated without a
+        replacement. Placement management is now managed in
+        core_ltix via the LTI External tools page.
+      type: deprecated
+    - message: >-
+        get_tool_type_capability_groups() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_capability_groups() instead.
+      type: deprecated
+    - message: >-
+        get_tool_type_instance_ids() is deprecated. Please use
+        \core_ltix\helper::get_tool_type_instance_ids() instead.
+      type: deprecated
+    - message: >-
+        serialise_tool_type() is deprecated. Please use
+        \core_ltix\helper::serialise_tool_type() instead.
+      type: deprecated
+    - message: >-
+        lti_load_type_if_cartridge() is deprecated. Please use
+        \core_ltix\helper::load_type_if_cartridge() instead.
+      type: deprecated
+    - message: >-
+        lti_load_tool_if_cartridge() is deprecated. Please use
+        \core_ltix\helper::load_tool_if_cartridge() instead.
+      type: deprecated
+    - message: >-
+        lti_is_cartridge() is deprecated. Please use
+        \core_ltix\helper::is_cartridge() instead.
+      type: deprecated
+    - message: >-
+        lti_load_type_from_cartridge() is deprecated. Please use
+        \core_ltix\helper::load_type_from_cartridge() instead.
+      type: deprecated
+    - message: >-
+        lti_load_tool_from_cartridge() is deprecated. Please use
+        \core_ltix\helper::load_tool_from_cartridge() instead.
+      type: deprecated
+    - message: >-
+        lti_load_cartridge() is deprecated. Please use
+        \core_ltix\helper::load_cartridge() instead.
+      type: deprecated
+    - message: >-
+        get_tag() is deprecated. Please use
+        \core_ltix\helper::get_tag() instead.
+      type: deprecated
+    - message: >-
+        lti_new_access_token() is deprecated. Please use
+        \core_ltix\helper::new_access_token() instead.
+      type: deprecated
+    - message: >-
+        jwks_helper class is deprecated. Please use
+        \core_ltix\local\ltiopenid\jwks_helper instead.
+      type: deprecated
+    - message: >-
+        registration_exception class is deprecated. Please use
+        \core_ltix\local\ltiopenid\registration_exception instead.
+      type: deprecated
+    - message: >-
+        registration_helper class is deprecated. Please use
+        \core_ltix\local\ltiopenid\registration_helper instead.
+      type: deprecated
+    - message: >-
+        get_tool_proxy_sql() method is deprecated. Please use
+        \core_ltix\helper::get_tool_proxy_sql() instead.
+      type: deprecated
+    - message: >-
+        lti_get_lti_types() method is deprecated. Please use
+        \core_ltix\helper::get_lti_types() instead.
+      type: deprecated
+    - message: >-
+        lti_get_lti_types_from_proxy_id() method is deprecated.
+        Please use \core_ltix\helper::get_lti_types_from_proxy_id() instead.
+      type: deprecated

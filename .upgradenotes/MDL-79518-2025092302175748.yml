@@ -1,0 +1,111 @@
+issueNumber: MDL-79518
+notes:
+  mod_lti:
+    - message: >-
+        The mod_lti_delete_course_tool_type web service has been deprecated. Please use
+        core_ltix_delete_course_tool_type instead
+      type: deprecated
+    - message: >-
+        The mod_lti_get_tool_types_and_proxies_count web service has been deprecated. Please use
+        core_ltix_get_tool_types_and_proxies_count instead.
+      type: deprecated
+    - message: >-
+        The mod_lti_get_tool_types_and_proxies has been deprecated. Please use
+        core_ltix_get_tool_types_and_proxies instead.
+      type: deprecated
+    - message: >
+        mod_lti_external::tool_type_return_structure() has been deprecated.
+        Please use \core_ltix\external\structs::tool_type_return_structure() instead.
+      type: deprecated
+    - message: >
+        mod_lti_external::tool_proxy_return_structure() has been deprecated.
+        Please use \core_ltix\external\structs::tool_proxy_return_structure() instead.
+      type: deprecated
+    - message: >
+        The mod_lti_get_tool_proxies web service has been deprecated.
+        Please use core_ltix_get_tool_proxies instead.
+      type: deprecated
+    - message: >
+        The mod_lti_create_tool_proxy web service has been deprecated.
+        Please use core_ltix_create_tool_proxy instead.
+      type: deprecated
+    - message: >
+        The mod_lti_delete_tool_proxy web service has been deprecated.
+        Please use core_ltix_delete_tool_proxy instead.
+      type: deprecated
+    - message: >
+        The mod_lti_get_tool_proxy_registration_request web service has been deprecated.
+        Please use core_ltix_get_tool_proxy_registration_request instead.
+      type: deprecated
+    - message: >
+        The mod_lti_get_tool_types web service has been deprecated.
+        Please use core_ltix_get_tool_types instead.
+      type: deprecated
+    - message: >
+        The mod_lti_create_tool_type web service has been deprecated.
+        Please use core_ltix_create_tool_type instead.
+      type: deprecated
+    - message: >
+        The mod_lti_update_tool_type web service has been deprecated.
+        Please use core_ltix_update_tool_type instead.
+      type: deprecated
+    - message: >
+        The mod_lti_delete_tool_type web service has been deprecated.
+        Please use core_ltix_delete_tool_type instead.
+      type: deprecated
+    - message: >
+        The mod_lti_is_cartridge web service has been deprecated.
+        Please use core_ltix_is_cartridge instead.
+      type: deprecated
+    - message: >
+        The lti_get_response_xml() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::get_response_xml() instead.
+      type: deprecated
+    - message: >
+        The lti_parse_message_id() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::parse_message_id() instead.
+      type: deprecated
+    - message: >
+        The lti_parse_grade_replace_message() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::parse_grade_replace_message() instead.
+      type: deprecated
+    - message: >
+        The lti_parse_grade_read_message() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::parse_grade_read_message() instead.
+      type: deprecated
+    - message: >
+        The lti_parse_grade_delete_message() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::parse_grade_delete_message() instead.
+      type: deprecated
+    - message: >
+        The lti_accepts_grades() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::accepts_grades() instead.
+      type: deprecated
+    - message: >
+        The lti_set_session_user() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::set_session_user() instead.
+      type: deprecated
+    - message: >
+        The lti_update_grade() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::update_grade() instead.
+      type: deprecated
+    - message: >
+        The lti_read_grade() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::read_grade() instead.
+      type: deprecated
+    - message: >
+        The lti_delete_grade() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::delete_grade() instead.
+      type: deprecated
+    - message: >
+        The lti_verify_message() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::verify_message() instead.
+      type: deprecated
+    - message: >
+        The lti_verify_sourcedid() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::verify_sourcedid() instead.
+      type: deprecated
+    - message: >
+        The lti_extend_lti_services() function has been deprecated.
+        Please use \core_ltix\local\ltiservice\service_helper::extend_lti_services() instead.
+      type: deprecated
