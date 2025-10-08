@@ -31,12 +31,18 @@ class helper {
     /**
      * Get SQL to query DB for LTI tool proxy records.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @param bool $orphanedonly If true, return SQL to get orphaned proxies only.
      * @param bool $count If true, return SQL to get the count of the records instead of the records themselves.
      * @return string SQL.
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\helper::get_tool_proxy_sql() instead',
+        mdl: 'MDL-79113',
+    )]
     public static function get_tool_proxy_sql(bool $orphanedonly = false, bool $count = false): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\helper::get_tool_proxy_sql($orphanedonly, $count);
     }
 }

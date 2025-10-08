@@ -31,14 +31,24 @@ use core_ltix\external\structs;
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    reason: 'Use \core_ltix\external\get_tool_types_and_proxies instead',
+    since: '5.1',
+    mdl: 'MDL-79518',
+)]
 class get_tool_types_and_proxies extends external_api {
 
     /**
      * Get parameter definition for get_tool_types_and_proxies().
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_function_parameters
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies::execute_parameters() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters([
             'toolproxyid' => new external_value(
@@ -73,25 +83,34 @@ class get_tool_types_and_proxies extends external_api {
     /**
      * Get data for all tool types and tool proxies.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @param int $toolproxyid The tool proxy id
      * @param bool $orphanedonly Whether to get orphaned proxies only.
      * @param int $limit How many elements to return if using pagination.
      * @param int $offset Which chunk of elements to return is using pagination.
      * @return array
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies::execute() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute($toolproxyid, $orphanedonly, $limit, $offset): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_types_and_proxies instead.',
-                  DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\external\get_tool_types_and_proxies::execute($toolproxyid, $orphanedonly, $limit, $offset);
     }
 
     /**
      * Get return definition for get_tool_types_and_proxies.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_single_structure
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies::execute_returns() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'types' => new external_multiple_structure(structs::tool_type_return_structure()),
