@@ -26,38 +26,49 @@ namespace mod_lti\local\ltiopenid;
 /**
  * This class exposes functions for LTI 1.3 Key Management.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @see \core_ltix\local\ltiopenid\jwks_helper
  *
  * @package    mod_lti
  * @copyright  2020 Claude Vervoort (Cengage)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    reason: 'Use \core_ltix\local\ltiopenid\jwks_helper instead',
+    since: '5.1',
+    mdl: 'MDL-79113',
+)]
 class jwks_helper {
 
     /**
      * Returns the private key to use to sign outgoing JWT.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return array keys are kid and key in PEM format.
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\local\ltiopenid\jwks_helper::get_private_key() instead',
+        since: '5.1',
+        mdl: 'MDL-79113',
+    )]
     public static function get_private_key() {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::get_private_key() instead.',
-            DEBUG_DEVELOPER);
-
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\local\ltiopenid\jwks_helper::get_private_key();
     }
 
     /**
      * Returns the JWK Key Set for this site.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return array keyset exposting the site public key.
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\local\ltiopenid\jwks_helper::get_jwks() instead',
+        since: '5.1',
+        mdl: 'MDL-79113',
+    )]
     public static function get_jwks() {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::get_jwks() instead.',
-            DEBUG_DEVELOPER);
-
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\local\ltiopenid\jwks_helper::get_jwks();
     }
 
@@ -72,15 +83,18 @@ class jwks_helper {
      *
      * Keys not matching the above are left unchanged.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @param array $jwks the keyset array.
      * @param string $jwt the JWT string.
      * @return array the fixed keyset array.
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg() instead',
+        since: '5.1',
+        mdl: 'MDL-79113',
+    )]
     public static function fix_jwks_alg(array $jwks, string $jwt): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg() instead.',
-            DEBUG_DEVELOPER);
-
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\local\ltiopenid\jwks_helper::fix_jwks_alg($jwks, $jwt);
     }
 

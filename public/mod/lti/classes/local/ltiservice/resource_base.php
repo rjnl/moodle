@@ -22,25 +22,26 @@
  * @author     Stephen Vickers
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 namespace mod_lti\local\ltiservice;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/lti/locallib.php');
-
-
 /**
  * The mod_lti\local\ltiservice\resource_base class.
  *
- * @deprecated since Moodle 4.5 use \core_ltix\local\ltiservice\resource_base instead.
+ * @deprecated since Moodle 5.1 use \core_ltix\local\ltiservice\resource_base instead
  * @package    mod_lti
  * @since      Moodle 2.8
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+    mdl: 'MDL-80231',
+)]
 abstract class resource_base {
 
     /**  HTTP Post method */
@@ -68,18 +69,20 @@ abstract class resource_base {
     protected $methods;
     /** @var array Template variables parsed from the resource template. */
     protected $params;
-
-
     /**
      * Class constructor.
      *
      * @param service_base $service Service instance
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function __construct($service) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         $this->service = $service;
         $this->type = 'RestService';
         $this->id = null;
@@ -89,19 +92,21 @@ abstract class resource_base {
         $this->formats = array();
         $this->methods = array();
         $this->params = null;
-
     }
 
     /**
      * Get the resource ID.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_id() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->id;
 
     }
@@ -110,12 +115,15 @@ abstract class resource_base {
      * Get the resource template.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_template() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->template;
 
     }
@@ -124,12 +132,15 @@ abstract class resource_base {
      * Get the resource path.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_path() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->get_template();
 
     }
@@ -138,12 +149,15 @@ abstract class resource_base {
      * Get the resource type.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_type() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->type;
 
     }
@@ -152,12 +166,15 @@ abstract class resource_base {
      * Get the resource's service.
      *
      * @return service_base
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_service() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->service;
 
     }
@@ -166,12 +183,15 @@ abstract class resource_base {
      * Get the resource methods.
      *
      * @return array
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_methods() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->methods;
 
     }
@@ -180,12 +200,15 @@ abstract class resource_base {
      * Get the resource media types.
      *
      * @return array
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_formats() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->formats;
 
     }
@@ -194,12 +217,15 @@ abstract class resource_base {
      * Get the resource template variables.
      *
      * @return array
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_variables() {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->variables;
 
     }
@@ -208,11 +234,15 @@ abstract class resource_base {
      * Get the resource fully qualified endpoint.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_endpoint() {
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
         $this->parse_template();
         $template = preg_replace('/[\(\)]/', '', $this->get_template());
@@ -237,8 +267,13 @@ abstract class resource_base {
      * Execute the request for this resource.
      *
      * @param response $response  Response object for this request.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     abstract public function execute($response);
 
     /**
@@ -249,12 +284,16 @@ abstract class resource_base {
      * @param string[] $scopes              Array of scope(s) required for incoming request
      *
      * @return boolean
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function check_tool($typeid, $body = null, $scopes = null) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
         $ok = $this->get_service()->check_tool($typeid, $body, $scopes);
         if ($ok) {
             if ($this->get_service()->get_tool_proxy()) {
@@ -385,14 +424,16 @@ abstract class resource_base {
      * @param string $value String to be parsed
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\resource_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function parse_value($value) {
-
-        debugging('Class \mod_lti\local\ltiservice\resource_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\resource_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $value;
-
     }
 
     /**

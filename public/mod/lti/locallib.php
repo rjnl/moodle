@@ -61,26 +61,32 @@ require_once($CFG->dirroot . '/ltix/TrivialStore.php');
 /**
  * Return the mapping for standard message types to JWT message_type claim.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::get_jwt_message_type_mapping() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_jwt_message_type_mapping() {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::get_jwt_message_type_mapping() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::get_jwt_message_type_mapping();
 }
 
 /**
  * Return the mapping for standard message parameters to JWT claim.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::get_jwt_claim_mapping() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_jwt_claim_mapping() {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::get_jwt_claim_mapping() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::get_jwt_claim_mapping();
 }
 
@@ -88,14 +94,17 @@ function lti_get_jwt_claim_mapping() {
  * Return the type of the instance, using domain matching if no explicit type is set.
  *
  * @param  object $instance the external tool activity settings
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return object|null
  * @since  Moodle 3.9
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_instance_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_instance_type(object $instance): ?object {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_instance_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_instance_type($instance);
 }
 
@@ -104,14 +113,17 @@ function lti_get_instance_type(object $instance): ?object {
  *
  * @param  stdClass $instance the external tool activity settings
  * @param  string $nonce  the nonce value to use (applies to LTI 1.3 only)
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array the endpoint URL and parameters (including the signature)
  * @since  Moodle 3.0
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_launch_data() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-launch-request', $foruserid = 0) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_launch_data() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_launch_data($instance, $nonce, $messagetype, $foruserid);
 }
 
@@ -120,26 +132,32 @@ function lti_get_launch_data($instance, $nonce = '', $messagetype = 'basic-lti-l
  *
  * @param stdClass $instance the external tool activity settings
  * @param int $foruserid for user param, optional
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return string The HTML code containing the javascript code for the launch
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::launch_tool() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_launch_tool($instance, $foruserid=0) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::launch_tool() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::launch_tool($instance, $foruserid);
 }
 
 /**
  * Prepares an LTI registration request message
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $toolproxy  Tool Proxy instance object
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::register() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_register($toolproxy) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::register() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::register($toolproxy);
 }
 
@@ -148,27 +166,33 @@ function lti_register($toolproxy) {
  * Gets the parameters for the regirstration request
  *
  * @param object $toolproxy Tool Proxy instance object
-* @deprecated since Moodle 4.4
+* @deprecated since Moodle 5.1
  * @return array Registration request parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_registration_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_registration_request($toolproxy) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_registration_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_registration_request($toolproxy);
 }
 
 
 /** get Organization ID using default if no value provided
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $typeconfig
  * @return string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_organizationid() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_organizationid($typeconfig) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_organizationid() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_organizationid($typeconfig);
 }
 
@@ -180,13 +204,16 @@ function lti_get_organizationid($typeconfig) {
  * @param string $servicesalt
  * @param null|int $typeid
  * @param null|int $launchid
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return stdClass
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_sourcedid() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_sourcedid($instanceid, $userid, $servicesalt, $typeid = null, $launchid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_sourcedid() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_sourcedid($instanceid, $userid, $servicesalt, $typeid, $launchid);
 }
 
@@ -201,15 +228,17 @@ function lti_build_sourcedid($instanceid, $userid, $servicesalt, $typeid = null,
  * @param string    $messagetype    LTI Message Type for this launch
  * @param int       $foruserid      User targeted by this launch
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array                    Request details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_request($instance, $typeconfig, $course, $typeid = null, $islti2 = false,
     $messagetype = 'basic-lti-launch-request', $foruserid = 0) {
-
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_request($instance, $typeconfig, $course, $typeid, $islti2,
         $messagetype, $foruserid);
 }
@@ -220,13 +249,16 @@ function lti_build_request($instance, $typeconfig, $course, $typeid = null, $isl
  * @param object    $tool           Basic LTI tool object
  * @param array     $params         Custom launch parameters
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array                    Request details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_request_lti2() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_request_lti2($tool, $params) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_request_lti2() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_request_lti2($tool, $params);
 }
 
@@ -259,13 +291,16 @@ function lti_build_standard_request($instance, $orgid, $islti2, $messagetype = '
  * @param boolean   $ltiversion     LTI version to be used for tool messages
  * @param string    $messagetype    The request message type. Defaults to basic-lti-launch-request if empty.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array                    Message parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_standard_message() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_standard_message($instance, $orgid, $ltiversion, $messagetype = 'basic-lti-launch-request') {
-     debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_standard_message() instead.',
-        DEBUG_DEVELOPER);
-
+        \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_standard_message($instance, $orgid, $ltiversion, $messagetype);
 }
 
@@ -280,13 +315,16 @@ function lti_build_standard_message($instance, $orgid, $ltiversion, $messagetype
  * @param string    $instructorcustomstr      Custom parameters defined for this placement
  * @param boolean   $islti2         True if an LTI 2 tool is being launched
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array                    Custom parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_custom_parameters() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_custom_parameters($toolproxy, $tool, $instance, $params, $customstr, $instructorcustomstr, $islti2) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_custom_parameters() instead.',
-    DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_custom_parameters($toolproxy, $tool, $instance, $params, $customstr,
         $instructorcustomstr, $islti2);
 
@@ -315,18 +353,20 @@ function lti_build_custom_parameters($toolproxy, $tool, $instance, $params, $cus
  * @param bool $copyadvice Indicates whether the TC is able and willing to make a local copy of a content item. False by default.
  * @param string $nonce
  * @param string $launchid The unique launchid identifier that is stored as a session variable.
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return stdClass The object containing the signed request parameters and the URL to the TP's Content-Item selection interface.
  * @throws moodle_exception When the LTI tool type does not exist.`
  * @throws coding_exception For invalid media type and presentation target parameters.
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_content_item_selection_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_content_item_selection_request($id, $course, moodle_url $returnurl, $title = '', $text = '', $mediatypes = [],
         $presentationtargets = [], $autocreate = false, $multiple = true, $unsigned = false, $canconfirm = false,
         $copyadvice = false, $nonce = '', $launchid = '') {
-
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_content_item_selection_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_content_item_selection_request($id, $course, $returnurl, $launchid, $title, $text,
         $mediatypes, $presentationtargets, $autocreate, $multiple, $unsigned, $canconfirm, $copyadvice, $nonce);
 }
@@ -334,24 +374,27 @@ function lti_build_content_item_selection_request($id, $course, moodle_url $retu
 /**
  * Verifies the OAuth signature of an incoming message.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid The tool type ID.
  * @param string $consumerkey The consumer key.
  * @return stdClass Tool type
  * @throws moodle_exception
  * @throws lti\OAuthException
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::verify_oauth_signature() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_verify_oauth_signature($typeid, $consumerkey) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::verify_oauth_signature() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::verify_oauth_signature($typeid, $consumerkey);
 }
 
 /**
  * Verifies the JWT signature using a JWK keyset.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $jwtparam JWT parameter value.
  * @param string $keyseturl The tool keyseturl.
  * @param string $clientid The tool client id.
@@ -364,17 +407,20 @@ function lti_verify_oauth_signature($typeid, $consumerkey) {
  * @throws BeforeValidException         Provided JWT is trying to be used before it's been created as defined by 'iat'
  * @throws ExpiredException             Provided JWT has since expired, as defined by the 'exp' claim
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::verify_with_keyset() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_verify_with_keyset($jwtparam, $keyseturl, $clientid) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::verify_with_keyset() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::verify_with_keyset($jwtparam, $keyseturl, $clientid);
 }
 
 /**
  * Verifies the JWT signature of an incoming message.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid The tool type ID.
  * @param string $consumerkey The consumer key.
  * @param string $jwtparam JWT parameter value
@@ -387,10 +433,13 @@ function lti_verify_with_keyset($jwtparam, $keyseturl, $clientid) {
  * @throws BeforeValidException         Provided JWT is trying to be used before it's been created as defined by 'iat'
  * @throws ExpiredException             Provided JWT has since expired, as defined by the 'exp' claim
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::verify_jwt_signature() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_verify_jwt_signature($typeid, $consumerkey, $jwtparam) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::verify_jwt_signature() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::verify_jwt_signature($typeid, $consumerkey, $jwtparam);
 }
 
@@ -398,33 +447,38 @@ function lti_verify_jwt_signature($typeid, $consumerkey, $jwtparam) {
  * Converts an array of custom parameters to a new line separated string.
  *
  * @param object $params list of params to concatenate
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::params_to_string() instead',
+    mdl: 'MDL-79113',
+)]
 function params_to_string(object $params) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::params_to_string() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::params_to_string($params);
 }
 
 /**
  * Converts LTI 1.1 Content Item for LTI Link to Form data.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $tool Tool for which the item is created for.
  * @param object $typeconfig The tool configuration.
  * @param object $item Item populated from JSON to be converted to Form form
  *
  * @return stdClass Form config for the item
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Logic moved to \\mod_lti\\lti\\placement\\contentitemformatter\\form\\content_item_to_form_formatter.',
+    mdl: 'MDL-79113',
+)]
 function content_item_to_form(object $tool, object $typeconfig, object $item): stdClass {
     global $OUTPUT;
 
-    debugging(__FUNCTION__ . '() is deprecated with no direct replacement. This logic has been moved to the
-        custom formatter \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     $config = new stdClass();
     $config->name = '';
     if (isset($item->title)) {
@@ -526,7 +580,7 @@ function content_item_to_form(object $tool, object $typeconfig, object $item): s
  * Processes the tool provider's response to the ContentItemSelectionRequest and builds the configuration data from the
  * selected content item. This configuration data can be then used when adding a tool into the course.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid The tool type ID.
  * @param string $messagetype The value for the lti_message_type parameter.
  * @param string $ltiversion The value for the lti_version parameter.
@@ -536,10 +590,13 @@ function content_item_to_form(object $tool, object $typeconfig, object $item): s
  * @throws moodle_exception
  * @throws lti\OAuthException
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::convert_content_items() instead',
+    mdl: 'MDL-83958',
+)]
 function lti_tool_configuration_from_content_item($typeid, $messagetype, $ltiversion, $consumerkey, $contentitemsjson) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use ' .
-        '\mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter instead.', DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     $tool = \core_ltix\helper::get_type($typeid);
     // Validate parameters.
     if (!$tool) {
@@ -580,27 +637,33 @@ function lti_tool_configuration_from_content_item($typeid, $messagetype, $ltiver
 /**
  * Converts the new Deep-Linking format for Content-Items to the old format.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $param JSON string representing new Deep-Linking format
  * @return string  JSON representation of content-items
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::convert_content_items() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_convert_content_items($param) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::convert_content_items() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::convert_content_items($param);
 }
 
 /**
  * Get tool table function.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return void
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_table() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_table($tools, $id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_table() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_table($tools, $id);
 }
 
@@ -609,50 +672,59 @@ function lti_get_tool_table($tools, $id) {
  *
  * @param object    $toolproxies    Tool proxy instance objects
  * @param string    $id             Category ID
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return string                   HTML for tab
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy_table() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxy_table($toolproxies, $id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy_table() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy_table($toolproxies, $id);
 }
 
 /**
  * Extracts the enabled capabilities into an array, including those implicitly declared in a parameter
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $tool  Tool instance object
  *
  * @return array List of enabled capabilities
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_enabled_capabilities() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_enabled_capabilities($tool) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_enabled_capabilities() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_enabled_capabilities($tool);
 }
 
 /**
  * Splits the custom parameters
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string    $customstr      String containing the parameters
  *
  * @return array of custom parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::split_parameters() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_split_parameters($customstr) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::split_parameters() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::split_parameters($customstr);
 }
 
 /**
  * Splits the custom parameters field to the various parameters
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object    $toolproxy      Tool proxy instance object
  * @param object    $tool           Tool instance object
  * @param array     $params         LTI launch parameters
@@ -661,17 +733,20 @@ function lti_split_parameters($customstr) {
  *
  * @return array of custom parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::split_custom_parameters() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_split_custom_parameters($toolproxy, $tool, $params, $customstr, $islti2 = false) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::split_custom_parameters() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::split_custom_parameters($toolproxy, $tool, $params, $customstr, $islti2);
 }
 
 /**
  * Adds the custom parameters to an array
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object    $toolproxy      Tool proxy instance object
  * @param object    $tool           Tool instance object
  * @param array     $params         LTI launch parameters
@@ -679,17 +754,20 @@ function lti_split_custom_parameters($toolproxy, $tool, $params, $customstr, $is
  *
  * @return array    Array of custom parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_custom_parameters() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_custom_parameters($toolproxy, $tool, $params, $parameters) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_custom_parameters() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_custom_parameters($toolproxy, $tool, $params, $parameters);
 }
 
 /**
  * Parse a custom parameter to replace any substitution variables
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object    $toolproxy      Tool proxy instance object
  * @param object    $tool           Tool instance object
  * @param array     $params         LTI launch parameters
@@ -698,62 +776,74 @@ function lti_get_custom_parameters($toolproxy, $tool, $params, $parameters) {
  *
  * @return string Parsed value of custom parameter
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::parse_custom_parameter() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_parse_custom_parameter($toolproxy, $tool, $params, $value, $islti2) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::parse_custom_parameter() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::parse_custom_parameter($toolproxy, $tool, $params, $value, $islti2);
 }
 
 /**
  * Calculates the value of a custom parameter that has not been specified earlier
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string    $value          Custom parameter value
  *
  * @return string Calculated value of custom parameter
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::calculate_custom_parameter() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_calculate_custom_parameter($value) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::calculate_custom_parameter() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::calculate_custom_parameter($value);
 }
 
 /**
  * Build the history chain for this course using the course originalcourseid.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $course course for which the history is returned.
  *
  * @return array ids of the source course in ancestry order, immediate parent 1st.
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_course_history() instead',
+    mdl: 'MDL-79113',
+)]
 function get_course_history($course) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_course_history() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_course_history($course);
 }
 
 /**
  * Used for building the names of the different custom parameters
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $key   Parameter name
  * @param bool $tolower Do we want to convert the key into lower case?
  * @return string       Processed name
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::map_keyname() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_map_keyname($key, $tolower = true) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::map_keyname() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::map_keyname($key, $tolower);
 }
 
 /**
  * Gets the IMS role string for the specified user and LTI course module.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param mixed    $user      User object or user id
  * @param int      $cmid      The course module id of the LTI activity
  * @param int      $courseid  The course id of the LTI activity
@@ -761,87 +851,105 @@ function lti_map_keyname($key, $tolower = true) {
  *
  * @return string A role string suitable for passing with an LTI launch
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_ims_role() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_ims_role($user, $cmid, $courseid, $islti2) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_ims_role() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_ims_role($user, $cmid, $courseid, $islti2);
 }
 
 /**
  * Returns configuration details for the tool
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid   Basic LTI tool typeid
  *
  * @return array        Tool Configuration
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_type_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_type_config($typeid) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_type_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_type_config($typeid);
 }
 
 /**
  * Get tools by url
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @param $state
  * @param $courseid
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tools_by_url() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tools_by_url($url, $state, $courseid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tools_by_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tools_by_url($url, $state, $courseid);
 }
 
 /**
  * Get tools by domain
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $domain
  * @param $state
  * @param $courseid
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tools_by_domain() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tools_by_domain($domain, $state = null, $courseid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tools_by_domain() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tools_by_domain($domain, $state, $courseid);
 }
 
 /**
  * Returns all basicLTI tools configured by the administrator
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $course
  *
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::filter_get_types() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_filter_get_types($course) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::filter_get_types() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::filter_get_types($course);
 }
 
 /**
  * Given an array of tools, filter them based on their state
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array $tools An array of lti_types records
  * @param int $state One of the \core_ltix\constants::LTI_TOOL_STATE_* constants
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::filter_tool_types() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_filter_tool_types(array $tools, $state) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::filter_tool_types() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::filter_tool_types($tools, $state);
 }
 
@@ -950,116 +1058,140 @@ function lti_get_configured_types($courseid, $sectionreturn = 0) {
 /***
  * Get LTI domain from URL
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @return mixed|void
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_domain_from_url() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_domain_from_url($url) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_domain_from_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_domain_from_url($url);
 }
 
 /**
  * Get tool by url match
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @param $courseid
  * @param $state
  * @return mixed|null
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_by_url_match() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_by_url_match($url, $courseid = null, $state = \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_by_url_match() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_by_url_match($url, $courseid, $state);
 }
 
 /**
  * Get URL by thumbprint
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @return string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_url_thumbprint() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_url_thumbprint($url) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_url_thumbprint() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_url_thumbprint($url);
 }
 
 /**
  * Get best tool by URL
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @param $tools
  * @param $courseid
  * @return mixed|null
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_best_tool_by_url() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_best_tool_by_url($url, $tools, $courseid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_best_tool_by_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_best_tool_by_url($url, $tools, $courseid);
 }
 
 /**
  * Get shared secrets by key
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $key
  * @return void
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_shared_secrets_by_key() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_shared_secrets_by_key($key) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_shared_secrets_by_key() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_shared_secrets_by_key($key);
 }
 
 /**
  * Delete a Basic LTI configuration
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id   Configuration id
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::delete_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_delete_type($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::delete_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::delete_type($id);
 }
 
 /**
  * Set type state
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $id
  * @param $state
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::set_state_for_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_set_state_for_type($id, $state) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::set_state_for_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::set_state_for_type($id, $state);
 }
 
 /**
  * Transforms a basic LTI object to an array
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $ltiobject    Basic LTI object
  *
  * @return array Basic LTI configuration details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_config($ltiobject) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_config($ltiobject);
 }
 
@@ -1067,223 +1199,267 @@ function lti_get_config($ltiobject) {
  *
  * Generates some of the tool configuration based on the instance details
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id
  *
  * @return object configuration
  *
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_type_config_from_instance() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_type_config_from_instance($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_type_config_from_instance() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_type_config_from_instance($id);
 }
 
 /**
  * Generates some of the tool configuration based on the admin configuration details
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id
  *
  * @return stdClass Configuration details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_type_type_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_type_type_config($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_type_type_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_type_type_config($id);
 }
 
 /**
  * Prepare type config for save
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $type
  * @param $config
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::prepare_type_for_save() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_prepare_type_for_save($type, $config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::prepare_type_for_save() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::prepare_type_for_save($type, $config);
 }
 
 /**
  * Update type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $type
  * @param $config
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::update_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_update_type($type, $config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::update_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::update_type($type, $config);
 }
 
 /**
  * Add LTI Type course category.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid
  * @param string $lticoursecategories Comma separated list of course categories.
  * @return void
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::type_add_categories() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_type_add_categories(int $typeid, string $lticoursecategories = ''): void {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::type_add_categories() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::type_add_categories($typeid, $lticoursecategories);
 }
 
 /**
  * Add LTI type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $type
  * @param $config
  * @return bool|int
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::add_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_add_type($type, $config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::add_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::add_type($type, $config);
 }
 
 /**
  * Given an array of tool proxies, filter them based on their state
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array $toolproxies An array of lti_tool_proxies records
  * @param int $state One of the \core_ltix\constants::LTI_TOOL_PROXY_STATE_* constants
  *
  * @return array
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::filter_tool_proxy_types() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_filter_tool_proxy_types(array $toolproxies, $state) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::filter_tool_proxy_types() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::filter_tool_proxy_types($toolproxies, $state);
 }
 
 /**
  * Get the tool proxy instance given its GUID
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string  $toolproxyguid   Tool proxy GUID value
  *
  * @return object
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy_from_guid() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxy_from_guid($toolproxyguid) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy_from_guid() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy_from_guid($toolproxyguid);
 }
 
 /**
  * Get the tool proxy instance given its registration URL
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $regurl Tool proxy registration URL
  *
  * @return array The record of the tool proxy with this url
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxies_from_registration_url($regurl) {
-    debugging(__FUNCTION__ . '() is deprecated. ' .
-        'Please use \core_ltix\helper::get_tool_proxies_from_registration_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxies_from_registration_url($regurl);
 }
 
 /**
  * Generates some of the tool proxy configuration based on the admin configuration details
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id
  *
  * @return mixed Tool Proxy details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxy($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy($id);
 }
 
 /**
  * Returns lti tool proxies.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param bool $orphanedonly Only retrieves tool proxies that have no type associated with them
  * @return array of basicLTI types
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxies() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxies($orphanedonly) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxies() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxies($orphanedonly);
 }
 
 /**
  * Generates some of the tool proxy configuration based on the admin configuration details
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id
  *
  * @return mixed  Tool Proxy details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_proxy_config($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy_config($id);
 }
 
 /**
  * Update the database with a tool proxy instance
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object   $config    Tool proxy definition
  *
  * @return int  Record id number
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::add_tool_proxy() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_add_tool_proxy($config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::add_tool_proxy() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::add_tool_proxy($config);
 }
 
 /**
  * Updates a tool proxy in the database
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object  $toolproxy   Tool proxy
  *
  * @return int    Record id number
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::update_tool_proxy() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_update_tool_proxy($toolproxy) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::update_tool_proxy() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::update_tool_proxy($toolproxy);
 }
 
 /**
  * Delete a Tool Proxy
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $id   Tool Proxy id
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::delete_tool_proxy() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_delete_tool_proxy($id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::delete_tool_proxy() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::delete_tool_proxy($id);
 }
 
@@ -1295,102 +1471,120 @@ function lti_delete_tool_proxy($id) {
  * For example: If 10 tool proxies and 10 tool types exist, and the limit is set to 15, then 10 proxies and 5 types
  * will be returned.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $limit Maximum number of tools returned.
  * @param int $offset Do not return tools before offset index.
  * @param bool $orphanedonly If true, only return orphaned proxies.
  * @param int $toolproxyid If not 0, only return tool types that have this tool proxy id.
  * @return array list(proxies[], types[]) List containing array of tool proxies and array of tool types.
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_lti_types_and_proxies() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_lti_types_and_proxies(int $limit = 0, int $offset = 0, bool $orphanedonly = false, int $toolproxyid = 0): array {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_lti_types_and_proxies() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_lti_types_and_proxies($limit, $offset, $orphanedonly, $toolproxyid);
 }
 
 /**
  * Get the total number of LTI tool types and tool proxies.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param bool $orphanedonly If true, only count orphaned proxies.
  * @param int $toolproxyid If not 0, only count tool types that have this tool proxy id.
  * @return int Count of tools.
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_lti_types_and_proxies_count() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_lti_types_and_proxies_count(bool $orphanedonly = false, int $toolproxyid = 0): int {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_lti_types_and_proxies_count() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_lti_types_and_proxies_count($orphanedonly, $toolproxyid);
 }
 
 /**
  * Add a tool configuration in the database
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $config   Tool configuration
  *
  * @return int Record id number
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::add_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_add_config($config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::add_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::add_config($config);
 }
 
 /**
  * Updates a tool configuration in the database
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object  $config   Tool configuration
  *
  * @return mixed Record id number
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::update_config() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_update_config($config) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::update_config() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::update_config($config);
 }
 
 /**
  * Gets the tool settings
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int  $toolproxyid   Id of tool proxy record (or tool ID if negative)
  * @param int  $courseid      Id of course (null if system settings)
  * @param int  $instanceid    Id of course module (null if system or context settings)
  *
  * @return array  Array settings
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_settings() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_tool_settings($toolproxyid, $courseid = null, $instanceid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_settings() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_settings($toolproxyid, $courseid, $instanceid);
 }
 
 /**
  * Sets the tool settings (
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  *  @param array  $settings      Array of settings
  * @param int    $toolproxyid   Id of tool proxy record (or tool ID if negative)
  * @param int    $courseid      Id of course (null if system settings)
  * @param int    $instanceid    Id of course module (null if system or context settings)
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::set_tool_settings() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_set_tool_settings($settings, $toolproxyid, $courseid = null, $instanceid = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::set_tool_settings() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::set_tool_settings($settings, $toolproxyid, $courseid, $instanceid);
 }
 
 /**
  * Signs the petition to launch the external tool using OAuth
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array  $oldparms     Parameters to be passed for signing
  * @param string $endpoint     url of the external tool
  * @param string $method       Method for sending the parameters (e.g. POST)
@@ -1398,17 +1592,20 @@ function lti_set_tool_settings($settings, $toolproxyid, $courseid = null, $insta
  * @param string $oauthconsumersecret
  * @return array|null
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::sign_parameters() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_sign_parameters($oldparms, $endpoint, $method, $oauthconsumerkey, $oauthconsumersecret) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::sign_parameters() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::sign_parameters($oldparms, $endpoint, $method, $oauthconsumerkey, $oauthconsumersecret);
 }
 
 /**
  * Converts the message paramters to their equivalent JWT claim and signs the payload to launch the external tool using JWT
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array  $parms        Parameters to be passed for signing
  * @param string $endpoint     url of the external tool
  * @param string $oauthconsumerkey
@@ -1416,50 +1613,59 @@ function lti_sign_parameters($oldparms, $endpoint, $method, $oauthconsumerkey, $
  * @param string $nonce        Nonce value to use
  * @return array|null
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::sign_jwt() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_sign_jwt($parms, $endpoint, $oauthconsumerkey, $typeid = 0, $nonce = '') {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::sign_jwt() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::sign_jwt($parms, $endpoint, $oauthconsumerkey, $typeid, $nonce);
 }
 
 /**
  * Verfies the JWT and converts its claims to their equivalent message parameter.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int    $typeid
  * @param string $jwtparam   JWT parameter
  *
  * @return array  message parameters
  * @throws moodle_exception
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\oauth_helper::convert_from_jwt() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_convert_from_jwt($typeid, $jwtparam) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\oauth_helper::convert_from_jwt() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\oauth_helper::convert_from_jwt($typeid, $jwtparam);
 }
 
 /**
  * Posts the launch petition HTML
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array $newparms   Signed parameters
  * @param string $endpoint  URL of the external tool
  * @param bool $debug       Debug (true/false)
  * @return string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::post_launch_html() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_post_launch_html($newparms, $endpoint, $debug=false) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::post_launch_html() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::post_launch_html($newparms, $endpoint, $debug);
 }
 
 /**
  * Generate the form for initiating a login request for an LTI 1.3 message
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int            $courseid  Course ID
  * @param int            $cmid        LTI instance ID
  * @param stdClass|null  $instance  LTI instance
@@ -1471,11 +1677,14 @@ function lti_post_launch_html($newparms, $endpoint, $debug=false) {
  * @param string         $placementtype The placement type string.
  * @return string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::initiate_login() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_initiate_login($courseid, $cmid, $instance, $config, $messagetype = 'basic-lti-launch-request',
         $title = '', $text = '', $foruserid = 0, $placementtype = '') {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::initiate_login() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::initiate_login($courseid, $cmid, $instance, $config, $messagetype, $placementtype, $title,
         $text, $foruserid);
 }
@@ -1483,7 +1692,7 @@ function lti_initiate_login($courseid, $cmid, $instance, $config, $messagetype =
 /**
  * Prepares an LTI 1.3 login request
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int            $courseid  Course ID
  * @param int            $cmid        Course Module instance ID
  * @param stdClass|null  $instance  LTI instance
@@ -1496,11 +1705,14 @@ function lti_initiate_login($courseid, $cmid, $instance, $config, $messagetype =
 
  * @return array Login request parameters
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::build_login_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_build_login_request($courseid, $cmid, $instance, $config, $messagetype, $foruserid = 0, $title = '', $text = '',
         $placementtype = '') {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::build_login_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::build_login_request($courseid, $cmid, $instance, $config, $messagetype, $placementtype,
         $foruserid, $title, $text);
 }
@@ -1508,176 +1720,215 @@ function lti_build_login_request($courseid, $cmid, $instance, $config, $messaget
 /**
  * Get type record by id
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $typeid
  * @return false|mixed|stdClass
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_type() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_type($typeid) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_type($typeid);
 }
 
 /**
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return int
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_launch_container() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_launch_container($lti, $toolconfig) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_launch_container() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_launch_container($lti, $toolconfig);
 }
 
 /**
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return bool
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::request_is_using_ssl() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_request_is_using_ssl() {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::request_is_using_ssl() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::request_is_using_ssl();
 }
 
 /**
  * Ensure URL is https
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param $url
  * @return mixed|string
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::ensure_url_is_https() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_ensure_url_is_https($url) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::ensure_url_is_https() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::ensure_url_is_https($url);
 }
 
 /**
  * Determines if we should try to log the request
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $rawbody
  * @return bool
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::should_log_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_should_log_request($rawbody) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::should_log_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::should_log_request($rawbody);
 }
 
 /**
  * Logs the request to a file in temp dir.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $rawbody
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::log_request() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_log_request($rawbody) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::log_request() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::log_request($rawbody);
 }
 
 /**
  * Log an LTI response.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $responsexml The response XML
  * @param Exception $e If there was an exception, pass that too
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::log_response() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_log_response($responsexml, $e = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::log_response() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::log_response($responsexml, $e);
 }
 
 /**
  * Fetches LTI type configuration for an LTI instance
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $instance
  * @return array Can be empty if no type is found
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_type_config_by_instance() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_type_config_by_instance($instance) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_type_config_by_instance() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_type_config_by_instance($instance);
 }
 
 /**
  * Enforce type config settings onto the LTI instance
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $instance
  * @param array $typeconfig
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::force_type_config_settings() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_force_type_config_settings($instance, array $typeconfig) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::force_type_config_settings() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::force_type_config_settings($instance, $typeconfig);
 }
 
 /**
  * Initializes an array with the capabilities supported by the LTI module
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array List of capability names (without a dollar sign prefix)
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_capabilities() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_capabilities() {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_capabilities() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_capabilities();
 }
 
 /**
  * Initializes an array with the services supported by the LTI module
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @return array List of services
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_services() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_services() {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_services() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_services();
 }
 
 /**
  * Initializes an instance of the named service
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param string $servicename Name of service
  *
  * @return bool|\core_ltix\local\ltiservice\service_base Service
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\local\\ltiservice\\service_helper::get_service_by_name() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_service_by_name($servicename) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\local\ltiservice\service_helper::get_service_by_name() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\local\ltiservice\service_helper::get_service_by_name($servicename);
 }
 
 /**
  * Finds a service by id
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param \core_ltix\local\ltiservice\service_base[] $services Array of services
  * @param string $resourceid  ID of resource
  *
  * @return core_ltix\local\ltiservice\service_base Service
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_service_by_resource_id() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_service_by_resource_id($services, $resourceid) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_service_by_resource_id() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_service_by_resource_id($services, $resourceid);
 }
 
@@ -1685,47 +1936,56 @@ function lti_get_service_by_resource_id($services, $resourceid) {
  * Initializes an array with the scopes for services supported by the LTI module
  * and authorized for this particular tool instance.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $type  LTI tool type
  * @param array  $typeconfig  LTI tool type configuration
  *
  * @return array List of scopes
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_permitted_service_scopes() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_permitted_service_scopes($type, $typeconfig) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_permitted_service_scopes() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_permitted_service_scopes($type, $typeconfig);
 }
 
 /**
  * Extracts the named contexts from a tool proxy
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param object $json
  *
  * @return array Contexts
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_contexts() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_contexts($json) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_contexts() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_contexts($json);
 }
 
 /**
  * Converts an ID to a fully-qualified ID
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param array $contexts
  * @param string $id
  *
  * @return string Fully-qualified ID
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_fqid() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_get_fqid($contexts, $id) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_fqid() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_fqid($contexts, $id);
 }
 
@@ -1737,113 +1997,134 @@ function lti_get_fqid($contexts, $id) {
  * @return string The url to the tool type's corresponding icon
  */
 function get_tool_type_icon_url(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_icon_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_icon_url($type);
 }
 
 /**
  * Returns the edit url for the given tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return string The url to edit the tool type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_edit_url() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_edit_url(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_edit_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_edit_url($type);
 }
 
 /**
  * Returns the edit url for the given tool proxy.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $proxy The tool proxy
  *
  * @return string The url to edit the tool type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy_edit_url() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_proxy_edit_url(stdClass $proxy) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy_edit_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy_edit_url($proxy);
 }
 
 /**
  * Returns the course url for the given tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return string The url to the course of the tool type, void if it is a site wide type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_course_url() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_course_url(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_course_url() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_course_url($type);
 }
 
 /**
  * Returns the icon and edit urls for the tool type and the course url if it is a course type.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array The urls of the tool type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_urls() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_urls(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_urls() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_urls($type);
 }
 
 /**
  * Returns the icon and edit urls for the tool proxy.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $proxy The tool proxy
  *
  * @return array The urls of the tool proxy
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_proxy_urls() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_proxy_urls(stdClass $proxy) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_proxy_urls() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_proxy_urls($proxy);
 }
 
 /**
  * Returns information on the current state of the tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array An array with a text description of the state, and boolean for whether it is in each state:
  * pending, configured, rejected, unknown
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_state_info() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_state_info(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_state_info() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_state_info($type);
 }
 
 /**
  * Returns information on the configuration of the tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array An array with configuration details
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_capability_groups() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_config($type) {
-    debugging(__FUNCTION__ . '() is deprecated, please do not use it any more', DEBUG_DEVELOPER);
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     global $CFG;
     $platformid = $CFG->wwwroot;
     $clientid = $type->clientid;
@@ -1870,15 +2151,18 @@ function get_tool_type_config($type) {
 /**
  * Returns a summary of each LTI capability this tool type requires in plain language
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array An array of text descriptions of each of the capabilities this tool type requires
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_capability_groups() instead.',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_capability_groups($type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_capability_groups() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_capability_groups($type);
 }
 
@@ -1886,112 +2170,133 @@ function get_tool_type_capability_groups($type) {
 /**
  * Returns the ids of each instance of this tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array An array of ids of the instances of this tool type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tool_type_instance_ids() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tool_type_instance_ids($type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tool_type_instance_ids() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tool_type_instance_ids($type);
 }
 
 /**
  * Serialises this tool type
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type
  *
  * @return array An array of values representing this type
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::serialise_tool_type() instead',
+    mdl: 'MDL-79113',
+)]
 function serialise_tool_type(stdClass $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::serialise_tool_type() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::serialise_tool_type($type);
 }
 
 /**
  * Loads the cartridge information into the tool type, if the launch url is for a cartridge file
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $type The tool type object to be filled in
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::load_type_if_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_load_type_if_cartridge($type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::load_type_if_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::load_type_if_cartridge($type);
 }
 
 /**
  * Loads the cartridge information into the new tool, if the launch url is for a cartridge file
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param stdClass $lti The tools config
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::load_tool_if_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_load_tool_if_cartridge($lti) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::load_tool_if_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::load_tool_if_cartridge($lti);
 }
 
 /**
  * Determines if the given url is for a IMS basic cartridge
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param  string $url The url to be checked
  * @return True if the url is for a cartridge
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::is_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_is_cartridge($url) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::is_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::is_cartridge($url);
 }
 
 /**
  * Allows you to load settings for an external tool type from an IMS cartridge.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param  string   $url     The URL to the cartridge
  * @param  stdClass $type    The tool type object to be filled in
  * @throws moodle_exception if the cartridge could not be loaded correctly
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::load_type_from_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_load_type_from_cartridge($url, $type) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::load_type_from_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::load_type_from_cartridge($url, $type);
 }
 
 /**
  * Allows you to load in the configuration for an external tool from an IMS cartridge.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param  string   $url    The URL to the cartridge
  * @param  stdClass $lti    LTI object
  * @throws moodle_exception if the cartridge could not be loaded correctly
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::load_tool_from_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_load_tool_from_cartridge($url, $lti) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::load_tool_from_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     \core_ltix\helper::load_tool_from_cartridge($url, $lti);
 }
 
 /**
  * Search for a tag within an XML DOMDocument
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param  string $url The url of the cartridge to be loaded
  * @param  array  $map The map of tags to keys in the return array
  * @param  array  $propertiesmap The map of properties to keys in the return array
@@ -1999,42 +2304,51 @@ function lti_load_tool_from_cartridge($url, $lti) {
  * @throws moodle_exception if the cartridge could not be loaded correctly
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::load_cartridge() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_load_cartridge($url, $map, $propertiesmap = array()) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::load_cartridge() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::load_cartridge($url, $map, $propertiesmap);
 }
 
 /**
  * Search for a tag within an XML DOMDocument
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param  stdClass $tagname The name of the tag to search for
  * @param  XPath    $xpath   The XML to find the tag in
  * @param  XPath    $attribute The attribute to search for (if we should search for a child node with the given
  * value for the name attribute
  * @since Moodle 3.1
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::get_tag() instead',
+    mdl: 'MDL-79113',
+)]
 function get_tag($tagname, $xpath, $attribute = null) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::get_tag() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::get_tag($tagname, $xpath, $attribute);
 }
 
 /**
  * Create a new access token.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @param int $typeid Tool type ID
  * @param string[] $scopes Scopes permitted for new token
  *
  * @return stdClass Access token
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \\core_ltix\\helper::new_access_token() instead',
+    mdl: 'MDL-79113',
+)]
 function lti_new_access_token($typeid, $scopes) {
-    debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\helper::new_access_token() instead.',
-        DEBUG_DEVELOPER);
-
+    \core\deprecation::emit_deprecation_if_present(__FUNCTION__);
     return \core_ltix\helper::new_access_token($typeid, $scopes);
 }

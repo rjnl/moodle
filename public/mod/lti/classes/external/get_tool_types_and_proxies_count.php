@@ -35,14 +35,24 @@ require_once($CFG->dirroot . '/mod/lti/locallib.php');
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    reason: 'Use \core_ltix\external\get_tool_types_and_proxies_count instead',
+    since: '5.1',
+    mdl: 'MDL-79518',
+)]
 class get_tool_types_and_proxies_count extends external_api {
 
     /**
      * Get parameter definition for get_tool_types_and_proxies_count().
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_function_parameters
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies_count::execute_parameters() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -55,23 +65,32 @@ class get_tool_types_and_proxies_count extends external_api {
     /**
      * Get count of every tool type and tool proxy.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @param int $toolproxyid The tool proxy id
      * @param bool $orphanedonly Whether to get orphaned proxies only.
      * @return array
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies_count::execute() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute($toolproxyid, $orphanedonly): array {
-        debugging(__FUNCTION__ . '() is deprecated. Please use \core_ltix\external\get_tool_types_and_proxies_count instead.',
-                  DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return \core_ltix\external\get_tool_types_and_proxies_count::execute($toolproxyid, $orphanedonly);
     }
 
     /**
      * Get return definition for get_tool_types_and_proxies_count.
      *
-     * @deprecated since Moodle 4.4
+     * @deprecated since Moodle 5.1
      * @return external_single_structure
      */
+    #[\core\attribute\deprecated(
+        reason: 'Use \core_ltix\external\get_tool_types_and_proxies_count::execute_returns() instead',
+        since: '5.1',
+        mdl: 'MDL-79518',
+    )]
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'count' => new external_value(PARAM_INT, 'Total number of tool types and proxies', VALUE_REQUIRED),

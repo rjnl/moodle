@@ -28,8 +28,13 @@ namespace mod_lti\local\ltiopenid;
  *
  * Code is the HTTP Error code.
  *
- * @deprecated since Moodle 4.4
+ * @deprecated since Moodle 5.1
  * @see \core_ltix\local\ltiopenid\registration_exception
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \core_ltix\local\ltiopenid\registration_exception instead',
+    mdl: 'MDL-79113',
+)]
 class registration_exception extends \Exception {
 }

@@ -38,12 +38,17 @@ use core_ltix\oauth_helper;
 /**
  * The mod_lti\local\ltiservice\service_base class.
  *
- * @deprecated since Moodle 4.5 use \core_ltix\local\ltiservice\service_base instead.
+ * @deprecated since Moodle 5.1 use \core_ltix\local\ltiservice\service_base instead
  * @package    mod_lti
  * @since      Moodle 2.8
  * @copyright  2014 Vital Source Technologies http://vitalsource.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    since: '5.1',
+    reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+    mdl: 'MDL-80231',
+)]
 abstract class service_base {
 
     /** Label representing an LTI 2 message type */
@@ -69,11 +74,15 @@ abstract class service_base {
 
     /**
      * Class constructor.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function __construct() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
         $this->id = null;
         $this->name = null;
@@ -89,11 +98,15 @@ abstract class service_base {
      * Get the service ID.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_id() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->id;
 
     }
@@ -102,11 +115,15 @@ abstract class service_base {
      * Get the service compoent ID.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_component_id() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return 'ltixservice_' . $this->id;
 
     }
@@ -115,11 +132,15 @@ abstract class service_base {
      * Get the service name.
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_name() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->name;
 
     }
@@ -128,11 +149,15 @@ abstract class service_base {
      * Get whether the service requests need to be signed.
      *
      * @return boolean
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function is_unsigned() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->unsigned;
 
     }
@@ -141,11 +166,15 @@ abstract class service_base {
      * Get the tool proxy object.
      *
      * @return stdClass
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_tool_proxy() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->toolproxy;
 
     }
@@ -156,11 +185,15 @@ abstract class service_base {
      * @param object $toolproxy The tool proxy for this service request
      *
      * @var stdClass
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function set_tool_proxy($toolproxy) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->toolproxy = $toolproxy;
 
     }
@@ -169,11 +202,15 @@ abstract class service_base {
      * Get the type object.
      *
      * @return stdClass
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_type() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->type;
 
     }
@@ -184,11 +221,15 @@ abstract class service_base {
      * @param object $type The LTI type for this service request
      *
      * @var stdClass
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function set_type($type) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->type = $type;
 
     }
@@ -197,11 +238,15 @@ abstract class service_base {
      * Get the type config array.
      *
      * @return array|null
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_typeconfig() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->typeconfig;
 
     }
@@ -212,11 +257,15 @@ abstract class service_base {
      * @param array $typeconfig The LTI type config for this service request
      *
      * @var array
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function set_typeconfig($typeconfig) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->typeconfig = $typeconfig;
 
     }
@@ -225,8 +274,13 @@ abstract class service_base {
      * Get the resources for this service.
      *
      * @return resource_base[]
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     abstract public function get_resources();
 
     /**
@@ -235,11 +289,15 @@ abstract class service_base {
      * A null value indicates that no scopes are required to access the service.
      *
      * @return array|null
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_permitted_scopes() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return null;
     }
 
@@ -249,11 +307,15 @@ abstract class service_base {
      * A null value indicates that no scopes are required to access the service.
      *
      * @return array|null
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_scopes() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return null;
     }
 
@@ -261,33 +323,45 @@ abstract class service_base {
      * Returns the configuration options for this service.
      *
      * @param \MoodleQuickForm $mform Moodle quickform object definition
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_configuration_options(&$mform) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
      * Called when a new LTI Instance is added.
      *
      * @param object $lti LTI Instance.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function instance_added(object $lti): void {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
      * Called when a new LTI Instance is updated.
      *
      * @param object $lti LTI Instance.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function instance_updated(object $lti): void {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
@@ -301,12 +375,16 @@ abstract class service_base {
      * @param null|object $lti LTI Instance.
      *
      * @return array containing the target link URL and the custom params string to use.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function override_endpoint(string $messagetype, string $targetlinkuri,
             ?string $customstr, int $courseid, ?object $lti = null): array {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return [$targetlinkuri, $customstr];
     }
 
@@ -314,22 +392,30 @@ abstract class service_base {
      * Called when a new LTI Instance is deleted.
      *
      * @param int $id LTI Instance.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function instance_deleted(int $id): void {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
      * Set the form data when displaying the LTI Instance form.
      *
      * @param object $defaultvalues Default form values.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function set_instance_form_values(object $defaultvalues): void {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
@@ -353,13 +439,18 @@ abstract class service_base {
      *
      * @param int $typeid The tool lti type id.
      * @param int $courseid The course id.
+     * @deprecated since Moodle 5.1
+     *
      * @return bool returns True if tool is used in context, false otherwise.
-     * @deprecated since Moodle 4.5
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function is_used_in_context($typeid, $courseid) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         global $DB;
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
         $ok = $DB->record_exists('lti', array('course' => $courseid, 'typeid' => $typeid));
         return $ok || $DB->record_exists('lti_types', array('course' => $courseid, 'id' => $typeid));
     }
@@ -370,15 +461,18 @@ abstract class service_base {
      * @param int $typeid The tool lti type id.
      * @param int $courseid The course id.
      * @return bool returns True if tool is allowed in context, false otherwise.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function is_allowed_in_context($typeid, $courseid) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         global $DB;
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
         // Check if it is a Course tool for this course or a Site tool.
         $type = $DB->get_record('lti_types', array('id' => $typeid));
-
         return $type && ($type->course == $courseid || $type->course == SITEID);
     }
 
@@ -394,11 +488,15 @@ abstract class service_base {
      * The type is passed to check the configuration and not return parameters for services not used.
      *
      * @return array Key/value pairs to add as launch parameters.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_launch_parameters($messagetype, $courseid, $userid, $typeid, $modlti = null) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return array();
     }
 
@@ -407,27 +505,35 @@ abstract class service_base {
      * to be transformed to LTI 1.3 claims.
      *
      * @return array Key/value pairs of params to claim mapping.
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function get_jwt_claim_mappings(): array {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return [];
     }
 
     /**
      * Get the path for service requests.
      *
+     * @param string $value Value to be parsed
+     *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public static function get_service_path() {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $url = new \moodle_url('/mod/lti/services.php');
-
         return $url->out(false);
-
     }
 
     /**
@@ -436,11 +542,15 @@ abstract class service_base {
      * @param string $value  Value to be parsed
      *
      * @return string
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function parse_value($value) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         if (empty($this->resources)) {
             $this->resources = $this->get_resources();
         }
@@ -462,11 +572,15 @@ abstract class service_base {
      * @param string[] $scopes  Array of required scope(s) for incoming request
      *
      * @return boolean
-     * @deprecated since Moodle 4.5
+     * @deprecated since Moodle 5.1
      */
+    #[\core\attribute\deprecated(
+        since: '5.1',
+        reason: 'Use \core_ltix\local\ltiservice\service_base instead',
+        mdl: 'MDL-80231',
+    )]
     public function check_tool($typeid, $body = null, $scopes = null) {
-        debugging('Class \mod_lti\local\ltiservice\service_base is deprecated, please use '.
-            '\core_ltix\local\ltiservice\service_base instead.', DEBUG_DEVELOPER);
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $ok = true;
         $toolproxy = null;
         $consumerkey = \core_ltix\oauth_helper::get_oauth_key_from_headers($typeid, $scopes);

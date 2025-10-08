@@ -36,6 +36,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2013 Adrian Greeve <adrian@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[\core\attribute\deprecated(
+    reason: 'Use \core_ltix\event\unknown_service_api_called instead',
+    since: '5.1',
+    mdl: 'MDL-80231',
+)]
 class unknown_service_api_called extends \core\event\base {
 
     /** @var \stdClass Data to be used by event observers. */
