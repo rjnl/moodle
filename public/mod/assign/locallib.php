@@ -8767,6 +8767,14 @@ class assign {
                 ($grade->grade !== null && $grade->grade != -1) ||
                 $feedbackmodified) {
             $this->update_grade($grade, !empty($formdata->addattempt));
+
+            // A grade has been saved, so lock the submission if required.
+            // Need to check if multiple attempts are allowed. If so do not lock the submission.
+            if ($this->get_instance()->maxattempts == 1) {
+                $flags = $this->get_user_flags($userid, true);
+                $flags->locked = 1; // Lock the submission.
+                $this->update_user_flags($flags);
+            }
         }
 
         // We never send notifications if we have marking workflow and the grade is not released.

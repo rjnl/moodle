@@ -602,14 +602,14 @@ final class locallib_test extends \advanced_testcase {
         $this->setUser($teacher);
         $assign = $this->create_instance($course, ['assignsubmission_onlinetext_enabled' => 1]);
 
+        // Simulate a submission.
+        $this->add_submission($student, $assign);
+
         // Simulate adding a grade.
         $this->setUser($teacher);
         $data = new \stdClass();
         $data->grade = '50.0';
         $assign->testable_apply_grade_to_user($data, $student->id, 0);
-
-        // Simulate a submission.
-        $this->add_submission($student, $assign);
 
         // Now try and delete.
         $this->setUser($teacher);
@@ -4596,8 +4596,11 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
 
     /**
      * Test grade override displays 'Graded' for students
+     * @dataProvider grade_submission_override_provider
+     * @param array $expected Expected strings to find in the output.
+     * @param bool $isgraded Whether the assignment is graded or not.
      */
-    public function test_grade_submission_override(): void {
+    public function test_grade_submission_override($expected, $isgraded): void {
         global $DB, $PAGE, $OUTPUT;
 
         $this->resetAfterTest();
@@ -4612,16 +4615,31 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         ]);
 
         // Simulate adding a grade.
-        $this->setUser($teacher);
-        $data = new \stdClass();
-        $data->grade = '50.0';
-        $assign->testable_apply_grade_to_user($data, $student->id, 0);
+        // If assignment is graded from the assignment grading page then the submission get locked now.
+        if ($isgraded) {
+            $this->setUser($teacher);
+            $data = new \stdClass();
+            $data->grade = '50.0';
 
-        // Set grade override.
-        $gradegrade = \grade_grade::fetch([
-            'userid' => $student->id,
-            'itemid' => $assign->get_grade_item()->id,
-        ]);
+            // Note: Applying a grade to user will lock the submission.
+            $assign->testable_apply_grade_to_user($data, $student->id, 0);
+
+            $gradegrade = \grade_grade::fetch([
+                'userid' => $student->id,
+                'itemid' => $assign->get_grade_item()->id,
+            ]);
+        } else {
+            // Assignment is not graded yet, so use grade item to fetch the grade from the gradebook instead.
+            $gradeitem = \grade_item::fetch([
+                'itemtype' => 'mod',
+                'itemmodule' => 'assign',
+                'iteminstance' => $assign->get_instance()->id,
+                'itemnumber' => 0,
+                'courseid' => $course->id,
+            ]);
+
+            $gradegrade = $gradeitem->get_grade($student->id, true);
+        }
 
         // Check that grade submission is not overridden yet.
         $this->assertEquals(false, $gradegrade->is_overridden());
@@ -4644,10 +4662,37 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $assignsubmissionstatus = $assign->get_assign_submission_status_renderable($student, true);
         $output2 = $assign->get_renderer()->render($assignsubmissionstatus);
 
-        // Check that submissionslocked 'This assignment is not accepting submissions' message does not appear for student.
-        $this->assertStringNotContainsString(get_string('submissionslocked', 'assign'), $output2);
-        // Check that submissionstatus_marked 'Graded' message does appear for student.
-        $this->assertStringContainsString(get_string('submissionstatus_marked', 'assign'), $output2);
+        if ($isgraded) {
+            // Check that submissionslocked 'This assignment is not accepting submissions' message does appear for student.
+            $this->assertStringContainsString(get_string('submissionslocked', 'assign'), $output2);
+        } else {
+            // Check that submissionslocked 'This assignment is not accepting submissions' message does not appear for student.
+            $this->assertStringNotContainsString(get_string('submissionslocked', 'assign'), $output2);
+        }
+
+        // Check the grade status for the student.
+        $this->assertStringContainsString($expected['submissionstatus'], $output2);
+    }
+
+    /**
+     * Data provider for test_grade_submission_override.
+     * Each array element is a test case with its parameters.
+     */
+    public static function grade_submission_override_provider(): array {
+        return [
+            'Not graded' => [
+                'isgraded' => false,
+                'expected' => [
+                    'submissionstatus' => get_string('notgraded', 'assign'),
+                ],
+            ],
+            'Graded' => [
+                'isgraded' => true,
+                'expected' => [
+                    'submissionstatus' => get_string('submissionstatus_marked', 'assign'),
+                ],
+            ],
+        ];
     }
 
     /**
