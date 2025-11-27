@@ -16,8 +16,9 @@
 
 namespace core_ltix\local\placement;
 
+use core\context\course;
 use core_ltix\constants;
-use core_ltix\local\placement\placement_service;
+use core_ltix\local\placement\service\resource_link_manager;
 
 /**
  * Test class for \core_ltix\local\placement\placement_service.
@@ -34,7 +35,7 @@ final class placement_service_test extends \advanced_testcase {
      * @dataProvider get_launch_container_provider
      * @param int|null $toollaunchcontainer Launch container from tool type
      * @param int|null $linklaunchcontainer Launch container from link
-     * @param int $expected Expected result
+     * @param int|null $expected Expected result
      * @param bool $mobile If test should simulate mobile device
      */
     public function test_get_launch_container_for_link(
@@ -43,39 +44,46 @@ final class placement_service_test extends \advanced_testcase {
         ?int $expected,
         bool $mobile = false
     ): void {
-        global $DB;
-
         $this->resetAfterTest();
-        $this->setAdminUser();
 
         if ($mobile) {
             $this->pretend_to_be_mobile_device();
         }
 
-        // Create a course.
-        $course = $this->getDataGenerator()->create_course();
-
-        // Create a tool type.
+        // Create a site tool type.
+        /** @var \core_ltix_generator $ltigenerator */
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
         $typeid = $ltigenerator->create_tool_types([
             'name' => 'Test Tool',
             'baseurl' => 'http://example.com/lti',
+            'coursevisible' => constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
             'lti_launchcontainer' => $toollaunchcontainer,
         ]);
-
-        // Create an LTI instance with the tool type.
-        $this->getDataGenerator()->create_module(
-            'lti',
-            [
-                'course' => $course->id,
-                'typeid' => $typeid,
-            ]
+        // Create a placement for the site tool.
+        $placementtype = $ltigenerator->create_placement_type(
+            ['component' => 'core_ltix', 'placementtype' => 'core_ltix:myplacement']
         );
-
-        $link = $DB->get_record('lti_resource_link', ['typeid' => $typeid]);
-        if ($linklaunchcontainer !== null) {
-            $link->launchcontainer = $linklaunchcontainer;
-        }
+        $ltigenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtype->id,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
+        // Create a resource link for the placement.
+        $course = $this->getDataGenerator()->create_course();
+        $linkmanager = resource_link_manager::create(
+            $placementtype->type,
+            $placementtype->component,
+            course::instance($course->id)
+        );
+        $link = $linkmanager->create_resource_link(
+            toolid: $typeid,
+            itemid: 123456, // Arbitrary value, not important for this test.
+            url: new \core\url('http://lms.example.com/link'),
+            title: 'Link title',
+            launchcontainer: $linklaunchcontainer ?? null,
+        );
 
         $launchcontainer = placement_service::get_launch_container_for_link($link);
         $this->assertEquals($expected, $launchcontainer);
