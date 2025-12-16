@@ -72,12 +72,11 @@ final class placement_service_test extends \advanced_testcase {
         ]);
         // Create a resource link for the placement.
         $course = $this->getDataGenerator()->create_course();
-        $linkmanager = resource_link_manager::create(
-            $placementtype->type,
-            $placementtype->component,
-            course::instance($course->id)
-        );
-        $link = $linkmanager->create_resource_link(
+
+        $link = resource_link_manager::create_resource_link(
+            placementtype: $placementtype->type,
+            component: $placementtype->component,
+            context: course::instance($course->id),
             toolid: $typeid,
             itemid: 123456, // Arbitrary value, not important for this test.
             url: new \core\url('http://lms.example.com/link'),
