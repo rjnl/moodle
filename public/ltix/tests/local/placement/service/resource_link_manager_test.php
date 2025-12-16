@@ -16,9 +16,7 @@
 
 namespace core_ltix\local\placement\service;
 
-use core\context;
 use core_ltix\local\lticore\models\resource_link;
-use core_ltix\local\placement\service\resource_link_manager;
 
 /**
  * Resource link manager service tests.
@@ -29,69 +27,6 @@ use core_ltix\local\placement\service\resource_link_manager;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class resource_link_manager_test extends \advanced_testcase {
-
-    /**
-     * Test the factory method create().
-     *
-     * @param string $placementtypearg The placement type argument used when calling the method.
-     * @param string $componentarg The component argument used when calling the method.
-     * @param context $contextarg The context argument used when calling the method.
-     * @param string|null $expectedexception The expected exception message, if applicable.
-     * @return void
-     * @dataProvider create_provider
-     */
-    public function test_create(string $placementtypearg, string $componentarg, context $contextarg,
-            ?string $expectedexception = null): void {
-        $this->resetAfterTest();
-
-        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
-
-        // Create a placement type.
-        $ltigenerator->create_placement_type([
-            'component' => 'core_ltix',
-            'placementtype' => 'core_ltix:validplacement'
-        ]);
-
-        // If an exception is expected, verify the exception.
-        if ($expectedexception) {
-            $this->expectException(\coding_exception::class);
-            $this->expectExceptionMessage($expectedexception);
-        }
-
-        $result = resource_link_manager::create($placementtypearg, $componentarg, $contextarg);
-        // Verify that a resource_link_manager object is returned.
-        $this->assertInstanceOf(resource_link_manager::class, $result);
-    }
-
-    /**
-     * Data provider for test_create().
-     *
-     * @return array
-     */
-    public static function create_provider(): array {
-        global $SITE;
-
-        return [
-            'Invalid argument provided: placement type' => [
-                'core_ltix:invalidplacement',
-                'core_ltix',
-                \core\context\course::instance($SITE->id),
-                'Invalid placement type.',
-            ],
-            'Invalid argument provided: component' => [
-                'core_ltix:validplacement',
-                'core_message',
-                \core\context\course::instance($SITE->id),
-                'Invalid component.',
-            ],
-            'Invalid argument provided: context' => [
-                'core_ltix:validplacement',
-                'core_ltix',
-                \core\context\system::instance(),
-                'Invalid context.',
-            ],
-        ];
-    }
 
     /**
      * Test the method create_resource_link().
@@ -137,11 +72,8 @@ final class resource_link_manager_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
-        $resourcelinkmanager = resource_link_manager::create('core_ltix:validplacement', 'core_ltix',
-            \core\context\course::instance($SITE->id));
-
         // Verify that no resource link exists for the given itemid and placement type.
-        $resourcelink = $resourcelinkmanager->get_resource_link($args['itemid']);
+        $resourcelink = resource_link_manager::get_resource_link($args['itemid']);
         $this->assertNull($resourcelink);
 
         // If an exception is expected, verify the exception.
@@ -151,7 +83,7 @@ final class resource_link_manager_test extends \advanced_testcase {
         }
 
         // Create a new resource link for the given placement type.
-        $resourcelink = $resourcelinkmanager->create_resource_link($toolid, ...$args);
+        $resourcelink = resource_link_manager::create_resource_link(... array_merge(['toolid' => $toolid], $args));
 
         // Now, verify the return.
         $this->assertInstanceOf(resource_link::class, $resourcelink);
@@ -171,13 +103,75 @@ final class resource_link_manager_test extends \advanced_testcase {
      * @return array
      */
     public static function create_resource_link_provider(): array {
+        global $SITE;
+
         return [
+            'Invalid argument provided: placement type' => [
+                [
+                    'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                    'state' => \core_ltix\constants::LTI_TOOL_STATE_PENDING,
+                ],
+                [
+                    'default_usage' => 'enabled'
+                ],
+                [
+                    'placementtype' => 'core_ltix:invalidplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
+                    'itemid' => 1,
+                    'url' => 'http://example.com/tool/1/resource/1',
+                    'title' => 'Resource title',
+                ],
+                [],
+                'Invalid placement type.',
+            ],
+            'Invalid argument provided: component' => [
+                [
+                    'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                    'state' => \core_ltix\constants::LTI_TOOL_STATE_PENDING,
+                ],
+                [
+                    'default_usage' => 'enabled'
+                ],
+                [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_message',
+                    'context' => \core\context\course::instance($SITE->id),
+                    'itemid' => 1,
+                    'url' => 'http://example.com/tool/1/resource/1',
+                    'title' => 'Resource title',
+                ],
+                [],
+                'Invalid component.',
+            ],
+            'Invalid argument provided: context' => [
+                [
+                    'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+                    'state' => \core_ltix\constants::LTI_TOOL_STATE_PENDING,
+                ],
+                [
+                    'default_usage' => 'enabled'
+                ],
+                [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\system::instance(),
+                    'itemid' => 1,
+                    'url' => 'http://example.com/tool/1/resource/1',
+                    'title' => 'Resource title',
+                ],
+                [],
+                'Invalid context.',
+            ],
             'Legacy tool (manually configured), placement disabled, only required arguments provided' => [
                 null,
                 [
                     'default_usage' => 'disabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -206,6 +200,9 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'default_usage' => 'enabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -235,6 +232,9 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'default_usage' => 'enabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -264,6 +264,9 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'default_usage' => 'disabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -293,6 +296,9 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'default_usage' => 'enabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -321,6 +327,9 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'default_usage' => 'enabled'
                 ],
                 [
+                    'placementtype' => 'core_ltix:validplacement',
+                    'component' => 'core_ltix',
+                    'context' => \core\context\course::instance($SITE->id),
                     'itemid' => 1,
                     'url' => 'http://example.com/tool/1/resource/1',
                     'title' => 'Resource title',
@@ -387,15 +396,13 @@ final class resource_link_manager_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
-        $resourcelinkmanager = resource_link_manager::create('core_ltix:validplacement', 'core_ltix',
-            \core\context\course::instance($SITE->id));
 
         // Create a resource link.
-        $resourcelinkmanager->create_resource_link($toolid, 1, 'http://example.com/tool/1/resource/1',
-            'Resource title');
+        resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+            \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1', 'Resource title');
 
         // Get the resource link.
-        $resourcelink = $resourcelinkmanager->get_resource_link($itemid);
+        $resourcelink = resource_link_manager::get_resource_link($itemid);
 
         if ($expectsresourcelink) { // If a resource link is expected to be returned.
             // Ensure the correctness of the returned data.
@@ -468,21 +475,19 @@ final class resource_link_manager_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
-        $resourcelinkmanager = resource_link_manager::create('core_ltix:validplacement', 'core_ltix',
-            \core\context\course::instance($SITE->id));
-
         // Create a new resource link for the given placement type.
-        $resourcelinkmanager->create_resource_link($toolid, 1, 'http://example.com/tool/1/resource/1',
+        resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+            \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1',
             'Resource title');
 
         // Update the resource link.
-        $result = $resourcelinkmanager->update_resource_link($itemid, $updatedata);
+        $result = resource_link_manager::update_resource_link($itemid, $updatedata);
 
         // Verify the return value.
         $this->assertEquals($expectedreturn, $result);
 
         // Now, verify the changes.
-        $resourcelink = $resourcelinkmanager->get_resource_link(1);
+        $resourcelink = resource_link_manager::get_resource_link(1);
 
         $this->assertInstanceOf(resource_link::class, $resourcelink);
         $expectedpropertyvalues += [
@@ -640,21 +645,19 @@ final class resource_link_manager_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
-        $resourcelinkmanager = resource_link_manager::create('core_ltix:validplacement', 'core_ltix',
-            \core\context\course::instance($SITE->id));
-
         // Create a resource link.
-        $resourcelinkmanager->create_resource_link($toolid, 1, 'http://example.com/tool/1/resource/1',
+        resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+            \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1',
             'Resource title');
 
         // Delete the resource link.
-        $result = $resourcelinkmanager->delete_resource_link($itemid);
+        $result = resource_link_manager::delete_resource_link($itemid);
 
         // Verify the return value.
         $this->assertEquals($expectedreturn, $result);
 
         // Try to get the resource link.
-        $resourcelink = $resourcelinkmanager->get_resource_link(1);
+        $resourcelink = resource_link_manager::get_resource_link(1);
 
         if ($expectedreturn) { // If the resource link is expected to be deleted.
             // Ensure that the resource link no longer exists.

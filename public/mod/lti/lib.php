@@ -128,14 +128,15 @@ function lti_add_instance($lti, $mform) {
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
     $context = \core\context\module::instance($lti->coursemodule);
-    $resourcelinkmanager = resource_link_manager::create('mod_lti:activityplacement', 'mod_lti',
-        $context);
-
     $launchcontainer = $lti->launchcontainer ?? null;
     $icon = !empty($lti->icon) ? $lti->icon : null;
     $customparams = !empty($lti->instructorcustomparameters) ? $lti->instructorcustomparameters : null;
+
     // Create a resource link.
-    $resourcelinkmanager->create_resource_link(
+    resource_link_manager::create_resource_link(
+        'mod_lti:activityplacement',
+        'mod_lti',
+        $context,
         $lti->typeid,
         $lti->coursemodule,
         $lti->toolurl,
@@ -201,10 +202,6 @@ function lti_update_instance($lti, $mform) {
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
-    $context = \core\context\module::instance($lti->coursemodule);
-    $resourcelinkmanager = resource_link_manager::create('mod_lti:activityplacement', 'mod_lti',
-        $context);
-
     $ltiresourcelinkformvalues = [
         'url' => $lti->toolurl,
         'title' => $lti->name,
@@ -216,7 +213,7 @@ function lti_update_instance($lti, $mform) {
         ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
     ];
     // Update the resource link.
-    $resourcelinkmanager->update_resource_link($lti->coursemodule, $ltiresourcelinkformvalues);
+    resource_link_manager::update_resource_link($lti->coursemodule, $ltiresourcelinkformvalues);
 
     return $DB->update_record('lti', $lti);
 }
@@ -258,13 +255,7 @@ function lti_delete_instance($id) {
             $service->instance_deleted( $id );
         }
 
-        $context = \core\context\module::instance($cm->id);
-        $resourcelinkmanager = resource_link_manager::create(
-            'mod_lti:activityplacement',
-            'mod_lti',
-            $context
-        );
-        $resourcelinkmanager->delete_resource_link($cm->id);
+        resource_link_manager::delete_resource_link($cm->id);
 
         return true;
     }
