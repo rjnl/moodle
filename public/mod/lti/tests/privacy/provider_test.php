@@ -26,7 +26,6 @@ namespace mod_lti\privacy;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
-use mod_lti\privacy\provider;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -59,25 +58,38 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
         // The LTI activity the user will have submitted something for.
-        $lti = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        $lti1 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti1context = \context_module::instance($lti1->cmid);
+        // Create a resource link associated to the lti1 activity.
+        $resourcelink1 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti1context,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Another LTI activity that has no user activity.
-        $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
 
         // Create a user which will make a submission.
         $user = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti->id, $user->id);
+        // Create LTI submission for the user for the lti1 activity.
+        $this->create_lti_submission($resourcelink1->get('id'), $user->id);
 
         // Check the contexts supplied are correct.
         $contextlist = provider::get_contexts_for_userid($user->id);
         $this->assertCount(1, $contextlist);
-
         $contextformodule = $contextlist->current();
-        $cmcontext = \context_module::instance($lti->cmid);
-        $this->assertEquals($cmcontext->id, $contextformodule->id);
+        $this->assertEquals($lti1context->id, $contextformodule->id);
     }
 
     /**
@@ -87,38 +99,61 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
-        $component = 'mod_lti';
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
-        // The LTI activity the user will have submitted something for.
-        $lti1 = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        // The LTI activity the users will have submitted something for.
+        $lti1 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti1context = \context_module::instance($lti1->cmid);
+        // Create a resource link associated to the lti1 activity.
+        $resourcelink1 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti1context,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Another LTI activity that has no user activity.
-        $lti2 = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        $lti2 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti2context = \context_module::instance($lti2->cmid);
+        // Create a resource link associated to the lti2 activity.
+        \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti2context,
+            $coursetoolid,
+            2,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Create user which will make a submission each.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti1->id, $user1->id);
-        $this->create_lti_submission($lti1->id, $user2->id);
+        // Create LTI submissions for user1 and user2 for the lti1 activity.
+        $this->create_lti_submission($resourcelink1->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink1->get('id'), $user2->id);
 
-        $context = \context_module::instance($lti1->cmid);
-        $userlist = new \core_privacy\local\request\userlist($context, $component);
+        // Confirm that the correct users with data are returned for the lti1 context.
+        $userlist = new \core_privacy\local\request\userlist($lti1context, 'mod_lti');
         provider::get_users_in_context($userlist);
-
         $this->assertCount(2, $userlist);
         $expected = [$user1->id, $user2->id];
         $actual = $userlist->get_userids();
         sort($expected);
         sort($actual);
-
         $this->assertEquals($expected, $actual);
 
-        $context = \context_module::instance($lti2->cmid);
-        $userlist = new \core_privacy\local\request\userlist($context, $component);
+        // Confirm that no users are returned for the lti2 context.
+        $userlist = new \core_privacy\local\request\userlist($lti2context, 'mod_lti');
         provider::get_users_in_context($userlist);
-
-        $this->assertEmpty($userlist);
+        $this->assertEmpty($userlist->get_userids());
     }
 
     /**
@@ -128,26 +163,67 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
-        $lti = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        // The LTI activity the users will have submitted something for.
+        $lti1 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti1context = \context_module::instance($lti1->cmid);
+        // Create a resource link associated to the lti activity.
+        $resourcelink1 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti1context,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
+
+        // Another LTI activity that has no user activity.
+        $lti2 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti2context = \context_module::instance($lti2->cmid);
+        // Create a resource link associated to the lti2 activity.
+        \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti2context,
+            $coursetoolid,
+            2,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Create users which will make submissions.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti->id, $user1->id);
-        $this->create_lti_submission($lti->id, $user1->id);
-        $this->create_lti_submission($lti->id, $user2->id);
+        // Create LTI submissions for user1 and user2 for the lti1 activity.
+        $this->create_lti_submission($resourcelink1->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink1->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink1->get('id'), $user2->id);
 
-        // Export all of the data for the context for user 1.
-        $cmcontext = \context_module::instance($lti->cmid);
-        $this->export_context_data_for_user($user1->id, $cmcontext, 'mod_lti');
-        $writer = \core_privacy\local\request\writer::with_context($cmcontext);
-
+        // Export all of the data for user 1 in the lti1 module context.
+        $this->export_context_data_for_user($user1->id, $lti1context, 'mod_lti');
+        $writer = \core_privacy\local\request\writer::with_context($lti1context);
         $this->assertTrue($writer->has_any_data());
-
         $data = $writer->get_data();
         $this->assertCount(2, $data->submissions);
+
+        // Export all of the data for user 2 in the lti1 module context.
+        $this->export_context_data_for_user($user2->id, $lti1context, 'mod_lti');
+        $writer = \core_privacy\local\request\writer::with_context($lti1context);
+        $this->assertTrue($writer->has_any_data());
+        $data = $writer->get_data();
+        $this->assertCount(1, $data->submissions);
+
+        // Export all of the data for user 1 in the lti2 module context.
+        $this->export_context_data_for_user($user1->id, $lti2context, 'mod_lti');
+        $writer = \core_privacy\local\request\writer::with_context($lti2context);
+        // Confirm that no data is returned.
+        $this->assertFalse($writer->has_any_data());
     }
 
     /**
@@ -159,27 +235,64 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
-        $lti = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        // The LTI activity the users will have submitted something for.
+        $lti1 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti1context = \context_module::instance($lti1->cmid);
+        // Create a resource link associated to the lti1 activity.
+        $resourcelink1 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti1context,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
+
+        // Another LTI activity the users will have submitted something for.
+        $lti2 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti2context = \context_module::instance($lti2->cmid);
+        // Create a resource link associated to the lti2 activity.
+        $resourcelink2 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti2context,
+            $coursetoolid,
+            2,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Create users that will make submissions.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti->id, $user1->id);
-        $this->create_lti_submission($lti->id, $user2->id);
+        // Create lti submissions for user1 and user2 for the lti1 activity.
+        $this->create_lti_submission($resourcelink1->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink1->get('id'), $user2->id);
+        // Create lti submission for user1 for the lti2 activity.
+        $this->create_lti_submission($resourcelink2->get('id'), $user1->id);
 
-        // Before deletion, we should have 2 responses.
-        $count = $DB->count_records('lti_submission', ['ltiid' => $lti->id]);
+        // Before deletion, ensure that we have 2 submissions for lti1 activity and 1 submission for lti2 activity.
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink1->get('id')]);
         $this->assertEquals(2, $count);
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink2->get('id')]);
+        $this->assertEquals(1, $count);
 
-        // Delete data based on context.
-        $cmcontext = \context_module::instance($lti->cmid);
-        provider::delete_data_for_all_users_in_context($cmcontext);
+        // Delete data for all users in lti1 module context.
+        provider::delete_data_for_all_users_in_context($lti1context);
 
-        // After deletion, the lti submissions for that lti activity should have been deleted.
-        $count = $DB->count_records('lti_submission', ['ltiid' => $lti->id]);
+        // After deletion, the lti submissions for lti1 activity should have been deleted.
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink1->get('id')]);
         $this->assertEquals(0, $count);
+        // Confirm the lti submissions for lti2 activity still exist.
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink2->get('id')]);
+        $this->assertEquals(1, $count);
     }
 
     /**
@@ -191,34 +304,79 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
-        $lti = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        // The LTI activity the users will have submitted something for.
+        $lti1 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti1context = \context_module::instance($lti1->cmid);
+        // Create a resource link associated to the lti1 activity.
+        $resourcelink1 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti1context,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
+
+        // Another LTI activity the users will have submitted something for.
+        $lti2 = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lti2context = \context_module::instance($lti2->cmid);
+        // Create a resource link associated to the lti2 activity.
+        $resourcelink2 = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lti2context,
+            $coursetoolid,
+            2,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Create users that will make submissions.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti->id, $user1->id);
-        $this->create_lti_submission($lti->id, $user2->id);
+        // Create lti submissions for user1 and user2 for the lti1 activity.
+        $this->create_lti_submission($resourcelink1->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink1->get('id'), $user2->id);
+        // Create lti submission for user1 for the lti2 activity.
+        $this->create_lti_submission($resourcelink2->get('id'), $user1->id);
 
-        // Before deletion we should have 2 responses.
-        $count = $DB->count_records('lti_submission', ['ltiid' => $lti->id]);
+        // Before deletion, confirm that there are 2 lti submissions for lti1 activity.
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink1->get('id')]);
         $this->assertEquals(2, $count);
 
-        $context = \context_module::instance($lti->cmid);
-        $contextlist = new approved_contextlist($user1, 'lti',
-            [\context_system::instance()->id, $context->id]);
+        // Delete the data for user1 in the lti1 activity context and system context.
+        $contextlist = new approved_contextlist($user1, 'lti', [\context_system::instance()->id, $lti1context->id]);
         provider::delete_data_for_user($contextlist);
 
-        // After deletion the lti submission for the first user should have been deleted.
-        $count = $DB->count_records('lti_submission', ['ltiid' => $lti->id, 'userid' => $user1->id]);
+        // After deletion the lti submission for user1 should have been deleted for lti1 activity.
+        $count = $DB->count_records(
+            'lti_submission',
+            ['ltiresourcelinkid' => $resourcelink1->get('id'), 'userid' => $user1->id]
+        );
         $this->assertEquals(0, $count);
 
-        // Check the submission for the other user is still there.
-        $ltisubmission = $DB->get_records('lti_submission');
-        $this->assertCount(1, $ltisubmission);
-        $lastsubmission = reset($ltisubmission);
-        $this->assertEquals($user2->id, $lastsubmission->userid);
+        // Confirm the lti submission data for user2 for lti1 activity is still there.
+        $count = $DB->count_records(
+            'lti_submission',
+            ['ltiresourcelinkid' => $resourcelink1->get('id'),
+            'userid' => $user2->id]
+        );
+        $this->assertEquals(1, $count);
+
+        // Confirm the lti submission data for user1 for lti2 activity is still there.
+        $count = $DB->count_records(
+            'lti_submission',
+            ['ltiresourcelinkid' => $resourcelink2->get('id'),
+            'userid' => $user1->id]
+        );
+        $this->assertEquals(1, $count);
     }
 
     /**
@@ -226,40 +384,55 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
      */
     public function test_delete_data_for_users(): void {
         global $DB;
-        $component = 'mod_lti';
 
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
+        // Create a course tool.
+        $coursetoolid = $this->create_course_tool($course->id);
 
-        $lti = $this->getDataGenerator()->create_module('lti', array('course' => $course->id));
+        // The LTI activity the users will have submitted something for.
+        $lti = $this->getDataGenerator()->create_module('lti', ['course' => $course->id]);
+        $lticontext = \context_module::instance($lti->cmid);
+        // Create a resource link associated to the lti activity.
+        $resourcelink = \core_ltix\local\placement\service\resource_link_manager::create_resource_link(
+            'mod_lti:activityplacement',
+            'mod_lti',
+            $lticontext,
+            $coursetoolid,
+            1,
+            'http://example.com/tool/1/resource/1',
+            'Resource title',
+            gradable: true
+        );
 
         // Create users that will make submissions.
         $user1 = $this->getDataGenerator()->create_user();
         $user2 = $this->getDataGenerator()->create_user();
         $user3 = $this->getDataGenerator()->create_user();
 
-        $this->create_lti_submission($lti->id, $user1->id);
-        $this->create_lti_submission($lti->id, $user2->id);
-        $this->create_lti_submission($lti->id, $user3->id);
+        // Create lti submissions for user1, user2 and user3 for the lti activity.
+        $this->create_lti_submission($resourcelink->get('id'), $user1->id);
+        $this->create_lti_submission($resourcelink->get('id'), $user2->id);
+        $this->create_lti_submission($resourcelink->get('id'), $user3->id);
 
-        // Before deletion we should have 2 responses.
-        $count = $DB->count_records('lti_submission', ['ltiid' => $lti->id]);
+        // Before deletion we should have 3 lti submissions for the lti1 activity.
+        $count = $DB->count_records('lti_submission', ['ltiresourcelinkid' => $resourcelink->get('id')]);
         $this->assertEquals(3, $count);
 
-        $context = \context_module::instance($lti->cmid);
+        // Delete the data for user1 and user2 for lti activity context.
         $approveduserids = [$user1->id, $user2->id];
-        $approvedlist = new approved_userlist($context, $component, $approveduserids);
+        $approvedlist = new approved_userlist($lticontext, 'mod_lti', $approveduserids);
         provider::delete_data_for_users($approvedlist);
 
-        // After deletion the lti submission for the first two users should have been deleted.
+        // After deletion the lti submission data for user1 and user2 should have been deleted.
         list($insql, $inparams) = $DB->get_in_or_equal($approveduserids, SQL_PARAMS_NAMED);
-        $sql = "ltiid = :ltiid AND userid {$insql}";
-        $params = array_merge($inparams, ['ltiid' => $lti->id]);
+        $sql = "ltiresourcelinkid = :ltiresourcelinkid AND userid {$insql}";
+        $params = array_merge($inparams, ['ltiresourcelinkid' => $lti->id]);
         $count = $DB->count_records_select('lti_submission', $sql, $params);
         $this->assertEquals(0, $count);
 
-        // Check the submission for the third user is still there.
+        // Check the lit submission for the user3 is still there.
         $ltisubmission = $DB->get_records('lti_submission');
         $this->assertCount(1, $ltisubmission);
         $lastsubmission = reset($ltisubmission);
@@ -272,14 +445,14 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
      * There is no API we can use to insert an LTI submission, so we
      * will simply insert directly into the database.
      *
-     * @param int $ltiid
+     * @param int $ltiresourcelinkid The resource link ID
      * @param int $userid
      */
-    protected function create_lti_submission(int $ltiid, int $userid) {
+    protected function create_lti_submission(int $ltiresourcelinkid, int $userid) {
         global $DB;
 
         $ltisubmissiondata = [
-            'ltiid' => $ltiid,
+            'ltiresourcelinkid' => $ltiresourcelinkid,
             'userid' => $userid,
             'datesubmitted' => time(),
             'dateupdated' => time(),
@@ -290,5 +463,33 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         ];
 
         $DB->insert_record('lti_submission', $ltisubmissiondata);
+    }
+
+    /**
+     * Helper method for creating a course tool with a configured and enabled 'mod_lti:activityplacement' placement.
+     *
+     * @param int $courseid The course ID
+     * @return int The ID of the created course tool
+     */
+    private function create_course_tool(int $courseid): int {
+        global $DB;
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+        $coursetoolid = $ltigenerator->create_tool_types([
+            'baseurl' => 'https://www.moodle.org',
+            'course' => $courseid,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+        // Create and enable 'mod_lti:activityplacement' placement in the course tool.
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
+        $ltigenerator->create_tool_placements([
+            'toolid' => $coursetoolid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
+
+        return $coursetoolid;
     }
 }
