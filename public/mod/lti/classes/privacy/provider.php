@@ -61,7 +61,7 @@ class provider implements
      * @return contextlist the list of contexts containing user info for the user.
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
-        $joinsql = \core_ltix\privacy\provider::get_join_sql($userid);
+        $joinsql = \core_ltix\privacy\provider::get_lti_submission_user_join_sql($userid);
 
         // Fetch all LTI submissions.
         $sql = "SELECT c.id
@@ -72,8 +72,6 @@ class provider implements
             INNER JOIN {modules} m
                     ON m.id = cm.module
                    AND m.name = :modname
-            INNER JOIN {lti} lti
-                    ON lti.id = cm.instance
             {$joinsql['join']}
             {$joinsql['where']}";
 
@@ -97,25 +95,11 @@ class provider implements
     public static function get_users_in_context(userlist $userlist): void {
         $context = $userlist->get_context();
 
-        if (!is_a($context, \context_module::class)) {
+        if (!is_a($context, \context_module::class) || !get_coursemodule_from_id('lti', $context->instanceid)) {
             return;
         }
 
-        // Find users with LTI submissions.
-        $sql = "SELECT lti.id
-                  FROM {context} c
-                  JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
-                  JOIN {modules} m ON m.id = cm.module AND m.name = :modname
-                  JOIN {lti} lti ON lti.id = cm.instance
-                 WHERE c.id = :contextid";
-
-        $params = [
-            'modname' => 'lti',
-            'contextid' => $context->id,
-            'contextlevel' => CONTEXT_MODULE,
-        ];
-
-        \core_ltix\privacy\provider::get_users_in_context_from_sql($userlist, 'lti', $sql, $params);
+        \core_ltix\privacy\provider::get_lti_submission_users_in_context_from_sql($userlist);
     }
 
     /**
@@ -124,7 +108,17 @@ class provider implements
      * @param approved_contextlist $contextlist a list of contexts approved for export.
      */
     public static function export_user_data(approved_contextlist $contextlist): void {
-        \core_ltix\privacy\provider::export_user_data_lti_submissions($contextlist);
+        // Filter out any contexts that are not related to lti modules.
+        $contextids = array_reduce($contextlist->get_contexts(), function($carry, $context) {
+            if ($context->contextlevel == CONTEXT_MODULE && get_coursemodule_from_id('lti', $context->instanceid)) {
+                $carry[] = $context->id;
+            }
+            return $carry;
+        }, []);
+
+        $user = $contextlist->get_user();
+
+        \core_ltix\privacy\provider::export_user_data_lti_submissions($user, $contextids);
     }
 
     /**
@@ -133,13 +127,11 @@ class provider implements
      * @param \context $context the context to delete in.
      */
     public static function delete_data_for_all_users_in_context(\context $context): void {
-        if (!$context instanceof \context_module) {
+        if (!$context instanceof \context_module || !get_coursemodule_from_id('lti', $context->instanceid)) {
             return;
         }
 
-        if ($cm = get_coursemodule_from_id('lti', $context->instanceid)) {
-            \core_ltix\privacy\provider::delete_instance_data($cm->instance);
-        }
+        \core_ltix\privacy\provider::delete_lti_submission_data($context);
     }
 
     /**
@@ -148,19 +140,13 @@ class provider implements
      * @param approved_contextlist $contextlist a list of contexts approved for deletion.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist): void {
-        global $DB;
-
-        if (empty($contextlist->count())) {
-            return;
-        }
-
         $userid = $contextlist->get_user()->id;
+
         foreach ($contextlist->get_contexts() as $context) {
-            if (!$context instanceof \context_module) {
+            if (!$context instanceof \context_module || !get_coursemodule_from_id('lti', $context->instanceid)) {
                 continue;
             }
-            $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-            \core_ltix\privacy\provider::delete_instance_data($instanceid, $userid);
+            \core_ltix\privacy\provider::delete_lti_submission_data($context, [$userid]);
         }
     }
 
@@ -170,13 +156,10 @@ class provider implements
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist): void {
-        global $DB;
-
         $context = $userlist->get_context();
 
-        if ($context instanceof \context_module) {
-            $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-            \core_ltix\privacy\provider::delete_instance_data($instanceid, $userlist->get_userids());
+        if ($context instanceof \context_module && get_coursemodule_from_id('lti', $context->instanceid)) {
+            \core_ltix\privacy\provider::delete_lti_submission_data($context, $userlist->get_userids());
         }
     }
 }
