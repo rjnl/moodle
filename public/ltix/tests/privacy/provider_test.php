@@ -121,7 +121,6 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
-        $component = 'core_ltix';
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
 
         // Create user which will make a tool type and a tool proxy.
@@ -136,7 +135,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle2.org', 'course' => $course->id]);
 
         $context = \context_course::instance($course->id);
-        $userlist = new \core_privacy\local\request\userlist($context, $component);
+        $userlist = new \core_privacy\local\request\userlist($context, 'core_ltix');
         provider::get_users_in_context($userlist);
 
         $this->assertCount(2, $userlist);
@@ -148,7 +147,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->assertEquals($expected, $actual);
 
         $context = \context_system::instance();
-        $userlist = new \core_privacy\local\request\userlist($context, $component);
+        $userlist = new \core_privacy\local\request\userlist($context, 'core_ltix');
         provider::get_users_in_context($userlist);
         $this->assertCount(1, $userlist);
         $actual = $userlist->get_userids();
@@ -242,27 +241,27 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->setUser($user2);
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle.org', 'course' => $course->id]);
 
-        // Before deletion, we should have 2 responses in lti_types.
+        // Before deletion, we should have 2 lti tools created by users in the course context.
         $count = $DB->count_records('lti_types', ['course' => $course->id]);
         $this->assertEquals(2, $count);
 
-        // Delete data based on context.
+        // Delete all data for users in the course context.
         $ccontext = \context_course::instance($course->id);
         provider::delete_data_for_all_users_in_context($ccontext);
 
-        // After deletion, we should have 0 records in lti_types.
+        // After deletion, we should have no lti tools in the course context.
         $count = $DB->count_records('lti_types', ['course' => $course->id]);
         $this->assertEquals(0, $count);
 
-        // Before deletion, we should have 1 record in lti_tool_proxies.
+        // Before deletion, we should have 1 lti tool proxy (in system context).
         $count = $DB->count_records('lti_tool_proxies');
         $this->assertEquals(1, $count);
 
-        // Delete data based on context.
+        // Delete all data for users in the system context.
         $scontext = \context_system::instance();
         provider::delete_data_for_all_users_in_context($scontext);
 
-        // After deletion, we should have 0 records in lti_types.
+        // After deletion, we should have no lti tool proxies.
         $count = $DB->count_records('lti_tool_proxies');
         $this->assertEquals(0, $count);
     }
@@ -278,7 +277,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $course = $this->getDataGenerator()->create_course();
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
 
-        // Create users that will make LTI tools.
+        // Create users that will make LTI tools and lti tool proxies.
         $user1 = $this->getDataGenerator()->create_user();
         $this->setUser($user1);
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle.org', 'course' => $course->id]);
@@ -288,17 +287,16 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->setUser($user2);
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle.org', 'course' => $course->id]);
 
-        // Before deletion we should have 2 responses.
+        // Before deletion we should have 2 lti tools created by users in the course context.
         $count = $DB->count_records('lti_types', ['course' => $course->id]);
         $this->assertEquals(2, $count);
 
-        // Before deletion, we should have 1 record in lti_tool_proxies.
+        // Before deletion, we should have 1 lti tool proxy created by a user in the system context.
         $count = $DB->count_records('lti_tool_proxies');
         $this->assertEquals(1, $count);
 
         $context = \context_course::instance($course->id);
-        $contextlist = new approved_contextlist($user1, 'ltix',
-            [\context_system::instance()->id, $context->id]);
+        $contextlist = new approved_contextlist($user1, 'ltix', [\context_system::instance()->id, $context->id]);
         provider::delete_data_for_user($contextlist);
 
         // After deletion the lti type for the first user should have been updated.
@@ -307,6 +305,9 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->assertEquals(2, $count);
         $count = $DB->count_records('lti_types', ['course' => $course->id, 'createdby' => $user1->id]);
         $this->assertEquals(0, $count);
+        // Confirm the lti tool data for user2 has not been updated.
+        $count = $DB->count_records('lti_types', ['course' => $course->id, 'createdby' => $user2->id]);
+        $this->assertEquals(1, $count);
 
         // After deletion the lti type for the first user should have been updated.
         // The LTI type will not be deleted, in case it is used by someone else, but the createdby field will be reset.
@@ -321,14 +322,13 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
      */
     public function test_delete_data_for_users(): void {
         global $DB;
-        $component = 'core_ltix';
 
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
 
-        // Create users that will make submissions.
+        // Create users that will create lti tools and lti tool proxies.
         $user1 = $this->getDataGenerator()->create_user();
         $this->setUser($user1);
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle.org', 'course' => $course->id]);
@@ -342,22 +342,23 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         $this->setUser($user3);
         $ltigenerator->create_tool_types(['baseurl' => 'https://www.moodle.org', 'course' => $course->id]);
 
-        // Before deletion we should have 3 responses.
+        // Before deletion we should have 3 lti tools created by users in the course context.
         $count = $DB->count_records('lti_types', ['course' => $course->id]);
         $this->assertEquals(3, $count);
 
+        // Delete all data for user1 and user2 in the course context.
         $context = \context_course::instance($course->id);
         $approveduserids = [$user1->id, $user2->id];
-        $approvedlist = new approved_userlist($context, $component, $approveduserids);
+        $approvedlist = new approved_userlist($context, 'core_ltix', $approveduserids);
         provider::delete_data_for_users($approvedlist);
 
-        // After deletion the lti submission for the first two users should have been deleted.
-        list($insql, $inparams) = $DB->get_in_or_equal($approveduserids, SQL_PARAMS_NAMED);
-        $sql = "course = :courseid AND createdby {$insql}";
-        $params = array_merge($inparams, ['courseid' => $course->id]);
-        $count = $DB->count_records_select('lti_types', $sql, $params);
+        // After deletion the lti tool data for the first two users should have been updated (anonymized).
+        $count = $DB->count_records('lti_types', ['course' => $course->id]);
+        $this->assertEquals(3, $count);
+        $count = $DB->count_records('lti_types', ['course' => $course->id, 'createdby' => $user1->id]);
         $this->assertEquals(0, $count);
-
+        $count = $DB->count_records('lti_types', ['course' => $course->id, 'createdby' => $user2->id]);
+        $this->assertEquals(0, $count);
         // Check the submission for the third user is still there.
         $count = $DB->count_records('lti_types', ['course' => $course->id, 'createdby' => $user3->id]);
         $this->assertEquals(1, $count);
