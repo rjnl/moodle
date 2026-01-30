@@ -416,13 +416,8 @@ final class resource_link_manager_test extends \advanced_testcase {
         $this->assertEquals('http://example.com/tool/1/resource/2', $returnedresourcelink->get('url'));
         $this->assertEquals('Resource title 2', $returnedresourcelink->get('title'));
 
-        // Generate random non-existent ID.
-        do {
-            $id = rand();
-        } while ($id === $resourcelink1id || $id === $resourcelink2id);
-
         // Attempt to get a resource link using the non-existent ID.
-        $returnedresourcelink = resource_link_manager::get_resource_link_by_id($id);
+        $returnedresourcelink = resource_link_manager::get_resource_link_by_id(0);
         // Verify that no resource link is returned.
         $this->assertNull($returnedresourcelink);
     }
