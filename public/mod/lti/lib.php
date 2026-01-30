@@ -111,28 +111,13 @@ function lti_add_instance($lti, $mform) {
 
     $lti->id = $DB->insert_record('lti', $lti);
 
-    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
-        if (!isset($lti->cmidnumber)) {
-            $lti->cmidnumber = '';
-        }
-
-        lti_grade_item_update($lti);
-    }
-
-    $services = \core_ltix\helper::get_services();
-    foreach ($services as $service) {
-        $service->instance_added( $lti );
-    }
-
-    $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
-    \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
-
     $context = \core\context\module::instance($lti->coursemodule);
     $launchcontainer = $lti->launchcontainer ?? null;
     $icon = !empty($lti->icon) ? $lti->icon : null;
     $customparams = !empty($lti->instructorcustomparameters) ? $lti->instructorcustomparameters : null;
 
-    // Create a resource link.
+    // Create a resource link early.
+    // Subsequent operations (e.g., grade item creation and related checks) depend on the resource link being available.
     resource_link_manager::create_resource_link(
         'mod_lti:activityplacement',
         'mod_lti',
@@ -149,6 +134,22 @@ function lti_add_instance($lti, $mform) {
         $icon,
         $customparams
     );
+
+    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
+        if (!isset($lti->cmidnumber)) {
+            $lti->cmidnumber = '';
+        }
+
+        lti_grade_item_update($lti);
+    }
+
+    $services = \core_ltix\helper::get_services();
+    foreach ($services as $service) {
+        $service->instance_added( $lti );
+    }
+
+    $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
+    \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
     return $lti->id;
 }
@@ -178,15 +179,36 @@ function lti_update_instance($lti, $mform) {
         $lti->showdescriptionlaunch = 0;
     }
 
-    \core_ltix\helper::force_type_config_settings($lti, \core_ltix\helper::get_type_config_by_instance($lti));
+    $isgradable = isset($lti->instructorchoiceacceptgrades) &&
+        $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS;
 
-    if (isset($lti->instructorchoiceacceptgrades) && $lti->instructorchoiceacceptgrades == \core_ltix\constants::LTI_SETTING_ALWAYS) {
-        lti_grade_item_update($lti);
-    } else {
+    if (!$isgradable) {
         // Instance is no longer accepting grades from Provider, set grade to "No grade" value 0.
         $lti->grade = 0;
         $lti->instructorchoiceacceptgrades = 0;
+    }
 
+    $resourcelink = resource_link_manager::get_resource_link_by_item($lti->coursemodule, 'mod_lti:activityplacement');
+
+    $ltiresourcelinkformvalues = [
+        'url' => $lti->toolurl,
+        'title' => $lti->name,
+        'text' => $lti->intro,
+        'textformat' => $lti->introformat,
+        'gradable' => $lti->instructorchoiceacceptgrades,
+        ...(!isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
+        ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
+        ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
+    ];
+    // Update the resource link early.
+    // Subsequent operations (e.g., grade item update and related checks) depend on the resource link being updated.
+    resource_link_manager::update_resource_link($resourcelink, $ltiresourcelinkformvalues);
+
+    \core_ltix\helper::force_type_config_settings($lti, \core_ltix\helper::get_type_config_by_instance($lti));
+
+    if ($isgradable) {
+        lti_grade_item_update($lti);
+    } else {
         lti_grade_item_delete($lti);
     }
 
@@ -201,21 +223,6 @@ function lti_update_instance($lti, $mform) {
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
-
-    $resourcelink = resource_link_manager::get_resource_link_by_item($lti->coursemodule, 'mod_lti:activityplacement');
-
-    $ltiresourcelinkformvalues = [
-        'url' => $lti->toolurl,
-        'title' => $lti->name,
-        'text' => $lti->intro,
-        'textformat' => $lti->introformat,
-        'gradable' => $lti->instructorchoiceacceptgrades,
-        ...(!isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
-        ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
-        ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
-    ];
-    // Update the resource link.
-    resource_link_manager::update_resource_link($resourcelink, $ltiresourcelinkformvalues);
 
     return $DB->update_record('lti', $lti);
 }
@@ -593,7 +600,16 @@ function lti_grade_item_update($basiclti, $grades = null) {
     require_once($CFG->libdir.'/gradelib.php');
     require_once($CFG->dirroot.'/mod/lti/servicelib.php');
 
-    if (!core_ltix\local\ltiservice\service_helper::accepts_grades($basiclti)) {
+    // Obtain the course module ID to retrieve the resource link.
+    if ($cm = get_coursemodule_from_instance('lti', $basiclti->id)) { // Pre-existing LTI instance.
+        $cmid = $cm->id;
+    } else { // During initial instance creation.
+        $cmid = $basiclti->coursemodule;
+    }
+
+    $resourcelink = resource_link_manager::get_resource_link_by_item($cmid, 'mod_lti:activityplacement');
+
+    if (!core_ltix\local\ltiservice\service_helper::accepts_grades($resourcelink)) {
         return 0;
     }
 
@@ -630,8 +646,12 @@ function lti_grade_item_update($basiclti, $grades = null) {
 function lti_update_grades($basiclti, $userid=0, $nullifnone=true) {
     global $CFG;
     require_once($CFG->dirroot.'/mod/lti/servicelib.php');
+
+    $cm = get_coursemodule_from_instance('lti', $basiclti->id);
+    $resourcelink = resource_link_manager::get_resource_link_by_item($cm->id, 'mod_lti:activityplacement');
+
     // LTI doesn't have its own grade table so the only thing to do is update the grade item.
-    if (core_ltix\local\ltiservice\service_helper::accepts_grades($basiclti)) {
+    if (core_ltix\local\ltiservice\service_helper::accepts_grades($resourcelink)) {
         lti_grade_item_update($basiclti);
     }
 }
