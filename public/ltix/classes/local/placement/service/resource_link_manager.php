@@ -133,13 +133,19 @@ class resource_link_manager {
     }
 
     /**
-     * Returns a resource link.
+     * Returns a resource link by item related data (itemid and itemtype).
+     *
+     * This method is used to retrieve a resource link in specific placement contexts where only the itemid and itemtype
+     * are known, and the actual resource link ID is not available.
+     * Note: The itemid is not unique and may be shared across different resource link types. Therefore, the itemtype
+     * must be specified to ensure the correct resource link is returned.
      *
      * @param int $itemid The item ID of the resource link to return.
+     * @param string $itemtype The type of the resource link to return.
      * @return resource_link|null The resource link persistent object, or null if it does not exist.
      */
-    public static function get_resource_link(int $itemid): ?resource_link {
-        $resourcelink = (new resource_link())->get_record(['itemid' => $itemid]);
+    public static function get_resource_link_by_item(int $itemid, string $itemtype): ?resource_link {
+        $resourcelink = (new resource_link())->get_record(['itemid' => $itemid, 'itemtype' => $itemtype]);
 
         return $resourcelink ?: null;
     }
@@ -152,11 +158,11 @@ class resource_link_manager {
      * Properties such as 'typeid', 'component', 'itemtype', 'itemid' and 'servicesalt' are disallowed from being updated
      * by the caller as there are no valid use cases for modifying these properties directly.
      *
-     * @param int $itemid The item ID of the resource link to update.
+     * @param resource_link $resourcelink The resource link to update.
      * @param array $updatedata An associative array of data to update.
      * @return bool True on success, or false if no updates were made.
      */
-    public static function update_resource_link(int $itemid, array $updatedata): bool {
+    public static function update_resource_link(resource_link $resourcelink, array $updatedata): bool {
 
         // Define allowed resource link properties that can be updated.
         $allowedproperties = ['url', 'title', 'text', 'textformat', 'gradable', 'launchcontainer', 'icon',
@@ -172,13 +178,6 @@ class resource_link_manager {
             return false;
         }
 
-        $resourcelink = self::get_resource_link($itemid);
-
-        // Early return if the resource link cannot be found.
-        if (is_null($resourcelink)) {
-            return false;
-        }
-
         // Loop through update data and set values.
         foreach ($updatedata as $property => $value) {
             $resourcelink->set($property, $value);
@@ -190,17 +189,10 @@ class resource_link_manager {
     /**
      * Deletes a resource link.
      *
-     * @param int $itemid The item ID of the resource link to be deleted.
+     * @param resource_link $resourcelink The resource link to delete.
      * @return bool True on success, or false if no deletion was performed.
      */
-    public static function delete_resource_link(int $itemid): bool {
-        $resourcelink = self::get_resource_link($itemid);
-
-        // Early return if the resource link cannot be found.
-        if (is_null($resourcelink)) {
-            return false;
-        }
-
+    public static function delete_resource_link(resource_link $resourcelink): bool {
         return $resourcelink->delete();
     }
 }

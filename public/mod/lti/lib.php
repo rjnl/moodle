@@ -202,6 +202,8 @@ function lti_update_instance($lti, $mform) {
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
     \core_completion\api::update_completion_date_event($lti->coursemodule, 'lti', $lti->id, $completiontimeexpected);
 
+    $resourcelink = resource_link_manager::get_resource_link_by_item($lti->coursemodule, 'mod_lti:activityplacement');
+
     $ltiresourcelinkformvalues = [
         'url' => $lti->toolurl,
         'title' => $lti->name,
@@ -213,7 +215,7 @@ function lti_update_instance($lti, $mform) {
         ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
     ];
     // Update the resource link.
-    resource_link_manager::update_resource_link($lti->coursemodule, $ltiresourcelinkformvalues);
+    resource_link_manager::update_resource_link($resourcelink, $ltiresourcelinkformvalues);
 
     return $DB->update_record('lti', $lti);
 }
@@ -255,7 +257,8 @@ function lti_delete_instance($id) {
             $service->instance_deleted( $id );
         }
 
-        resource_link_manager::delete_resource_link($cm->id);
+        $resourcelink = resource_link_manager::get_resource_link_by_item($cm->id, 'mod_lti:activityplacement');
+        resource_link_manager::delete_resource_link($resourcelink);
 
         return true;
     }

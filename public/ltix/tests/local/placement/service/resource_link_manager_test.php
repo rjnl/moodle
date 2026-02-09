@@ -73,7 +73,7 @@ final class resource_link_manager_test extends \advanced_testcase {
         ]);
 
         // Verify that no resource link exists for the given itemid and placement type.
-        $resourcelink = resource_link_manager::get_resource_link($args['itemid']);
+        $resourcelink = resource_link_manager::get_resource_link_by_item($args['itemid'], $args['placementtype']);
         $this->assertNull($resourcelink);
 
         // If an exception is expected, verify the exception.
@@ -428,14 +428,15 @@ final class resource_link_manager_test extends \advanced_testcase {
     }
 
     /**
-     * Test the method get_resource_link().
+     * Test the method get_resource_link_by_item().
      *
      * @param int $itemid The item ID of the resource link to retrieve.
+     * @param string $itemtype The type of the resource link to retrieve.
      * @param bool $expectsresourcelink Whether the method call is expected to return a resource link.
      * @return void
-     * @dataProvider get_resource_link_provider
+     * @dataProvider get_resource_link_by_item_provider
      */
-    public function test_get_resource_link(int $itemid, bool $expectsresourcelink): void {
+    public function test_get_resource_link_by_item(int $itemid, string $itemtype, bool $expectsresourcelink): void {
         global $SITE;
 
         $this->resetAfterTest();
@@ -464,13 +465,12 @@ final class resource_link_manager_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
-
         // Create a resource link.
         resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
             \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1', 'Resource title');
 
         // Get the resource link.
-        $resourcelink = resource_link_manager::get_resource_link($itemid);
+        $resourcelink = resource_link_manager::get_resource_link_by_item($itemid, $itemtype);
 
         if ($expectsresourcelink) { // If a resource link is expected to be returned.
             // Ensure the correctness of the returned data.
@@ -485,18 +485,25 @@ final class resource_link_manager_test extends \advanced_testcase {
     }
 
     /**
-     * Data provider for test_get_resource_link().
+     * Data provider for test_get_resource_link_by_item().
      *
      * @return array
      */
-    public static function get_resource_link_provider(): array {
+    public static function get_resource_link_by_item_provider(): array {
         return [
             'Existing resource link' => [
                 1,
+                'core_ltix:validplacement',
                 true,
             ],
-            'Non-existing resource link' => [
+            'Non-existing resource link: invalid itemid' => [
                 2,
+                'core_ltix:validplacement',
+                false,
+            ],
+            'Non-existing resource link: invalid itemtype' => [
+                2,
+                'core_ltix:invalidplacement',
                 false,
             ],
         ];
@@ -505,7 +512,6 @@ final class resource_link_manager_test extends \advanced_testcase {
     /**
      * Test the method update_resource_link().
      *
-     * @param int $itemid The item ID of the resource link to update.
      * @param array $updatedata The array containing data to update.
      * @param bool $expectedreturn The expected return value from the method call.
      * @param array $expectedpropertyvalues The array containing the expected values for the properties of the resource link
@@ -513,8 +519,7 @@ final class resource_link_manager_test extends \advanced_testcase {
      * @return void
      * @dataProvider update_resource_link_provider
      */
-    public function test_update_resource_link(int $itemid, array $updatedata, bool $expectedreturn,
-            array $expectedpropertyvalues): void {
+    public function test_update_resource_link(array $updatedata, bool $expectedreturn, array $expectedpropertyvalues): void {
         global $SITE;
 
         $this->resetAfterTest();
@@ -544,18 +549,18 @@ final class resource_link_manager_test extends \advanced_testcase {
         ]);
 
         // Create a new resource link for the given placement type.
-        resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+        $resourcelink = resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
             \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1',
             'Resource title');
 
         // Update the resource link.
-        $result = resource_link_manager::update_resource_link($itemid, $updatedata);
+        $result = resource_link_manager::update_resource_link($resourcelink, $updatedata);
 
         // Verify the return value.
         $this->assertEquals($expectedreturn, $result);
 
         // Now, verify the changes.
-        $resourcelink = resource_link_manager::get_resource_link(1);
+        $resourcelink = resource_link_manager::get_resource_link_by_id($resourcelink->get('id'));
 
         $this->assertInstanceOf(resource_link::class, $resourcelink);
         $expectedpropertyvalues += [
@@ -576,7 +581,6 @@ final class resource_link_manager_test extends \advanced_testcase {
     public static function update_resource_link_provider(): array {
         return [
             'No update data provided' => [
-                1,
                 [],
                 false,
                 [
@@ -594,35 +598,7 @@ final class resource_link_manager_test extends \advanced_testcase {
                     'servicesalt' => null,
                 ],
             ],
-            'Attempting to update a non-existent resource link.' => [
-                2,
-                [
-                    'title' => 'Resource title (updated)',
-                    'text' => '<p>Resource description (updated)</p>',
-                    'textformat' => FORMAT_HTML,
-                    'gradable' => true,
-                    'launchcontainer' => \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW,
-                    'customparams' => 'id=1',
-                    'icon' => 'http://example.com/tool/1/resource/1/icon/image.png',
-                ],
-                false,
-                [
-                    'component' => 'core_ltix',
-                    'itemtype' => 'core_ltix:validplacement',
-                    'itemid' => 1,
-                    'url' => 'http://example.com/tool/1/resource/1',
-                    'title' => 'Resource title',
-                    'text' => null,
-                    'textformat' => FORMAT_MOODLE,
-                    'gradable' => false,
-                    'launchcontainer' => \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT,
-                    'customparams' => null,
-                    'icon' => null,
-                    'servicesalt' => null,
-                ],
-            ],
             'Attempting to update disallowed resource link properties' => [
-                1,
                 [
                     'typeid' => 10,
                     'component' => 'core_navigation',
@@ -647,7 +623,6 @@ final class resource_link_manager_test extends \advanced_testcase {
                 ],
             ],
             'Attempting to update allowed resource link properties' => [
-                1,
                 [
                     'url' => 'http://example.com/tool/1/resource/10',
                     'title' => 'Resource title (updated)',
@@ -680,12 +655,9 @@ final class resource_link_manager_test extends \advanced_testcase {
     /**
      * Test the method delete_resource_link().
      *
-     * @param int $itemid The item ID of the resource link to delete.
-     * @param bool $expectedreturn The expected return value from the method call.
      * @return void
-     * @dataProvider delete_resource_link_provider
      */
-    public function test_delete_resource_link(int $itemid, bool $expectedreturn): void {
+    public function test_delete_resource_link(): void {
         global $SITE;
 
         $this->resetAfterTest();
@@ -714,43 +686,18 @@ final class resource_link_manager_test extends \advanced_testcase {
         ]);
 
         // Create a resource link.
-        resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+        $resourcelink = resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
             \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1',
             'Resource title');
 
         // Delete the resource link.
-        $result = resource_link_manager::delete_resource_link($itemid);
+        $result = resource_link_manager::delete_resource_link($resourcelink);
 
         // Verify the return value.
-        $this->assertEquals($expectedreturn, $result);
-
+        $this->assertEquals(true, $result);
         // Try to get the resource link.
-        $resourcelink = resource_link_manager::get_resource_link(1);
-
-        if ($expectedreturn) { // If the resource link is expected to be deleted.
-            // Ensure that the resource link no longer exists.
-            $this->assertNull($resourcelink);
-        } else { // If the resource link is expected not to be deleted.
-            // Ensure that the resource link still exists.
-            $this->assertInstanceOf(resource_link::class, $resourcelink);
-        }
-    }
-
-    /**
-     * Data provider for test_delete_resource_link().
-     *
-     * @return array
-     */
-    public static function delete_resource_link_provider(): array {
-        return [
-            'Existing resource link' => [
-                1,
-                true,
-            ],
-            'Non-existing resource link' => [
-                2,
-                false,
-            ],
-        ];
+        $resourcelink = resource_link_manager::get_resource_link_by_id($resourcelink->get('id'));
+        // Ensure that resource link no longer exists.
+        $this->assertNull($resourcelink);
     }
 }
