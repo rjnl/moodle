@@ -121,6 +121,18 @@ class resource_link_manager {
     }
 
     /**
+     * Returns a resource link by ID.
+     *
+     * @param int $id The ID of the resource link to return.
+     * @return resource_link|null The resource link persistent object, or null if it does not exist.
+     */
+    public static function get_resource_link_by_id(int $id): ?resource_link {
+        $resourcelink = (new resource_link())->get_record(['id' => $id]);
+
+        return $resourcelink ?: null;
+    }
+
+    /**
      * Returns a resource link.
      *
      * @param int $itemid The item ID of the resource link to return.

@@ -360,6 +360,74 @@ final class resource_link_manager_test extends \advanced_testcase {
     }
 
     /**
+     * Test the method get_resource_link_by_id().
+     *
+     * @return void
+     */
+    public function test_get_resource_link_by_id(): void {
+        global $SITE;
+
+        $this->resetAfterTest();
+
+        $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+
+        // Create a tool.
+        $toolid = $ltigenerator->create_tool_types([
+            'name' => 'Example tool',
+            'baseurl' => 'http://example.com/tool/1',
+            'lti_coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED
+        ]);
+
+        // Create a placement type.
+        $placementtype = $ltigenerator->create_placement_type([
+            'component' => 'core_ltix',
+            'placementtype' => 'core_ltix:validplacement'
+        ]);
+
+        // Create a placement.
+        $ltigenerator->create_tool_placements([
+            'toolid' => $toolid,
+            'placementtypeid' => $placementtype->id,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
+
+        // Create 2 resource links.
+        $resourcelink1 = resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+            \core\context\course::instance($SITE->id), $toolid, 1, 'http://example.com/tool/1/resource/1', 'Resource title 1');
+        $resourcelink1id = $resourcelink1->get('id');
+
+        $resourcelink2 = resource_link_manager::create_resource_link('core_ltix:validplacement', 'core_ltix',
+            \core\context\course::instance($SITE->id), $toolid, 2, 'http://example.com/tool/1/resource/2', 'Resource title 2');
+        $resourcelink2id = $resourcelink2->get('id');
+
+        // Get resource link 1 by its ID.
+        $returnedresourcelink = resource_link_manager::get_resource_link_by_id($resourcelink1id);
+        // Verify that the returned link is resource link 1.
+        $this->assertEquals($resourcelink1id, $returnedresourcelink->get('id'));
+        $this->assertEquals('http://example.com/tool/1/resource/1', $returnedresourcelink->get('url'));
+        $this->assertEquals('Resource title 1', $returnedresourcelink->get('title'));
+
+        // Get resource link 2 by its ID.
+        $returnedresourcelink = resource_link_manager::get_resource_link_by_id($resourcelink2id);
+        // Verify that the returned link is resource link 2.
+        $this->assertEquals($resourcelink2id, $returnedresourcelink->get('id'));
+        $this->assertEquals('http://example.com/tool/1/resource/2', $returnedresourcelink->get('url'));
+        $this->assertEquals('Resource title 2', $returnedresourcelink->get('title'));
+
+        // Generate random non-existent ID.
+        do {
+            $id = rand();
+        } while ($id === $resourcelink1id || $id === $resourcelink2id);
+
+        // Attempt to get a resource link using the non-existent ID.
+        $returnedresourcelink = resource_link_manager::get_resource_link_by_id($id);
+        // Verify that no resource link is returned.
+        $this->assertNull($returnedresourcelink);
+    }
+
+    /**
      * Test the method get_resource_link().
      *
      * @param int $itemid The item ID of the resource link to retrieve.
