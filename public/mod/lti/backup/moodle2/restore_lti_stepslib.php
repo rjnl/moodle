@@ -290,7 +290,7 @@ class restore_lti_activity_structure_step extends restore_activity_structure_ste
         $data = (object)$data;
         $oldid = $data->id;
 
-        $data->ltiid = $this->get_new_parentid('lti');
+        $data->ltiresourcelinkid = $this->get_new_parentid('lti_resource_link');
 
         $data->datesubmitted = $this->apply_date_offset($data->datesubmitted);
         $data->dateupdated = $this->apply_date_offset($data->dateupdated);

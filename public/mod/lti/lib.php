@@ -709,9 +709,25 @@ function lti_check_updates_since(cm_info $cm, $from, $filter = array()) {
 
     // Check if there is a new submission.
     $updates->submissions = (object) array('updated' => false);
-    $select = 'ltiid = :id AND userid = :userid AND (datesubmitted > :since1 OR dateupdated > :since2)';
-    $params = array('id' => $cm->instance, 'userid' => $USER->id, 'since1' => $from, 'since2' => $from);
-    $submissions = $DB->get_records_select('lti_submission', $select, $params, '', 'id');
+    $sql = "SELECT ltisub.id
+              FROM {lti_submission} ltisub
+              JOIN {lti_resource_link} ltirl
+                ON ltirl.id = ltisub.ltiresourcelinkid
+             WHERE ltisub.userid = :userid
+               AND ltirl.itemid = :itemid
+               AND ltirl.itemtype = :itemtype
+               AND (ltisub.datesubmitted > :since1 OR ltisub.dateupdated > :since2)";
+
+    $params = [
+        'itemid' => $cm->instance,
+        'itemtype' => 'mod_lti:activityplacement',
+        'userid' => $USER->id,
+        'since1' => $from,
+        'since2' => $from
+    ];
+
+    $submissions = $DB->get_records_sql($sql, $params);
+
     if (!empty($submissions)) {
         $updates->submissions->updated = true;
         $updates->submissions->itemids = array_keys($submissions);
@@ -719,8 +735,23 @@ function lti_check_updates_since(cm_info $cm, $from, $filter = array()) {
 
     // Now, teachers should see other students updates.
     if (has_capability('moodle/ltix:manage', $cm->context)) {
-        $select = 'ltiid = :id AND (datesubmitted > :since1 OR dateupdated > :since2)';
-        $params = array('id' => $cm->instance, 'since1' => $from, 'since2' => $from);
+
+        $sql = "SELECT ltisub.id
+              FROM {lti_submission} ltisub
+              JOIN {lti_resource_link} ltirl
+                ON ltirl.id = ltisub.ltiresourcelinkid
+             WHERE ltirl.itemid = :itemid
+               AND ltirl.itemtype = :itemtype
+               AND (ltisub.datesubmitted > :since1 OR ltisub.dateupdated > :since2)";
+
+        $params = [
+            'itemid' => $cm->instance,
+            'itemtype' => 'mod_lti:activityplacement',
+            'since1' => $from,
+            'since2' => $from
+        ];
+
+        $whereuseridsql = '';
 
         if (groups_get_activity_groupmode($cm) == SEPARATEGROUPS) {
             $groupusers = array_keys(groups_get_activity_shared_group_members($cm));
@@ -728,12 +759,15 @@ function lti_check_updates_since(cm_info $cm, $from, $filter = array()) {
                 return $updates;
             }
             list($insql, $inparams) = $DB->get_in_or_equal($groupusers, SQL_PARAMS_NAMED);
-            $select .= ' AND userid ' . $insql;
+            $whereuseridsql = " AND userid {$insql}";
             $params = array_merge($params, $inparams);
         }
 
+        $sql .= $whereuseridsql;
+
         $updates->usersubmissions = (object) array('updated' => false);
-        $submissions = $DB->get_records_select('lti_submission', $select, $params, '', 'id');
+        $submissions = $DB->get_records_sql($sql, $params);
+
         if (!empty($submissions)) {
             $updates->usersubmissions->updated = true;
             $updates->usersubmissions->itemids = array_keys($submissions);
