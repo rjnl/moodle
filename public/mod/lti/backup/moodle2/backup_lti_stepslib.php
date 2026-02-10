@@ -197,7 +197,7 @@ class backup_lti_activity_structure_step extends backup_activity_structure_step 
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
-            $ltisubmission->set_source_table('lti_submission', array('ltiid' => backup::VAR_ACTIVITYID));
+            $ltisubmission->set_source_table('lti_submission', ['ltiresourcelinkid' => backup::VAR_ACTIVITYID]);
         }
 
         $lticoursevisibledata = $this->retrieve_lti_coursevisible($ltirecord);
