@@ -148,16 +148,16 @@ class provider implements
     }
 
     /**
-     * Gets a list of users in the LTI submission table using the requested context.
+     * Gets a list of users that have personal core_ltix data using the requested context.
      *
      * This is a helper method used by the respective privacy providers of components to which the core_ltix subsystem
-     * provides data. It enables them to return the users that have lti_submission data in their own context, which
-     * core_ltix has no direct knowledge of.
+     * provides data. It enables them to return the users that have data in core_ltix associated to a particular context,
+     * which core_ltix has no direct knowledge of.
      *
      * @param userlist $userlist List of users and context to check.
      * @return void
      */
-    public static function get_lti_submission_users_in_context_from_sql(userlist $userlist): void {
+    public static function get_users_in_context_from_sql(userlist $userlist): void {
 
         $sql = "SELECT ltisub.userid
                   FROM {lti_submission} ltisub
@@ -204,16 +204,16 @@ class provider implements
     }
 
     /**
-     * Get SQL to retrieve all LTI submissions where the user has been involved.
+     * Get SQL to retrieve all core_ltix data where the user has been involved.
      *
      * This is a helper method used by the respective privacy providers of components to which the core_ltix subsystem
-     * provides data. It enables them to return the lti_submission data associated with a given user in their own
-     * context, which core_ltix has no knowledge of.
+     * provides data. It enables them to return the core_ltix data associated with a given user in their own context,
+     * which core_ltix has no knowledge of.
      *
      * @param int $userid The user to search
      * @return array join/where/params SQL parts to include in queries
      */
-    public static function get_lti_submission_user_join_sql(int $userid): array {
+    public static function get_context_join_sql(int $userid): array {
 
         $join = "INNER JOIN {lti_resource_link} ltirl
                     ON ltirl.contextid = c.id
@@ -324,17 +324,17 @@ class provider implements
     }
 
     /**
-     * Export personal data for the given user related to LTI submissions in particular contexts.
+     * Export personal core_ltix data for the given user in particular contexts.
      *
      * This is a helper method used by the respective privacy providers of components to which the core_ltix subsystem
-     * provides data. It enables them to export the lti_submission data associated with a given user in their own
-     * contexts, which core_ltix has no knowledge of.
+     * provides data. It enables them to export core_ltix data associated with a given user in their own contexts, which
+     * core_ltix has no knowledge of.
      *
      * @param \stdClass $user The user object
      * @param array $contextids The array of context IDs
      * @return void
      */
-    public static function export_user_data_lti_submissions(\stdClass $user, array $contextids): void {
+    public static function export_lti_user_data(\stdClass $user, array $contextids): void {
         global $DB;
 
         if (empty($contextids)) {
@@ -374,91 +374,30 @@ class provider implements
         });
     }
 
-    /**
-     * Deletes LTI data for all users in a given context.
-     *
-     * @param \context $context The context to delete all data for.
-     * @return void
-     */
-    public static function delete_data_for_all_users_in_context(\context $context): void {
-        global $DB;
+    #[\Override]
+    public static function delete_data_for_all_users_in_context(\context $context) {
+    }
 
-        if ($context->contextlevel == CONTEXT_SYSTEM) {
-            $DB->delete_records('lti_tool_proxies');
-        } else if ($context->contextlevel == CONTEXT_COURSE) {
-            // Apart from course tools, this also handles site tools, as they are currently created in the
-            // Front Page (course ID = 1), which belongs to the course context.
-            $DB->delete_records('lti_types', ['course' => $context->instanceid]);
-        }
+    #[\Override]
+    public static function delete_data_for_users(approved_userlist $userlist) {
+    }
+
+    #[\Override]
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
     }
 
     /**
-     * Deletes LTI data for a given user in all provided contexts.
-     *
-     * This function just updates the User ID to 0 instead of deleting the LTI instances
-     * because the instances may be used by other people.
-     *
-     * @param approved_contextlist $contextlist List of contexts to delete the user from.
-     * @return void
-     */
-    public static function delete_data_for_user(approved_contextlist $contextlist): void {
-        global $DB;
-
-        $userid = $contextlist->get_user()->id;
-
-        foreach ($contextlist->get_contexts() as $context) {
-            if ($context->contextlevel == CONTEXT_SYSTEM) {
-                $DB->set_field('lti_tool_proxies', 'createdby', 0, ['createdby' => $userid]);
-            } else if ($context->contextlevel == CONTEXT_COURSE) {
-                // Apart from course tools, this also handles site tools, as they are currently created in the
-                // Front Page (course ID = 1), which belongs to the course context.
-                $DB->set_field('lti_types', 'createdby', 0, ['course' => $context->instanceid, 'createdby' => $userid]);
-            }
-        }
-    }
-
-    /**
-     * Deletes LTI data for a given list of users and their contexts.
-     *
-     * This function just updates the User ID to 0 instead of the deleting the LTI instances
-     * because the instances may be used by other people.
-     *
-     * @param approved_userlist $userlist The list of contexts and users to delete the user from.
-     * @return void
-     */
-    public static function delete_data_for_users(approved_userlist $userlist): void {
-        global $DB;
-
-        $context = $userlist->get_context();
-        [$usersinsql, $usersinparams] = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
-
-        if ($context->contextlevel == CONTEXT_SYSTEM) {
-            $DB->set_field_select('lti_tool_proxies', 'createdby', 0, "createdby $usersinsql", $usersinparams);
-        } else if ($context->contextlevel == CONTEXT_COURSE) {
-            // Apart from course tools, this also handles site tools, as they are currently created in the
-            // Front Page (course ID = 1), which belongs to the course context.
-            $DB->set_field_select(
-                'lti_types',
-                'createdby',
-                0,
-                "course = :courseid AND createdby $usersinsql",
-                array_merge($usersinparams, ['courseid' => $context->instanceid])
-            );
-        }
-    }
-
-    /**
-     * Deletes the data from the LTI submission table.
+     * Delete personal core_ltix data for the given users in a particular context.
      *
      * This is a helper method used by the respective privacy providers of components to which the core_ltix subsystem
-     * provides data. It enables them to delete the lti_submission data associated with a given user in their own
+     * provides data. It enables them to delete core_ltix data associated with a given set of users in a particular
      * context, which core_ltix has no knowledge of.
      *
      * @param \context $context The context object
      * @param array|null $userids User ID or array of IDs to delete the data for.
      * @return void
      */
-    public static function delete_lti_submission_data(\context $context, ?array $userids = null): void {
+    public static function delete_lti_user_data(\context $context, ?array $userids = null): void {
         global $DB;
 
         $params = ['contextid' => $context->id];
