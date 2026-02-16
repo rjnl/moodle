@@ -475,7 +475,7 @@ final class provider_test extends \core_privacy\tests\provider_testcase {
         global $DB;
 
         $ltigenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
-        $coursetoolid = $ltigenerator->create_tool_types([
+        $coursetoolid = $ltigenerator->create_course_tool_types([
             'baseurl' => 'https://www.moodle.org',
             'course' => $courseid,
             'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
