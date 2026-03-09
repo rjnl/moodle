@@ -94,7 +94,7 @@ class provider implements
     /**
      * Get the list of users who have data within a context.
      *
-     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
@@ -114,9 +114,9 @@ class provider implements
                  WHERE c.id = :contextid";
 
         $params = [
-            'modname'       => 'book',
-            'contextid'     => $context->id,
-            'contextlevel'  => CONTEXT_MODULE,
+            'modname' => 'book',
+            'contextid' => $context->id,
+            'contextlevel' => CONTEXT_MODULE,
         ];
 
         $userlist->add_from_sql('userid', $sql, $params);
@@ -156,7 +156,7 @@ class provider implements
                   JOIN {context} c ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
                  WHERE c.id {$contextsql}
                    AND bcu.userid = :userid
-                 ORDER BY bcu.id, cm.id";
+              ORDER BY bcu.id, cm.id";
 
         $params = [
                 'userid' => $user->id,

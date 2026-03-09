@@ -91,13 +91,7 @@ class mod_book_mod_form extends moodleform_mod {
         $defaultvalues['readpercentactive'] = !empty($defaultvalues['readpercent']) ? 1 : 0;
     }
 
-    /**
-     * Book completion rule fields.
-     *
-     * @return array|void
-     *
-     * @throws coding_exception
-     */
+    #[\Override]
     public function add_completion_rules() {
         $mform = $this->_form;
 
@@ -107,7 +101,7 @@ class mod_book_mod_form extends moodleform_mod {
         }
 
         $group = [
-            $mform->createElement('checkbox', 'readpercentactive', '   ', get_string('requiredreadpercent', 'book')),
+            $mform->createElement('checkbox', 'readpercentactive', '', get_string('requiredreadpercent', 'book')),
             $mform->createElement('select', 'readpercent', get_string('readpercentselect', 'book'), $completionviews),
         ];
 
@@ -135,13 +129,7 @@ class mod_book_mod_form extends moodleform_mod {
         return $errors;
     }
 
-    /**
-     * Called during validation to see whether some module-specific completion rules are selected.
-     *
-     * @param array $data Input data not yet validated.
-     *
-     * @return bool True if one or more rules is enabled, false if none are.
-     */
+    #[\Override]
     public function completion_rule_enabled($data) {
         return (!empty($data['readpercentactive']) && $data['readpercent'] > 0);
     }

@@ -80,10 +80,12 @@ class helper {
         global $DB;
 
         $userviewedchapterssql = "SELECT DISTINCT uv.chapterid
-                              FROM {book_chapters_userviews} uv
-                              INNER JOIN {book_chapters} bc ON bc.id = uv.chapterid
-                              INNER JOIN {book} b ON b.id = bc.bookid
-                              WHERE bc.bookid = :bookid AND uv.userid = :userid AND bc.hidden = 0";
+                                    FROM {book_chapters_userviews} uv
+                                    JOIN {book_chapters} bc ON bc.id = uv.chapterid
+                                    JOIN {book} b ON b.id = bc.bookid
+                                   WHERE bc.bookid = :bookid
+                                         AND uv.userid = :userid
+                                         AND bc.hidden = 0";
         $parameters = [
             'bookid' => $bookid,
             'userid' => $userid,

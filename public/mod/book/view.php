@@ -91,7 +91,7 @@ if ($chapterid == '0') { // Go to first chapter if no given.
     }
 
     // If a page was not set, them set the last visited page to display if it exists and is not hidden.
-    $lastuserviewedchapterid = mod_book_get_user_last_viewed_chapter_to_show($book->id, $chapters);
+    $lastuserviewedchapterid = get_chapter_to_display($book->id, $chapters);
 
     if (!$edit && $lastuserviewedchapterid !== false) {
         $chapterid = $lastuserviewedchapterid;

@@ -247,6 +247,7 @@ final class lib_test extends \advanced_testcase {
     /**
      * Test book completion only using completion view setting
      *
+     * @covers ::book_view
      * @return void
      */
     public function test_book_view_completion_with_chapter_view(): void {
@@ -281,6 +282,7 @@ final class lib_test extends \advanced_testcase {
     /**
      * Test book completion using read percentage configured
      *
+     * @covers ::book_view
      * @return void
      * @throws \coding_exception
      */
