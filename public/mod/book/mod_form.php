@@ -88,27 +88,35 @@ class mod_book_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         parent::data_preprocessing($defaultvalues);
 
-        $defaultvalues['readpercentactive'] = !empty($defaultvalues['readpercent']) ? 1 : 0;
+        $suffix = $this->get_suffix();
+        $readpercentel = 'readpercent' . $suffix;
+        $readpercentactiveel = 'readpercentactive' . $suffix;
+        $defaultvalues[$readpercentactiveel] = !empty($defaultvalues[$readpercentel]) ? 1 : 0;
     }
 
     #[\Override]
     public function add_completion_rules() {
         $mform = $this->_form;
+        $suffix = $this->get_suffix();
 
         $completionviews = [];
         for ($i = 0; $i <= 100; $i += 5) {
             $completionviews[$i] = $i . '%';
         }
 
+        $readpercentactiveel = 'readpercentactive' . $suffix;
+        $readpercentel = 'readpercent' . $suffix;
+        $completionviewgroupel = 'completionviewgroup' . $suffix;
+
         $group = [
-            $mform->createElement('checkbox', 'readpercentactive', '', get_string('requiredreadpercent', 'book')),
-            $mform->createElement('select', 'readpercent', get_string('readpercentselect', 'book'), $completionviews),
+            $mform->createElement('checkbox', $readpercentactiveel, '', get_string('requiredreadpercent', 'book')),
+            $mform->createElement('select', $readpercentel, get_string('readpercentselect', 'book'), $completionviews),
         ];
 
-        $mform->addGroup($group, 'completionviewgroup', get_string('readpercentselect', 'book'), ['<br>'], false);
-        $mform->disabledIf('readpercent', 'readpercentactive', 'notchecked');
+        $mform->addGroup($group, $completionviewgroupel, get_string('readpercentselect', 'book'), '', false);
+        $mform->disabledIf($readpercentel, $readpercentactiveel, 'notchecked');
 
-        return ['completionviewgroup'];
+        return [$completionviewgroupel];
     }
 
     /**
@@ -121,9 +129,13 @@ class mod_book_mod_form extends moodleform_mod {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        $suffix = $this->get_suffix();
+        $readpercentactiveel = 'readpercentactive' . $suffix;
+        $readpercentel = 'readpercent' . $suffix;
+        $completionviewgroupel = 'completionviewgroup' . $suffix;
 
-        if (isset($data['readpercentactive']) && $data['readpercent'] == '0') {
-            $errors['completionviewgroup'] = get_string('readpercentvalidation', 'mod_book');
+        if (isset($data[$readpercentactiveel]) && $data[$readpercentel] == '0') {
+            $errors[$completionviewgroupel] = get_string('readpercentvalidation', 'mod_book');
         }
 
         return $errors;
@@ -131,6 +143,7 @@ class mod_book_mod_form extends moodleform_mod {
 
     #[\Override]
     public function completion_rule_enabled($data) {
-        return (!empty($data['readpercentactive']) && $data['readpercent'] > 0);
+        $suffix = $this->get_suffix();
+        return (!empty($data['readpercentactive' . $suffix]) && $data['readpercent' . $suffix] > 0);
     }
 }

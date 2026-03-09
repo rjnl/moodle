@@ -656,6 +656,7 @@ function book_view($book, $context, $chapter = null) {
 
     $course = $DB->get_record('course', ['id' => $book->course], '*', MUST_EXIST);
     $cm = $DB->get_record('course_modules', ['id' => $context->instanceid], '*', MUST_EXIST);
+    $completionstate = COMPLETION_INCOMPLETE;
 
     $completion = new completion_info($course);
 
@@ -670,13 +671,12 @@ function book_view($book, $context, $chapter = null) {
         if ($cm->completionview) {
             $completion->set_module_viewed($cm);
         }
-
-        $completion->update_state($cm, COMPLETION_INCOMPLETE);
     } else {
         $userview = new \stdClass();
         $userview->chapterid = $chapter->id;
         $userview->userid = $USER->id;
         $userview->timecreated = time();
+        $completionstate = COMPLETION_COMPLETE;
 
         $DB->insert_record('book_chapters_userviews', $userview);
 
@@ -689,8 +689,10 @@ function book_view($book, $context, $chapter = null) {
         if ($cm->completionview) {
             $completion->set_module_viewed($cm);
         }
+    }
 
-        $completion->update_state($cm, COMPLETION_COMPLETE);
+    if ((int)$cm->completion === COMPLETION_TRACKING_AUTOMATIC) {
+        $completion->update_state($cm, $completionstate);
     }
 }
 
