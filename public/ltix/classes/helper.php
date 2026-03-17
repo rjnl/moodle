@@ -2770,6 +2770,44 @@ class helper {
         return join(',', $roles);
     }
 
+    /**
+     * A context-based IMS role assignment helper, returning roles in the LIS v1 schema.
+     *
+     * The logic here is based on the legacy role calc code in {@see self::get_ims_role()} and {@see oauth_helper::sign_jwt()}.
+     *
+     * Conversion to/from LIS v1/v2 roles can be achieved in calling code, using {@see lis_vocab_converter}.
+     *
+     * @param int $userid the id of the user.
+     * @param \core\context $context context to check roles within.
+     * @return array the array of LTI roles.
+     */
+    public static function get_lti_roles(int $userid, \core\context $context): array {
+        $roles = [];
+
+        if (has_capability('moodle/ltix:manage', $context, $userid)) {
+            array_push($roles, 'Instructor');
+        } else {
+            array_push($roles, 'Learner');
+        }
+
+        if (has_capability('moodle/ltix:admin', $context, $userid)) {
+            // Explicitly defined admins: drop the learner role and always granted IMS admin role.
+            $roles = array_diff($roles, array('Learner'));
+            array_push($roles, 'urn:lti:sysrole:ims/lis/Administrator', 'urn:lti:instrole:ims/lis/Administrator');
+        } else if (is_siteadmin($userid)) {
+            // De-facto admins (is an admin in Moodle): drop the learner role and conditionally grant IMS admin role.
+            // Here, an additional check is required in course-specific contexts to support the 'loginas' feature.
+            // If not in a course-related context, the IMS roles is always added.
+            $coursecontext = $context->get_course_context(false); // Note: returns false if course context not applicable.
+            if (!$coursecontext || !is_role_switched($coursecontext->instanceid)) {
+                $roles = array_diff($roles, array('Learner'));
+                array_push($roles, 'urn:lti:sysrole:ims/lis/Administrator', 'urn:lti:instrole:ims/lis/Administrator');
+            }
+        }
+
+        return $roles;
+    }
+
     public static function get_shared_secrets_by_key($key) {
         global $DB;
 

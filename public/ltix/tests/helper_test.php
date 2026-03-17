@@ -34,6 +34,7 @@
 
 namespace core_ltix;
 
+use context_course;
 use core_ltix\local\placement\placement_status;
 
 defined('MOODLE_INTERNAL') || die();
@@ -1005,6 +1006,105 @@ final class helper_test extends lti_testcase {
         ];
     }
 
+    /**
+     * Test get_lti_roles() generates the correct roles when called within course context.
+     *
+     * @covers ::get_lti_roles
+     * @dataProvider get_lti_roles_provider
+     * @param string $rolename the name of the role (student, teacher, admin)
+     * @param null|string $switchedto the role to switch to, or false if not using the 'switch to' functionality.
+     * @param array $expected the expected role names.
+     * @return void
+     */
+    public function test_get_lti_roles_course_context_roles(string $rolename, ?string $switchedto, array $expected): void {
+        global $DB;
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $coursecontext = context_course::instance($course->id);
+        $user = $rolename == 'admin' ? get_admin() : $this->getDataGenerator()->create_and_enrol($course, $rolename);
+
+        if ($switchedto) {
+            $this->setUser($user);
+            $role = $DB->get_record('role', array('shortname' => $switchedto));
+            role_switch($role->id, \context_course::instance($course->id));
+        }
+
+        $this->assertEquals($expected, helper::get_lti_roles($user->id, $coursecontext));
+    }
+
+    /**
+     * Data provider for testing get_lti_roles.
+     *
+     * @return array[] the test case data.
+     */
+    public static function get_lti_roles_provider(): array {
+        return [
+            'Student, no role switch' => [
+                'rolename' => 'student',
+                'switchedto' => null,
+                'expected' => ['Learner']
+            ],
+            'Teacher, no role switch' => [
+                'rolename' => 'editingteacher',
+                'switchedto' => null,
+                'expected' => ['Instructor']
+            ],
+            'Admin, no role switch' => [
+                'rolename' => 'admin',
+                'switchedto' => null,
+                'expected' => [
+                    'Instructor',
+                    'urn:lti:sysrole:ims/lis/Administrator',
+                    'urn:lti:instrole:ims/lis/Administrator',
+                ]
+            ],
+            'Admin, role switch student' => [
+                'rolename' => 'admin',
+                'switchedto' => 'student',
+                'expected' => ['Learner']
+            ],
+            'Admin, role switch teacher' => [
+                'rolename' => 'admin',
+                'switchedto' => 'editingteacher',
+                'expected' => ['Instructor']
+            ],
+        ];
+    }
+
+    /**
+     * Test get_lti_roles() generates the correct roles when called outside course context (e.g. system context).
+     *
+     * LTI roles don't yet make sense outside of courses, since LTI usage is restricted to inside courses.
+     * This test verifies that the Moodle role system can be used to correctly generate LTI roles in external contexts, should
+     * the need arise in future (e.g. if system-level launches are implemented in future).
+     *
+     * @return void
+     */
+    public function test_get_lti_roles_site_context_roles(): void {
+        $this->resetAfterTest();
+        global $DB;
+
+        $adminuser = get_admin();
+        $authuser = $this->getDataGenerator()->create_user();
+
+        // Site admin gets admin roles.
+        $adminexpected = [
+            'Instructor',
+            'urn:lti:sysrole:ims/lis/Administrator',
+            'urn:lti:instrole:ims/lis/Administrator',
+        ];
+        $this->assertEquals($adminexpected, helper::get_lti_roles($adminuser->id, \context_system::instance()));
+
+        // By default, authenticated users get 'Learner' role fallback.
+        $this->assertEquals(['Learner'], helper::get_lti_roles($authuser->id, \context_system::instance()));
+
+        // Grant authenticated user role the moodle/ltix:manage capability at site context.
+        // This permits 'Instructor' role to be granted, so verify that.
+        $authenticatedrole = $DB->get_record('role', ['shortname' => 'user'], '*', MUST_EXIST);
+        assign_capability('moodle/ltix:manage', CAP_ALLOW, $authenticatedrole->id, \context_system::instance());
+        $this->assertEquals(['Instructor'], helper::get_lti_roles($authuser->id, \context_system::instance()));
+    }
 
     /**
      * Test the delete_type() helper function.
