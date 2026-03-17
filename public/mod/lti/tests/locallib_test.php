@@ -793,7 +793,7 @@ final class locallib_test extends \advanced_testcase {
         $mapping = [
             'basic-lti-launch-request' => 'LtiResourceLinkRequest',
             'ContentItemSelectionRequest' => 'LtiDeepLinkingRequest',
-            'LtiDeepLinkingResponse' => 'ContentItemSelection',
+            'ContentItemSelection' => 'LtiDeepLinkingResponse',
             'LtiSubmissionReviewRequest' => 'LtiSubmissionReviewRequest'
         ];
 

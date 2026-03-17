@@ -57,7 +57,7 @@ final class oauth_helper_test extends lti_testcase {
         $mapping = [
             'basic-lti-launch-request' => 'LtiResourceLinkRequest',
             'ContentItemSelectionRequest' => 'LtiDeepLinkingRequest',
-            'LtiDeepLinkingResponse' => 'ContentItemSelection',
+            'ContentItemSelection' => 'LtiDeepLinkingResponse',
             'LtiSubmissionReviewRequest' => 'LtiSubmissionReviewRequest'
         ];
 

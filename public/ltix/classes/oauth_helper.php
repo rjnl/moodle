@@ -136,7 +136,7 @@ class oauth_helper {
         return array(
             'basic-lti-launch-request' => 'LtiResourceLinkRequest',
             'ContentItemSelectionRequest' => 'LtiDeepLinkingRequest',
-            'LtiDeepLinkingResponse' => 'ContentItemSelection',
+            'ContentItemSelection' => 'LtiDeepLinkingResponse',
             'LtiSubmissionReviewRequest' => 'LtiSubmissionReviewRequest',
         );
     }
@@ -764,7 +764,7 @@ class oauth_helper {
         if (isset($params['content_items'])) {
             $params['content_items'] = helper::convert_content_items($params['content_items']);
         }
-        $messagetypemapping = self::get_jwt_message_type_mapping();
+        $messagetypemapping = array_flip(self::get_jwt_message_type_mapping());
         if (isset($params['lti_message_type']) && array_key_exists($params['lti_message_type'], $messagetypemapping)) {
             $params['lti_message_type'] = $messagetypemapping[$params['lti_message_type']];
         }
