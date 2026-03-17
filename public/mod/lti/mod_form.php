@@ -537,6 +537,7 @@ class mod_lti_mod_form extends moodleform_mod {
      * @param object $defaultvalues default values to populate the form with.
      */
     public function set_data($defaultvalues) {
+        // TODO: get "service data pertaining to a link" another way, via core_ltix::xxxx
         $services = \core_ltix\helper::get_services();
         if (is_object($defaultvalues)) {
             foreach ($services as $service) {

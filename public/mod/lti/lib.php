@@ -128,7 +128,7 @@ function lti_add_instance($lti, $mform) {
         $lti->name,
         $lti->intro,
         $lti->introformat,
-        $lti->instructorchoiceacceptgrades,
+        true, // Note: Gradable represents support for AGS + grading, generally, not the value of acceptgrades.
         $lti->servicesalt,
         $launchcontainer,
         $icon,
@@ -143,6 +143,9 @@ function lti_add_instance($lti, $mform) {
         lti_grade_item_update($lti);
     }
 
+    // TODO: this should be replaced with a core_ltix call, effectively notifying core_ltix
+    //  that a gradable link has been created and allowing core_ltix to call into services alerting them
+    //  and allowing them to update things, if necessary.
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
         $service->instance_added( $lti );
@@ -195,7 +198,7 @@ function lti_update_instance($lti, $mform) {
         'title' => $lti->name,
         'text' => $lti->intro,
         'textformat' => $lti->introformat,
-        'gradable' => $lti->instructorchoiceacceptgrades,
+        'gradable' => true, // Note: Gradable represents support for AGS + grading, generally, not the value of acceptgrades.
         ...(!isset($lti->launchcontainer) ? ['launchcontainer' => $lti->launchcontainer] : []),
         ...(!empty($lti->icon) ? ['icon' => $lti->icon] : []),
         ...(!empty($lti->instructorcustomparameters) ? ['customparams' => $lti->instructorcustomparameters] : []),
@@ -408,6 +411,25 @@ function lti_get_coursemodule_info($coursemodule) {
         $info->content = format_module_intro('lti', $lti, $coursemodule->id, false);
     }
 
+    // TODO: mod_lti takes the responsibility of handling the legacy, manually configured instances. core_ltix can't handle these.
+    //  Only mod_lti knows where the config is for these (i.e. in the lti instance table) and importantly how to check the launch
+    //  container (which is what we want to check here to decide whether the onclick handler is set or not - see below).
+    //  The following code will need to be replaced with a new API, something like:
+    //  $link = \core_ltix\placements_helper::get_link_for_placement('mod_lti:activityplacement', $coursemodule->instance);
+    //  $toolconfig = \core_ltix\helper::get_tool_config_for_link($link);
+    //  This would wrap directly-linked tool config, domain matched config + any other config logic WHICH CORE SUPPORTS (but not
+    //  the legacy manually configured link config). Importantly, the domain matching would be handled inside this API, and clients
+    //  would not need to care about it.
+    //  Then, the code below would probably do something like:
+    //  if ($toolconfig && $toolconfig->launchcontainer == WINDOW) {
+    //      we have config, so can just check the launch container and add the onclick handler
+    //  else if (is_null($toolconfig)) {
+    //      Tool config could not be found for the link.
+    //      this could be any link restored cross-site, without a matched tool, or could be a manually configured lti1p1 link.
+    //      we might be forced to make a best guess at this stage...checking perhaps lti->password etc..
+    //      if we're sure it's a manual instance, we can check the launchcontainer value in the configuration, otherwise need to
+    //      assume defaults (empty config, meaning launch goes via view.php)...
+    //  }
     if (!empty($lti->typeid)) {
         $toolconfig = \core_ltix\helper::get_type_config($lti->typeid);
     } else if ($tool = \core_ltix\helper::get_tool_by_url_match($lti->toolurl)) {
@@ -432,6 +454,14 @@ function lti_get_coursemodule_info($coursemodule) {
     }
 
     // Does the link open in a new window?
+    // TODO: this redirect to mod/lti/launch.php is for NEW WINDOW launch container launches, and can't be directly replaced with
+    //  the ltix/launch route because mod/lti/launch.php is also responsible for firing the lti_view event, which is essential for
+    //  view-based completion in this specific case (where we're not going through view.php like with the other modes).
+    //  Additionally, some sites will have copied links to mod/lti/launch.php and embedded them around their site, meaning this
+    //  endpoint can't be directly removed anyway. Suggest keeping it but simplifying it, making it just:
+    //  - do essential cap checks
+    //  - fire lti_view event
+    //  - redirect to ltix/launch route to do the launch.
     $launchcontainer = \core_ltix\helper::get_launch_container($lti, $toolconfig);
     if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW) {
         $launchurl = new moodle_url('/mod/lti/launch.php', array('id' => $coursemodule->id));

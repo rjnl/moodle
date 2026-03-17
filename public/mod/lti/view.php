@@ -46,6 +46,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_ltix\local\placement\placement_service;
+
 require_once('../../config.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->dirroot.'/mod/lti/lib.php');
@@ -60,28 +62,11 @@ $forceview = optional_param('forceview', 0, PARAM_BOOL);
 if ($l) {  // Two ways to specify the module.
     $lti = $DB->get_record('lti', array('id' => $l), '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('lti', $lti->id, $lti->course, false, MUST_EXIST);
-
 } else {
     $cm = get_coursemodule_from_id('lti', $id, 0, false, MUST_EXIST);
     $lti = $DB->get_record('lti', array('id' => $cm->instance), '*', MUST_EXIST);
 }
-
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-
-$typeid = $lti->typeid;
-if (empty($typeid) && ($tool = \core_ltix\helper::get_tool_by_url_match($lti->toolurl))) {
-    $typeid = $tool->id;
-}
-if ($typeid) {
-    $toolconfig = \core_ltix\helper::get_type_config($typeid);
-    $missingtooltype = empty($toolconfig);
-    if (!$missingtooltype) {
-        $toolurl = $toolconfig['toolurl'];
-    }
-} else {
-    $toolconfig = array();
-    $toolurl = $lti->toolurl;
-}
 
 $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
 $context = context_module::instance($cm->id);
@@ -97,26 +82,46 @@ if (!empty($foruserid) && (int)$foruserid !== (int)$USER->id) {
 $url = new moodle_url('/mod/lti/view.php', array('id' => $cm->id));
 $PAGE->set_url($url);
 
+// TODO: MDL-88222: implement support for legacy, manually-configure instances.
+//  These are NOT supported by core_ltix and are supported only through mod_lti.
+//  Perhaps the launch controllers can still be used if mod_lti sets a specific concrete tool repository using DI?
+//  To do that, we'd roughly need:
+//  - extract an interface out of registration_repository (mod_lti implements this).
+//  - inside the repository implementation in mod_lti, for a given link , return the config stored in the associated lti instance
+//  table.
+//  This way, core_ltix launch just treats it as a normal link launch, while mod_lti maintains the legacy support locally.
 
-if (!empty($missingtooltype)) {
-    $PAGE->set_pagelayout('incourse');
-    echo $OUTPUT->header();
-    throw new moodle_exception('tooltypenotfounderror', 'mod_lti');
-}
+// TODO: MDL-87963 this must be replaced by a core_ltix API call. Data persistence classes should be internal to core_ltix ONLY.
+//  Note also that the resource_link_manager class is supposed to serve this need, but its method ::get_by_itemid() doesn't capture
+//  enough data to uniquely identify a link.
+$link = \core_ltix\local\lticore\models\resource_link::get_record([
+    'component' => 'mod_lti',
+    'itemtype' => 'mod_lti:activityplacement',
+    'itemid' => $cm->id,
+    'contextid' => $context->id
+], MUST_EXIST);
 
-$launchcontainer = \core_ltix\helper::get_launch_container($lti, $toolconfig);
+// TODO: MDL-87963: for now, placement_service resolves the tool URL for the link since the link is just a persistent and doesn't
+//  contain any inherited tool values. If/when link becomes a domain object, tool URL and launch container can be resolved there,
+//  and this client code should be updated to call $link->launch_container() or the like.
+// TODO: MDL-88220: tool URL is only used presently to construct the iframe HTML, which will eventually move into core_ltix as
+//  well, at which point get_tool_url_for_link() will no longer be needed as a public API.
+// TODO: Also, the DB is hit several times unnecessarily using the code below, which is also a smell.
+$launchcontainer = placement_service::get_launch_container_for_link($link);
+$toolurl = placement_service::get_tool_url_for_link($link);
 
 if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_EMBED_NO_BLOCKS) {
     $PAGE->set_pagelayout('incourse');
     $PAGE->blocks->show_only_fake_blocks(); // Disable blocks for layouts which do include pre-post blocks.
 } else if ($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW) {
     if (!$forceview) {
-        $url = new moodle_url('/mod/lti/launch.php', array('id' => $cm->id));
-        redirect($url);
+        $launchurl = placement_service::get_launch_url_for_link($link);
+        redirect($launchurl);
     }
 } else { // Handles LTI_LAUNCH_CONTAINER_DEFAULT, LTI_LAUNCH_CONTAINER_EMBED, LTI_LAUNCH_CONTAINER_WINDOW.
     $PAGE->set_pagelayout('incourse');
 }
+$launchurl = placement_service::get_launch_url_for_link($link);
 
 lti_view($lti, $course, $cm, $context);
 
@@ -136,20 +141,23 @@ $activityheader->set_attrs($header ?? []);
 // Print the page header.
 echo $OUTPUT->header();
 
-if ($typeid) {
-    $config = \core_ltix\helper::get_type_type_config($typeid);
-} else {
-    $config = new stdClass();
-    $config->lti_ltiversion = \core_ltix\constants::LTI_VERSION_1;
-}
-$launchurl = new moodle_url('/mod/lti/launch.php', ['id' => $cm->id, 'triggerview' => 0]);
 if ($action) {
-    $launchurl->param('action', $action);;
+    $launchurl->param('action', $action);
 }
 if ($foruserid) {
-    $launchurl->param('user', $foruserid);;
+    $launchurl->param('user', $foruserid);
 }
 unset($SESSION->lti_initiatelogin_status);
+
+// TODO: MDL-88220: create the relevant launch-container-specific API methods, allowing placements to launch their links.
+//  E.g. for LTI_LAUNCH_CONTAINER_REPLACE_MOODLE_WINDOW, placement service could have a method like launch_link_in_own_window($link)
+//  which would handle the redirect and exit, allowing client code to just call that and then exit immediately after without needing
+//  to worry about the details of how to do that properly and securely. For embedded launches, maybe a method like
+//  get_launch_html_for_link($link) which would return the appropriate iframe HTML for the link, and client code would just echo
+//  that. This would encapsulate all the launch-container-specific logic in the service layer, and keep it out of the client code.
+//  And for new window launches, to handle the case where you wanted to provide a link instead of an automatic popup, maybe a method
+//  like get_launch_link_for_link($link) which would return the appropriate URL and target for the link, and client code would just
+//  use that to build the link however they wanted (e.g. a normal link, a button, etc).
 if (($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW)) {
     if (!$forceview) {
         echo "<script language=\"javascript\">//<![CDATA[\n";
@@ -167,7 +175,7 @@ if (($launchcontainer == \core_ltix\constants::LTI_LAUNCH_CONTAINER_WINDOW)) {
     // If the specified toolurl is invalid the iframe won't load, but we still want to avoid parse related errors here.
     // So we set an empty default allowed url, and only build a real one if the parse is successful.
     $ltiallow = '';
-    $urlparts = parse_url($toolurl);
+    $urlparts = parse_url($toolurl->out(false));
     if ($urlparts && array_key_exists('scheme', $urlparts) && array_key_exists('host', $urlparts)) {
         $ltiallow = $urlparts['scheme'] . '://' . $urlparts['host'];
         // If a port has been specified we append that too.
