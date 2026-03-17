@@ -16,7 +16,14 @@
 
 namespace core_ltix\local\placement;
 
+use core\url;
+use core_ltix\local\lticore\exception\lti_exception;
+use core_ltix\local\lticore\lti_version;
 use core_ltix\local\lticore\models\resource_link;
+use core_ltix\local\lticore\repository\tool_registration_repository;
+use core_ltix\route\controller\launchrequest\v1p1_resource_link_launch_controller;
+use core_ltix\route\controller\launchrequest\v1p3_resource_link_launch_controller;
+use core_ltix\route\controller\launchrequest\v2p0_resource_link_launch_controller;
 use core_useragent;
 
 /**
@@ -65,5 +72,67 @@ final class placement_service {
         };
 
         return $launchcontainer;
+    }
+
+    /**
+     * Get the tool url for a specific LTI resource link.
+     *
+     * @param resource_link $link the link instance.
+     * @return url the launch URL.
+     * @throws lti_exception
+     */
+    // TODO: unit test missing
+    public static function get_tool_url_for_link(resource_link $link): url {
+
+        $registrationrepo = new tool_registration_repository();
+        $toolid = $link->get('typeid');
+
+        if ($toolid === 0) {
+            // Detached link - try to domain match a tool to determine the base url.
+            // TODO: implement domain match logic, probably via a new method registrationrepo->find_by_domain().
+        } else {
+            $registration = $registrationrepo->get_by_id($toolid);
+        }
+
+        if (empty($registration)) {
+            throw new lti_exception('tooltypenotfounderror', 'core_ltix');
+        }
+
+        return new url($registration->tool->baseurl);
+    }
+
+    /**
+     * Get the launch url for a specific LTI resource link.
+     *
+     * @param resource_link $link the link instance
+     * @return url the launch URL.
+     * @throws lti_exception
+     */
+    // TODO: unit test missing
+    public static function get_launch_url_for_link(resource_link $link): url {
+        $registrationrepo = new tool_registration_repository();
+        $toolid = $link->get('typeid');
+
+        if ($toolid === 0) {
+            // Detached link - try to domain match a tool to determine the base url.
+            // TODO: implement domain match logic, probably via a new method registrationrepo->find_by_domain().
+        } else {
+            $registration = $registrationrepo->get_by_id($toolid);
+        }
+
+        if (empty($registration)) {
+            throw new lti_exception('tooltypenotfounderror', 'core_ltix');
+        }
+
+        $controllerclass = match($registration->tool->ltiversion) {
+            lti_version::LTI_VERSION_1P3->value => v1p3_resource_link_launch_controller::class,
+            lti_version::LTI_VERSION_1->value => v1p1_resource_link_launch_controller::class,
+            lti_version::LTI_VERSION_2->value => v2p0_resource_link_launch_controller::class,
+        };
+
+        return \core\router\util::get_path_for_callable([
+            $controllerclass,
+            'launch_resource_link',
+        ], ['resourcelinkid' => $link->get('id')]);
     }
 }
