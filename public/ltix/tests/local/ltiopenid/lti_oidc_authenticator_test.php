@@ -20,8 +20,8 @@ use core_ltix\local\lticore\exception\lti_exception;
 use core_ltix\local\lticore\message\context\collection\substitution_context;
 use core_ltix\local\lticore\message\payload\lis_vocab_converter;
 use core_ltix\local\lticore\message\payload\lti_1px_payload_converter;
+use core_ltix\local\lticore\message\substitution\factory\variable_substitutor_factory;
 use core_ltix\local\lticore\message\substitution\pipeline\variable_substitutor;
-use core_ltix\local\lticore\message\substitution\pipeline\variable_substitutor_factory;
 use core_ltix\local\lticore\repository\tool_registration_repository;
 use core_ltix\local\lticore\token\lti_token;
 
