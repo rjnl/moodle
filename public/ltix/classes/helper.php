@@ -18,9 +18,12 @@ namespace core_ltix;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\message_context;
 use core_ltix\local\lticore\message\payload\lis_vocab_converter;
 use core_ltix\local\lticore\message\payload\lti_1px_payload_converter;
 use core_ltix\local\lticore\message\substitution\factory\variable_substitutor_factory;
+use core_ltix\local\lticore\message\type\message_type;
 use core_ltix\local\lticore\repository\tool_registration_repository;
 use core_ltix\local\ltiopenid\lti_oidc_authenticator;
 use core_ltix\local\ltiopenid\lti_user_authenticator;
@@ -2049,7 +2052,12 @@ class helper {
         // Add the profile URL.
         $profileservice = service_helper::get_service_by_name('profile');
         $profileservice->set_tool_proxy($toolproxy);
-        $requestparams['tc_profile_url'] = $profileservice->parse_value('$ToolConsumerProfile.url');
+        $requestparams['tc_profile_url'] = $profileservice->parse_val(
+            '$ToolConsumerProfile.url',
+            launch_context::instance(
+                new message_context(message_type::create('ToolProxyRegistrationRequest', 'ToolProxyRegistrationRequest')),
+            )
+        );
 
         // Add the return URL.
         $returnurlparams = array('id' => $toolproxy->id, 'sesskey' => sesskey());
