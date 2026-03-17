@@ -17,9 +17,6 @@
 namespace core_ltix\local\lticore\models;
 
 use core\persistent;
-use core_ltix\local\lticore\messages\lti_message;
-use core_ltix\local\lticore\messages\lti_resource_link_request;
-use core_ltix\local\placement\placements_manager;
 
 /**
  * Resource link persistent.
@@ -105,5 +102,14 @@ final class resource_link extends persistent {
                 'null' => NULL_ALLOWED,
             ],
         ];
+    }
+
+    /**
+     * Convenience helper.
+     *
+     * @return bool
+     */
+    public function is_gradable(): bool {
+        return $this->get('gradable');
     }
 }

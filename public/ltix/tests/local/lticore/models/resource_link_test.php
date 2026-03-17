@@ -27,7 +27,7 @@ namespace core_ltix\local\lticore\models;
 final class resource_link_test extends \advanced_testcase {
 
     /**
-     * Test creation using the bare minimum number of fields (those required).
+     * Test creation.
      *
      * @dataProvider create_resource_link_provider
      * @param array $setdata the data to pass to set().
@@ -38,14 +38,11 @@ final class resource_link_test extends \advanced_testcase {
     public function test_resource_link_creation(array $setdata, array $expecteddata, ?string$expectedexception = null): void {
         $this->resetAfterTest();
 
-        $rl = new resource_link();
-
         if (!is_null($expectedexception)) {
             $this->expectException($expectedexception);
         }
-        foreach ($setdata as $name => $value) {
-            $rl->set($name, $value);
-        }
+
+        $rl = new resource_link(0, (object) $setdata);
         $rl->save();
 
         foreach ($expecteddata as $name => $value) {
