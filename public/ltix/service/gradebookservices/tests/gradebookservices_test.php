@@ -16,6 +16,13 @@
 
 namespace ltixservice_gradebookservices;
 
+use core_ltix\constants;
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
+use core_ltix\local\lticore\message\context\item\message_context;
+use core_ltix\local\lticore\message\context\item\resource_link_context;
+use core_ltix\local\lticore\message\type\message_type;
+use core_ltix\local\lticore\models\resource_link;
 use ltixservice_gradebookservices\local\service\gradebookservices;
 
 /**
@@ -149,7 +156,7 @@ final class gradebookservices_test extends \advanced_testcase {
      * since in that case there would be no rule to define which of
      * the line items should be actually passed.
      */
-    public function test_get_launch_parameters_coupled(): void {
+    public function test_get_launch_params_coupled(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -169,19 +176,38 @@ final class gradebookservices_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         $ltiinstance = $this->create_graded_lti($typeid, $course, 'resource-id', 'tag', 'https://subreview.url', 'sub=review');
-
-        $this->assertNotNull($ltiinstance);
+        $link = resource_link::get_record([
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement',
+            'itemid' => $ltiinstance->cmid,
+            'contextid' => \context_module::instance($ltiinstance->cmid)->id,
+        ]);
+        $this->assertNotNull($link);
 
         $gbservice = new gradebookservices();
-        $params = $gbservice->get_launch_parameters('basic-lti-launch-request', $course->id, 111, $typeid, $ltiinstance->id);
+        $gbservice->set_type(\core_ltix\helper::get_type($typeid));
+        $gbservice->set_typeconfig(\core_ltix\helper::get_type_config($typeid));
+        $params = $gbservice->get_launch_params(
+            launch_context::instance(
+                new message_context(message_type::create('basic-lti-launch-request', 'basic-lti-launch-request')),
+                new course_context($course),
+                new resource_link_context($link)
+            )
+        );
         $this->assertEquals('$LineItem.url', $params['lineitem_url']);
-        $this->assertEquals('$LineItem.url', $params['lineitem_url']);
+        $this->assertEquals('$LineItems.url', $params['lineitems_url']);
 
-        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag', $ltiinstance->id);
-        $params = $gbservice->get_launch_parameters('basic-lti-launch-request', $course->id, 111, $typeid, $ltiinstance->id);
+        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag', $link->get('id'));
+        $params = $gbservice->get_launch_params(
+            launch_context::instance(
+                new message_context(message_type::create('basic-lti-launch-request', 'basic-lti-launch-request')),
+                new course_context($course),
+                new resource_link_context($link)
+            )
+        );
         $this->assertEquals('$LineItems.url', $params['lineitems_url']);
         // 2 line items for a single link, we cannot return a single line item url.
-        $this->assertFalse(array_key_exists('$LineItem.url', $params));
+        $this->assertFalse(array_key_exists('lineitem_url', $params));
     }
 
     /**
@@ -190,7 +216,7 @@ final class gradebookservices_test extends \advanced_testcase {
      * Test Submission Review URL and custom parameter is applied when the
      * launch is submission review.
      */
-    public function test_get_launch_parameters_coupled_subreview_override(): void {
+    public function test_override_endpoint_coupled_subreview_override(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -228,7 +254,7 @@ final class gradebookservices_test extends \advanced_testcase {
      * Test Submission Review URL and custom parameter is applied when the
      * launch is submission review.
      */
-    public function test_get_launch_parameters_coupled_subreview_override_default(): void {
+    public function test_override_endpoint_coupled_subreview_override_default(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -261,12 +287,12 @@ final class gradebookservices_test extends \advanced_testcase {
     }
 
     /**
-     * @covers ::get_launch_parameters
+     * @covers ::get_launch_params
      *
      * Test line item URL is populated for not coupled line item only
      * if there is a single line item attached to that lti instance.
      */
-    public function test_get_launch_parameters_decoupled(): void {
+    public function test_get_launch_params_decoupled(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -284,25 +310,55 @@ final class gradebookservices_test extends \advanced_testcase {
             'config_supports_deep_linking' => 0,
         ]);
 
+
         $course = $this->getDataGenerator()->create_course();
 
         $ltiinstance = $this->create_notgraded_lti($typeid, $course);
 
-        $this->assertNotNull($ltiinstance);
+        $link = resource_link::get_record([
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement',
+            'itemid' => $ltiinstance->cmid,
+            'contextid' => \context_module::instance($ltiinstance->cmid)->id,
+        ]);
+        $this->assertNotNull($link);
 
         $gbservice = new gradebookservices();
-        $params = $gbservice->get_launch_parameters('basic-lti-launch-request', $course->id, 111, $typeid, $ltiinstance->id);
+        $gbservice->set_type(\core_ltix\helper::get_type($typeid));
+        $gbservice->set_typeconfig(\core_ltix\helper::get_type_config($typeid));
+        $params = $gbservice->get_launch_params(
+            launch_context::instance(
+                new message_context(message_type::create('basic-lti-launch-request', 'basic-lti-launch-request')),
+                new course_context($course),
+                new resource_link_context($link)
+            )
+        );
         $this->assertEquals('$LineItems.url', $params['lineitems_url']);
-        $this->assertFalse(array_key_exists('$LineItem.url', $params));
+        $this->assertFalse(array_key_exists('lineitem_url', $params));
 
-        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag', $ltiinstance->id);
-        $params = $gbservice->get_launch_parameters('basic-lti-launch-request', $course->id, 111, $typeid, $ltiinstance->id);
+        // Create the first standalone line item.
+        // We should now have a line item url since there is only 1 line item attached to the link.
+        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag', $link->get('id'));
+        $params = $gbservice->get_launch_params(
+            launch_context::instance(
+                new message_context(message_type::create('basic-lti-launch-request', 'basic-lti-launch-request')),
+                new course_context($course),
+                new resource_link_context($link)
+            )
+        );
         $this->assertEquals('$LineItems.url', $params['lineitems_url']);
         $this->assertEquals('$LineItem.url', $params['lineitem_url']);
 
         // 2 line items for a single link, we cannot return a single line item url.
-        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag-2', $ltiinstance->id);
-        $this->assertFalse(array_key_exists('$LineItem.url', $params));
+        $this->create_standalone_lineitem($course->id, $typeid, 'resource-id', 'tag-2', $link->get('id'));
+        $params = $gbservice->get_launch_params(
+            launch_context::instance(
+                new message_context(message_type::create('basic-lti-launch-request', 'basic-lti-launch-request')),
+                new course_context($course),
+                new resource_link_context($link)
+            )
+        );
+        $this->assertFalse(array_key_exists('lineitem_url', $params));
     }
 
     /**
@@ -435,17 +491,17 @@ final class gradebookservices_test extends \advanced_testcase {
      * @param int $typeid of the LTI Tool
      * @param string|null $resourceid resource id
      * @param string|null $tag tag
-     * @param int|null $ltiinstanceid Id of the LTI instance the standalone line item will be related to.
+     * @param int|null $linkid Id of the resource link the standalone line item will be related to.
      *
      */
     private function create_standalone_lineitem(int $courseid, int $typeid, ?string $resourceid,
-            ?string $tag, ?int $ltiinstanceid = null): void {
+            ?string $tag, ?int $linkid = null): void {
         $gbservice = new gradebookservices();
         $gbservice->add_standalone_lineitem($courseid,
             "manualtest",
             10,
             "https://test.phpunit",
-            $ltiinstanceid,
+            $linkid,
             $resourceid,
             $tag,
             $typeid,

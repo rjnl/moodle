@@ -25,6 +25,8 @@
 
 namespace ltixservice_gradebookservices\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
 use ltixservice_gradebookservices\local\service\gradebookservices;
 use core_ltix\local\ltiservice\resource_base;
 
@@ -279,16 +281,14 @@ class lineitems extends resource_base {
 
     /**
      * Parse a value for custom parameter substitution variables.
-     *
      * @param string $value String to be parsed
-     *
+     * @param launch_context $launchcontext
      * @return string
      */
-    public function parse_value($value) {
-        global $COURSE;
-
-        if (strpos($value, '$LineItems.url') !== false) {
-            $this->params['context_id'] = $COURSE->id;
+    public function parse_val(string $value, launch_context $launchcontext): string {
+        if (str_contains($value, '$LineItems.url')) {
+            $course = $launchcontext->require(course_context::class)->course;
+            $this->params['context_id'] = $course->id;
             $query = '';
             if (($tool = $this->get_service()->get_type())) {
                 $query = "?type_id={$tool->id}";
@@ -297,6 +297,5 @@ class lineitems extends resource_base {
         }
 
         return $value;
-
     }
 }

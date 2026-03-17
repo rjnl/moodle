@@ -26,6 +26,8 @@
 
 namespace ltixservice_memberships\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\resource_link_context;
 use core_ltix\local\ltiservice\resource_base;
 use ltixservice_memberships\local\service\memberships;
 use core_availability\info_module;
@@ -131,23 +133,20 @@ class linkmemberships extends resource_base {
 
     /**
      * Parse a value for custom parameter substitution variables.
-     *
      * @param string $value String to be parsed
-     *
+     * @param launch_context $launchcontext
      * @return string
      */
-    public function parse_value($value) {
-
-        if (strpos($value, '$LtiLink.memberships.url') !== false) {
-            $id = optional_param('id', 0, PARAM_INT); // Course Module ID.
-            if (!empty($id)) {
-                $cm = get_coursemodule_from_id('lti', $id, 0, false, MUST_EXIST);
-                $this->params['link_id'] = $cm->instance;
+    public function parse_val(string $value, launch_context $launchcontext): string {
+        if (str_contains($value, '$LtiLink.memberships.url')) {
+            $resourcelink = $launchcontext->get(resource_link_context::class)->resourcelink;
+            if (!is_null($resourcelink)) {
+                $this->params['link_id'] = $resourcelink->get('id');
             }
             $value = str_replace('$LtiLink.memberships.url', parent::get_endpoint(), $value);
         }
-        return $value;
 
+        return $value;
     }
 
 }

@@ -25,6 +25,9 @@
 
 namespace ltixservice_memberships\local\service;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -398,6 +401,7 @@ class memberships extends \core_ltix\local\ltiservice\service_base {
 
             $member = new \stdClass();
             $member->status = 'Active';
+            // TODO: replace this with a call to \core_ltix\helper::get_lti_roles() + deprecate the get_ims_role method.
             $member->roles = explode(',', \core_ltix\helper::get_ims_role($user->id, null, $course->id, true));
 
             $instanceconfig = null;
@@ -530,24 +534,19 @@ class memberships extends \core_ltix\local\ltiservice\service_base {
     /**
      * Return an array of key/values to add to the launch parameters.
      *
-     * @param string $messagetype 'basic-lti-launch-request' or 'ContentItemSelectionRequest'.
-     * @param string $courseid The course id.
-     * @param string $user The user id.
-     * @param string $typeid The tool lti type id.
-     * @param string $modlti The id of the lti activity.
-     *
-     * The type is passed to check the configuration
-     * and not return parameters for services not used.
-     *
-     * @return array of key/value pairs to add as launch parameters.
+     * @param launch_context $launchcontext
+     * @return array the array of key/value pairs to add as launch parameters.
      */
-    public function get_launch_parameters($messagetype, $courseid, $user, $typeid, $modlti = null) {
-        global $COURSE;
+    public function get_launch_params(launch_context $launchcontext): array {
+        $course = $launchcontext->require(course_context::class)->course;
+        $tool = $this->get_type();
+        $toolconfig = (object) $this->get_typeconfig();
 
-        $launchparameters = array();
-        $tool = \core_ltix\helper::get_type_type_config($typeid);
-        if (isset($tool->{$this->get_component_id()})) {
-            if ($tool->{$this->get_component_id()} == parent::SERVICE_ENABLED && $this->is_used_in_context($typeid, $courseid)) {
+        $launchparameters = [];
+        if (isset($toolconfig->{$this->get_component_id()})) {
+            if ($toolconfig->{$this->get_component_id()} == parent::SERVICE_ENABLED
+                    && $this->is_used_in_context($tool->id, $course->id)) {
+
                 $launchparameters['context_memberships_url'] = '$ToolProxyBinding.memberships.url';
                 $launchparameters['context_memberships_v2_url'] = '$ToolProxyBinding.memberships.url';
                 $launchparameters['context_memberships_versions'] = '1.0,2.0';

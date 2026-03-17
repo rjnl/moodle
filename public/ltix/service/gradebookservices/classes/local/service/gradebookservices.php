@@ -25,12 +25,17 @@
 
 namespace ltixservice_gradebookservices\local\service;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
+use core_ltix\local\lticore\message\context\item\message_context;
+use core_ltix\local\lticore\message\context\item\resource_link_context;
+use core_ltix\local\lticore\message\type\message_type_factory;
+use core_ltix\local\ltiservice\resource_base;
+use core_ltix\local\ltiservice\service_base;
 use ltixservice_gradebookservices\local\resources\lineitem;
 use ltixservice_gradebookservices\local\resources\lineitems;
 use ltixservice_gradebookservices\local\resources\results;
 use ltixservice_gradebookservices\local\resources\scores;
-use core_ltix\local\ltiservice\resource_base;
-use core_ltix\local\ltiservice\service_base;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -181,6 +186,44 @@ class gradebookservices extends service_base {
     }
 
     /**
+     * Override the target link uri for a given launch context.
+     * @param string $targetlinkuri
+     * @param launch_context $launchcontext
+     * @return string
+     */
+    public function override_target_endpoint(
+        string $targetlinkuri,
+        launch_context $launchcontext,
+    ): string {
+
+        $messagetype = $launchcontext->require(message_context::class)->messagetype;
+        $resourcelink = $launchcontext->require(resource_link_context::class)->resourcelink;
+        $course = $launchcontext->require(course_context::class)->course;
+        $messagetypefactory = \core\di::get(message_type_factory::class);
+
+        // For a submission review launch, AGS changes the target_link_uri to that of the line item's submission review URL, if set.
+        // Otherwise, it falls back to the URL used when performing a resource link launch.
+        // Note: Moodle doesn't support submission review launches for standalone line items (those not associated with links).
+        // See the relevant part of the spec, here: https://www.imsglobal.org/spec/lti-sr/v1p0#target-link-uri.
+        $subreviewmessagetype = $messagetypefactory->from_string('LtiSubmissionReviewRequest');
+        if ($messagetype->equals($subreviewmessagetype) && !is_null($resourcelink) && $resourcelink->is_gradable()) {
+
+            global $DB;
+            $conditions = ['courseid' => $course->id, 'ltilinkid' => $resourcelink->get('id')];
+            $coupledlineitems = $DB->get_records('ltixservice_gradebookservices', $conditions);
+
+            if (count($coupledlineitems) == 1) {
+                $item = reset($coupledlineitems);
+                $url = $item->subreviewurl;
+                if (!empty($url) && $url != 'DEFAULT') {
+                    $targetlinkuri = $url;
+                }
+            }
+        }
+        return $targetlinkuri;
+    }
+
+    /**
      * Return an array of key/claim mapping allowing LTI 1.1 custom parameters
      * to be transformed to LTI 1.3 claims.
      *
@@ -236,53 +279,68 @@ class gradebookservices extends service_base {
     /**
      * Return an array of key/values to add to the launch parameters.
      *
-     * @param string $messagetype 'basic-lti-launch-request' or 'ContentItemSelectionRequest'.
-     * @param string $courseid the course id.
-     * @param object $user The user id.
-     * @param string $typeid The tool lti type id.
-     * @param string $modlti The id of the lti activity.
-     *
-     * The type is passed to check the configuration
-     * and not return parameters for services not used.
+     * @param launch_context $launchcontext the launch context instance.
      *
      * @return array of key/value pairs to add as launch parameters.
      */
-    public function get_launch_parameters($messagetype, $courseid, $user, $typeid, $modlti = null) {
+    public function get_launch_params(launch_context $launchcontext): array {
+
+        // TODO: also need to fetch and include the submission review params in this method,
+        //  given override_target_endpoint() shouldn't have that responsibility any more (it should just deal with endpoint).
+        $course = $launchcontext->require(course_context::class)->course;
+        $reslink = $launchcontext->get(resource_link_context::class)->resourcelink;
         global $DB;
-        $launchparameters = array();
-        $this->set_type(\core_ltix\helper::get_type($typeid));
-        $this->set_typeconfig(\core_ltix\helper::get_type_config($typeid));
+        $launchparameters = [];
+
         // Only inject parameters if the service is enabled for this tool.
         if (isset($this->get_typeconfig()['ltixservice_gradesynchronization'])) {
             if ($this->get_typeconfig()['ltixservice_gradesynchronization'] == self::GRADEBOOKSERVICES_READ ||
-                    $this->get_typeconfig()['ltixservice_gradesynchronization'] == self::GRADEBOOKSERVICES_FULL) {
+                $this->get_typeconfig()['ltixservice_gradesynchronization'] == self::GRADEBOOKSERVICES_FULL) {
                 // Check for used in context is only needed because there is no explicit site tool - course relation.
-                if ($this->is_allowed_in_context($typeid, $courseid)) {
-                    $id = null;
-                    if (!is_null($modlti)) {
-                        $conditions = array('courseid' => $courseid, 'itemtype' => 'mod',
-                                'itemmodule' => 'lti', 'iteminstance' => $modlti);
+                if ($this->is_allowed_in_context($this->get_type()->id, $course->id)) {
+                    // Presently, if a link is marked as gradable, for grades to be supported, the following MUST be true:
+                    // - the link must be tied to a mod component's placement
+                    // - the link must be tied to a specific cmid (i.e. itemid = cmid), since grade items are tied to mod instances.
+                    // This could be expanded in the future, e.g. to allow grade items to be created and managed by other, non-mod
+                    // placements. For now, however, both are restricted to mod placements.
+                    if (!is_null($reslink) && $reslink->get('gradable')) {
+                        // TODO: improvement: For gradable links, consider asking the placement for its grade info,
+                        //  letting the placement decide if/how it manages grade items.
+                        $component = $reslink->get('component');
+                        [$type, $name] = \core_component::normalize_component($component);
+                        if ($type === 'mod') {
+                            $id = null;
+                            $cmid = $reslink->get('itemid');
+                            $modinfo = get_fast_modinfo($course);
+                            $cm = $modinfo->get_cm($cmid);
+                            $conditions = [
+                                'courseid' => $course->id,
+                                'itemtype' => $type,
+                                'itemmodule' => $name,
+                                'iteminstance' => $cm->instance,
+                            ];
 
-                        $coupledlineitems = $DB->get_records('grade_items', $conditions);
-                        $conditionsgbs = array('courseid' => $courseid, 'ltilinkid' => $modlti);
-                        $lineitemsgbs = $DB->get_records('ltixservice_gradebookservices', $conditionsgbs);
-                        // If a link has more that one attached grade items, per spec we do not populate line item url.
-                        if (count($lineitemsgbs) == 1) {
-                            $id = reset($lineitemsgbs)->gradeitemid;
-                        }
-                        if (count($lineitemsgbs) < 2 && count($coupledlineitems) == 1) {
-                            $coupledid = reset($coupledlineitems)->id;
-                            if (!is_null($id) && $id != $coupledid) {
-                                $id = null;
-                            } else {
-                                $id = $coupledid;
+                            $coupledlineitems = $DB->get_records('grade_items', $conditions);
+                            $conditionsgbs = ['courseid' => $course->id, 'ltilinkid' => $reslink->get('id')];
+                            $lineitemsgbs = $DB->get_records('ltixservice_gradebookservices', $conditionsgbs);
+                            // If a link has more than one attached grade item, per spec we do not populate line item url.
+                            if (count($lineitemsgbs) == 1) {
+                                $id = reset($lineitemsgbs)->gradeitemid;
+                            }
+                            if (count($lineitemsgbs) < 2 && count($coupledlineitems) == 1) {
+                                $coupledid = reset($coupledlineitems)->id;
+                                if (!is_null($id) && $id != $coupledid) {
+                                    $id = null;
+                                } else {
+                                    $id = $coupledid;
+                                }
+                            }
+                            $launchparameters['gradebookservices_scope'] = implode(',', $this->get_permitted_scopes());
+                            $launchparameters['lineitems_url'] = '$LineItems.url';
+                            if (!is_null($id)) {
+                                $launchparameters['lineitem_url'] = '$LineItem.url';
                             }
                         }
-                    }
-                    $launchparameters['gradebookservices_scope'] = implode(',', $this->get_permitted_scopes());
-                    $launchparameters['lineitems_url'] = '$LineItems.url';
-                    if (!is_null($id)) {
-                        $launchparameters['lineitem_url'] = '$LineItem.url';
                     }
                 }
             }
@@ -433,7 +491,7 @@ class gradebookservices extends service_base {
      * @param string $label label of lineitem
      * @param float $maximumscore maximum score of lineitem
      * @param string $baseurl
-     * @param int|null $ltilinkid id of lti instance this line item is associated with
+     * @param int|null $ltilinkid id of lti resource link this line item is associated with
      * @param string|null $resourceid resource id of lineitem
      * @param string|null $tag tag of lineitem
      * @param int $typeid lti type to which this line item is associated with

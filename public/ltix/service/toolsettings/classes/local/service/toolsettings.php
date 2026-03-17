@@ -26,6 +26,12 @@
 
 namespace ltixservice_toolsettings\local\service;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
+use core_ltix\local\lticore\message\context\item\message_context;
+use core_ltix\local\lticore\message\context\item\tool_context;
+use core_ltix\local\lticore\message\type\message_type_factory;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -183,34 +189,36 @@ class toolsettings extends \core_ltix\local\ltiservice\service_base {
     }
 
     /**
-     * Return an array of key/values to add to the launch parameters.
+     * Get the launch parameters for the given launch context.
      *
-     * @param string $messagetype 'basic-lti-launch-request' or 'ContentItemSelectionRequest'.
-     * @param string $courseid The course id.
-     * @param string $user The user id.
-     * @param string $typeid The tool lti type id.
-     * @param string $modlti The id of the lti activity.
-     *
-     * The type is passed to check the configuration
-     * and not return parameters for services not used.
-     *
+     * @param launch_context $launchcontext
      * @return array of key/value pairs to add as launch parameters.
      */
-    public function get_launch_parameters($messagetype, $courseid, $user, $typeid, $modlti = null) {
-        global $COURSE;
+    public function get_launch_params(launch_context $launchcontext): array {
 
-        $launchparameters = array();
-        $tool = \core_ltix\helper::get_type_type_config($typeid);
-        if (isset($tool->{$this->get_component_id()})) {
-            if ($tool->{$this->get_component_id()} == self::SERVICE_ENABLED && $this->is_used_in_context($typeid, $courseid)) {
+        $tool = $this->get_type();
+        $toolconfig = (object) $this->get_typeconfig();
+        $course = $launchcontext->require(course_context::class)->course;
+        $messagetype = $launchcontext->require(message_context::class)->messagetype;
+
+        $launchparameters = [];
+        if (isset($toolconfig->{$this->get_component_id()})) {
+            if ($toolconfig->{$this->get_component_id()} == self::SERVICE_ENABLED
+                    && $this->is_used_in_context($tool->id, $course->id)) {
+
                 $launchparameters['system_setting_url'] = '$ToolProxy.custom.url';
                 $launchparameters['context_setting_url'] = '$ToolProxyBinding.custom.url';
-                if ($messagetype === 'basic-lti-launch-request') {
+
+                $messagetypefactory = \core\di::get(message_type_factory::class);
+                $resourcelinkmessagetype = $messagetypefactory->from_string('basic-lti-launch-request');
+                if ($messagetype->equals($resourcelinkmessagetype)) {
                     $launchparameters['link_setting_url'] = '$LtiLink.custom.url';
                 }
             }
         }
+
         return $launchparameters;
     }
+
 
 }

@@ -26,6 +26,8 @@
 
 namespace ltixservice_memberships\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
 use core_ltix\local\ltiservice\resource_base;
 use ltixservice_memberships\local\service\memberships;
 use core_availability\info_module;
@@ -120,28 +122,27 @@ class contextmemberships extends resource_base {
 
     /**
      * Parse a value for custom parameter substitution variables.
-     *
      * @param string $value String to be parsed
-     *
+     * @param launch_context $launchcontext
      * @return string
      */
-    public function parse_value($value) {
-        global $COURSE, $DB;
+    public function parse_val(string $value, launch_context $launchcontext): string {
 
-        if (strpos($value, '$ToolProxyBinding.memberships.url') !== false) {
-            if ($COURSE->id === SITEID) {
+        if (str_contains($value, '$ToolProxyBinding.memberships.url')) {
+            $course = $launchcontext->require(course_context::class)->course;
+            if ($course->id === SITEID) {
                 $this->params['context_type'] = 'Group';
             } else {
                 $this->params['context_type'] = 'CourseSection';
             }
-            $this->params['context_id'] = $COURSE->id;
+            $this->params['context_id'] = $course->id;
             if ($tool = $this->get_service()->get_type()) {
                 $this->params['tool_code'] = $tool->id;
             }
             $value = str_replace('$ToolProxyBinding.memberships.url', parent::get_endpoint(), $value);
         }
-        return $value;
 
+        return $value;
     }
 
 }

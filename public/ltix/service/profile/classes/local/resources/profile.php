@@ -26,6 +26,7 @@
 
 namespace ltixservice_profile\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
 use \core_ltix\local\ltiservice\service_base;
 
 defined('MOODLE_INTERNAL') || die();
@@ -208,17 +209,15 @@ EOD;
 
     /**
      * Parse a value for custom parameter substitution variables.
-     *
-     * @param string $value String to be parsed
-     *
+     * @param string $value string to be parsed
+     * @param launch_context $launchcontext
      * @return string
      */
-    public function parse_value($value) {
-        if (!empty($this->get_service()->get_tool_proxy()) && (strpos($value, '$ToolConsumerProfile.url') !== false)) {
+    public function parse_val(string $value, launch_context $launchcontext): string {
+        if (!empty($this->get_service()->get_tool_proxy()) && (str_contains($value, '$ToolConsumerProfile.url'))) {
             $value = str_replace('$ToolConsumerProfile.url', $this->get_endpoint(), $value);
         }
         return $value;
-
     }
 
 }

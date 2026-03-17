@@ -26,6 +26,7 @@
 
 namespace ltixservice_toolsettings\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
 use ltixservice_toolsettings\local\service\toolsettings;
 
 defined('MOODLE_INTERNAL') || die();
@@ -180,10 +181,10 @@ class contextsettings extends \core_ltix\local\ltiservice\resource_base {
      * Parse a value for custom parameter substitution variables.
      *
      * @param string $value String to be parsed
-     *
+     * @param launch_context $launchcontext
      * @return string
      */
-    public function parse_value($value) {
+    public function parse_val(string $value, launch_context $launchcontext): string {
         global $COURSE;
 
         if (strpos($value, '$ToolProxyBinding.custom.url') !== false) {
@@ -203,7 +204,6 @@ class contextsettings extends \core_ltix\local\ltiservice\resource_base {
             $value = str_replace('$ToolProxyBinding.custom.url', parent::get_endpoint(), $value);
         }
         return $value;
-
     }
 
 }

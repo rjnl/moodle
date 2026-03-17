@@ -26,6 +26,8 @@
 
 namespace core_ltix\local\ltiservice;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+
 /**
  * The core_ltix\local\ltiservice\resource_base class.
  *
@@ -345,10 +347,25 @@ abstract class resource_base {
      *
      * @return string
      */
+    #[\core\attribute\deprecated(
+        '::parse_val',
+        since: '5.3',
+        reason: 'parse_value() is deprecated. Please use parse_val() instead.',
+        mdl: 'MDL-79109'
+    )]
     public function parse_value($value) {
-
         return $value;
+    }
 
+    /**
+     * Parse a value for custom parameter substitution variables.
+     *
+     * @param string $value String to be parsed
+     * @param launch_context $launchcontext the launch context instance.
+     * @return string the value, if substitution was possible, otherwise the original variable string, unmodified.
+     */
+    public function parse_val(string $value, launch_context $launchcontext): string {
+        return $value;
     }
 
     /**

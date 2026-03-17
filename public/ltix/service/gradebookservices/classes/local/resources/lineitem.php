@@ -25,6 +25,9 @@
 
 namespace ltixservice_gradebookservices\local\resources;
 
+use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\lticore\message\context\item\course_context;
+use core_ltix\local\lticore\message\context\item\resource_link_context;
 use ltixservice_gradebookservices\local\service\gradebookservices;
 use core_ltix\local\ltiservice\resource_base;
 
@@ -315,41 +318,53 @@ class lineitem extends resource_base {
      * Parse a value for custom parameter substitution variables.
      *
      * @param string $value String to be parsed
-     *
+     * @param launch_context $launchcontext Launch context for the current launch
      * @return string
      */
-    public function parse_value($value) {
-        global $COURSE, $CFG;
-        if (strpos($value, '$LineItem.url') !== false) {
+    public function parse_val(string $value, launch_context $launchcontext): string {
+        if (str_contains($value, '$LineItem.url')) {
+            // Note: remember, $LineItem.url could be included in any launch, via a custom parameter.
+            // Not all launches will be a link launch, so reslink is a soft requirement here.
+            $resourcelink = $launchcontext->get(resource_link_context::class)->resourcelink;
+            $course = $launchcontext->require(course_context::class)->course;
             $resolved = '';
+            global $CFG;
             require_once($CFG->libdir . '/gradelib.php');
 
-            $this->params['context_id'] = $COURSE->id;
+            $this->params['context_id'] = $course->id;
             if ($tool = $this->get_service()->get_type()) {
                 $this->params['tool_code'] = $tool->id;
             }
-            $id = optional_param('id', 0, PARAM_INT); // Course Module ID.
-            if (empty($id)) {
-                $hint = optional_param('lti_message_hint', "", PARAM_TEXT);
-                if ($hint) {
-                    $hintdec = json_decode($hint);
-                    if (isset($hintdec->cmid)) {
-                        $id = $hintdec->cmid;
+
+            if (!is_null($resourcelink) && $resourcelink->get('gradable') === true) {
+                // TODO: improvement: For gradable links, consider asking the placement for its grade info,
+                //  letting the placement decide if/how it manages grade items.
+                $component = $resourcelink->get('component');
+                [$type, $name] = \core_component::normalize_component($component);
+                if ($type === 'mod') {
+
+                    // Per ltixservice_gradebookservices\local\service\gradebookservices, gradable, mod-associated links must
+                    // be using cmid as the value of itemid.
+                    $cmid = $resourcelink->get('itemid');
+                    if (!empty($cmid)) {
+                        $cm = get_fast_modinfo($course)->get_cm($cmid);
+                        $item = \grade_item::fetch([
+                            'courseid' => $course->id,
+                            'itemtype' => $type,
+                            'itemmodule' => $name,
+                            'iteminstance' => $cm->instance,
+                        ]);
+                        if ($item) {
+                            $this->params['item_id'] = $item->id;
+                            $resolved = parent::get_endpoint();
+                            $resolved .= "?type_id={$tool->id}";
+                        }
                     }
-                }
-            }
-            if (!empty($id)) {
-                $cm = get_coursemodule_from_id('lti', $id, 0, false, MUST_EXIST);
-                $id = $cm->instance;
-                $item = grade_get_grades($COURSE->id, 'mod', 'lti', $id);
-                if ($item && $item->items) {
-                    $this->params['item_id'] = $item->items[0]->id;
-                    $resolved = parent::get_endpoint();
-                    $resolved .= "?type_id={$tool->id}";
                 }
             }
             $value = str_replace('$LineItem.url', $resolved, $value);
         }
+
         return $value;
     }
 }
