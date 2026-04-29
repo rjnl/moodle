@@ -79,8 +79,14 @@ final class gradebookservices_test extends \advanced_testcase {
         $this->assertEquals($tag, $gbs->tag);
         $this->assertEquals($subreviewurl, $gbs->subreviewurl);
         $this->assertEquals($subreviewparams, $gbs->subreviewparams);
+        $link = resource_link::get_record([
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement',
+            'itemid' => $ltiinstance->cmid,
+            'contextid' => \context_module::instance($ltiinstance->cmid)->id,
+        ]);
         $this->assert_lineitems($course, $typeid, $ltiinstance->name,
-            $ltiinstance, $resourceid, $tag, $subreviewurl, $subreviewparams);
+            $link, $resourceid, $tag, $subreviewurl, $subreviewparams);
     }
 
     /**
@@ -127,7 +133,7 @@ final class gradebookservices_test extends \advanced_testcase {
 
         $this->assertNotNull($gbs);
         $this->assertEquals('DEFAULT', $gbs->subreviewurl);
-        $this->assert_lineitems($course, $typeid, $ltiinstance->name, $ltiinstance, $resourceid, $tag, 'DEFAULT');
+        $this->assert_lineitems($course, $typeid, $ltiinstance->name, $link, $resourceid, $tag, 'DEFAULT');
     }
 
     /**
@@ -339,14 +345,14 @@ final class gradebookservices_test extends \advanced_testcase {
      * @param object $course current course
      * @param int $typeid Type id of the tool
      * @param string $label Label of the line item
-     * @param object|null $ltiinstance lti instance related to that line item
+     * @param resource_link|null $resourcelink resource link related to that line item
      * @param string|null $resourceid resourceid the line item should have
      * @param string|null $tag tag the line item should have
      * @param string|null $subreviewurl submission review url
      * @param string|null $subreviewparams submission review custom params
      */
     private function assert_lineitems(object $course, int $typeid,
-            string $label, ?object $ltiinstance, ?string $resourceid, ?string $tag,
+            string $label, ?resource_link $resourcelink, ?string $resourceid, ?string $tag,
             ?string $subreviewurl = null, ?string $subreviewparams = null): void {
         $gbservice = new gradebookservices();
         $gradeitems = $gbservice->get_lineitems($course->id, null, null, null, null, null, $typeid);
@@ -376,10 +382,10 @@ final class gradebookservices_test extends \advanced_testcase {
         $gradeitems = $gbservice->get_lineitems($course->id, $resourceid, null, null, null, null, $typeid);
         $this->assertEquals(1, $gradeitems[0]);
 
-        if (isset($ltiinstance)) {
-            $gradeitems = $gbservice->get_lineitems($course->id, null, $ltiinstance->id, null, null, null, $typeid);
+        if (isset($resourcelink)) {
+            $gradeitems = $gbservice->get_lineitems($course->id, null, $resourcelink->get('id'), null, null, null, $typeid);
             $this->assertEquals(1, $gradeitems[0]);
-            $gradeitems = $gbservice->get_lineitems($course->id, null, $ltiinstance->id + 1, null, null, null, $typeid);
+            $gradeitems = $gbservice->get_lineitems($course->id, null, $resourcelink->get('id') + 1, null, null, null, $typeid);
             $this->assertEquals(0, $gradeitems[0]);
         }
 

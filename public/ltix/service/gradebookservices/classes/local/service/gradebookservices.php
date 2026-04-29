@@ -319,6 +319,14 @@ class gradebookservices extends service_base {
 
         // For each one, check the gbs id, and check that toolproxy matches. If so, add the
         // tag to the result and add it to a final results array.
+        // Resolve the resource link filter to a cmid for the fallback branch.
+        $ltilinkitemid = null;
+        if (isset($ltilinkid)) {
+            $resourcelink = resource_link::get_record(['id' => $ltilinkid]);
+            if ($resourcelink) {
+                $ltilinkitemid = (int) $resourcelink->get('itemid'); // This is the cmid of the activity.
+            }
+        }
         $lineitemstoreturn = array();
         $lineitemsandtotalcount = array();
         if ($lineitems) {
@@ -336,20 +344,19 @@ class gradebookservices extends service_base {
                             array_push($lineitemstoreturn, $lineitem);
                         }
                     }
-                } else if (($lineitem->itemtype == 'mod' && $lineitem->itemmodule == 'lti'
-                        && !isset($resourceid) && !isset($tag)
-                        && (!isset($ltilinkid) || (isset($ltilinkid)
-                        && $lineitem->iteminstance == $ltilinkid)))) {
+                } else if ($lineitem->itemtype == 'mod' && $lineitem->itemmodule == 'lti'
+                        && !isset($resourceid) && !isset($tag)) {
                     // We will need to check if the activity related belongs to our tool proxy.
-                    $ltiactivity = $DB->get_record('lti', array('id' => $lineitem->iteminstance));
-                    if (($ltiactivity) && (isset($ltiactivity->typeid))) {
-                        if ($ltiactivity->typeid != 0) {
-                            $tool = $DB->get_record('lti_types', array('id' => $ltiactivity->typeid));
+                    $itemcm = get_coursemodule_from_instance('lti', $lineitem->iteminstance, $courseid);
+                    $resourcelink = null;
+                    if ($itemcm) {
+                        $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                    }
+                    if ($resourcelink && (!isset($ltilinkid) || $itemcm->id === $ltilinkitemid)) {
+                        if ($resourcelink->get('typeid') != 0) {
+                            $tool = $DB->get_record('lti_types', ['id' => $resourcelink->get('typeid')]);
                         } else {
-                            $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $courseid);
-                            if (!$tool) {
-                                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
-                            }
+                            $tool = \core_ltix\helper::get_tool_by_url_match($resourcelink->get('url'), $courseid);
                         }
                         if (is_null($typeid)) {
                             if (($tool) && ($this->get_tool_proxy()->id == $tool->toolproxyid)) {
@@ -394,15 +401,16 @@ class gradebookservices extends service_base {
             $gbs = $this->find_ltixservice_gradebookservice_for_lineitem($itemid);
             if (!$gbs) {
                 // We will need to check if the activity related belongs to our tool proxy.
-                $ltiactivity = $DB->get_record('lti', array('id' => $lineitem->iteminstance));
-                if (($ltiactivity) && (isset($ltiactivity->typeid))) {
-                    if ($ltiactivity->typeid != 0) {
-                        $tool = $DB->get_record('lti_types', array('id' => $ltiactivity->typeid));
+                $itemcm = get_coursemodule_from_instance('lti', $lineitem->iteminstance, $courseid);
+                $resourcelink = null;
+                if ($itemcm) {
+                    $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                }
+                if ($resourcelink) {
+                    if ($resourcelink->get('typeid') != 0) {
+                        $tool = $DB->get_record('lti_types', ['id' => $resourcelink->get('typeid')]);
                     } else {
-                        $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $courseid);
-                        if (!$tool) {
-                            $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $courseid);
-                        }
+                        $tool = \core_ltix\helper::get_tool_by_url_match($resourcelink->get('url'), $courseid);
                     }
                     if (is_null($typeid)) {
                         if (!(($tool) && ($this->get_tool_proxy()->id == $tool->toolproxyid))) {
