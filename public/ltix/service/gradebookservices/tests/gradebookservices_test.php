@@ -17,6 +17,7 @@
 namespace ltixservice_gradebookservices;
 
 use ltixservice_gradebookservices\local\service\gradebookservices;
+use core_ltix\local\lticore\models\resource_link;
 
 /**
  * Unit tests for lti gradebookservices.
@@ -113,6 +114,14 @@ final class gradebookservices_test extends \advanced_testcase {
         $ltiinstance = $this->create_graded_lti($typeid, $course, $resourceid, $tag, 'DEFAULT');
 
         $this->assertNotNull($ltiinstance);
+
+        $link = resource_link::get_record([
+            'component' => 'mod_lti',
+            'itemtype' => 'mod_lti:activityplacement',
+            'itemid' => $ltiinstance->cmid,
+            'contextid' => \context_module::instance($ltiinstance->cmid)->id,
+        ]);
+        $this->assertNotNull($link);
 
         $gbs = gradebookservices::find_ltixservice_gradebookservice_for_lti($ltiinstance->id);
 

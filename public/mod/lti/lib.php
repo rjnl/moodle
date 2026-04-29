@@ -118,7 +118,7 @@ function lti_add_instance($lti, $mform) {
 
     // Create a resource link early.
     // Subsequent operations (e.g., grade item creation and related checks) depend on the resource link being available.
-    resource_link_manager::create_resource_link(
+    $resourcelink = resource_link_manager::create_resource_link(
         'mod_lti:activityplacement',
         'mod_lti',
         $context,
@@ -145,7 +145,14 @@ function lti_add_instance($lti, $mform) {
 
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_added( $lti );
+        $service->instance_added(
+            $resourcelink,
+            $lti->lineitemresourceid ?? null,
+            $lti->lineitemtag ?? null,
+            $lti->lineitemsubreviewurl ?? null,
+            $lti->lineitemsubreviewparams ?? null,
+            $lti->id
+        );
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
@@ -218,7 +225,13 @@ function lti_update_instance($lti, $mform) {
 
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_updated( $lti );
+        $service->instance_updated(
+            $resourcelink,
+            $lti->lineitemresourceid ?? null,
+            $lti->lineitemtag ?? null,
+            $lti->lineitemsubreviewurl ?? null,
+            $lti->lineitemsubreviewparams ?? null
+        );
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;

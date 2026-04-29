@@ -31,6 +31,7 @@ use ltixservice_gradebookservices\local\resources\results;
 use ltixservice_gradebookservices\local\resources\scores;
 use core_ltix\local\ltiservice\resource_base;
 use core_ltix\local\ltiservice\service_base;
+use core_ltix\local\lticore\models\resource_link;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -716,46 +717,65 @@ class gradebookservices extends service_base {
     }
 
     /**
-     * Updates the tag, resourceid and submission review values for a grade item coupled to an lti link instance.
+     * Updates the tag, resourceid and submission review values for a grade item coupled to a resource link.
      *
-     * @param object $ltiinstance The lti instance to which the grade item is coupled to
-     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string which will be stored as null.
-     * @param string|null $tag The tag to apply to the lineitem. If empty string which will be stored as null.
+     * @param resource_link $resourcelink The resource link to which the grade item is coupled to.
+     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
      * @param moodle_url|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
      *
      */
-    public static function update_coupled_gradebookservices(object $ltiinstance,
-            ?string $resourceid, ?string $tag, ?\moodle_url $subreviewurl, ?string $subreviewparams): void {
+    public static function update_coupled_gradebookservices(
+        resource_link $resourcelink,
+        ?string $resourceid,
+        ?string $tag,
+        ?\moodle_url $subreviewurl,
+        ?string $subreviewparams,
+        ?int $instanceid = null
+    ): void {
         global $DB;
 
-        if ($ltiinstance && $ltiinstance->typeid) {
-            $gradeitem = $DB->get_record('grade_items', array('itemmodule' => 'lti', 'iteminstance' => $ltiinstance->id));
-            if ($gradeitem) {
-                $resourceid = (isset($resourceid) && empty(trim($resourceid))) ? null : $resourceid;
-                $subreviewurlstr = $subreviewurl ? $subreviewurl->out(false) : null;
-                $tag = (isset($tag) && empty(trim($tag))) ? null : $tag;
-                $gbs = self::find_ltixservice_gradebookservice_for_lineitem($gradeitem->id);
-                if ($gbs) {
-                    $gbs->resourceid = $resourceid;
-                    $gbs->tag = $tag;
-                    $gbs->subreviewurl = $subreviewurlstr;
-                    $gbs->subreviewparams = $subreviewparams;
-                    $DB->update_record('ltixservice_gradebookservices', $gbs);
-                } else {
-                    $baseurl = \core_ltix\helper::get_type_type_config($ltiinstance->typeid)->lti_toolurl;
-                    $DB->insert_record('ltixservice_gradebookservices', (object)array(
+        $typeid = $resourcelink->get('typeid');
+
+        if ($instanceid === null) {
+            // Get the cm from the resource link.
+            // We can only safely do this for instance_updated() because cm is already fully written.
+            $cm = get_coursemodule_from_id('lti', $resourcelink->get('itemid'));
+            if (!$cm || !$typeid) {
+                return;
+            }
+            $instanceid = $cm->instance;
+        }
+
+        $gradeitem = $DB->get_record('grade_items', ['itemmodule' => 'lti', 'iteminstance' => $instanceid]);
+        if ($gradeitem) {
+            $resourceid = (isset($resourceid) && empty(trim($resourceid))) ? null : $resourceid;
+            $subreviewurlstr = $subreviewurl ? $subreviewurl->out(false) : null;
+            $tag = (isset($tag) && empty(trim($tag))) ? null : $tag;
+            $gbs = self::find_ltixservice_gradebookservice_for_lineitem($gradeitem->id);
+            if ($gbs) {
+                $gbs->resourceid = $resourceid;
+                $gbs->tag = $tag;
+                $gbs->subreviewurl = $subreviewurlstr;
+                $gbs->subreviewparams = $subreviewparams;
+                $DB->update_record('ltixservice_gradebookservices', $gbs);
+            } else {
+                $baseurl = \core_ltix\helper::get_type_type_config($typeid)->lti_toolurl;
+                $DB->insert_record(
+                    'ltixservice_gradebookservices',
+                    (object)[
                         'gradeitemid' => $gradeitem->id,
                         'courseid' => $gradeitem->courseid,
-                        'typeid' => $ltiinstance->typeid,
+                        'typeid' => $typeid,
                         'baseurl' => $baseurl,
-                        'ltilinkid' => $ltiinstance->id,
+                        'ltilinkid' => $resourcelink->get('id'),
                         'resourceid' => $resourceid,
                         'tag' => $tag,
                         'subreviewurl' => $subreviewurlstr,
-                        'subreviewparams' => $subreviewparams
-                    ));
-                }
+                        'subreviewparams' => $subreviewparams,
+                    ]
+                );
             }
         }
     }
@@ -763,23 +783,54 @@ class gradebookservices extends service_base {
     /**
      * Called when a new LTI Instance is added.
      *
-     * @param object $lti LTI Instance.
-     */
-    public function instance_added(object $lti): void {
-        self::update_coupled_gradebookservices($lti, $lti->lineitemresourceid ?? null, $lti->lineitemtag ?? null,
-            isset($lti->lineitemsubreviewurl) ? new moodle_url($lti->lineitemsubreviewurl) : null,
-            $lti->lineitemsubreviewparams ?? null);
+     * @param resource_link $resourcelink The resource link associated with the new LTI instance.
+     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $subreviewurl The submission review target link URL
+     * @param string|null $subreviewparams The submission review custom parameters.
+    */
+    public function instance_added(
+        resource_link $resourcelink,
+        ?string $resourceid,
+        ?string $tag,
+        ?string $subreviewurl,
+        ?string $subreviewparams,
+        ?int $instanceid = null
+    ): void {
+        self::update_coupled_gradebookservices(
+            $resourcelink,
+            $resourceid ?? null,
+            $tag ?? null,
+            isset($subreviewurl) ? new moodle_url($subreviewurl) : null,
+            $subreviewparams ?? null,
+            $instanceid
+        );
     }
 
     /**
-     * Called when a new LTI Instance is updated.
+     * Called when an LTI Instance is updated.
      *
-     * @param object $lti LTI Instance.
-     */
-    public function instance_updated(object $lti): void {
-        self::update_coupled_gradebookservices($lti, $lti->lineitemresourceid ?? null, $lti->lineitemtag ?? null,
-            isset($lti->lineitemsubreviewurl) ? new moodle_url($lti->lineitemsubreviewurl) : null,
-            $lti->lineitemsubreviewparams ?? null);
+     * @param resource_link $resourcelink The resource link associated with the updated LTI instance.
+     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $subreviewurl The submission review target link URL
+     * @param string|null $subreviewparams The submission review custom parameters.
+    */
+    public function instance_updated(
+        resource_link $resourcelink,
+        ?string $resourceid,
+        ?string $tag,
+        ?string $subreviewurl,
+        ?string $subreviewparams,
+        ?int $instanceid = null
+    ): void {
+        self::update_coupled_gradebookservices(
+            $resourcelink,
+            $resourceid ?? null,
+            $tag ?? null,
+            isset($subreviewurl) ? new moodle_url($subreviewurl) : null,
+            $subreviewparams ?? null
+        );
     }
 
     /**
