@@ -27,6 +27,7 @@ namespace ltixservice_gradebookservices\local\resources;
 
 use ltixservice_gradebookservices\local\service\gradebookservices;
 use core_ltix\local\ltiservice\resource_base;
+use core_ltix\local\lticore\models\resource_link;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -92,22 +93,26 @@ class results extends resource_base {
             }
             $gbs = gradebookservices::find_ltixservice_gradebookservice_for_lineitem($itemid);
             $ltilinkid = null;
-            if (isset($item->iteminstance)) {
-                $ltilinkid = $item->iteminstance;
-            } else if ($gbs && isset($gbs->ltilinkid)) {
+            if ($gbs && isset($gbs->ltilinkid)) {
                 $ltilinkid = $gbs->ltilinkid;
+            } else if (isset($item->iteminstance)) {
+                $cm = get_coursemodule_from_instance('lti', $item->iteminstance, $item->courseid);
+                if ($cm) {
+                    $resourcelink = resource_link::get_record(['itemid' => $cm->id, 'component' => 'mod_lti']);
+                    $ltilinkid = $resourcelink ? $resourcelink->get('id') : null;
+                }
             }
             if ($ltilinkid != null) {
                 if (is_null($typeid)) {
-                    if (isset($item->iteminstance) && (!gradebookservices::check_lti_id($ltilinkid, $item->courseid,
-                            $this->get_service()->get_tool_proxy()->id))) {
+                    if (!gradebookservices::check_lti_id($ltilinkid, $item->courseid,
+                            $this->get_service()->get_tool_proxy()->id)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
                         return;
                     }
                 } else {
-                    if (isset($item->iteminstance) && (!gradebookservices::check_lti_1x_id($ltilinkid, $item->courseid,
-                            $typeid))) {
+                    if (!gradebookservices::check_lti_1x_id($ltilinkid, $item->courseid,
+                            $typeid)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
                         return;

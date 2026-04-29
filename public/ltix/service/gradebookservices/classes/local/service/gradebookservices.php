@@ -647,81 +647,51 @@ class gradebookservices extends service_base {
     }
 
     /**
-     * Check if an LTI id is valid.
+     * Check if an LTI resource link id is valid.
      *
-     * @param string $linkid             The lti id
-     * @param string  $course            The course
-     * @param string  $toolproxy         The tool proxy id
+     * @param string  $linkid     The lti resource link id
+     * @param string  $course     The course
+     * @param string  $toolproxy  The tool proxy id
      *
      * @return boolean
      */
     public static function check_lti_id($linkid, $course, $toolproxy) {
         global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity->typeid == 0) {
-            $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-            if (!$tool) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-            }
-            return (($tool) && ($toolproxy == $tool->toolproxyid));
-        } else {
-            $sqlparams2 = array();
-            $sqlparams2['linkid'] = $linkid;
-            $sqlparams2['course'] = $course;
-            $sqlparams2['toolproxy'] = $toolproxy;
-            $sql = 'SELECT lti.*
-                      FROM {lti} lti
-                INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                     WHERE lti.id = ?
-                           AND lti.course = ?
-                           AND typ.toolproxyid = ?';
-            return $DB->record_exists_sql($sql, $sqlparams2);
+
+        $resourcelink = resource_link::get_record(['id' => $linkid]);
+        if (!$resourcelink) {
+            return false;
         }
+        // typeid can be 0 when the activity came from a backup; match by URL.
+        if ($resourcelink->get('typeid') == 0) {
+            $tool = \core_ltix\helper::get_tool_by_url_match($resourcelink->get('url'), $course);
+            return (($tool) && ($toolproxy == $tool->toolproxyid));
+        }
+
+        return $DB->record_exists('lti_types', ['id' => $resourcelink->get('typeid'), 'toolproxyid' => $toolproxy]);
     }
 
     /**
-     * Check if an LTI id is valid when we are in a LTI 1.x case
+     * Check if an LTI resource link id is valid when we are in a LTI 1.x case
      *
-     * @param string $linkid             The lti id
-     * @param string  $course            The course
-     * @param string  $typeid            The lti type id
+     * @param string  $linkid     The lti resource link id
+     * @param string  $course     The course
+     * @param string  $toolproxy  The tool proxy id
      *
      * @return boolean
      */
     public static function check_lti_1x_id($linkid, $course, $typeid) {
-        global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity) {
-            if ($ltiactivity->typeid == 0) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-                if (!$tool) {
-                    $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-                }
-                return (($tool) && ($typeid == $tool->id));
-            } else {
-                $sqlparams2 = array();
-                $sqlparams2['linkid'] = $linkid;
-                $sqlparams2['course'] = $course;
-                $sqlparams2['typeid'] = $typeid;
-                $sql = 'SELECT lti.*
-                          FROM {lti} lti
-                    INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                         WHERE lti.id = ?
-                               AND lti.course = ?
-                               AND typ.id = ?';
-                return $DB->record_exists_sql($sql, $sqlparams2);
-            }
-        } else {
+        $resourcelink = resource_link::get_record(['id' => $linkid]);
+        if (!$resourcelink) {
             return false;
         }
+        // typeid can be 0 when the activity came from a backup; match by URL.
+        if ($resourcelink->get('typeid') == 0) {
+            $tool = \core_ltix\helper::get_tool_by_url_match($resourcelink->get('url'), $course);
+            return (($tool) && ($typeid == $tool->id));
+        }
+
+        return (int)$resourcelink->get('typeid') === (int)$typeid;
     }
 
     /**
