@@ -340,21 +340,21 @@ final class gradebookservices_test extends \advanced_testcase {
     }
 
     /**
-     * Test that check_lti_id returns false when the resource link does not exist.
+     * Test that check_resource_link_id returns false when the resource link does not exist.
      *
-     * @covers ::check_lti_id
+     * @covers ::check_resource_link_id
      */
-    public function test_check_lti_id_returns_false_for_unknown_link(): void {
+    public function test_check_resource_link_id_returns_false_for_unknown_link(): void {
         $this->resetAfterTest();
-        $this->assertFalse(gradebookservices::check_lti_id(99999, 1, 1));
+        $this->assertFalse(gradebookservices::check_resource_link_id(99999, 1, 1));
     }
 
     /**
-     * Test that check_lti_id validates the tool proxy against lti_types.toolproxyid.
+     * Test that check_resource_link_id validates the tool proxy against lti_types.toolproxyid.
      *
-     * @covers ::check_lti_id
+     * @covers ::check_resource_link_id
      */
-    public function test_check_lti_id(): void {
+    public function test_check_resource_link_id(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -368,26 +368,26 @@ final class gradebookservices_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $resourcelink = $this->create_resource_link($typeid, $course);
 
-        $this->assertTrue(gradebookservices::check_lti_id($resourcelink->get('id'), $course->id, $proxyid));
-        $this->assertFalse(gradebookservices::check_lti_id($resourcelink->get('id'), $course->id, $proxyid + 1));
+        $this->assertTrue(gradebookservices::check_resource_link_id($resourcelink->get('id'), $course->id, $proxyid));
+        $this->assertFalse(gradebookservices::check_resource_link_id($resourcelink->get('id'), $course->id, $proxyid + 1));
     }
 
     /**
-     * Test that check_lti_1x_id returns false when the resource link does not exist.
+     * Test that check_resource_link_1x_id returns false when the resource link does not exist.
      *
-     * @covers ::check_lti_1x_id
+     * @covers ::check_resource_link_1x_id
      */
-    public function test_check_lti_1x_id_returns_false_for_unknown_link(): void {
+    public function test_check_resource_link_1x_id_returns_false_for_unknown_link(): void {
         $this->resetAfterTest();
-        $this->assertFalse(gradebookservices::check_lti_1x_id(99999, 1, 1));
+        $this->assertFalse(gradebookservices::check_resource_link_1x_id(99999, 1, 1));
     }
 
     /**
-     * Test that check_lti_1x_id validates the resource link's typeid against the supplied typeid.
+     * Test that check_resource_link_1x_id validates the resource link's typeid against the supplied typeid.
      *
-     * @covers ::check_lti_1x_id
+     * @covers ::check_resource_link_1x_id
      */
-    public function test_check_lti_1x_id(): void {
+    public function test_check_resource_link_1x_id(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
 
@@ -397,8 +397,8 @@ final class gradebookservices_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $resourcelink = $this->create_resource_link($typeid, $course);
 
-        $this->assertTrue(gradebookservices::check_lti_1x_id($resourcelink->get('id'), $course->id, $typeid));
-        $this->assertFalse(gradebookservices::check_lti_1x_id($resourcelink->get('id'), $course->id, $othertypeid));
+        $this->assertTrue(gradebookservices::check_resource_link_1x_id($resourcelink->get('id'), $course->id, $typeid));
+        $this->assertFalse(gradebookservices::check_resource_link_1x_id($resourcelink->get('id'), $course->id, $othertypeid));
     }
 
     /**
@@ -421,7 +421,7 @@ final class gradebookservices_test extends \advanced_testcase {
 
         // The 1st item in the array is the items count.
         $this->assertEquals(1, $gradeitems[0]);
-        $lineitem = gradebookservices::item_for_json($gradeitems[1][0], '', $typeid);
+        $lineitem = gradebookservices::item_for_json_with_resource_link($gradeitems[1][0], '', $typeid);
         $this->assertEquals(10, $lineitem->scoreMaximum);
         $this->assertEquals($resourceid, $lineitem->resourceId);
         $this->assertEquals($tag, $lineitem->tag);

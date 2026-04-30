@@ -104,14 +104,14 @@ class results extends resource_base {
             }
             if ($ltilinkid != null) {
                 if (is_null($typeid)) {
-                    if (!gradebookservices::check_lti_id($ltilinkid, $item->courseid,
+                    if (!gradebookservices::check_resource_link_id($ltilinkid, $item->courseid,
                             $this->get_service()->get_tool_proxy()->id)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
                         return;
                     }
                 } else {
-                    if (!gradebookservices::check_lti_1x_id($ltilinkid, $item->courseid,
+                    if (!gradebookservices::check_resource_link_1x_id($ltilinkid, $item->courseid,
                             $typeid)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
