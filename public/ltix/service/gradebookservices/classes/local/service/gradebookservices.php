@@ -602,8 +602,15 @@ class gradebookservices extends service_base {
         } else {
             $lineitem->tag = '';
             if (isset($item->iteminstance)) {
-                $lineitem->resourceLinkId = strval($item->iteminstance);
-                $lineitem->ltiLinkId = strval($item->iteminstance);
+                // We need to get the resource link.
+                $itemcm = get_coursemodule_from_instance('lti', $item->iteminstance);
+                if ($itemcm) {
+                    $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                    if ($resourcelink) {
+                        $lineitem->resourceLinkId = strval($resourcelink->get('id'));
+                        $lineitem->ltiLinkId = strval($resourcelink->get('id'));
+                    }
+                }
             }
         }
 
