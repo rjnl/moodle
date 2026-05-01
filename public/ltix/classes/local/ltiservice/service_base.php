@@ -26,6 +26,7 @@
 
 namespace core_ltix\local\ltiservice;
 
+use core_ltix\local\lticore\models\resource_link;
 use stdClass;
 
 
@@ -232,18 +233,41 @@ abstract class service_base {
     /**
      * Called when a new LTI Instance is added.
      *
-     * @param object $lti LTI Instance.
-     */
-    public function instance_added(object $lti): void {
+     * @param resource_link $resourcelink The resource link associated with the new LTI instance.
+     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $subreviewurl The submission review target link URL
+     * @param string|null $subreviewparams The submission review custom parameters.
+    */
+    public function instance_added(
+        resource_link $resourcelink,
+        ?string $resourceid,
+        ?string $tag,
+        ?string $subreviewurl,
+        ?string $subreviewparams,
+        ?int $instanceid = null
+    ): void {
 
     }
 
     /**
-     * Called when a new LTI Instance is updated.
+     * Called when an LTI Instance is updated.
      *
-     * @param object $lti LTI Instance.
-     */
-    public function instance_updated(object $lti): void {
+     * @param resource_link $resourcelink The resource link associated with the updated LTI instance.
+     * @param string|null $resourceid The resourceid to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
+     * @param string|null $subreviewurl The submission review target link URL
+     * @param string|null $subreviewparams The submission review custom parameters.
+     * @param int|null $instanceid The ID of the updated LTI instance, or null if it cannot be determined.
+    */
+    public function instance_updated(
+        resource_link $resourcelink,
+        ?string $resourceid,
+        ?string $tag,
+        ?string $subreviewurl,
+        ?string $subreviewparams,
+        ?int $instanceid = null
+    ): void {
 
     }
 
