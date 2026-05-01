@@ -199,7 +199,7 @@ class lineitems extends resource_base {
         $jsonitems = [];
         $endpoint = parent::get_endpoint();
         foreach ($items as $item) {
-            array_push($jsonitems, gradebookservices::item_for_json($item, $endpoint, $typeid));
+            array_push($jsonitems, gradebookservices::item_for_json_with_resource_link($item, $endpoint, $typeid));
         }
 
         if (isset($canonicalpage) && ($canonicalpage)) {
