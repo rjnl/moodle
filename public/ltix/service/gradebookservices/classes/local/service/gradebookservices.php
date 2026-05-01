@@ -32,6 +32,7 @@ use ltixservice_gradebookservices\local\resources\scores;
 use core_ltix\local\ltiservice\resource_base;
 use core_ltix\local\ltiservice\service_base;
 use core_ltix\local\lticore\models\resource_link;
+use core\attribute\deprecated;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -573,7 +574,7 @@ class gradebookservices extends service_base {
      * @param string $typeid
      *
      * @return object
-     * @since Moodle 5.3 MDL-86034.
+     * @since Moodle 5.3 MDL-86034 - this method should be used in place of the deprecated item_for_json().
      */
     public static function item_for_json_with_resource_link($item, $endpoint, $typeid) {
         $lineitem = new \stdClass();
@@ -628,46 +629,18 @@ class gradebookservices extends service_base {
      * @param string $typeid
      *
      * @return object
+     * @deprecated since Moodle 5.3 MDL-86034 - use item_for_json_with_resource_link() instead.
+     * @see gradebookservices::item_for_json_with_resource_link()
      */
+    #[deprecated(
+        replacement: 'gradebookservices::item_for_json_with_resource_link()',
+        since: '5.3',
+        reason: 'The old method emitted the lti instance id as resourceLinkId/ltiLinkId;
+                the replacement now emits the a resource_link id.',
+        mdl: 'MDL-86034',
+    )]
     public static function item_for_json($item, $endpoint, $typeid) {
-
-        $lineitem = new \stdClass();
-        if (is_null($typeid)) {
-            $typeidstring = "";
-        } else {
-            $typeidstring = "?type_id={$typeid}";
-        }
-        $lineitem->id = "{$endpoint}/{$item->id}/lineitem" . $typeidstring;
-        $lineitem->label = $item->itemname;
-        $lineitem->scoreMaximum = floatval($item->grademax);
-        $gbs = self::find_ltixservice_gradebookservice_for_lineitem($item->id);
-        if ($gbs) {
-            $lineitem->resourceId = (!empty($gbs->resourceid)) ? $gbs->resourceid : '';
-            $lineitem->tag = (!empty($gbs->tag)) ? $gbs->tag : '';
-            if (isset($gbs->ltilinkid)) {
-                $lineitem->resourceLinkId = strval($gbs->ltilinkid);
-                $lineitem->ltiLinkId = strval($gbs->ltilinkid);
-            }
-            if (!empty($gbs->subreviewurl)) {
-                $submissionreview = new \stdClass();
-                if ($gbs->subreviewurl != 'DEFAULT') {
-                    $submissionreview->url = $gbs->subreviewurl;
-                }
-                if (!empty($gbs->subreviewparams)) {
-                    $submissionreview->custom = \core_ltix\helper::split_parameters($gbs->subreviewparams);
-                }
-                $lineitem->submissionReview = $submissionreview;
-            }
-        } else {
-            $lineitem->tag = '';
-            if (isset($item->iteminstance)) {
-                $lineitem->resourceLinkId = strval($item->iteminstance);
-                $lineitem->ltiLinkId = strval($item->iteminstance);
-            }
-        }
-
-        return $lineitem;
-
+        return self::item_for_json_with_resource_link($item, $endpoint, $typeid);
     }
 
     /**
@@ -713,7 +686,7 @@ class gradebookservices extends service_base {
      * @param string  $toolproxy       The tool proxy id
      *
      * @return boolean
-     * @since Moodle 5.3 MDL-86034.
+     * @since Moodle 5.3 MDL-86034 - this method should be used in place of the deprecated check_lti_id().
      */
     public static function check_resource_link_id($resourcelinkid, $course, $toolproxy) {
         global $DB;
@@ -739,33 +712,27 @@ class gradebookservices extends service_base {
      * @param string  $toolproxy         The tool proxy id
      *
      * @return boolean
+     * @deprecated since Moodle 5.3 MDL-86034 - use check_resource_link_id() instead.
+     * @see gradebookservices::check_resource_link_id()
      */
+    #[deprecated(
+        replacement: 'gradebookservices::check_resource_link_id()',
+        since: '5.3',
+        reason: 'Accepts lti module instance id; the replacement accepts a core_ltix resource_link record id.',
+        mdl: 'MDL-86034',
+    )]
     public static function check_lti_id($linkid, $course, $toolproxy) {
-        global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity->typeid == 0) {
-            $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-            if (!$tool) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-            }
-            return (($tool) && ($toolproxy == $tool->toolproxyid));
-        } else {
-            $sqlparams2 = array();
-            $sqlparams2['linkid'] = $linkid;
-            $sqlparams2['course'] = $course;
-            $sqlparams2['toolproxy'] = $toolproxy;
-            $sql = 'SELECT lti.*
-                      FROM {lti} lti
-                INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                     WHERE lti.id = ?
-                           AND lti.course = ?
-                           AND typ.toolproxyid = ?';
-            return $DB->record_exists_sql($sql, $sqlparams2);
+        // Get the resource link associated with this lti instance.
+        $cm = get_coursemodule_from_instance('lti', $linkid);
+        if (!$cm) {
+            return false;
         }
+        $resourcelink = resource_link::get_record(['itemid' => $cm->id, 'component' => 'mod_lti']);
+        if (!$resourcelink) {
+            return false;
+        }
+
+        return self::check_resource_link_id($resourcelink->get('id'), $course, $toolproxy);
     }
 
     /**
@@ -776,7 +743,7 @@ class gradebookservices extends service_base {
      * @param int     $typeid          The tool type id
      *
      * @return boolean
-     * @since Moodle 5.3 MDL-86034.
+     * @since Moodle 5.3 MDL-86034 - this method should be used in place of the deprecated check_lti_1x_id().
      */
     public static function check_resource_link_1x_id($resourcelinkid, $course, $typeid) {
         $resourcelink = resource_link::get_record(['id' => $resourcelinkid]);
@@ -800,37 +767,26 @@ class gradebookservices extends service_base {
      * @param string  $typeid            The lti type id
      *
      * @return boolean
+     * @deprecated since Moodle 5.3 MDL-86034 - use check_resource_link_1x_id() instead.
+     * @see gradebookservices::check_resource_link_1x_id()
      */
+    #[deprecated(
+        replacement: 'gradebookservices::check_resource_link_1x_id()',
+        since: '5.3',
+        reason: 'Accepts lti module instance id; the replacement accepts a core_ltix resource_link record id.',
+        mdl: 'MDL-86034',
+    )]
     public static function check_lti_1x_id($linkid, $course, $typeid) {
-        global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity) {
-            if ($ltiactivity->typeid == 0) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-                if (!$tool) {
-                    $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-                }
-                return (($tool) && ($typeid == $tool->id));
-            } else {
-                $sqlparams2 = array();
-                $sqlparams2['linkid'] = $linkid;
-                $sqlparams2['course'] = $course;
-                $sqlparams2['typeid'] = $typeid;
-                $sql = 'SELECT lti.*
-                          FROM {lti} lti
-                    INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                         WHERE lti.id = ?
-                               AND lti.course = ?
-                               AND typ.id = ?';
-                return $DB->record_exists_sql($sql, $sqlparams2);
-            }
-        } else {
+        $cm = get_coursemodule_from_instance('lti', $linkid);
+        if (!$cm) {
             return false;
         }
+        $resourcelink = resource_link::get_record(['itemid' => $cm->id, 'component' => 'mod_lti']);
+        if (!$resourcelink) {
+            return false;
+        }
+
+        return self::check_resource_link_1x_id($resourcelink->get('id'), $course, $typeid);
     }
 
     /**
