@@ -118,7 +118,7 @@ function lti_add_instance($lti, $mform) {
 
     // Create a resource link early.
     // Subsequent operations (e.g., grade item creation and related checks) depend on the resource link being available.
-    resource_link_manager::create_resource_link(
+    $resourcelink = resource_link_manager::create_resource_link(
         'mod_lti:activityplacement',
         'mod_lti',
         $context,
@@ -146,9 +146,26 @@ function lti_add_instance($lti, $mform) {
     // TODO: this should be replaced with a core_ltix call, effectively notifying core_ltix
     //  that a gradable link has been created and allowing core_ltix to call into services alerting them
     //  and allowing them to update things, if necessary.
+
+    // Get the grade item for this activity, if it exists, to pass to the service.
+    // This allows the service to determine whether it needs to create a new grade item or update an existing one.
+    $gradeitem = $DB->get_record('grade_items', ['itemmodule' => 'lti', 'iteminstance' => $lti->id]);
+
+    // Now build a link object to pass to the service, containing the resource link and line item information.
+    $link = (object) [
+        'resourcelink' => $resourcelink,
+        'lineitem' => (object) [
+            'resourceid' => $lti->lineitemresourceid ?? null,
+            'tag' => $lti->lineitemtag ?? null,
+            'subreviewurl' => $lti->lineitemsubreviewurl ?? null,
+            'subreviewparams' => $lti->lineitemsubreviewparams ?? null,
+            ...(!empty($gradeitem) ? ['gradeitem' => $gradeitem] : []),
+        ],
+    ];
+
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_added( $lti );
+        $service->link_added($link);
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
@@ -219,9 +236,25 @@ function lti_update_instance($lti, $mform) {
         $lti->typeid = $lti->urlmatchedtypeid;
     }
 
+    // Get the grade item for this activity, if it exists, to pass to the service.
+    // This allows the service to determine whether it needs to create a new grade item or update an existing one.
+    $gradeitem = $DB->get_record('grade_items', ['itemmodule' => 'lti', 'iteminstance' => $lti->id]);
+
+    // Now build a link object to pass to the service, containing the resource link and line item information.
+    $link = (object) [
+        'resourcelink' => $resourcelink,
+        'lineitem' => (object) [
+            'resourceid' => $lti->lineitemresourceid ?? null,
+            'tag' => $lti->lineitemtag ?? null,
+            'subreviewurl' => $lti->lineitemsubreviewurl ?? null,
+            'subreviewparams' => $lti->lineitemsubreviewparams ?? null,
+            ...(!empty($gradeitem) ? ['gradeitem' => $gradeitem] : []),
+        ],
+    ];
+
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_updated( $lti );
+        $service->link_updated($link);
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;

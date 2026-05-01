@@ -1,0 +1,49 @@
+issueNumber: MDL-86034
+notes:
+  core_ltix:
+    - message: >-
+        The `\core_ltix\local\ltiservice\service_base::instance_added()` method
+        is deprecated. Please use `service_base::link_added()` instead,
+        which receives a structured `$link` object containing a `resource_link`
+        instance and the associated lineitem data.
+      type: deprecated
+    - message: >-
+        The `\core_ltix\local\ltiservice\service_base::instance_updated()` method
+        is deprecated. Please use `service_base::link_updated()` instead,
+        which receives a structured `$link` object containing a `resource_link`
+        instance and the associated lineitem data.
+      type: deprecated
+    - message: >-
+        Two new lifecycle hook methods have been added to
+        `\core_ltix\local\ltiservice\service_base`: `link_added(object $link)`
+        and `link_updated(object $link)`. These replace the legacy
+        `instance_added()` and `instance_updated()` methods. The `$link`
+        parameter is a plain object with the shape:
+
+        - `resourcelink` — a `resource_link` instance
+
+        - `lineitem` — an object with `resourceid`, `tag`, `subreviewurl`,
+          `subreviewparams`, and an optional `gradeitem` property.
+
+        Custom `ltixservice` plugins that previously overrode
+        `instance_added()` or `instance_updated()` must now override
+        `link_added()` or `link_updated()` respectively.
+      type: improved
+  ltixservice_gradebookservices:
+    - message: >-
+        The static method
+        `\ltixservice_gradebookservices\local\service\gradebookservices::update_coupled_gradebookservices()`
+        is deprecated. Please use `gradebookservices::update_coupled_lineitem()` instead,
+        which accepts a structured `$link` object with a `resource_link` and
+        associated lineitem data.
+      type: deprecated
+    - message: >-
+        The method
+        `\ltixservice_gradebookservices\local\service\gradebookservices::instance_added()`
+        is deprecated. Please use `gradebookservices::link_added()` instead.
+      type: deprecated
+    - message: >-
+        The method
+        `\ltixservice_gradebookservices\local\service\gradebookservices::instance_updated()`
+        is deprecated. Please use `gradebookservices::link_updated()` instead.
+      type: deprecated

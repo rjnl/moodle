@@ -27,6 +27,8 @@
 namespace core_ltix\local\ltiservice;
 
 use core_ltix\local\lticore\message\context\collection\launch_context;
+use core\attribute\deprecated;
+use core\deprecation;
 use stdClass;
 
 
@@ -235,8 +237,13 @@ abstract class service_base {
      *
      * @param object $lti LTI Instance.
      */
+    #[deprecated(
+        replacement: 'service_base::link_added()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_added(object $lti): void {
-
+        deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
     }
 
     /**
@@ -244,7 +251,48 @@ abstract class service_base {
      *
      * @param object $lti LTI Instance.
      */
+    #[deprecated(
+        replacement: 'service_base::link_updated()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_updated(object $lti): void {
+        deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+    }
+
+    /**
+     * Called when a new LTI link is added.
+     *
+     * The $link parameter is a plain object with the following shape:
+     *   - resourcelink: resource_link
+     *   - lineitem: object with the following properties:
+     *       - resourceid: string|null
+     *       - tag: string|null
+     *       - subreviewurl: string|null
+     *       - subreviewparams: string|null
+     *       - gradeitem: object|null (optional; the grade_items record for this link)
+     *
+     * @param object $link The link data object.
+     */
+    public function link_added(object $link): void {
+
+    }
+
+    /**
+     * Called when an LTI link is updated.
+     *
+     * The $link parameter is a plain object with the following shape:
+     *   - resourcelink: resource_link
+     *   - lineitem: object with the following properties:
+     *       - resourceid: string|null
+     *       - tag: string|null
+     *       - subreviewurl: string|null
+     *       - subreviewparams: string|null
+     *       - gradeitem: object|null (optional; the grade_items record for this link)
+     *
+     * @param object $link The link data object.
+     */
+    public function link_updated(object $link): void {
 
     }
 

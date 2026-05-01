@@ -48,6 +48,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+use core_ltix\local\placement\service\resource_link_manager;
+
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once($CFG->dirroot.'/mod/lti/locallib.php');
 
@@ -540,8 +542,17 @@ class mod_lti_mod_form extends moodleform_mod {
         // TODO: get "service data pertaining to a link" another way, via core_ltix::xxxx
         $services = \core_ltix\helper::get_services();
         if (is_object($defaultvalues)) {
+            if (isset($defaultvalues->instance)) {
+                // Pass a resourcelinkid to the form for any services that need it.
+                $cm = get_coursemodule_from_instance('lti', $defaultvalues->instance);
+                $resourcelink = resource_link_manager::get_resource_link_by_item($cm->id, 'mod_lti:activityplacement');
+                if ($resourcelink) {
+                    $defaultvalues->resourcelinkid = $resourcelink->$resourcelink->get('id');
+                }
+            }
+
             foreach ($services as $service) {
-                $service->set_instance_form_values( $defaultvalues );
+                $service->set_instance_form_values($defaultvalues);
             }
         }
         parent::set_data($defaultvalues);

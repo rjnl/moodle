@@ -222,6 +222,8 @@ class lineitem extends resource_base {
                         $upgradegradebookservices = true;
                     }
                 } else {
+                    // This fallback exists to support lineitem return for resource links not having an associated gbs row
+                    // which only occurs if they were created before the patch in MDL-60416 landed.
                     if (intval($item->iteminstance) !== intval($json->ltiLinkId)) {
                         $item->iteminstance = intval($json->ltiLinkId);
                         $updategradeitem = true;
