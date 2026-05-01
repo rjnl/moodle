@@ -340,6 +340,68 @@ final class gradebookservices_test extends \advanced_testcase {
     }
 
     /**
+     * Test that check_resource_link_id returns false when the resource link does not exist.
+     *
+     * @covers ::check_resource_link_id
+     */
+    public function test_check_resource_link_id_returns_false_for_unknown_link(): void {
+        $this->resetAfterTest();
+        $this->assertFalse(gradebookservices::check_resource_link_id(99999, 1, 1));
+    }
+
+    /**
+     * Test that check_resource_link_id validates the tool proxy against lti_types.toolproxyid.
+     *
+     * @covers ::check_resource_link_id
+     */
+    public function test_check_resource_link_id(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $typeid = $this->create_type();
+        // Assign a known toolproxyid directly; no real lti_tool_proxies row is required for the check.
+        $proxyid = 42;
+        $DB->set_field('lti_types', 'toolproxyid', $proxyid, ['id' => $typeid]);
+
+        $course = $this->getDataGenerator()->create_course();
+        $resourcelink = $this->create_resource_link($typeid, $course);
+
+        $this->assertTrue(gradebookservices::check_resource_link_id($resourcelink->get('id'), $course->id, $proxyid));
+        $this->assertFalse(gradebookservices::check_resource_link_id($resourcelink->get('id'), $course->id, $proxyid + 1));
+    }
+
+    /**
+     * Test that check_resource_link_1x_id returns false when the resource link does not exist.
+     *
+     * @covers ::check_resource_link_1x_id
+     */
+    public function test_check_resource_link_1x_id_returns_false_for_unknown_link(): void {
+        $this->resetAfterTest();
+        $this->assertFalse(gradebookservices::check_resource_link_1x_id(99999, 1, 1));
+    }
+
+    /**
+     * Test that check_resource_link_1x_id validates the resource link's typeid against the supplied typeid.
+     *
+     * @covers ::check_resource_link_1x_id
+     */
+    public function test_check_resource_link_1x_id(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $typeid = $this->create_type();
+        $othertypeid = $this->create_type();
+
+        $course = $this->getDataGenerator()->create_course();
+        $resourcelink = $this->create_resource_link($typeid, $course);
+
+        $this->assertTrue(gradebookservices::check_resource_link_1x_id($resourcelink->get('id'), $course->id, $typeid));
+        $this->assertFalse(gradebookservices::check_resource_link_1x_id($resourcelink->get('id'), $course->id, $othertypeid));
+    }
+
+    /**
      * Asserts a matching gradebookservices record exist with the matching tag and resourceid.
      *
      * @param object $course current course
@@ -482,5 +544,29 @@ final class gradebookservices_test extends \advanced_testcase {
         $config = new \stdClass();
         $config->ltixservice_gradesynchronization = 2;
         return \core_ltix\helper::add_type($type, $config);
+    }
+
+    /**
+     * Creates a minimal resource_link persistent record for testing.
+     *
+     * @param int $typeid The lti_types id to assign to the resource link.
+     * @param object $course The course the resource link belongs to.
+     * @return resource_link The saved resource link record.
+     */
+    private function create_resource_link(int $typeid, object $course): resource_link {
+        $context = \context_course::instance($course->id);
+        $resourcelink = new resource_link(0, (object) [
+            'typeid'          => $typeid,
+            'component'       => 'mod_lti',
+            'itemtype'        => 'mod_lti:activityplacement',
+            'itemid'          => $context->id, // Dummy; not validated by check methods.
+            'contextid'       => $context->id,
+            'url'             => $this->getExternalTestFileUrl('/test.html'),
+            'title'           => 'Test resource link',
+            'gradable'        => false,
+            'launchcontainer' => \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT,
+        ]);
+        $resourcelink->save();
+        return $resourcelink;
     }
 }
