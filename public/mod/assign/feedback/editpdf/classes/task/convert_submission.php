@@ -120,6 +120,29 @@ class convert_submission extends adhoc_task {
             }
 
             document_services::get_page_images_for_attempt($assign, $userid, $data->submissionattempt, false);
+
+            // If the submission has no source files, the combined PDF will be the blank placeholder.
+            // The stale check in get_page_images_for_attempt only applies to non-readonly mode,
+            // so we need to explicitly refresh the readonly area here to prevent stale images from
+            // a previously deleted submission being shown to the teacher (MDL-68693).
+            $grade = $assign->get_user_grade($userid, false, $data->submissionattempt);
+            if ($grade) {
+                $fs = \get_file_storage();
+                $combinedpdf = $fs->get_file(
+                    $assign->get_context()->id,
+                    document_services::COMPONENT,
+                    document_services::COMBINED_PDF_FILEAREA,
+                    $grade->id,
+                    '/',
+                    document_services::COMBINED_PDF_FILENAME
+                );
+                if ($combinedpdf && $combinedpdf->get_contenthash() === document_services::BLANK_PDF_HASH) {
+                    // The submission has no source files. Copy the fresh blank working pages
+                    // to the readonly area so they reflect the current (empty) submission.
+                    document_services::copy_pages_to_readonly_area($assign, $grade);
+                }
+            }
+
             document_services::get_page_images_for_attempt($assign, $userid, $data->submissionattempt, true);
         }
 
