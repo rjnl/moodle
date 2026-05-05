@@ -581,6 +581,163 @@ final class feedback_test extends \advanced_testcase {
     }
 
     /**
+     * Test that delete_submission_files_for_attempt removes all generated file areas and draft annotations.
+     *
+     * @covers \assignfeedback_editpdf\document_services::delete_submission_files_for_attempt
+     */
+    public function test_delete_submission_files_for_attempt_cleans_up(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign = $this->create_instance($course, [
+            'assignsubmission_file_enabled'      => 1,
+            'assignsubmission_file_maxfiles'     => 1,
+            'assignfeedback_editpdf_enabled'     => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+        ]);
+
+        $this->add_file_submission($student, $assign);
+
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+
+        $contextid = $assign->get_context()->id;
+        $component = 'assignfeedback_editpdf';
+        $itemid = $grade->id;
+        $fs = get_file_storage();
+
+        // Seed a fake file in each generated file area.
+        $fileareas = [
+            document_services::PAGE_IMAGE_FILEAREA,
+            document_services::PAGE_IMAGE_READONLY_FILEAREA,
+            document_services::COMBINED_PDF_FILEAREA,
+            document_services::PARTIAL_PDF_FILEAREA,
+        ];
+        foreach ($fileareas as $filearea) {
+            $fs->create_file_from_string([
+                'contextid' => $contextid,
+                'component' => $component,
+                'filearea'  => $filearea,
+                'itemid'    => $itemid,
+                'filepath'  => '/',
+                'filename'  => 'dummy.pdf',
+            ], 'dummy content');
+        }
+
+        // Seed a draft comment.
+        $comment = new comment();
+        $comment->rawtext = 'Draft comment';
+        $comment->width = 100;
+        $comment->x = 0;
+        $comment->y = 0;
+        $comment->colour = 'red';
+        page_editor::set_comments($grade->id, 0, [$comment]);
+        $this->assertNotEmpty(page_editor::get_comments($grade->id, 0, true));
+
+        // Call the method under test.
+        document_services::delete_submission_files_for_attempt($assign, $student->id, -1);
+
+        // All file areas must now be empty.
+        foreach ($fileareas as $filearea) {
+            $this->assertTrue(
+                $fs->is_area_empty($contextid, $component, $filearea, $itemid),
+                "File area '{$filearea}' should be empty after delete_submission_files_for_attempt()"
+            );
+        }
+
+        // Draft annotations must also be cleared.
+        $this->assertEmpty(page_editor::get_comments($grade->id, 0, true));
+    }
+
+    /**
+     * Test that delete_submission_files_for_attempt is a no-op when no grade record exists.
+     *
+     * @covers \assignfeedback_editpdf\document_services::delete_submission_files_for_attempt
+     */
+    public function test_delete_submission_files_for_attempt_no_grade(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign  = $this->create_instance($course, [
+            'assignsubmission_file_enabled'  => 1,
+            'assignfeedback_editpdf_enabled' => 1,
+        ]);
+
+        // No grade record exists — method should return silently without error.
+        document_services::delete_submission_files_for_attempt($assign, $student->id, -1);
+        $this->assertTrue(true);
+    }
+
+    /**
+     * Test that the submission_removed event observer deletes generated files (MDL-68693, Pathway 2).
+     *
+     * When a student's submission is fully removed via remove_submission(), the
+     * assignfeedback_editpdf observer must delete any page images, combined PDFs, and
+     * readonly page images so that the teacher's grade UI shows an empty state.
+     *
+     * @covers \assignfeedback_editpdf\event\observer::submission_removed
+     */
+    public function test_submission_removed_observer_deletes_generated_files(): void {
+        $this->resetAfterTest();
+
+        $course  = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign  = $this->create_instance($course, [
+            'assignsubmission_file_enabled'      => 1,
+            'assignsubmission_file_maxfiles'     => 1,
+            'assignfeedback_editpdf_enabled'     => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+        ]);
+
+        $this->add_file_submission($student, $assign);
+
+        // Create a grade record and seed fake generated files.
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+
+        $contextid = $assign->get_context()->id;
+        $component = 'assignfeedback_editpdf';
+        $itemid = $grade->id;
+        $fs = get_file_storage();
+
+        $fileareas = [
+            document_services::PAGE_IMAGE_FILEAREA,
+            document_services::PAGE_IMAGE_READONLY_FILEAREA,
+            document_services::COMBINED_PDF_FILEAREA,
+        ];
+        foreach ($fileareas as $filearea) {
+            $fs->create_file_from_string([
+                'contextid' => $contextid,
+                'component' => $component,
+                'filearea'  => $filearea,
+                'itemid'    => $itemid,
+                'filepath'  => '/',
+                'filename'  => 'dummy.pdf',
+            ], 'dummy content');
+        }
+
+        // Verify files were created.
+        foreach ($fileareas as $filearea) {
+            $this->assertFalse($fs->is_area_empty($contextid, $component, $filearea, $itemid));
+        }
+
+        // Teacher removes the submission (triggers submission_removed event → observer).
+        $assign->remove_submission($student->id);
+
+        // All generated file areas must now be empty.
+        foreach ($fileareas as $filearea) {
+            $this->assertTrue(
+                $fs->is_area_empty($contextid, $component, $filearea, $itemid),
+                "File area '{$filearea}' should be empty after submission_removed event"
+            );
+        }
+    }
+
+    /**
      * Tests that when the plugin is not enabled for an assignment it does not create conversion tasks.
      *
      * @covers \assignfeedback_editpdf\event\observer
