@@ -918,6 +918,41 @@ EOD;
     }
 
     /**
+     * Delete all generated files for an attempt when the submission has been removed.
+     *
+     * This removes the working page images, the readonly page images, the combined PDF,
+     * and any partial PDF, plus draft annotations, so that the grade UI shows an empty
+     * state after a student removes their submission.
+     *
+     * @param int|\assign $assignment
+     * @param int $userid
+     * @param int $attemptnumber (-1 means latest attempt)
+     * @return void
+     */
+    public static function delete_submission_files_for_attempt($assignment, $userid, $attemptnumber) {
+        $assignment = self::get_assignment_from_param($assignment);
+
+        // Retrieve the existing grade record without creating one.
+        $grade = $assignment->get_user_grade($userid, false, $attemptnumber);
+        if (!$grade) {
+            // No grade record means no generated files to clean up.
+            return;
+        }
+
+        $contextid = $assignment->get_context()->id;
+        $component = self::COMPONENT;
+        $itemid = $grade->id;
+        $fs = get_file_storage();
+
+        $fs->delete_area_files($contextid, $component, self::PAGE_IMAGE_FILEAREA, $itemid);
+        $fs->delete_area_files($contextid, $component, self::PAGE_IMAGE_READONLY_FILEAREA, $itemid);
+        $fs->delete_area_files($contextid, $component, self::COMBINED_PDF_FILEAREA, $itemid);
+        $fs->delete_area_files($contextid, $component, self::PARTIAL_PDF_FILEAREA, $itemid);
+
+        page_editor::delete_draft_content($itemid);
+    }
+
+    /**
      * Save file.
      * @param int|\assign $assignment Assignment
      * @param int $userid User ID

@@ -33,4 +33,8 @@ $observers = array(
         'eventname'   => '\mod_assign\event\submission_updated',
         'callback'    => '\assignfeedback_editpdf\event\observer::submission_updated',
     ),
+    array(
+        'eventname'   => '\mod_assign\event\submission_removed',
+        'callback'    => '\assignfeedback_editpdf\event\observer::submission_removed',
+    ),
 );

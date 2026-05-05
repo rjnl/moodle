@@ -47,6 +47,40 @@ class observer {
     }
 
     /**
+     * Listen to events and delete generated PDF page images when a submission is removed.
+     * @param \mod_assign\event\submission_removed $event
+     */
+    public static function submission_removed(\mod_assign\event\submission_removed $event) {
+        $assign = $event->get_assign();
+        $plugin = $assign->get_feedback_plugin_by_type('editpdf');
+
+        if (!$plugin->is_visible() || !$plugin->is_enabled()) {
+            return;
+        }
+
+        $attemptnumber = $event->other['submissionattempt'];
+
+        // For individual submissions, relateduserid is set. For team submissions, use group members.
+        if (!empty($event->relateduserid)) {
+            $users = [$event->relateduserid];
+        } else {
+            $users = [];
+            $members = $assign->get_submission_group_members($event->other['groupid'], true);
+            foreach ($members as $member) {
+                $users[] = $member->id;
+            }
+        }
+
+        foreach ($users as $userid) {
+            \assignfeedback_editpdf\document_services::delete_submission_files_for_attempt(
+                $assign,
+                $userid,
+                $attemptnumber
+            );
+        }
+    }
+
+    /**
      * Queue the submission for processing.
      * @param \mod_assign\event\base $event The submission created/updated event.
      */
