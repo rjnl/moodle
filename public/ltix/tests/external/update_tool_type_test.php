@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\lti_testcase;
 
@@ -27,11 +28,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for update_tool_type external function.
  *
- * @coversDefaultClass \core_ltix\external\update_tool_type
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\update_tool_type::class)]
 final class update_tool_type_test extends lti_testcase {
 
     /**
@@ -47,7 +48,6 @@ final class update_tool_type_test extends lti_testcase {
     /**
      * Test update_tool_type.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_update_tool_type(): void {

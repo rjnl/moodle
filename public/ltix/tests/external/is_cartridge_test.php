@@ -16,6 +16,7 @@
 
 namespace external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\external\is_cartridge;
 use core_ltix\lti_testcase;
@@ -28,11 +29,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for is_cartridge external function.
  *
- * @coversDefaultClass \core_ltix\external\is_cartridge
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\is_cartridge::class)]
 final class is_cartridge_test extends lti_testcase {
 
     /**
@@ -48,7 +49,6 @@ final class is_cartridge_test extends lti_testcase {
     /**
      * Test is_cartridge.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_is_cartridge(): void {

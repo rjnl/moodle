@@ -16,6 +16,8 @@
 
 namespace core_ltix\local\placement;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use core\context\course;
 use core_ltix\constants;
 use core_ltix\local\placement\service\resource_link_manager;
@@ -23,21 +25,21 @@ use core_ltix\local\placement\service\resource_link_manager;
 /**
  * Test class for \core_ltix\local\placement\placement_service.
  *
- * @covers \core_ltix\local\placement\placement_service
  * @package    core_ltix
  * @copyright  2025 Muhammad Arnaldo <muhammad.arnaldo@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\placement\placement_service::class)]
 final class placement_service_test extends \advanced_testcase {
     /**
      * Test getting launch container for a link.
      *
-     * @dataProvider get_launch_container_provider
      * @param int|null $toollaunchcontainer Launch container from tool type
      * @param int|null $linklaunchcontainer Launch container from link
      * @param int|null $expected Expected result
      * @param bool $mobile If test should simulate mobile device
      */
+    #[DataProvider('get_launch_container_provider')]
     public function test_get_launch_container_for_link(
         ?int $toollaunchcontainer,
         ?int $linklaunchcontainer,

@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\helper;
 use core_ltix\lti_testcase;
@@ -28,11 +29,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for create_tool_type external function.
  *
- * @coversDefaultClass \core_ltix\external\create_tool_type
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\create_tool_type::class)]
 final class create_tool_type_test extends lti_testcase {
 
     /**
@@ -48,7 +49,6 @@ final class create_tool_type_test extends lti_testcase {
     /**
      * Test create_tool_type.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_create_tool_type(): void {
@@ -71,7 +71,6 @@ final class create_tool_type_test extends lti_testcase {
     /**
      * Test create_tool_type failure from non existent file.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_create_tool_type_nonexistant_file(): void {
@@ -82,7 +81,6 @@ final class create_tool_type_test extends lti_testcase {
     /**
      * Test create_tool_type failure from xml that is not a cartridge.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_create_tool_type_bad_file(): void {
@@ -93,7 +91,6 @@ final class create_tool_type_test extends lti_testcase {
     /**
      * Test create_tool_type as a user without the required capability.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_create_tool_type_without_capability(): void {

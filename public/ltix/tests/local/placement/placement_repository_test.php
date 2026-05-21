@@ -16,16 +16,18 @@
 
 namespace core_ltix\local\placement;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use core_ltix\constants;
 
 /**
  * Placements repository tests.
  *
- * @covers     \core_ltix\local\placement\placement_repository
  * @package    core_ltix
  * @copyright  2025 Mihail Geshoski <mihail@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\placement\placement_repository::class)]
 final class placement_repository_test extends \advanced_testcase {
 
     /**
@@ -37,8 +39,8 @@ final class placement_repository_test extends \advanced_testcase {
      * @param bool $expectedreturn The expected return value from the method call.
      * @param string|null $expectedexception The expected exception message, if applicable.
      * @return void
-     * @dataProvider is_placement_enabled_for_tool_in_course_provider
      */
+    #[DataProvider('is_placement_enabled_for_tool_in_course_provider')]
     public function test_is_placement_enabled_for_tool_in_course(array $toolsettings, array $placementsettings,
             string $placementtypearg, bool $expectedreturn, ?string $expectedexception = null): void {
         $this->resetAfterTest();
@@ -215,8 +217,8 @@ final class placement_repository_test extends \advanced_testcase {
      * @param bool $placementoverride
      * @param int $expectedcount
      * @return void
-     * @dataProvider get_placement_overrides_provider
      */
+    #[DataProvider('get_placement_overrides_provider')]
     public function test_get_tools_with_enabled_placement_in_course(
         $toolcoursevisible,
         $toolstate,
@@ -352,9 +354,8 @@ final class placement_repository_test extends \advanced_testcase {
      * @param \core_ltix\local\placement\placement_status|null $placementoverride the override status for the placement, or null.
      * @param int $expectedstatus the expected status of the placement.
      * @return void
-     * @covers ::get_placement_status_for_tool
-     * @dataProvider get_placement_status_provider
      */
+    #[DataProvider('get_placement_status_provider')]
     public function test_get_placement_status_for_tool(
         string $placementdefault,
         ?\core_ltix\local\placement\placement_status $placementoverride,
@@ -453,14 +454,13 @@ final class placement_repository_test extends \advanced_testcase {
     /**
      * Test get_placement_config_by_placement_type() with data provider.
      *
-     * @covers ::get_placement_config_by_placement_type
-     * @dataProvider get_placement_config_by_placement_type_provider
      * @param array $placementconfig The configuration data and the expected value for the placement.
      * @param array $expected The expected configuration data to be returned.
      * @param string $placementtypestr The placement type string to be used for the test.
      * @param bool $expectexception Whether to expect an exception to be thrown.
      * @return void
      */
+    #[DataProvider('get_placement_config_by_placement_type_provider')]
     public function test_get_placement_config_by_placement_type(
         array $placementconfig,
         array $expected,
@@ -568,12 +568,11 @@ final class placement_repository_test extends \advanced_testcase {
     /**
      * Test the load_placement_config() helper function.
      *
-     * @covers ::test_load_placement_config
-     * @dataProvider load_placement_config_provider
      * @param array $placementsdata Data used for pre-creating tool placements and respective configs.
      * @param object $expected The expected result from the method call.
      * @return void
      */
+    #[DataProvider('load_placement_config_provider')]
     public function test_load_placement_config(array $placementsdata, object $expected): void {
 
         $this->resetAfterTest();
@@ -683,14 +682,13 @@ final class placement_repository_test extends \advanced_testcase {
     /**
      * Test the insert_or_update_placement_config() helper function.
      *
-     * @covers ::insert_or_update_placement_config
-     * @dataProvider insert_or_update_placement_config_provider
      * @param string|null $existingvalue The pre-existing value for the placement config, or null if not pre-existing
      *                                   (config won't be pre-created).
      * @param string $newvalue The new value to be added to the placement config.
      * @param string $expectedvalue The expected value for placement config after addition.
      * @return void
      */
+    #[DataProvider('insert_or_update_placement_config_provider')]
     public function test_insert_or_update_placement_config(?string $existingvalue, string $newvalue, string $expectedvalue): void {
         global $DB;
 
@@ -753,11 +751,10 @@ final class placement_repository_test extends \advanced_testcase {
     /**
      * Test the delete_tool_placements() helper function.
      *
-     * @covers ::delete_tool_placements
-     * @dataProvider delete_tool_placements_provider
      * @param array $placementsdata Data used for pre-creating tool placements and respective configs.
      * @param array $placementtypeids An array of placement type IDs associated with the tool placements to delete.
      */
+    #[DataProvider('delete_tool_placements_provider')]
     public function test_delete_tool_placements(array $placementsdata, array $placementtypeids): void {
         global $DB;
 

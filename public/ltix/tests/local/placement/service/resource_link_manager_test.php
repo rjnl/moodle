@@ -16,16 +16,18 @@
 
 namespace core_ltix\local\placement\service;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use core_ltix\local\lticore\models\resource_link;
 
 /**
  * Resource link manager service tests.
  *
- * @covers     \core_ltix\local\placement\service\resource_link_manager
  * @package    core_ltix
  * @copyright  2025 Mihail Geshoski <mihail@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\placement\service\resource_link_manager::class)]
 final class resource_link_manager_test extends \advanced_testcase {
 
     /**
@@ -39,8 +41,8 @@ final class resource_link_manager_test extends \advanced_testcase {
      *                                      resource link.
      * @param string|null $expectedexception The expected exception message, if applicable.
      * @return void
-     * @dataProvider create_resource_link_provider
      */
+    #[DataProvider('create_resource_link_provider')]
     public function test_create_resource_link(?array $toolsettings, array $placementsettings, array $args,
             array $expectedpropertyvalues, ?string $expectedexception = null): void {
         global $SITE;
@@ -429,8 +431,8 @@ final class resource_link_manager_test extends \advanced_testcase {
      * @param string $itemtype The type of the resource link to retrieve.
      * @param bool $expectsresourcelink Whether the method call is expected to return a resource link.
      * @return void
-     * @dataProvider get_resource_link_by_item_provider
      */
+    #[DataProvider('get_resource_link_by_item_provider')]
     public function test_get_resource_link_by_item(int $itemid, string $itemtype, bool $expectsresourcelink): void {
         global $SITE;
 
@@ -512,8 +514,8 @@ final class resource_link_manager_test extends \advanced_testcase {
      * @param array $expectedpropertyvalues The array containing the expected values for the properties of the resource link
      *                                      after the update.
      * @return void
-     * @dataProvider update_resource_link_provider
      */
+    #[DataProvider('update_resource_link_provider')]
     public function test_update_resource_link(array $updatedata, bool $expectedreturn, array $expectedpropertyvalues): void {
         global $SITE;
 

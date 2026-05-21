@@ -16,25 +16,28 @@
 
 namespace core_ltix\local\lticore\models;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests covering resource_link.
  *
- * @covers \core_ltix\local\lticore\models\resource_link
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\lticore\models\resource_link::class)]
 final class resource_link_test extends \advanced_testcase {
 
     /**
      * Test creation.
      *
-     * @dataProvider create_resource_link_provider
      * @param array $setdata the data to pass to set().
      * @param array $expecteddata the expected dataset, to compare with calls to get().
      * @param null|string $expectedexception the exception type to expect, if any, else null.
      * @return void
      */
+    #[DataProvider('create_resource_link_provider')]
     public function test_resource_link_creation(array $setdata, array $expecteddata, ?string$expectedexception = null): void {
         $this->resetAfterTest();
 

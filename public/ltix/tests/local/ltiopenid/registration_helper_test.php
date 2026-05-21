@@ -34,15 +34,17 @@
 
 namespace core_ltix\local\ltiopenid;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Tests for the registration_helper class.
  *
- * @coversDefaultClass \core_ltix\local\ltiopenid\registration_helper
  * @package    core_ltix
  * @copyright  2020 Claude Vervoort, Cengage
  * @author     Claude Vervoort
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\ltiopenid\registration_helper::class)]
 final class registration_helper_test extends \basic_testcase {
 
     /**
@@ -138,7 +140,6 @@ EOD;
 
     /**
      * Test the mapping from Registration JSON to LTI Config for a has-it-all tool registration.
-     * @covers ::registration_to_config
      */
     public function test_to_config_full(): void {
         $registration = json_decode($this->registrationfulljson, true);
@@ -169,7 +170,6 @@ EOD;
 
     /**
      * Test the mapping from Registration JSON to LTI Config for a minimal tool registration.
-     * @covers ::registration_to_config
      */
     public function test_to_config_minimal(): void {
         $registration = json_decode($this->registrationminimaljson, true);
@@ -198,7 +198,6 @@ EOD;
     /**
      * Test the mapping from Registration JSON to LTI Config for a minimal tool with
      * deep linking support registration.
-     * @covers ::registration_to_config
      */
     public function test_to_config_minimal_with_deeplinking(): void {
         $registration = json_decode($this->registrationminimaldljson, true);
@@ -209,7 +208,6 @@ EOD;
 
     /**
      * Validation Test: initiation login.
-     * @covers ::registration_to_config
      */
     public function test_validation_initlogin(): void {
         $registration = json_decode($this->registrationfulljson, true);
@@ -221,7 +219,6 @@ EOD;
 
     /**
      * Validation Test: redirect uris.
-     * @covers ::registration_to_config
      */
     public function test_validation_redirecturis(): void {
         $registration = json_decode($this->registrationfulljson, true);
@@ -233,7 +230,6 @@ EOD;
 
     /**
      * Validation Test: jwks uri empty.
-     * @covers ::registration_to_config
      */
     public function test_validation_jwks(): void {
         $registration = json_decode($this->registrationfulljson, true);
@@ -245,7 +241,6 @@ EOD;
 
     /**
      * Validation Test: no domain nor targetlinkuri is rejected.
-     * @covers ::registration_to_config
      */
     public function test_validation_missing_domain_targetlinkuri(): void {
         $registration = json_decode($this->registrationminimaljson, true);
@@ -258,7 +253,6 @@ EOD;
 
     /**
      * Validation Test: mismatch between domain and targetlinkuri is rejected.
-     * @covers ::registration_to_config
      */
     public function test_validation_domain_targetlinkuri_match(): void {
         $registration = json_decode($this->registrationminimaljson, true);
@@ -270,7 +264,6 @@ EOD;
 
     /**
      * Validation Test: domain is required.
-     * @covers ::registration_to_config
      */
     public function test_validation_domain_targetlinkuri_onlylink(): void {
         $registration = json_decode($this->registrationminimaljson, true);
@@ -282,7 +275,6 @@ EOD;
 
     /**
      * Validation Test: base url (targetlinkuri) is built from domain if not present.
-     * @covers ::registration_to_config
      */
     public function test_validation_domain_targetlinkuri_onlydomain(): void {
         $registration = json_decode($this->registrationminimaljson, true);
@@ -294,7 +286,6 @@ EOD;
 
     /**
      * Test the transformation from lti config to OpenId LTI Client Registration response.
-     * @covers ::registration_to_config
      */
     public function test_config_to_registration(): void {
         $orig = json_decode($this->registrationfulljson, true);
@@ -333,7 +324,6 @@ EOD;
 
     /**
      * Test the transformation from lti config to OpenId LTI Client Registration response for the minimal version.
-     * @covers ::registration_to_config
      */
     public function test_config_to_registration_minimal(): void {
         $orig = json_decode($this->registrationminimaljson, true);
@@ -357,7 +347,6 @@ EOD;
 
     /**
      * Test the transformation from lti config 1.1 to Registration Response.
-     * @covers ::config_to_registration
      */
     public function test_config_to_registration_lti11(): void {
         $config = [];
@@ -402,7 +391,6 @@ EOD;
     /**
      * Test the transformation from lti config 2.0 to Registration Response.
      * For LTI 2.0 we limit to just passing the previous key/secret.
-     * @covers ::config_to_registration
      */
     public function test_config_to_registration_lti20(): void {
         $config = [];

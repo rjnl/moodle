@@ -16,6 +16,8 @@
 
 namespace core_ltix\local\ltiopenid;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use core_ltix\local\lticore\exception\lti_exception;
 use core_ltix\local\lticore\message\context\collection\substitution_context;
 use core_ltix\local\lticore\message\payload\lis_vocab_converter;
@@ -28,11 +30,11 @@ use core_ltix\local\lticore\token\lti_token;
 /**
  * Tests covering lti_oidc_authenticator.
  *
- * @covers \core_ltix\local\ltiopenid\lti_oidc_authenticator
  * @package    core_ltix
  * @copyright  2025 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\ltiopenid\lti_oidc_authenticator::class)]
 final class lti_oidc_authenticator_test extends \basic_testcase {
 
     /**
@@ -182,7 +184,6 @@ final class lti_oidc_authenticator_test extends \basic_testcase {
     /**
      * Test the authenticate() method.
      *
-     * @dataProvider authenticate_data_provider
      * @param array $authinfo mock data for user auth.
      * @param object $toolconfig mock tool config/registration.
      * @param array $authrequestpayload mock auth request payload.
@@ -190,6 +191,7 @@ final class lti_oidc_authenticator_test extends \basic_testcase {
      * @param array $expected the array of expected lti_message data.
      * @return void
      */
+    #[DataProvider('authenticate_data_provider')]
     public function test_authenticate(
         array $authinfo,
         object $toolconfig,

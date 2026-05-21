@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\helper;
 use core_ltix\lti_testcase;
@@ -28,11 +29,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for delete_tool_proxy external function.
  *
- * @coversDefaultClass \core_ltix\external\delete_tool_proxy
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\delete_tool_proxy::class)]
 final class delete_tool_proxy_test extends lti_testcase {
 
     /**
@@ -48,7 +49,6 @@ final class delete_tool_proxy_test extends lti_testcase {
     /**
      * Test delete_tool_proxy.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_delete_tool_proxy(): void {

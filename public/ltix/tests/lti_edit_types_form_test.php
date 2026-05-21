@@ -42,7 +42,6 @@ final class lti_edit_types_form_test extends \advanced_testcase {
     /**
      * Tests the nested course categories JSON returned by public method \core_ltix\form\edit_types::lti_build_category_tree().
      *
-     * @covers \core_ltix\form\edit_types::lti_build_category_tree
      */
     public function test_set_nested_categories(): void {
         global $CFG, $DB;

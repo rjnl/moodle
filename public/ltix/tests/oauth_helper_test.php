@@ -34,6 +34,8 @@
 
 namespace core_ltix;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
@@ -46,8 +48,8 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
  * @author     Alex Morris <alex.morris@catalyst.net.nz>
  * @copyright  2023 onwards Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \core_ltix\oauth_helper
  */
+#[CoversClass(\core_ltix\oauth_helper::class)]
 final class oauth_helper_test extends lti_testcase {
 
     /**

@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\lti_testcase;
 
@@ -27,12 +28,12 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * PHPUnit tests for get_tool_types_and_proxies_count external function.
  *
- * @coversDefaultClass \core_ltix\external\get_tool_types_and_proxies_count
  * @package    core_ltix
  * @author     Andrew Madden <andrewmadden@catalyst-au.net>
  * @copyright  2021 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\get_tool_types_and_proxies_count::class)]
 final class get_tool_types_and_proxies_count_test extends lti_testcase {
 
     /**
@@ -46,7 +47,6 @@ final class get_tool_types_and_proxies_count_test extends lti_testcase {
 
     /**
      * Test get_tool_types_and_proxies_count returns the correct number.
-     * @covers ::execute
      */
     public function test_core_ltix_get_tool_types_and_proxies_count(): void {
         for ($i = 0; $i < 10; $i++) {
@@ -62,7 +62,6 @@ final class get_tool_types_and_proxies_count_test extends lti_testcase {
 
     /**
      * Test get_tool_types_and_proxies_count returns the correct number.
-     * @covers ::execute
      */
     public function test_core_ltix_get_tool_types_and_proxies_count_with_no_tools_configured(): void {
         $data = get_tool_types_and_proxies_count::execute(0, false);

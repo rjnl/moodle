@@ -16,18 +16,19 @@
 
 namespace core_ltix\event;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Unknown service API called event tests
  *
- * @coversDefaultClass \core_ltix\event\unknown_service_api_called
  * @package    core_ltix
  * @copyright  Copyright (c) 2012 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\event\unknown_service_api_called::class)]
 final class unknown_service_api_called_test extends \advanced_testcase {
     /**
      * Ensure create event works.
-     * @covers ::create
      */
     public function test_create_event(): void {
         $event = unknown_service_api_called::create();
@@ -36,7 +37,6 @@ final class unknown_service_api_called_test extends \advanced_testcase {
 
     /**
      * Ensure event context works.
-     * @covers ::get_context
      */
     public function test_event_context(): void {
         $event = unknown_service_api_called::create();
@@ -45,7 +45,6 @@ final class unknown_service_api_called_test extends \advanced_testcase {
 
     /**
      * Ensure we can trigger the event.
-     * @covers ::trigger
      */
     public function test_trigger_event(): void {
         $event = unknown_service_api_called::create();
@@ -58,7 +57,6 @@ final class unknown_service_api_called_test extends \advanced_testcase {
 
     /**
      * Ensure get/set message data is functioning as expected.
-     * @covers ::get_message_data
      */
     public function test_get_message_data(): void {
         $data = (object) array(

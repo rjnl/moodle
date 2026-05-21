@@ -34,26 +34,28 @@
 
 namespace core_ltix\local\ltiopenid;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests for the jwks_helper class.
  *
- * @coversDefaultClass jwks_helper
  * @package    core_ltix
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(jwks_helper::class)]
 final class jwks_helper_test extends \advanced_testcase {
 
     /**
      * Test the fix_jwks_alg method with a range of inputs.
      *
-     * @covers ::fix_jwks_alg
-     * @dataProvider jwks_alg_provider
      * @param array $jwks the JWKS key set.
      * @param string $jwt the JWT.
      * @param array $expected the expected outputs/exceptions.
      * @return void
      */
+    #[DataProvider('jwks_alg_provider')]
     public function test_fix_jwks_alg(array $jwks, string $jwt, array $expected): void {
         $this->resetDebugging();
         if (isset($expected['exception'])) {

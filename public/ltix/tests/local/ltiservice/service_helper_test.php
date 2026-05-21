@@ -16,23 +16,25 @@
 
 namespace core_ltix\local\ltiservice;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Tests for service_helper.
  *
- * @coversDefaultClass \core_ltix\local\ltiservice\service_helper
  * @package   core_ltix
  * @copyright Copyright (c) 2015 Moodlerooms Inc. (http://www.moodlerooms.com)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\ltiservice\service_helper::class)]
 final class service_helper_test extends \basic_testcase {
     /**
      * Test that parse_message_id never fails with good and bad XML.
      *
-     * @covers ::parse_message_id
-     * @dataProvider message_id_provider
      * @param mixed $expected Expected message ID.
      * @param string $xml XML to parse.
      */
+    #[DataProvider('message_id_provider')]
     public function test_parse_message_id($expected, $xml): void {
         $xml = simplexml_load_string($xml);
         $this->assertEquals($expected, service_helper::parse_message_id($xml));

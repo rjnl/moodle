@@ -16,6 +16,7 @@
 
 namespace external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\external\create_tool_type;
 use core_ltix\external\delete_tool_type;
@@ -30,11 +31,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for delete_tool_type external function.
  *
- * @coversDefaultClass \core_ltix\external\delete_tool_type
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\delete_tool_type::class)]
 final class delete_tool_type_test extends lti_testcase {
 
     /**
@@ -50,7 +51,6 @@ final class delete_tool_type_test extends lti_testcase {
     /**
      * Test delete_tool_type for a user with the required capability.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_delete_tool_type(): void {
@@ -67,7 +67,6 @@ final class delete_tool_type_test extends lti_testcase {
     /**
      * Test delete_tool_type for a user without the required capability.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_delete_tool_type_without_capability(): void {

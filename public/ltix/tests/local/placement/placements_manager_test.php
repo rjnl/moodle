@@ -16,16 +16,19 @@
 
 namespace core_ltix\local\placement;
 
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use core\tests\fake_plugins_test_trait;
 
 /**
  * Placements helper tests.
  *
- * @covers \core_ltix\local\placement\placements_manager
  * @package    core_ltix
  * @copyright  2025 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\local\placement\placements_manager::class)]
 final class placements_manager_test extends \advanced_testcase {
 
     use fake_plugins_test_trait;
@@ -34,8 +37,8 @@ final class placements_manager_test extends \advanced_testcase {
      * Test registration of component placement types during install/upgrade, via the update_placement_types() method.
      *
      * @return void
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function test_update_placement_types(): void {
         $this->resetAfterTest();
         global $CFG, $DB;
@@ -90,9 +93,9 @@ final class placements_manager_test extends \advanced_testcase {
     /**
      * Test updating the placementtype strings for a deprecated component, in which case type loading is prevented.
      *
-     * @runInSeparateProcess
      * @return void
      */
+    #[RunInSeparateProcess]
     public function test_update_placement_types_deprecated_component(): void {
         $this->resetAfterTest();
         global $CFG, $DB;
@@ -112,8 +115,8 @@ final class placements_manager_test extends \advanced_testcase {
      * Test fetching a deep linking placements component implementation.
      *
      * @return void
-     * @runInSeparateProcess
      */
+    #[RunInSeparateProcess]
     public function test_get_deeplinking_placement_handler(): void {
         $this->resetAfterTest();
         global $CFG;
@@ -173,13 +176,13 @@ final class placements_manager_test extends \advanced_testcase {
     /**
      * Test is_valid_placement_type().
      *
-     * @dataProvider is_valid_placement_type_provider
      * @param string $placementtype The placement type to check.
      * @param string $component The name of the component.
      * @param bool $isinsystem Whether the placement type is supported by the system.
      * @param bool $expected The expected result.
      * @return void
      */
+    #[DataProvider('is_valid_placement_type_provider')]
     public function test_is_valid_placement_type(string $placementtype, string $component, bool $isinsystem,
             bool $expected): void {
 

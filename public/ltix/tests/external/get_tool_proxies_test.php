@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\lti_testcase;
 
@@ -27,11 +28,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for get_tool_proxies external function.
  *
- * @coversDefaultClass \core_ltix\external\get_tool_proxies
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\get_tool_proxies::class)]
 final class get_tool_proxies_test extends lti_testcase {
 
     /**
@@ -47,7 +48,6 @@ final class get_tool_proxies_test extends lti_testcase {
     /**
      * Test get_tool_proxies.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_get_tool_proxies(): void {
@@ -68,7 +68,6 @@ final class get_tool_proxies_test extends lti_testcase {
     /**
      * Test get_tool_proxies with orphaned proxies only.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_get_orphaned_tool_proxies(): void {

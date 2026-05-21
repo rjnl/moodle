@@ -16,6 +16,7 @@
 
 namespace core_ltix\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\helper;
 use core_ltix\lti_testcase;
@@ -28,11 +29,11 @@ require_once($CFG->dirroot . '/ltix/tests/lti_testcase.php');
 /**
  * Unit test for get_tool_types external function.
  *
- * @coversDefaultClass \core_ltix\external\get_tool_types
  * @package    core_ltix
  * @copyright  2024 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\core_ltix\external\get_tool_types::class)]
 final class get_tool_types_test extends lti_testcase {
 
     /**
@@ -48,7 +49,6 @@ final class get_tool_types_test extends lti_testcase {
     /**
      * Test get_tool_types.
      *
-     * @covers ::execute
      * @return void
      */
     public function test_get_tool_types(): void {
