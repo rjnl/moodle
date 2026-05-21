@@ -16,6 +16,7 @@
 
 namespace mod_lti\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\helper;
 use externallib_advanced_testcase;
@@ -32,13 +33,12 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @package    mod_lti
  * @copyright  2023 Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_lti\external\delete_course_tool_type
  */
+#[CoversClass(\mod_lti\external\delete_course_tool_type::class)]
 final class delete_course_tool_type_test extends externallib_advanced_testcase {
 
     /**
      * Test delete_course_tool() for a course tool.
-     * @covers ::execute
      */
     public function test_delete_course_tool(): void {
         $this->resetAfterTest();
@@ -68,7 +68,6 @@ final class delete_course_tool_type_test extends externallib_advanced_testcase {
 
     /**
      * Test delete_course_tool() for a site tool, which is forbidden.
-     * @covers ::execute
      */
     public function test_delete_course_tool_site_tool(): void {
         $this->resetAfterTest();

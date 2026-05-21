@@ -16,17 +16,18 @@
 
 namespace mod_lti;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_ltix\local\placement\deeplinking_placement_handler;
 use core_ltix\local\placement\placements_manager;
 
 /**
  * Mod LTI activityplacement handler testing.
  *
- * @covers \mod_lti\lti\placement\activityplacement
  * @package    mod_lti
  * @copyright  Jake Dallimore <jrhdallimore@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\mod_lti\lti\placement\activityplacement::class)]
 final class activityplacement_test extends \advanced_testcase {
 
     /**

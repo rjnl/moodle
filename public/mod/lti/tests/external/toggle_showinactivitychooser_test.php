@@ -16,6 +16,7 @@
 
 namespace mod_lti\external;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use core_external\external_api;
 use core_ltix\local\placement\placement_status;
 use externallib_advanced_testcase;
@@ -32,8 +33,8 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
  * @package    mod_lti
  * @copyright  2023 Ilya Tregubov <ilya.a.tregubov@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers \mod_lti\external\toggle_showinactivitychooser
  */
+#[CoversClass(\mod_lti\external\toggle_showinactivitychooser::class)]
 final class toggle_showinactivitychooser_test extends externallib_advanced_testcase {
 
     /**

@@ -16,25 +16,28 @@
 
 namespace mod_lti\lti\placement\contentitemformatter\form;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Test content item to form data formatter.
  *
- * @covers     \mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter
  * @package    mod_lti
  * @copyright  Mihail Geshoski <mihail@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(\mod_lti\lti\placement\contentitemformatter\form\content_item_to_form_formatter::class)]
 final class content_item_to_form_formatter_test extends \advanced_testcase {
 
     /**
      * Test format method.
      *
-     * @dataProvider format_provider
      * @param array $contentitems The array containing the content item data.
      * @param array $toolconfig The array containing configuration parameters used for creating the tool.
      * @param object|null $expected The expected result.
      * @return void
      */
+    #[DataProvider('format_provider')]
     public function test_format(array $contentitems, array $toolconfig, ?object $expected): void {
         global $DB;
 
