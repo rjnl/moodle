@@ -18,8 +18,15 @@ namespace core_ltix\local\ltiservice;
 
 use core_ltix\local\lticore\message\context\collection\launch_context;
 
-interface plugin_substitution_service_interface
-{
+/**
+ * Interface for the plugin substitution service.
+ *
+ * @internal
+ * @package    core_ltix
+ * @copyright  2026 Jake Dallimore <jrhdallimore@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+interface plugin_substitution_service_interface {
     /**
      * Perform custom parameter substitution for all service plugins.
      *

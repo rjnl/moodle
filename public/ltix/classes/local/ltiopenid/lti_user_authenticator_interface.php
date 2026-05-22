@@ -16,6 +16,14 @@
 
 namespace core_ltix\local\ltiopenid;
 
+/**
+ * Interface for LTI user authentication.
+ *
+ * @internal
+ * @package    core_ltix
+ * @copyright  2026 Jake Dallimore <jrhdallimore@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 interface lti_user_authenticator_interface {
     public function authenticate(\stdClass $toolconfig, string $loginhint): lti_user;
 }
