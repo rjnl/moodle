@@ -27,6 +27,7 @@
 namespace core_ltix\local\ltiservice;
 
 use core_ltix\local\lticore\models\resource_link;
+use core\attribute\deprecated;
 use stdClass;
 
 
@@ -238,7 +239,14 @@ abstract class service_base {
      * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
      * @param string|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
+     * @deprecated since Moodle 5.3 MDL-86034 - use link_added() instead.
+     * @see service_base::link_added()
     */
+    #[deprecated(
+        replacement: 'service_base::link_added()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_added(
         resource_link $resourcelink,
         ?string $resourceid,
@@ -247,7 +255,7 @@ abstract class service_base {
         ?string $subreviewparams,
         ?int $instanceid = null
     ): void {
-
+        debugging('instance_added() has been deprecated. Use link_added() instead.', DEBUG_DEVELOPER);
     }
 
     /**
@@ -259,7 +267,14 @@ abstract class service_base {
      * @param string|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
      * @param int|null $instanceid The ID of the updated LTI instance, or null if it cannot be determined.
+     * @deprecated since Moodle 5.3 MDL-86034 - use link_updated() instead.
+     * @see service_base::link_updated()
     */
+    #[deprecated(
+        replacement: 'service_base::link_updated()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_updated(
         resource_link $resourcelink,
         ?string $resourceid,
@@ -268,6 +283,34 @@ abstract class service_base {
         ?string $subreviewparams,
         ?int $instanceid = null
     ): void {
+        debugging('instance_updated() has been deprecated. Use link_updated() instead.', DEBUG_DEVELOPER);
+    }
+
+    /**
+     * Called when a new LTI link is added.
+     *
+     * The $link parameter is a plain object with the following shape:
+     *   - resourcelink: resource_link
+     *   - lineitem: object with the following properties:
+     *       - resourceid: string|null
+     *       - tag: string|null
+     *       - subreviewurl: string|null
+     *       - subreviewparams: string|null
+     *       - gradeitem: object|null (optional; the grade_items record for this link)
+     *
+     * @param object $link The link data object.
+     */
+    public function link_added(object $link): void {
+
+    }
+
+    /**
+     * Called when an LTI link is updated.
+     *
+     * @see service_base::link_added() for the $link object shape.
+     * @param object $link The link data object.
+     */
+    public function link_updated(object $link): void {
 
     }
 

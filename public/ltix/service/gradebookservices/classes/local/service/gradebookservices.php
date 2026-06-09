@@ -348,11 +348,17 @@ class gradebookservices extends service_base {
                     }
                 } else if ($lineitem->itemtype == 'mod' && $lineitem->itemmodule == 'lti'
                         && !isset($resourceid) && !isset($tag)) {
-                    // We will need to check if the activity related belongs to our tool proxy.
+                    // This fallback exists to support lineitem return for resource links not having an associated gbs row,
+                    // which only occurs if they were created before the patch in MDL-60416 landed.
+                    // As such, the assumption in this code is that the gradeitem relates to a mod_lti instance record,
+                    // as that was the only usage of LTI (placement) at that time.
+                    // To find the corresponding link for these grade items, find links which
+                    // - belong to mod_lti:activityplacement
+                    // - are tied to the cmid (the unique identifier within that placement type)
                     $itemcm = get_coursemodule_from_instance('lti', $lineitem->iteminstance, $courseid);
                     $resourcelink = null;
                     if ($itemcm) {
-                        $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                        $resourcelink = resource_link_manager::get_resource_link_by_item($itemcm->id, 'mod_lti:activityplacement');
                     }
                     if ($resourcelink && (!isset($ltilinkid) || $itemcm->id === $ltilinkitemid)) {
                         if ($resourcelink->get('typeid') != 0) {
@@ -402,11 +408,14 @@ class gradebookservices extends service_base {
         if ($lineitem) {
             $gbs = $this->find_ltixservice_gradebookservice_for_lineitem($itemid);
             if (!$gbs) {
-                // We will need to check if the activity related belongs to our tool proxy.
+                // This fallback exists to support lineitem return for resource links not having an associated gbs row,
+                // which only occurs if they were created before the patch in MDL-60416 landed.
+                // As such, the assumption in this code is that the gradeitem relates to a mod_lti instance record,
+                // as that was the only usage of LTI (placement) at that time.
                 $itemcm = get_coursemodule_from_instance('lti', $lineitem->iteminstance, $courseid);
                 $resourcelink = null;
                 if ($itemcm) {
-                    $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                    $resourcelink = resource_link_manager::get_resource_link_by_item($itemcm->id, 'mod_lti:activityplacement');
                 }
                 if ($resourcelink) {
                     if ($resourcelink->get('typeid') != 0) {
@@ -566,16 +575,13 @@ class gradebookservices extends service_base {
     /**
      * Get the json object representation of the grade item.
      *
-     * Uses the core_ltix resource_link model to populate resourceLinkId/ltiLinkId.
-     *
      * @param object $item Grade Item record
      * @param string $endpoint Endpoint for lineitems container request
      * @param string $typeid
      *
      * @return object
-     * @since Moodle 5.3 MDL-86034.
      */
-    public static function item_for_json_with_resource_link($item, $endpoint, $typeid) {
+    public static function item_for_json($item, $endpoint, $typeid) {
         $lineitem = new \stdClass();
         if (is_null($typeid)) {
             $typeidstring = "";
@@ -604,11 +610,18 @@ class gradebookservices extends service_base {
                 $lineitem->submissionReview = $submissionreview;
             }
         } else {
+            // This fallback exists to support lineitem return for resource links not having an associated gbs row,
+            // which only occurs if they were created before the patch in MDL-60416 landed.
+            // As such, the assumption in this code is that the gradeitem relates to a mod_lti instance record, as that was
+            // the only usage of LTI (placement) at that time.
+            // To find the corresponding link for these grade items, find links which
+            // - belong to mod_lti:activityplacement
+            // - are tied to the cmid (the unique identifier within that placement type)
             $lineitem->tag = '';
             if (isset($item->iteminstance)) {
                 $itemcm = get_coursemodule_from_instance('lti', $item->iteminstance);
                 if ($itemcm) {
-                    $resourcelink = resource_link::get_record(['itemid' => $itemcm->id, 'component' => 'mod_lti']);
+                    $resourcelink = resource_link_manager::get_resource_link_by_item($itemcm->id, 'mod_lti:activityplacement');
                     if ($resourcelink) {
                         $lineitem->resourceLinkId = strval($resourcelink->get('id'));
                         $lineitem->ltiLinkId = strval($resourcelink->get('id'));
@@ -618,56 +631,6 @@ class gradebookservices extends service_base {
         }
 
         return $lineitem;
-    }
-
-    /**
-     * Get the json object representation of the grade item
-     *
-     * @param object $item Grade Item record
-     * @param string $endpoint Endpoint for lineitems container request
-     * @param string $typeid
-     *
-     * @return object
-     */
-    public static function item_for_json($item, $endpoint, $typeid) {
-
-        $lineitem = new \stdClass();
-        if (is_null($typeid)) {
-            $typeidstring = "";
-        } else {
-            $typeidstring = "?type_id={$typeid}";
-        }
-        $lineitem->id = "{$endpoint}/{$item->id}/lineitem" . $typeidstring;
-        $lineitem->label = $item->itemname;
-        $lineitem->scoreMaximum = floatval($item->grademax);
-        $gbs = self::find_ltixservice_gradebookservice_for_lineitem($item->id);
-        if ($gbs) {
-            $lineitem->resourceId = (!empty($gbs->resourceid)) ? $gbs->resourceid : '';
-            $lineitem->tag = (!empty($gbs->tag)) ? $gbs->tag : '';
-            if (isset($gbs->ltilinkid)) {
-                $lineitem->resourceLinkId = strval($gbs->ltilinkid);
-                $lineitem->ltiLinkId = strval($gbs->ltilinkid);
-            }
-            if (!empty($gbs->subreviewurl)) {
-                $submissionreview = new \stdClass();
-                if ($gbs->subreviewurl != 'DEFAULT') {
-                    $submissionreview->url = $gbs->subreviewurl;
-                }
-                if (!empty($gbs->subreviewparams)) {
-                    $submissionreview->custom = \core_ltix\helper::split_parameters($gbs->subreviewparams);
-                }
-                $lineitem->submissionReview = $submissionreview;
-            }
-        } else {
-            $lineitem->tag = '';
-            if (isset($item->iteminstance)) {
-                $lineitem->resourceLinkId = strval($item->iteminstance);
-                $lineitem->ltiLinkId = strval($item->iteminstance);
-            }
-        }
-
-        return $lineitem;
-
     }
 
     /**
@@ -706,19 +669,18 @@ class gradebookservices extends service_base {
     }
 
     /**
-     * Check if an LTI resource link id (from the core_ltix resource_link model) is valid.
+     * Check if an LTI id is valid.
      *
-     * @param int     $resourcelinkid  The core_ltix resource_link record id
-     * @param string  $course          The course id
-     * @param string  $toolproxy       The tool proxy id
+     * @param string $linkid             The resource link id
+     * @param string  $course            The course id
+     * @param string  $toolproxy         The tool proxy id
      *
      * @return boolean
-     * @since Moodle 5.3 MDL-86034.
      */
-    public static function check_resource_link_id($resourcelinkid, $course, $toolproxy) {
+    public static function check_lti_id($linkid, $course, $toolproxy) {
         global $DB;
 
-        $resourcelink = resource_link::get_record(['id' => $resourcelinkid]);
+        $resourcelink = resource_link::get_record(['id' => $linkid]);
         if (!$resourcelink) {
             return false;
         }
@@ -732,54 +694,16 @@ class gradebookservices extends service_base {
     }
 
     /**
-     * Check if an LTI id is valid.
+     * Check if an LTI id is valid when we are in a LTI 1.x case.
      *
-     * @param string $linkid             The lti id
-     * @param string  $course            The course
-     * @param string  $toolproxy         The tool proxy id
+     * @param string $linkid             The resource link id
+     * @param string  $course            The course id
+     * @param string  $typeid            The lti type id
      *
      * @return boolean
      */
-    public static function check_lti_id($linkid, $course, $toolproxy) {
-        global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity->typeid == 0) {
-            $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-            if (!$tool) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-            }
-            return (($tool) && ($toolproxy == $tool->toolproxyid));
-        } else {
-            $sqlparams2 = array();
-            $sqlparams2['linkid'] = $linkid;
-            $sqlparams2['course'] = $course;
-            $sqlparams2['toolproxy'] = $toolproxy;
-            $sql = 'SELECT lti.*
-                      FROM {lti} lti
-                INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                     WHERE lti.id = ?
-                           AND lti.course = ?
-                           AND typ.toolproxyid = ?';
-            return $DB->record_exists_sql($sql, $sqlparams2);
-        }
-    }
-
-    /**
-     * Check if a core_ltix resource link id is valid for the LTI 1.x case.
-     *
-     * @param int     $resourcelinkid  The core_ltix resource_link record id
-     * @param string  $course          The course id
-     * @param int     $typeid          The tool type id
-     *
-     * @return boolean
-     * @since Moodle 5.3 MDL-86034.
-     */
-    public static function check_resource_link_1x_id($resourcelinkid, $course, $typeid) {
-        $resourcelink = resource_link::get_record(['id' => $resourcelinkid]);
+    public static function check_lti_1x_id($linkid, $course, $typeid) {
+        $resourcelink = resource_link::get_record(['id' => $linkid]);
         if (!$resourcelink) {
             return false;
         }
@@ -793,44 +717,84 @@ class gradebookservices extends service_base {
     }
 
     /**
-     * Check if an LTI id is valid when we are in a LTI 1.x case
+     * Updates the tag, resourceid and submission review values for a grade item coupled to a resource link.
      *
-     * @param string $linkid             The lti id
-     * @param string  $course            The course
-     * @param string  $typeid            The lti type id
+     * The $link parameter is a plain object with the following shape:
+     *   - resourcelink: resource_link
+     *   - lineitem: object with the following properties:
+     *       - resourceid: string|null
+     *       - tag: string|null
+     *       - subreviewurl: string|null
+     *       - subreviewparams: string|null
+     *       - gradeitem: object|null (optional; the grade_items record for this link)
      *
-     * @return boolean
+     * @param object $link The link data object.
      */
-    public static function check_lti_1x_id($linkid, $course, $typeid) {
+    public static function update_coupled_lineitem(object $link): void {
         global $DB;
-        // Check if lti type is zero or not (comes from a backup).
-        $sqlparams1 = array();
-        $sqlparams1['linkid'] = $linkid;
-        $sqlparams1['course'] = $course;
-        $ltiactivity = $DB->get_record('lti', array('id' => $linkid, 'course' => $course));
-        if ($ltiactivity) {
-            if ($ltiactivity->typeid == 0) {
-                $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->toolurl, $course);
-                if (!$tool) {
-                    $tool = \core_ltix\helper::get_tool_by_url_match($ltiactivity->securetoolurl, $course);
-                }
-                return (($tool) && ($typeid == $tool->id));
-            } else {
-                $sqlparams2 = array();
-                $sqlparams2['linkid'] = $linkid;
-                $sqlparams2['course'] = $course;
-                $sqlparams2['typeid'] = $typeid;
-                $sql = 'SELECT lti.*
-                          FROM {lti} lti
-                    INNER JOIN {lti_types} typ ON lti.typeid = typ.id
-                         WHERE lti.id = ?
-                               AND lti.course = ?
-                               AND typ.id = ?';
-                return $DB->record_exists_sql($sql, $sqlparams2);
-            }
-        } else {
-            return false;
+
+        $resourcelink = $link->resourcelink;
+        $lineitem = $link->lineitem;
+        $gradeitem = $lineitem->gradeitem ?? null;
+        if (empty($gradeitem)) {
+            return;
         }
+
+        $typeid = $resourcelink->get('typeid');
+        if (!$typeid) {
+            return;
+        }
+
+        $resourceid = $lineitem->resourceid ?? null;
+        $tag = $lineitem->tag ?? null;
+        $subreviewurl = $lineitem->subreviewurl ?? null;
+        $subreviewparams = $lineitem->subreviewparams ?? null;
+        $resourceid = (isset($resourceid) && empty(trim($resourceid))) ? null : $resourceid;
+        $tag = (isset($tag) && empty(trim($tag))) ? null : $tag;
+        $gbs = self::find_ltixservice_gradebookservice_for_lineitem($gradeitem->id);
+        if ($gbs) {
+            $gbs->resourceid = $resourceid;
+            $gbs->tag = $tag;
+            $gbs->subreviewurl = $subreviewurl;
+            $gbs->subreviewparams = $subreviewparams;
+            $DB->update_record('ltixservice_gradebookservices', $gbs);
+        } else {
+            $baseurl = \core_ltix\helper::get_type_type_config($typeid)->lti_toolurl;
+            $DB->insert_record(
+                'ltixservice_gradebookservices',
+                (object)[
+                    'gradeitemid' => $gradeitem->id,
+                    'courseid' => $gradeitem->courseid,
+                    'typeid' => $typeid,
+                    'baseurl' => $baseurl,
+                    'ltilinkid' => $resourcelink->get('id'),
+                    'resourceid' => $resourceid,
+                    'tag' => $tag,
+                    'subreviewurl' => $subreviewurl,
+                    'subreviewparams' => $subreviewparams,
+                ]
+            );
+        }
+    }
+
+    /**
+     * Called when a new LTI link is added.
+     *
+     * @see gradebookservices::update_coupled_lineitem() for the $link object shape.
+     * @param object $link The link data object.
+     */
+    public function link_added(object $link): void {
+        self::update_coupled_lineitem($link);
+    }
+
+    /**
+     * Called when an LTI link is updated.
+     *
+     * @see gradebookservices::update_coupled_lineitem() for the $link object shape.
+     * @param object $link The link data object.
+     */
+    public function link_updated(object $link): void {
+        self::update_coupled_lineitem($link);
     }
 
     /**
@@ -842,7 +806,14 @@ class gradebookservices extends service_base {
      * @param moodle_url|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
      *
+     * @deprecated since Moodle 5.3 MDL-86034 - use update_coupled_lineitem() instead.
+     * @see gradebookservices::update_coupled_lineitem()
      */
+    #[deprecated(
+        replacement: 'gradebookservices::update_coupled_lineitem()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public static function update_coupled_gradebookservices(
         resource_link $resourcelink,
         ?string $resourceid,
@@ -851,6 +822,8 @@ class gradebookservices extends service_base {
         ?string $subreviewparams,
         ?int $instanceid = null
     ): void {
+        debugging('update_coupled_gradebookservices() has been deprecated. Use update_coupled_lineitem() instead.',
+            DEBUG_DEVELOPER);
         global $DB;
 
         $typeid = $resourcelink->get('typeid');
@@ -905,7 +878,14 @@ class gradebookservices extends service_base {
      * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
      * @param string|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
+     * @deprecated since Moodle 5.3 MDL-86034 - use link_added() instead.
+     * @see gradebookservices::link_added()
     */
+    #[deprecated(
+        replacement: 'gradebookservices::link_added()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_added(
         resource_link $resourcelink,
         ?string $resourceid,
@@ -914,6 +894,7 @@ class gradebookservices extends service_base {
         ?string $subreviewparams,
         ?int $instanceid = null
     ): void {
+        debugging('instance_added() has been deprecated. Use link_added() instead.', DEBUG_DEVELOPER);
         self::update_coupled_gradebookservices(
             $resourcelink,
             $resourceid ?? null,
@@ -932,7 +913,14 @@ class gradebookservices extends service_base {
      * @param string|null $tag The tag to apply to the lineitem. If empty string, it will be stored as null.
      * @param string|null $subreviewurl The submission review target link URL
      * @param string|null $subreviewparams The submission review custom parameters.
+     * @deprecated since Moodle 5.3 MDL-86034 - use link_updated() instead.
+     * @see gradebookservices::link_updated()
     */
+    #[deprecated(
+        replacement: 'gradebookservices::link_updated()',
+        since: '5.3',
+        mdl: 'MDL-86034',
+    )]
     public function instance_updated(
         resource_link $resourcelink,
         ?string $resourceid,
@@ -941,6 +929,7 @@ class gradebookservices extends service_base {
         ?string $subreviewparams,
         ?int $instanceid = null
     ): void {
+        debugging('instance_updated() has been deprecated. Use link_updated() instead.', DEBUG_DEVELOPER);
         self::update_coupled_gradebookservices(
             $resourcelink,
             $resourceid ?? null,

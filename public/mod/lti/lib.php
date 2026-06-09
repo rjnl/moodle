@@ -143,16 +143,20 @@ function lti_add_instance($lti, $mform) {
         lti_grade_item_update($lti);
     }
 
+    $gradeitem = $DB->get_record('grade_items', ['itemmodule' => 'lti', 'iteminstance' => $lti->id]);
+    $link = (object) [
+        'resourcelink' => $resourcelink,
+        'lineitem' => (object) [
+            'resourceid' => $lti->lineitemresourceid ?? null,
+            'tag' => $lti->lineitemtag ?? null,
+            'subreviewurl' => $lti->lineitemsubreviewurl ?? null,
+            'subreviewparams' => $lti->lineitemsubreviewparams ?? null,
+            ...(!empty($gradeitem) ? ['gradeitem' => $gradeitem] : []),
+        ],
+    ];
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_added(
-            $resourcelink,
-            $lti->lineitemresourceid ?? null,
-            $lti->lineitemtag ?? null,
-            $lti->lineitemsubreviewurl ?? null,
-            $lti->lineitemsubreviewparams ?? null,
-            $lti->id
-        );
+        $service->link_added($link);
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
@@ -223,15 +227,20 @@ function lti_update_instance($lti, $mform) {
         $lti->typeid = $lti->urlmatchedtypeid;
     }
 
+    $gradeitem = $DB->get_record('grade_items', ['itemmodule' => 'lti', 'iteminstance' => $lti->id]);
+    $link = (object) [
+        'resourcelink' => $resourcelink,
+        'lineitem' => (object) [
+            'resourceid' => $lti->lineitemresourceid ?? null,
+            'tag' => $lti->lineitemtag ?? null,
+            'subreviewurl' => $lti->lineitemsubreviewurl ?? null,
+            'subreviewparams' => $lti->lineitemsubreviewparams ?? null,
+            ...(!empty($gradeitem) ? ['gradeitem' => $gradeitem] : []),
+        ],
+    ];
     $services = \core_ltix\helper::get_services();
     foreach ($services as $service) {
-        $service->instance_updated(
-            $resourcelink,
-            $lti->lineitemresourceid ?? null,
-            $lti->lineitemtag ?? null,
-            $lti->lineitemsubreviewurl ?? null,
-            $lti->lineitemsubreviewparams ?? null
-        );
+        $service->link_updated($link);
     }
 
     $completiontimeexpected = !empty($lti->completionexpected) ? $lti->completionexpected : null;
