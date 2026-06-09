@@ -202,6 +202,9 @@ class lineitem extends resource_base {
                         $upgradegradebookservices = true;
                     }
                 } else {
+                    // This fallback exists to support resource link id updates for grade items not having an associated
+                    // gbs row, which only occurs if they were created before the patch in MDL-60416 landed.
+                    // At that time, the link was identified by mod_lti instance id (iteminstance in grade_items).
                     if (intval($item->iteminstance) !== intval($json->resourceLinkId)) {
                         $item->iteminstance = intval($json->resourceLinkId);
                         $updategradeitem = true;

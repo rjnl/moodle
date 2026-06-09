@@ -27,7 +27,7 @@ namespace ltixservice_gradebookservices\local\resources;
 
 use ltixservice_gradebookservices\local\service\gradebookservices;
 use core_ltix\local\ltiservice\resource_base;
-use core_ltix\local\lticore\models\resource_link;
+use core_ltix\local\placement\service\resource_link_manager;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -111,22 +111,26 @@ class scores extends resource_base {
             if ($gbs && isset($gbs->ltilinkid)) {
                 $ltilinkid = $gbs->ltilinkid;
             } else if (isset($item->iteminstance)) {
+                // This fallback exists to support grade validation for resource links not having an associated gbs row,
+                // which only occurs if they were created before the patch in MDL-60416 landed.
+                // As such, the assumption in this code is that the gradeitem relates to a mod_lti instance record,
+                // as that was the only usage of LTI (placement) at that time.
                 $cm = get_coursemodule_from_instance('lti', $item->iteminstance, $item->courseid);
                 if ($cm) {
-                    $resourcelink = resource_link::get_record(['itemid' => $cm->id, 'component' => 'mod_lti']);
+                    $resourcelink = resource_link_manager::get_resource_link_by_item($cm->id, 'mod_lti:activityplacement');
                     $ltilinkid = $resourcelink ? $resourcelink->get('id') : null;
                 }
             }
             if ($ltilinkid != null) {
                 if (is_null($typeid)) {
-                    if (!gradebookservices::check_resource_link_id($ltilinkid, $item->courseid,
+                    if (!gradebookservices::check_lti_id($ltilinkid, $item->courseid,
                             $this->get_service()->get_tool_proxy()->id)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
                         return;
                     }
                 } else {
-                    if (!gradebookservices::check_resource_link_1x_id($ltilinkid, $item->courseid, $typeid)) {
+                    if (!gradebookservices::check_lti_1x_id($ltilinkid, $item->courseid, $typeid)) {
                         $response->set_code(403);
                         $response->set_reason("Invalid LTI id supplied.");
                         return;
