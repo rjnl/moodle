@@ -16,6 +16,7 @@
 
 namespace core_ltix\local\placement;
 
+use core_ltix\local\lticore\models\resource_link;
 use core_useragent;
 
 /**
@@ -32,10 +33,10 @@ final class placement_service {
      * This method allows placements to determine the expected launch container for a link
      * so they can make decisions about how to present the link.
      *
-     * @param object $link The resource link object
+     * @param resource_link $link The resource link object
      * @return int The launch container constant value
      */
-    public static function get_launch_container_for_link(object $link): int {
+    public static function get_launch_container_for_link(resource_link $link): int {
         $devicetype = core_useragent::get_device_type();
 
         // Scrolling within the object element doesn't work on iOS or Android.
@@ -46,13 +47,13 @@ final class placement_service {
         }
 
         // Get the tool configuration.
-        $toolconfig = !empty($link->typeid) ? \core_ltix\helper::get_type_config($link->typeid) : [];
+        $toolconfig = !empty($link->get('typeid')) ? \core_ltix\helper::get_type_config($link->get('typeid')) : [];
 
         $launchcontainer = match (true) {
             // Use link's container if it's set and not default.
-            !empty($link->launchcontainer) &&
-                $link->launchcontainer != \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT
-            => $link->launchcontainer,
+            !empty($link->get('launchcontainer')) &&
+                intval($link->get('launchcontainer')) != \core_ltix\constants::LTI_LAUNCH_CONTAINER_DEFAULT
+            => intval($link->get('launchcontainer')),
 
             // Otherwise use tool config if available.
             isset($toolconfig['launchcontainer']) &&
