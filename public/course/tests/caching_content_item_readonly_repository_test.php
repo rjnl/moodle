@@ -96,19 +96,30 @@ final class caching_content_item_readonly_repository_test extends \advanced_test
         $cir = new content_item_readonly_repository();
         $ccir = new caching_content_item_readonly_repository(\cache::make('core', 'user_course_content_items'), $cir);
 
-        // Create lti that is only available to editingteacher.
-        $type = new \stdClass();
-        $type->course = SITEID;
-        $type->name = 'Editing Teacher Only LTI Tool';
-        $type->baseurl = 'https://example.com/lti/launch';
-        $type->tooldomain = 'example.com';
-        $type->state = LTI_TOOL_STATE_CONFIGURED;
-        $type->coursevisible = LTI_COURSEVISIBLE_ACTIVITYCHOOSER;
-        $type->createdby = $admin->id;
-        $type->timecreated = time();
-        $type->timemodified = time();
+        // Create an LTI tool using the mod_lti:activityplacement placement, that is only available to editingteacher.
+        // This is another flaky test; it assumes mod_lti is installed.
+        /** @var \core_ltix_generator $ltixgenerator */
+        $ltixgenerator = $this->getDataGenerator()->get_plugin_generator('core_ltix');
+        $placementtypeid = $DB->get_field('lti_placement_type', 'id', ['type' => 'mod_lti:activityplacement']);
 
-        $typeid = $DB->insert_record('lti_types', $type);
+        $typeid = $ltixgenerator->create_tool_types([
+            'course' => SITEID,
+            'name' => 'Editing Teacher Only LTI Tool',
+            'baseurl' => 'https://example.com/lti/launch',
+            'tooldomain' => 'example.com',
+            'state' => \core_ltix\constants::LTI_TOOL_STATE_CONFIGURED,
+            'coursevisible' => \core_ltix\constants::LTI_COURSEVISIBLE_PRECONFIGURED,
+            'createdby' => $admin->id,
+            'timecreated' => time(),
+            'timemodified' => time(),
+        ]);
+
+        $ltixgenerator->create_tool_placements([
+            'toolid' => $typeid,
+            'placementtypeid' => $placementtypeid,
+            'config_default_usage' => 'enabled',
+            'config_supports_deep_linking' => 0,
+        ]);
 
         // Ensure we are working as editingteacher.
         $this->setUser($editingteacher);
