@@ -5152,7 +5152,7 @@
         <FIELD NAME="toolproxyid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Primary key of related tool proxy"/>
         <FIELD NAME="typeid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Primary key of course (null for system-wide settings)"/>
-        <FIELD NAME="coursemoduleid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Primary key of course module - tool link added to course (null for system-wide and context-wide settings)"/>
+        <FIELD NAME="resourcelinkid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Primary key of resource link - LTI tool link added to course (null for system-wide and context-wide settings)"/>
         <FIELD NAME="settings" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Setting values as JSON"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Date/time at which the record was created"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Date/time at which the record was last modified"/>
@@ -5162,7 +5162,7 @@
         <KEY NAME="toolproxy" TYPE="foreign" FIELDS="toolproxyid" REFTABLE="lti_tool_proxies" REFFIELDS="id" COMMENT="The tool proxy to which the setting relates"/>
         <KEY NAME="typeid" TYPE="foreign" FIELDS="typeid" REFTABLE="lti_types" REFFIELDS="id"/>
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT="The course to which the setting relates"/>
-        <KEY NAME="coursemodule" TYPE="foreign" FIELDS="coursemoduleid" REFTABLE="lti" REFFIELDS="id" COMMENT="The module instance to which the setting relates"/>
+        <KEY NAME="resourcelink" TYPE="foreign" FIELDS="resourcelinkid" REFTABLE="lti_resource_link" REFFIELDS="id" COMMENT="The resource link to which the setting relates"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="lti_access_tokens" COMMENT="Security tokens for accessing of LTI services">

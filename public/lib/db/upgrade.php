@@ -2069,5 +2069,27 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026060500.05);
     }
 
+    if ($oldversion < 2026060500.06) {
+        // Rename lti_tool_settings.coursemoduleid to resourcelinkid.
+        $table = new xmldb_table('lti_tool_settings');
+
+        // Drop the old foreign key referencing the lti table.
+        $key = new xmldb_key('coursemodule', XMLDB_KEY_FOREIGN, ['coursemoduleid'], 'lti', ['id']);
+        $dbman->drop_key($table, $key);
+
+        // Rename field coursemoduleid to resourcelinkid.
+        $field = new xmldb_field('coursemoduleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'course');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'resourcelinkid');
+        }
+
+        // Add new foreign key referencing lti_resource_link.
+        $key = new xmldb_key('resourcelink', XMLDB_KEY_FOREIGN, ['resourcelinkid'], 'lti_resource_link', ['id']);
+        $dbman->add_key($table, $key);
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026060500.06);
+    }
+
     return true;
 }
