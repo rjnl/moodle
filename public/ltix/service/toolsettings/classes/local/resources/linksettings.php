@@ -26,6 +26,7 @@
 namespace ltixservice_toolsettings\local\resources;
 
 use core_ltix\local\lticore\message\context\collection\launch_context;
+use core_ltix\local\placement\service\resource_link_manager;
 use ltixservice_toolsettings\local\service\toolsettings;
 
 defined('MOODLE_INTERNAL') || die();
@@ -64,8 +65,6 @@ class linksettings extends \core_ltix\local\ltiservice\resource_base {
      * @param \core_ltix\local\ltiservice\response $response  Response object for this request.
      */
     public function execute($response) {
-        global $DB, $COURSE;
-
         $params = $this->parse_template();
         $linkid = $params['link_id'];
         $bubble = optional_param('bubble', '', PARAM_ALPHA);
@@ -80,41 +79,47 @@ class linksettings extends \core_ltix\local\ltiservice\resource_base {
 
         $systemsetting = null;
         $contextsetting = null;
-        $lti = null;
+        $resourcelink = null;
         if ($ok) {
             $ok = !empty($linkid);
             if ($ok) {
-                $lti = $DB->get_record('lti', array('id' => $linkid), 'course,typeid', MUST_EXIST);
-                $ok = $this->check_tool($lti->typeid, $response->get_request_data(),
-                    array(toolsettings::SCOPE_TOOL_SETTINGS));
+                $resourcelink = resource_link_manager::get_resource_link_by_id($linkid);
+                $ok = $this->check_tool(
+                    $resourcelink->get('typeid'), $response->get_request_data(),
+                    [toolsettings::SCOPE_TOOL_SETTINGS]
+                );
             }
             if (!$ok) {
                 $response->set_code(401);
             }
         }
         if ($ok) {
+            $coursecontext = \core\context::instance_by_id($resourcelink->get('contextid'))->get_course_context(false);
+            $courseid = $coursecontext ? $coursecontext->instanceid : null;
+
             if (!empty($this->get_service()->get_tool_proxy())) {
                 $id = $this->get_service()->get_tool_proxy()->id;
             } else {
                 $id = -$this->get_service()->get_type()->id;
             }
             if ($response->get_request_method() == 'GET') {
-                $linksettings = \core_ltix\helper::get_tool_settings($id, $lti->course, $linkid);
+                $linksettings = \core_ltix\helper::get_tool_settings($id, $courseid, $linkid);
                 if (!empty($bubble)) {
                     $contextsetting = new contextsettings($this->get_service());
-                    if ($COURSE == 'site') {
+                    $context = \core\context::instance_by_id($resourcelink->get('contextid'));
+                    if ($context instanceof \core\context\system) {
                         $contextsetting->params['context_type'] = 'Group';
                     } else {
                         $contextsetting->params['context_type'] = 'CourseSection';
                     }
-                    $contextsetting->params['context_id'] = $lti->course;
+                    $contextsetting->params['context_id'] = $courseid;
                     if ($id >= 0) {
                         $contextsetting->params['vendor_code'] = $this->get_service()->get_tool_proxy()->vendorcode;
                     } else {
                         $contextsetting->params['vendor_code'] = 'tool';
                     }
                     $contextsetting->params['product_code'] = abs($id);
-                    $contextsettings = \core_ltix\helper::get_tool_settings($id, $lti->course);
+                    $contextsettings = \core_ltix\helper::get_tool_settings($id, $courseid);
                     $systemsetting = new systemsettings($this->get_service());
                     if ($id >= 0) {
                         $systemsetting->params['config_type'] = 'toolproxy';
@@ -190,7 +195,7 @@ class linksettings extends \core_ltix\local\ltiservice\resource_base {
                     }
                 }
                 if ($ok) {
-                    \core_ltix\helper::set_tool_settings($settings, $id, $lti->course, $linkid);
+                    \core_ltix\helper::set_tool_settings($settings, $id, $courseid, $linkid);
                 } else {
                     $response->set_code(406);
                 }
@@ -206,16 +211,14 @@ class linksettings extends \core_ltix\local\ltiservice\resource_base {
      * @return string
      */
     public function parse_val(string $value, launch_context $launchcontext): string {
-
-        if (strpos($value, '$LtiLink.custom.url') !== false) {
-            $id = optional_param('id', 0, PARAM_INT); // Course Module ID.
-            if (!empty($id)) {
-                $cm = get_coursemodule_from_id('lti', $id, 0, false, MUST_EXIST);
-                $this->params['link_id'] = $cm->instance;
+        if (str_contains($value, '$LtiLink.custom.url')) {
+            $resourcelink = $launchcontext->get(resource_link_context::class)->resourcelink;
+            if (!is_null($resourcelink)) {
+                $this->params['link_id'] = $resourcelink->get('id');
             }
             $value = str_replace('$LtiLink.custom.url', parent::get_endpoint(), $value);
         }
+
         return $value;
     }
-
 }

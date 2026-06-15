@@ -837,20 +837,26 @@ class helper {
      *
      * @param int  $toolproxyid   Id of tool proxy record (or tool ID if negative)
      * @param int  $courseid      Id of course (null if system settings)
-     * @param int  $instanceid    Id of course module (null if system or context settings)
+     * @param int  $linkid        Id of resource link (null if system or context settings)
      *
      * @return array  Array settings
      */
-    public static function get_tool_settings($toolproxyid, $courseid = null, $instanceid = null) {
+    public static function get_tool_settings($toolproxyid, $courseid = null, $linkid = null) {
         global $DB;
 
         $settings = [];
         if ($toolproxyid > 0) {
-            $settingsstr = $DB->get_field('lti_tool_settings', 'settings', array('toolproxyid' => $toolproxyid,
-                'course' => $courseid, 'coursemoduleid' => $instanceid));
+            $settingsstr = $DB->get_field(
+                'lti_tool_settings',
+                'settings',
+                ['toolproxyid' => $toolproxyid, 'course' => $courseid, 'resourcelinkid' => $linkid]
+            );
         } else {
-            $settingsstr = $DB->get_field('lti_tool_settings', 'settings', array('typeid' => -$toolproxyid,
-                'course' => $courseid, 'coursemoduleid' => $instanceid));
+            $settingsstr = $DB->get_field(
+                'lti_tool_settings',
+                'settings',
+                ['typeid' => -$toolproxyid, 'course' => $courseid, 'resourcelinkid' => $linkid]
+            );
         }
         if ($settingsstr !== false) {
             $settings = json_decode($settingsstr, true);
@@ -859,26 +865,30 @@ class helper {
     }
 
     /**
-     * Sets the tool settings (
+     * Sets the tool settings
      *
      * @param array  $settings      Array of settings
      * @param int    $toolproxyid   Id of tool proxy record (or tool ID if negative)
      * @param int    $courseid      Id of course (null if system settings)
-     * @param int    $instanceid    Id of course module (null if system or context settings)
+     * @param int    $linkid        Id of resource link (null if system or context settings)
      */
-    public static function set_tool_settings($settings, $toolproxyid, $courseid = null, $instanceid = null) {
+    public static function set_tool_settings($settings, $toolproxyid, $courseid = null, $linkid = null) {
         global $DB;
 
         $json = json_encode($settings);
         if ($toolproxyid >= 0) {
-            $record = $DB->get_record('lti_tool_settings', array('toolproxyid' => $toolproxyid,
-                'course' => $courseid, 'coursemoduleid' => $instanceid));
+            $record = $DB->get_record(
+                'lti_tool_settings',
+                ['toolproxyid' => $toolproxyid, 'course' => $courseid, 'resourcelinkid' => $linkid]
+            );
         } else {
-            $record = $DB->get_record('lti_tool_settings', array('typeid' => -$toolproxyid,
-                'course' => $courseid, 'coursemoduleid' => $instanceid));
+            $record = $DB->get_record(
+                'lti_tool_settings',
+                ['typeid' => -$toolproxyid, 'course' => $courseid, 'resourcelinkid' => $linkid]
+            );
         }
         if ($record !== false) {
-            $DB->update_record('lti_tool_settings', (object)array('id' => $record->id, 'settings' => $json, 'timemodified' => time()));
+            $DB->update_record('lti_tool_settings', (object)['id' => $record->id, 'settings' => $json, 'timemodified' => time()]);
         } else {
             $record = new \stdClass();
             if ($toolproxyid > 0) {
@@ -887,7 +897,7 @@ class helper {
                 $record->typeid = -$toolproxyid;
             }
             $record->course = $courseid;
-            $record->coursemoduleid = $instanceid;
+            $record->resourcelinkid = $linkid;
             $record->settings = $json;
             $record->timecreated = time();
             $record->timemodified = $record->timecreated;
