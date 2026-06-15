@@ -25,5 +25,12 @@ namespace core_ltix\local\ltiopenid;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 interface lti_user_authenticator_interface {
+    /**
+     * Authenticate an LTI user from a login hint.
+     *
+     * @param \stdClass $toolconfig The tool configuration object
+     * @param string $loginhint The login hint identifying the user
+     * @return lti_user The authenticated LTI user
+     */
     public function authenticate(\stdClass $toolconfig, string $loginhint): lti_user;
 }

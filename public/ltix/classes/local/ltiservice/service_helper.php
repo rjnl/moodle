@@ -33,6 +33,12 @@ use core_ltix\local\lticore\models\resource_link;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class service_helper {
+    /**
+     * Get LTI service context mappings from a JSON payload.
+     *
+     * @param object $json The JSON payload object
+     * @return array Array of context key/value pairs
+     */
     public static function get_contexts($json) {
 
         $contexts = array();
@@ -48,6 +54,15 @@ class service_helper {
 
     }
 
+    /**
+     * Build an IMS LTI Outcomes XML response envelope.
+     *
+     * @param string $codemajor The major status code (e.g. "success", "failure")
+     * @param string $description Human-readable description of the outcome
+     * @param string $messageref The message reference identifier from the request
+     * @param string $messagetype The type of the response message
+     * @return SimpleXMLElement The XML response envelope
+     */
     public static function get_response_xml($codemajor, $description, $messageref, $messagetype) {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><imsx_POXEnvelopeResponse />');
         $xml->addAttribute('xmlns', 'http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0');
@@ -70,6 +85,12 @@ class service_helper {
         return $xml;
     }
 
+    /**
+     * Extract the message identifier from an IMS LTI Outcomes XML request.
+     *
+     * @param SimpleXMLElement $xml The XML request
+     * @return string The message identifier, or an empty string if not present
+     */
     public static function parse_message_id($xml) {
         if (empty($xml->imsx_POXHeader)) {
             return '';
@@ -81,6 +102,13 @@ class service_helper {
         return $messageid;
     }
 
+    /**
+     * Parse an IMS LTI Outcomes replaceResult message.
+     *
+     * @param SimpleXMLElement $xml The XML request
+     * @return stdClass Parsed grade data including gradeval, instanceid, userid, launchid, typeid, sourcedidhash, messageid
+     * @throws Exception If the sourcedId or score is invalid
+     */
     public static function parse_grade_replace_message($xml) {
         $node = $xml->imsx_POXBody->replaceResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
@@ -112,6 +140,13 @@ class service_helper {
         return $parsed;
     }
 
+    /**
+     * Parse an IMS LTI Outcomes readResult message.
+     *
+     * @param SimpleXMLElement $xml The XML request
+     * @return stdClass Parsed data including instanceid, userid, launchid, typeid, sourcedidhash, messageid
+     * @throws Exception If the sourcedId is invalid
+     */
     public static function parse_grade_read_message($xml) {
         $node = $xml->imsx_POXBody->readResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
@@ -131,6 +166,13 @@ class service_helper {
         return $parsed;
     }
 
+    /**
+     * Parse an IMS LTI Outcomes deleteResult message.
+     *
+     * @param SimpleXMLElement $xml The XML request
+     * @return stdClass Parsed data including instanceid, userid, launchid, typeid, sourcedidhash, messageid
+     * @throws Exception If the sourcedId is invalid
+     */
     public static function parse_grade_delete_message($xml) {
         $node = $xml->imsx_POXBody->deleteResultRequest->resultRecord->sourcedGUID->sourcedId;
         $resultjson = json_decode((string)$node);
@@ -359,6 +401,15 @@ class service_helper {
         return $status == GRADE_UPDATE_OK;
     }
 
+    /**
+     * Verify an OAuth-signed LTI message body against a list of shared secrets.
+     *
+     * @param string $key The OAuth consumer key
+     * @param array $sharedsecrets Array of shared secrets to try
+     * @param string $body The raw request body
+     * @param array|null $headers Optional HTTP headers; if null, headers are read from the current request
+     * @return string|false The matching shared secret on success, or false if verification fails
+     */
     public static function verify_message($key, $sharedsecrets, $body, $headers = null) {
         foreach ($sharedsecrets as $secret) {
             $signaturefailed = false;
