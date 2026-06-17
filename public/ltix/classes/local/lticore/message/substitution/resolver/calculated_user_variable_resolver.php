@@ -31,6 +31,7 @@ use core_ltix\local\lticore\message\substitution\pipeline\variable_resolver;
  */
 final readonly class calculated_user_variable_resolver implements variable_resolver {
 
+    #[\Override]
     public function resolve(string $str, substitution_context $resolvecontext): ?string {
         $launchcontext = $resolvecontext->require(launch_context::class);
         $user = $launchcontext->require(user_context::class)->user;

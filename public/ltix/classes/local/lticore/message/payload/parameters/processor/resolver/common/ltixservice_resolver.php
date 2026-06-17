@@ -38,6 +38,7 @@ final readonly class ltixservice_resolver implements parameters_processor {
     public function __construct(private plugin_parameters_service_interface $pluginparamsservice) {
     }
 
+    #[\Override]
     public function process(array $parameters, launch_context $launchcontext): array {
         return array_merge(
             $parameters,

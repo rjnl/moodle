@@ -33,6 +33,7 @@ use core_ltix\local\lticore\message\payload\parameters\pipeline\core\parameters_
  */
 class lis_bo_resolver implements parameters_processor {
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
         global $CFG;
 

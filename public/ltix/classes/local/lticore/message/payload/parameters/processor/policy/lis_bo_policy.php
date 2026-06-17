@@ -44,6 +44,7 @@ final readonly class lis_bo_policy implements parameters_processor {
         'lis_outcome_service_url',
     ];
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
 
         $toolconfig = $data->require(tool_context::class)->toolconfig;

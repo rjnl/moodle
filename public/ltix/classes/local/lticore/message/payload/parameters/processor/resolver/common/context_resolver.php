@@ -30,6 +30,7 @@ use core_ltix\local\lticore\message\payload\parameters\pipeline\core\parameters_
  */
 class context_resolver implements parameters_processor {
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
         $course = $data->require(course_context::class)->course;
         $contexttype = $course->format == 'site' ? 'Group' : 'CourseSection';

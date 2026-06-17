@@ -53,6 +53,7 @@ final readonly class custom_parameter_normaliser implements parameters_processor
         return $normalisedparams;
     }
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
         $customparams = array_filter($parameters, function ($key) {
             return str_starts_with($key, "custom_");

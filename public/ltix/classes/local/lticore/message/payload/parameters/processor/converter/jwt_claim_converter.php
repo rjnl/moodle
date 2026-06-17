@@ -40,6 +40,7 @@ final readonly class jwt_claim_converter implements parameters_processor {
     public function __construct(protected lti_1px_payload_converter $converter) {
     }
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
         return $this->converter->params_to_claims($parameters);
     }

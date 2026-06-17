@@ -30,6 +30,7 @@ use core_ltix\local\lticore\message\substitution\pipeline\substitution_policy;
  */
 class enabled_capabilities_only_policy implements substitution_policy {
 
+    #[\Override]
     public function should_substitute(string $str, substitution_context $context): bool {
 
         $launchcontext = $context->require(launch_context::class);

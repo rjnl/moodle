@@ -28,6 +28,7 @@ use core_ltix\local\lticore\message\substitution\pipeline\substitution_policy;
  */
 class substitute_all_policy implements substitution_policy {
 
+    #[\Override]
     public function should_substitute(string $str, substitution_context $context): bool {
         return str_starts_with($str, '$');
     }

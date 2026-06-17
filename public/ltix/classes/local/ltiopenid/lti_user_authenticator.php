@@ -38,6 +38,7 @@ class lti_user_authenticator implements lti_user_authenticator_interface {
     public function __construct(protected \stdClass $user) {
     }
 
+    #[\Override]
     public function authenticate(\stdClass $toolconfig, string $loginhint): lti_user {
 
         // Validate loginhint user against the user being auth'd - they must match.

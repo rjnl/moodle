@@ -30,6 +30,7 @@ use core_ltix\local\lticore\message\substitution\pipeline\variable_resolver;
  */
 final readonly class calculated_course_variable_resolver implements variable_resolver {
 
+    #[\Override]
     public function resolve(string $str, substitution_context $resolvecontext): ?string {
         $launchcontext = $resolvecontext->require(launch_context::class);
         $course = $launchcontext->require(course_context::class)->course;

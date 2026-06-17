@@ -37,6 +37,7 @@ final class plugin_parameters_service implements plugin_parameters_service_inter
     public function __construct(private service_plugin_registry $pluginregistry) {
     }
 
+    #[\Override]
     public function get_launch_parameters(launch_context $launchcontext): array {
         $toolconfig = $launchcontext->require(tool_context::class)->toolconfig;
 

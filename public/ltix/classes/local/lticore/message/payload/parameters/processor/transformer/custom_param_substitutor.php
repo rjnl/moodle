@@ -38,6 +38,7 @@ final readonly class custom_param_substitutor implements parameters_processor {
     public function __construct(private variable_substitutor $substitutor) {
     }
 
+    #[\Override]
     public function process(array $parameters, launch_context $launchcontext): array {
 
         $customparams = array_filter($parameters, function ($key) {

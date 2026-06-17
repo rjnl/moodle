@@ -38,6 +38,7 @@ final readonly class oidc_user_params_map_resolver implements variable_resolver 
     public function __construct(private variable_map $mapresolver) {
     }
 
+    #[\Override]
     public function resolve(string $str, substitution_context $resolvecontext): ?string {
         $sourceuserdata = $resolvecontext->require(oidc_user_context::class)->userfields;
         if (!str_starts_with($str, '$')) {

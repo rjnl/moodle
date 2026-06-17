@@ -43,6 +43,7 @@ final readonly class pii_policy implements parameters_processor {
         'lis_person_contact_email_primary'
     ];
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
 
         $toolconfig = $data->require(tool_context::class)->toolconfig;

@@ -44,6 +44,7 @@ final readonly class object_property_resolver implements variable_resolver {
         });
     }
 
+    #[\Override]
     public function resolve(string $str, substitution_context $resolvecontext): ?string {
         if (!str_starts_with($str, "$")) {
             return null;

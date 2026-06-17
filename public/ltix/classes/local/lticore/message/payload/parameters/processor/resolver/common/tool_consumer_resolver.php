@@ -31,6 +31,7 @@ use core_ltix\local\lticore\message\payload\parameters\pipeline\core\parameters_
  */
 class tool_consumer_resolver implements parameters_processor {
 
+    #[\Override]
     public function process(array $parameters, launch_context $data): array {
         global $CFG;
         $toolconfig = $data->require(tool_context::class)->toolconfig;
