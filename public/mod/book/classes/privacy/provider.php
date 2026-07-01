@@ -56,6 +56,7 @@ class provider implements
             'chapterid' => 'privacy:metadata:book_chapters_userviews:chapterid',
             'userid' => 'privacy:metadata:book_chapters_userviews:userid',
             'timecreated' => 'privacy:metadata:book_chapters_userviews:timecreated',
+            'timeviewed' => 'privacy:metadata:book_chapters_userviews:timeviewed',
         ], 'privacy:metadata:book_chapters_userviews');
 
         return $collection;
@@ -147,7 +148,8 @@ class provider implements
                     bcu.id,
                     bcu.chapterid,
                     bcu.userid,
-                    bcu.timecreated
+                    bcu.timecreated,
+                    bcu.timeviewed
                   FROM {book_chapters_userviews} bcu
                   JOIN {book_chapters} bc ON bc.id = bcu.chapterid
                   JOIN {book} b ON b.id = bc.bookid
@@ -171,6 +173,7 @@ class provider implements
             $data = new \stdClass();
             $data->chapterid = $chapterview->chapterid;
             $data->timecreated = transform::datetime($chapterview->timecreated);
+            $data->timeviewed = transform::datetime($chapterview->timeviewed);
 
             writer::with_context($context)->export_data([$chapterview->chaptertitle], $data);
         }
@@ -216,7 +219,13 @@ class provider implements
         foreach ($contextlist as $context) {
             // Get the course module.
             $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
+            if (!$cm) {
+                continue;
+            }
             $book = $DB->get_record('book', ['id' => $cm->instance]);
+            if (!$book) {
+                continue;
+            }
 
             // Delete all user view items.
             $DB->delete_records_select(
@@ -237,7 +246,13 @@ class provider implements
 
         $context = $userlist->get_context();
         $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
+        if (!$cm) {
+            return;
+        }
         $book = $DB->get_record('book', ['id' => $cm->instance]);
+        if (!$book) {
+            return;
+        }
 
         $sqlandparams = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
         $userinsql = $sqlandparams[0];

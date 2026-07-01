@@ -99,8 +99,8 @@ class mod_book_mod_form extends moodleform_mod {
         $mform = $this->_form;
         $suffix = $this->get_suffix();
 
-        $completionviews = [];
-        for ($i = 0; $i <= 100; $i += 5) {
+        $completionviews = [0 => get_string('choose')];
+        for ($i = 5; $i <= 100; $i += 5) {
             $completionviews[$i] = $i . '%';
         }
 
@@ -113,7 +113,7 @@ class mod_book_mod_form extends moodleform_mod {
             $mform->createElement('select', $readpercentel, get_string('readpercentselect', 'book'), $completionviews),
         ];
 
-        $mform->addGroup($group, $completionviewgroupel, get_string('readpercentselect', 'book'), '', false);
+        $mform->addGroup($group, $completionviewgroupel, '', '', false);
         $mform->disabledIf($readpercentel, $readpercentactiveel, 'notchecked');
 
         return [$completionviewgroupel];
@@ -145,5 +145,25 @@ class mod_book_mod_form extends moodleform_mod {
     public function completion_rule_enabled($data) {
         $suffix = $this->get_suffix();
         return (!empty($data['readpercentactive' . $suffix]) && $data['readpercent' . $suffix] > 0);
+    }
+
+    /**
+     * Allows module to modify the data returned by form get_data().
+     *
+     * @param stdClass $data the form data to be modified.
+     */
+    public function data_postprocessing($data) {
+        parent::data_postprocessing($data);
+
+        // Turn off the readpercent completion setting if the checkbox is unticked.
+        if (!empty($data->completionunlocked)) {
+            $suffix = $this->get_suffix();
+            $readpercentactiveel = 'readpercentactive' . $suffix;
+            $readpercentel = 'readpercent' . $suffix;
+
+            if (empty($data->{$readpercentactiveel}) || empty($data->{$readpercentel})) {
+                $data->{$readpercentel} = 0;
+            }
+        }
     }
 }

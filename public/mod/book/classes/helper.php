@@ -62,7 +62,7 @@ class helper {
 
         $userviewedchapters = self::get_book_userviews($bookid, $userid);
 
-        if (!$chapters || !$userviewedchapters) {
+        if (empty($chapters) || empty($userviewedchapters)) {
             return 0;
         }
 
@@ -74,9 +74,9 @@ class helper {
      *
      * @param int $bookid
      * @param int $userid
-     * @return array|bool
+     * @return array
      */
-    public static function get_book_userviews($bookid, $userid): array|bool {
+    public static function get_book_userviews($bookid, $userid): array {
         global $DB;
 
         $userviewedchapterssql = "SELECT DISTINCT uv.chapterid
@@ -91,12 +91,6 @@ class helper {
             'userid' => $userid,
         ];
 
-        $userviewedchapters = $DB->get_records_sql($userviewedchapterssql, $parameters);
-
-        if ($userviewedchapters) {
-            return $userviewedchapters;
-        }
-
-        return false;
+        return $DB->get_records_sql($userviewedchapterssql, $parameters);
     }
 }

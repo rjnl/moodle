@@ -23,6 +23,7 @@ Feature: View activity completion information in the book activity
       | name           | Music history |
       | completion     | 2             |
       | completionview | 1             |
+      | readpercent    | 85            |
 
   Scenario: View automatic completion items
     Given the following "mod_book > chapter" exists:
@@ -52,16 +53,6 @@ Feature: View activity completion information in the book activity
       | Art history | Sub chapter 3  | Sub chapter    | 5       | 1          | 1      |
     When I am on the "Art history" "book activity" page logged in as student1
     And I should see "First chapter"
-    And the "View" completion condition of "Art history" is displayed as "todo"
-    And I follow "Next: Second chapter"
-    And I should see "Second chapter"
-    And the "View" completion condition of "Art history" is displayed as "todo"
-    And I follow "Next: Sub chapter 1"
-    And I should see "Sub chapter 1"
-    And the "View" completion condition of "Art history" is displayed as "todo"
-    And I follow "Next: Sub chapter 2"
-    And I should see "Sub chapter 2"
-    And I should not see "Next: Sub chapter 3"
     Then the "View" completion condition of "Art history" is displayed as "done"
 
   @javascript
@@ -82,3 +73,61 @@ Feature: View activity completion information in the book activity
     Then the manual completion button of "Music history" is displayed as "Mark as done"
     And I toggle the manual completion state of "Music history"
     And the manual completion button of "Music history" is displayed as "Done"
+
+  @javascript
+  Scenario: Teacher can configure a required read percentage for completion
+    Given I am on the "Course 1" course page logged in as teacher1
+    When I am on the "Music history" "book activity editing" page
+    And I click on "Expand all" "link" in the "region-main" "region"
+    And I set the following fields to these values:
+      | Required read percent                                    | 1  |
+      | The user needs to read at least this percent of the book | 50 |
+    And I press "Save and display"
+    And I set the following fields to these values:
+      | Chapter title | Chapter 1            |
+      | Content       | Content of chapter 1 |
+    And I press "Save changes"
+    Then I should see "Read at least 50% of the book" in the "region-main" "region"
+
+  @javascript
+  Scenario: Book is complete when student has read the required percentage of chapters
+    Given the following "mod_book > chapters" exist:
+      | book          | title     | content              | pagenum |
+      | Music history | Chapter 1 | Content of chapter 1 | 1       |
+      | Music history | Chapter 2 | Content of chapter 2 | 2       |
+    When I am on the "Course 1" course page logged in as student1
+    Then the "Read at least 85% of the book" completion condition of "Music history" is displayed as "todo"
+    And I am on the "Music history" "book activity" page
+    And I should see "Chapter 1"
+    And the "View" completion condition of "Music history" is displayed as "done"
+    And the "Read at least 85% of the book" completion condition of "Music history" is displayed as "todo"
+    And I follow "Next: Chapter 2"
+    And I should see "Chapter 2"
+    Then the "Read at least 85% of the book" completion condition of "Music history" is displayed as "done"
+
+  @javascript
+  Scenario: Student is redirected to their last visited chapter when returning to a book
+    Given the following "mod_book > chapters" exist:
+      | book          | title     | content              | pagenum |
+      | Music history | Chapter 1 | Content of chapter 1 | 1       |
+      | Music history | Chapter 2 | Content of chapter 2 | 2       |
+      | Music history | Chapter 3 | Content of chapter 3 | 3       |
+    When I am on the "Music history" "book activity" page logged in as student1
+    And I follow "Next: Chapter 2"
+    And I should see "Chapter 2"
+    And I am on "Course 1" course homepage
+    And I am on the "Music history" "book activity" page
+    Then I should see "Chapter 2" in the "region-main" "region"
+
+  @javascript
+  Scenario: Teacher can reset the required read percentage completion condition
+    Given the following "mod_book > chapters" exist:
+      | book          | title     | content              | pagenum |
+      | Music history | Chapter 1 | Content of chapter 1 | 1       |
+    And I am on the "Music history" "book activity editing" page logged in as teacher1
+    And I click on "Expand all" "link" in the "region-main" "region"
+    When I set the following fields to these values:
+      | Required read percent | 0 |
+    And I press "Save and display"
+    Then I should not see "Read at least 85% of the book" in the "region-main" "region"
+    And I should see "View" in the "region-main" "region"

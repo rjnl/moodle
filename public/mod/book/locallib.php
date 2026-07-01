@@ -605,17 +605,17 @@ function mod_book_get_tagged_chapters($tag, $exclusivemode = false, $fromctx = 0
  *
  * @param int $bookid
  * @param array $chapters
- * @return int|bool
+ * @return int|null The chapter ID, or null if no chapter should be displayed.
  */
-function get_chapter_to_display(int $bookid, array $chapters): int|bool {
-    $lastuserviewedchapterid = get_last_viewed_chapter($bookid);
+function book_get_chapter_to_display(int $bookid, array $chapters): ?int {
+    $lastuserviewedchapterid = book_get_last_viewed_chapter($bookid);
 
-    if ($lastuserviewedchapterid === false || !isset($chapters[$lastuserviewedchapterid])) {
-        return false;
+    if ($lastuserviewedchapterid === null || !isset($chapters[$lastuserviewedchapterid])) {
+        return null;
     }
 
     if ($chapters[$lastuserviewedchapterid]->hidden) {
-        return false;
+        return null;
     }
 
     return $lastuserviewedchapterid;
@@ -625,31 +625,26 @@ function get_chapter_to_display(int $bookid, array $chapters): int|bool {
  * Returns the ID of the last visited page based on the book user views
  *
  * @param int $bookid
- * @return bool
+ * @return int|null The chapter ID, or null if no chapter has been viewed.
  */
-function get_last_viewed_chapter($bookid) {
+function book_get_last_viewed_chapter(int $bookid): ?int {
     global $DB, $USER;
 
     $sql = "SELECT uv.chapterid
               FROM {book_chapters_userviews} uv
               JOIN {book_chapters} bc ON bc.id = uv.chapterid
-              JOIN {book} b ON b.id = bc.bookid
              WHERE bc.bookid = :bookid AND uv.userid = :userid AND bc.hidden = 0
-          ORDER BY uv.timecreated DESC
-             LIMIT 1";
+          ORDER BY uv.timeviewed DESC";
 
     $parameters = [
         'bookid' => $bookid,
         'userid' => $USER->id,
     ];
 
-    $record = $DB->get_record_sql($sql, $parameters);
+    $records = $DB->get_records_sql($sql, $parameters, 0, 1);
+    $record = reset($records);
 
-    if ($record) {
-        return $record->chapterid;
-    }
-
-    return false;
+    return $record ? (int)$record->chapterid : null;
 }
 
 /**

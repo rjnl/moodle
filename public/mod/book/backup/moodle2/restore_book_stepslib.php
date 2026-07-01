@@ -77,7 +77,7 @@ class restore_book_activity_structure_step extends restore_activity_structure_st
     }
 
     /**
-     * Process chapter user view tag information
+     * Process chapter user view information
      * @param array $data information
      */
     protected function process_book_chapter_userview($data) {
@@ -85,6 +85,12 @@ class restore_book_activity_structure_step extends restore_activity_structure_st
 
         $data = (object)$data;
         $data->chapterid = $this->get_new_parentid('book_chapter');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        if (!$data->userid) {
+            // User not found in restore mapping; skip this record.
+            return;
+        }
 
         $DB->insert_record('book_chapters_userviews', $data);
     }

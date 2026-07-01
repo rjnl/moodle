@@ -110,12 +110,10 @@ function book_delete_instance($id) {
     $cm = get_coursemodule_from_instance('book', $id);
     \core_completion\api::update_completion_date_event($cm->id, 'book', $id, null);
 
-    $chapters = $DB->get_fieldset('book_chapters', 'id', ['bookid' => $book->id]);
-    if ($chapters) {
-        foreach ($chapters as $chapter) {
-            $DB->delete_records('book_chapters_userviews', ['chapterid' => $chapter->id]);
-        }
-
+    $chapterids = $DB->get_fieldset('book_chapters', 'id', ['bookid' => $book->id]);
+    if ($chapterids) {
+        [$insql, $inparams] = $DB->get_in_or_equal($chapterids, SQL_PARAMS_NAMED);
+        $DB->delete_records_select('book_chapters_userviews', "chapterid $insql", $inparams);
         $DB->delete_records('book_chapters', ['bookid' => $book->id]);
     }
 
@@ -647,16 +645,15 @@ function book_export_contents($cm, $baseurl) {
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $book       book object
- * @param  stdClass $chapter    chapter object
  * @param  stdClass $context    context object
+ * @param  stdClass $course     course object
+ * @param  stdClass $cm         course module object
+ * @param  stdClass $chapter    chapter object (optional)
+ *
  * @since Moodle 3.0
  */
-function book_view($book, $context, $chapter = null) {
+function book_view($book, $context, $course, $cm, $chapter = null) {
     global $DB, $USER;
-
-    $course = $DB->get_record('course', ['id' => $book->course], '*', MUST_EXIST);
-    $cm = $DB->get_record('course_modules', ['id' => $context->instanceid], '*', MUST_EXIST);
-    $completionstate = COMPLETION_INCOMPLETE;
 
     $completion = new completion_info($course);
 
@@ -672,13 +669,22 @@ function book_view($book, $context, $chapter = null) {
             $completion->set_module_viewed($cm);
         }
     } else {
-        $userview = new \stdClass();
-        $userview->chapterid = $chapter->id;
-        $userview->userid = $USER->id;
-        $userview->timecreated = time();
-        $completionstate = COMPLETION_COMPLETE;
+        $now = time();
 
-        $DB->insert_record('book_chapters_userviews', $userview);
+        $existing = $DB->get_record('book_chapters_userviews', [
+            'chapterid' => $chapter->id,
+            'userid'    => $USER->id,
+        ]);
+        if ($existing) {
+            $DB->set_field('book_chapters_userviews', 'timeviewed', $now, ['id' => $existing->id]);
+        } else {
+            $userview = new \stdClass();
+            $userview->chapterid   = $chapter->id;
+            $userview->userid      = $USER->id;
+            $userview->timecreated = $now;
+            $userview->timeviewed  = $now;
+            $DB->insert_record('book_chapters_userviews', $userview);
+        }
 
         \mod_book\event\chapter_viewed::create_from_chapter($book, $context, $chapter)->trigger();
 
@@ -689,10 +695,11 @@ function book_view($book, $context, $chapter = null) {
         if ($cm->completionview) {
             $completion->set_module_viewed($cm);
         }
-    }
 
-    if ((int)$cm->completion === COMPLETION_TRACKING_AUTOMATIC) {
-        $completion->update_state($cm, $completionstate);
+        // Re-evaluate all automatic completion rules (including readpercent) after tracking this chapter view.
+        if ((int)$cm->completion === COMPLETION_TRACKING_AUTOMATIC) {
+            $completion->update_state($cm, COMPLETION_COMPLETE);
+        }
     }
 }
 

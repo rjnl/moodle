@@ -73,7 +73,8 @@ $string['movechapterup'] = 'Move chapter up "{$a}"';
 $string['movechapterdown'] = 'Move chapter down "{$a}"';
 $string['privacy:metadata:book_chapters_userviews'] = 'Information about book pages user view history';
 $string['privacy:metadata:book_chapters_userviews:chapterid'] = 'Chapter viewed';
-$string['privacy:metadata:book_chapters_userviews:timecreated'] = 'Time when the user viewed the page';
+$string['privacy:metadata:book_chapters_userviews:timecreated'] = 'Time when the user first viewed the page';
+$string['privacy:metadata:book_chapters_userviews:timeviewed'] = 'Time when the user last viewed the page';
 $string['privacy:metadata:book_chapters_userviews:userid'] = 'User who viewed the page';
 $string['search:activity'] = 'Book - resource information';
 $string['search:chapter'] = 'Book - chapters';
@@ -113,11 +114,11 @@ $string['errorchapter'] = 'Error reading chapter of book.';
 
 $string['page-mod-book-x'] = 'Any book module page';
 
-$string['readpercentselect'] = 'Required read percent';
-$string['readpercentstatus'] = 'You need to read at least {$a}% of the book';
+$string['readpercentselect'] = 'The user needs to read at least this percent of the book';
+$string['readpercentstatus'] = 'Read at least {$a}% of the book';
 $string['readpercentvalidation'] = 'You need to define the required read percentage';
 $string['removeallbooktags'] = 'All book tags';
-$string['requiredreadpercent'] = 'The user needs to read at least this percent of the Book:';
+$string['requiredreadpercent'] = 'Required read percent';
 
 $string['subchapternotice'] = '(Only available once the first chapter has been created)';
 $string['subplugintype_booktool'] = 'Book tool';

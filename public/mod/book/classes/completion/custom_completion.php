@@ -62,7 +62,7 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
-        $readpercent = $this->cm->customdata['customcompletionrules']['readpercent'] ?? null;
+        $readpercent = $this->cm->customdata['customcompletionrules']['readpercent'] ?? 0;
 
         return [
             'readpercent' => get_string('readpercentstatus', 'book', $readpercent),
