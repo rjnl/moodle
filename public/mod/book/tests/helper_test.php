@@ -17,12 +17,11 @@
 namespace mod_book;
 
 /**
- * Unit tests for mod_book helper class.
+ * Helper test class
  *
  * @package    mod_book
- * @copyright  2026 Anupama Sarjoshi <anupama.sarjoshi@moodle.com>
+ * @copyright  2023 Laurent David <laurent.david@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @covers     \mod_book\helper
  */
 final class helper_test extends \advanced_testcase {
     public function setUp(): void {
@@ -56,10 +55,33 @@ final class helper_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         return [
-            $this->getDataGenerator()->create_module('book', ['course' => $course->id, 'readpercent' => 100]),
+            $this->getDataGenerator()->create_module('book', ['course' => $course->id, 'completionreadpercent' => 100]),
             $this->getDataGenerator()->get_plugin_generator('mod_book'),
             $this->getDataGenerator()->create_user(),
         ];
+    }
+
+    /**
+     * Test view_book
+     * @covers \mod_book\helper::is_last_visible_chapter
+     */
+    public function test_is_last_chapter(): void {
+        $this->resetAfterTest(true);
+
+        $this->setAdminUser();
+        // Setup test data.
+        $course = $this->getDataGenerator()->create_course();
+        $book = $this->getDataGenerator()->create_module('book', ['course' => $course->id]);
+        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $firstchapter =
+            $bookgenerator->create_chapter(['bookid' => $book->id, 'pagenum' => 1]); // Create a first chapter to check that
+        // viewing the last chapter is enough for completing the activity.
+        $chapterhidden = $bookgenerator->create_chapter(['bookid' => $book->id, 'hidden' => 1, 'pagenum' => 2]);
+        $lastchapter = $bookgenerator->create_chapter(['bookid' => $book->id, 'pagenum' => 3]);
+        $chapters = book_preload_chapters($book);
+        $this->assertFalse(helper::is_last_visible_chapter($firstchapter->id, $chapters));
+        $this->assertFalse(helper::is_last_visible_chapter($chapterhidden->id, $chapters));
+        $this->assertTrue(helper::is_last_visible_chapter($lastchapter->id, $chapters));
     }
 
     /**

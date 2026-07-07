@@ -77,7 +77,7 @@ if ($allowedit and !$chapters) {
 // Check chapterid and read chapter data
 if ($chapterid == '0') { // Go to first chapter if no given.
     // Trigger course module viewed event.
-    book_view($book, $context, $course, $cm);
+    book_view($book, null, false, $course, $cm, $context);
 
     foreach ($chapters as $ch) {
         if ($edit || ($ch->hidden && $viewhidden)) {
@@ -90,7 +90,7 @@ if ($chapterid == '0') { // Go to first chapter if no given.
         }
     }
 
-    // If a page was not set, them set the last visited page to display if it exists and is not hidden.
+    // If a page was not set, then set the last visited page to display if it exists and is not hidden.
     $lastuserviewedchapterid = book_get_chapter_to_display($book->id, $chapters);
 
     if (!$edit && $lastuserviewedchapterid !== null) {
@@ -126,7 +126,7 @@ if (!$chapterid) {
     }
     // Add the Book TOC block.
     book_add_fake_block($chapters, $chapter, $book, $cm, $edit);
-    book_view($book, $context, $course, $cm, $chapter);
+    book_view($book, $chapter, \mod_book\helper::is_last_visible_chapter($chapter->id, $chapters), $course, $cm, $context);
 
     echo $OUTPUT->header();
 

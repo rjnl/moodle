@@ -89,9 +89,9 @@ class mod_book_mod_form extends moodleform_mod {
         parent::data_preprocessing($defaultvalues);
 
         $suffix = $this->get_suffix();
-        $readpercentel = 'readpercent' . $suffix;
-        $readpercentactiveel = 'readpercentactive' . $suffix;
-        $defaultvalues[$readpercentactiveel] = !empty($defaultvalues[$readpercentel]) ? 1 : 0;
+        $completionreadpercentel = 'completionreadpercent' . $suffix;
+        $completionreadpercentactiveel = 'completionreadpercentactive' . $suffix;
+        $defaultvalues[$completionreadpercentactiveel] = !empty($defaultvalues[$completionreadpercentel]) ? 1 : 0;
     }
 
     #[\Override]
@@ -104,17 +104,27 @@ class mod_book_mod_form extends moodleform_mod {
             $completionviews[$i] = $i . '%';
         }
 
-        $readpercentactiveel = 'readpercentactive' . $suffix;
-        $readpercentel = 'readpercent' . $suffix;
+        $completionreadpercentactiveel = 'completionreadpercentactive' . $suffix;
+        $completionreadpercentel = 'completionreadpercent' . $suffix;
         $completionviewgroupel = 'completionviewgroup' . $suffix;
 
         $group = [
-            $mform->createElement('checkbox', $readpercentactiveel, '', get_string('requiredreadpercent', 'book')),
-            $mform->createElement('select', $readpercentel, get_string('readpercentselect', 'book'), $completionviews),
+            $mform->createElement(
+                'checkbox',
+                $completionreadpercentactiveel,
+                '',
+                get_string('requiredcompletionreadpercent', 'book')
+            ),
+            $mform->createElement(
+                'select',
+                $completionreadpercentel,
+                get_string('completionreadpercentselect', 'book'),
+                $completionviews
+            ),
         ];
 
         $mform->addGroup($group, $completionviewgroupel, '', '', false);
-        $mform->disabledIf($readpercentel, $readpercentactiveel, 'notchecked');
+        $mform->disabledIf($completionreadpercentel, $completionreadpercentactiveel, 'notchecked');
 
         return [$completionviewgroupel];
     }
@@ -130,12 +140,12 @@ class mod_book_mod_form extends moodleform_mod {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $suffix = $this->get_suffix();
-        $readpercentactiveel = 'readpercentactive' . $suffix;
-        $readpercentel = 'readpercent' . $suffix;
+        $completionreadpercentactiveel = 'completionreadpercentactive' . $suffix;
+        $completionreadpercentel = 'completionreadpercent' . $suffix;
         $completionviewgroupel = 'completionviewgroup' . $suffix;
 
-        if (isset($data[$readpercentactiveel]) && $data[$readpercentel] == '0') {
-            $errors[$completionviewgroupel] = get_string('readpercentvalidation', 'mod_book');
+        if (isset($data[$completionreadpercentactiveel]) && $data[$completionreadpercentel] == '0') {
+            $errors[$completionviewgroupel] = get_string('completionreadpercentvalidation', 'mod_book');
         }
 
         return $errors;
@@ -144,7 +154,7 @@ class mod_book_mod_form extends moodleform_mod {
     #[\Override]
     public function completion_rule_enabled($data) {
         $suffix = $this->get_suffix();
-        return (!empty($data['readpercentactive' . $suffix]) && $data['readpercent' . $suffix] > 0);
+        return (!empty($data['completionreadpercentactive' . $suffix]) && $data['completionreadpercent' . $suffix] > 0);
     }
 
     /**
@@ -158,11 +168,11 @@ class mod_book_mod_form extends moodleform_mod {
         // Turn off the readpercent completion setting if the checkbox is unticked.
         if (!empty($data->completionunlocked)) {
             $suffix = $this->get_suffix();
-            $readpercentactiveel = 'readpercentactive' . $suffix;
-            $readpercentel = 'readpercent' . $suffix;
+            $completionreadpercentactiveel = 'completionreadpercentactive' . $suffix;
+            $completionreadpercentel = 'completionreadpercent' . $suffix;
 
-            if (empty($data->{$readpercentactiveel}) || empty($data->{$readpercentel})) {
-                $data->{$readpercentel} = 0;
+            if (empty($data->{$completionreadpercentactiveel}) || empty($data->{$completionreadpercentel})) {
+                $data->{$completionreadpercentel} = 0;
             }
         }
     }

@@ -68,7 +68,7 @@ function xmldb_book_upgrade($oldversion) {
     if ($oldversion < 2026070100) {
         // Adds the new field to the user completion criteria.
         $table = new xmldb_table('book');
-        $field = new xmldb_field('readpercent', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'revision');
+        $field = new xmldb_field('completionreadpercent', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'revision');
 
         // Conditionally launch add field.
         if (!$dbman->field_exists($table, $field)) {

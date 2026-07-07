@@ -645,29 +645,19 @@ function book_export_contents($cm, $baseurl) {
  * Mark the activity completed (if required) and trigger the course_module_viewed event.
  *
  * @param  stdClass $book       book object
- * @param  stdClass $context    context object
+ * @param  stdClass $chapter    chapter object
+ * @param  bool $islastchapter   is the last chapter of the book?
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
- * @param  stdClass $chapter    chapter object (optional)
- *
+ * @param  stdClass $context    context object
  * @since Moodle 3.0
  */
-function book_view($book, $context, $course, $cm, $chapter = null) {
+function book_view($book, $chapter, $islastchapter, $course, $cm, $context) {
     global $DB, $USER;
-
-    $completion = new completion_info($course);
 
     // First case, we are just opening the book.
     if (empty($chapter)) {
         \mod_book\event\course_module_viewed::create_from_book($book, $context)->trigger();
-
-        if (!$completion->is_enabled($cm)) {
-            return;
-        }
-
-        if ($cm->completionview) {
-            $completion->set_module_viewed($cm);
-        }
     } else {
         $now = time();
 
@@ -688,15 +678,17 @@ function book_view($book, $context, $course, $cm, $chapter = null) {
 
         \mod_book\event\chapter_viewed::create_from_chapter($book, $context, $chapter)->trigger();
 
+        $completion = new completion_info($course);
         if (!$completion->is_enabled($cm)) {
             return;
         }
 
-        if ($cm->completionview) {
+        if ($islastchapter) {
+            // We cheat a bit here in assuming that viewing the last page means the user viewed the whole book.
             $completion->set_module_viewed($cm);
         }
 
-        // Re-evaluate all automatic completion rules (including readpercent) after tracking this chapter view.
+        // Re-evaluate all automatic completion rules (including completionreadpercent) after tracking this chapter view.
         if ((int)$cm->completion === COMPLETION_TRACKING_AUTOMATIC) {
             $completion->update_state($cm, COMPLETION_COMPLETE);
         }
@@ -811,7 +803,7 @@ function book_get_coursemodule_info($coursemodule) {
     global $DB;
 
     $dbparams = ['id' => $coursemodule->instance];
-    $fields = 'id, name, intro, introformat, readpercent';
+    $fields = 'id, name, intro, introformat, completionreadpercent';
     if (!$book = $DB->get_record('book', $dbparams, $fields)) {
         return false;
     }
@@ -826,7 +818,7 @@ function book_get_coursemodule_info($coursemodule) {
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
-        $result->customdata['customcompletionrules']['readpercent'] = $book->readpercent;
+        $result->customdata['customcompletionrules']['completionreadpercent'] = $book->completionreadpercent;
     }
 
     return $result;
@@ -847,12 +839,12 @@ function mod_book_get_completion_active_rule_descriptions($cm) {
     $descriptions = [];
     foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
         switch ($key) {
-            case 'readpercent':
+            case 'completionreadpercent':
                 if (!empty($val)) {
                     $descriptions[] = get_string(
-                        'readpercentstatus',
+                        'completionreadpercentstatus',
                         'mod_book',
-                        $cm->customdata['customcompletionrules']['readpercent']
+                        $cm->customdata['customcompletionrules']['completionreadpercent']
                     );
                 }
                 break;

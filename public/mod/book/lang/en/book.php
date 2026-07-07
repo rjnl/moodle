@@ -44,6 +44,9 @@ $string['pluginadministration'] = 'Book administration';
 $string['toc'] = 'Table of contents';
 $string['chapterandsubchaptersdeleted'] = 'Chapter "{$a->title}" and its {$a->subchapters} subchapters were deleted';
 $string['chapterdeleted'] = 'Chapter "{$a->title}" was deleted';
+$string['completionreadpercentselect'] = 'The user needs to read at least this percent of the book';
+$string['completionreadpercentstatus'] = 'Read at least {$a}% of the book';
+$string['completionreadpercentvalidation'] = 'You need to define the required read percentage';
 $string['customtitles'] = 'Custom titles';
 $string['customtitles_help'] = 'Normally the chapter title is displayed in the table of contents (TOC) AND as a heading above the content.
 
@@ -114,11 +117,8 @@ $string['errorchapter'] = 'Error reading chapter of book.';
 
 $string['page-mod-book-x'] = 'Any book module page';
 
-$string['readpercentselect'] = 'The user needs to read at least this percent of the book';
-$string['readpercentstatus'] = 'Read at least {$a}% of the book';
-$string['readpercentvalidation'] = 'You need to define the required read percentage';
 $string['removeallbooktags'] = 'All book tags';
-$string['requiredreadpercent'] = 'Required read percent';
+$string['requiredcompletionreadpercent'] = 'Required read percent';
 
 $string['subchapternotice'] = '(Only available once the first chapter has been created)';
 $string['subplugintype_booktool'] = 'Book tool';

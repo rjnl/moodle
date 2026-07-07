@@ -106,7 +106,7 @@ class mod_book_external extends external_api {
 
         if (!$chapterid) {
             // Trigger the module viewed events since we are displaying the book.
-            book_view($book, $context, $course, $cm);
+            book_view($book, null, false, $course, $cm, $context);
             $chapterid = $firstchapterid;
         }
 
@@ -127,7 +127,7 @@ class mod_book_external extends external_api {
             }
 
             // Trigger the chapter viewed event.
-            book_view($book, $context, $course, $cm, $chapter);
+            book_view($book, $chapter, \mod_book\helper::is_last_visible_chapter($chapterid, $chapters), $course, $cm, $context);
         }
 
         $result = array();

@@ -24,7 +24,26 @@ namespace mod_book;
  */
 class helper {
     /**
-     * Check if the user completed the book read based on its read percent requirement
+     * Check if we are on the last visible chapter of the book.
+     *
+     * @param int $chapterid
+     * @param array $chapters chapter list provided by book_preload_chapters
+     * @see book_preload_chapters
+     * @return bool
+     */
+    public static function is_last_visible_chapter(int $chapterid, array $chapters): bool {
+        $lastchapterid = 0;
+        foreach ($chapters as $ch) {
+            if ($ch->hidden) {
+                continue;
+            }
+            $lastchapterid = $ch->id;
+        }
+        return $chapterid == $lastchapterid;
+    }
+
+    /**
+     * Check if the user completed the book read based on its completion read percent requirement.
      *
      * @param int $bookid
      * @param int $userid
@@ -35,13 +54,13 @@ class helper {
 
         $book = $DB->get_record('book', ['id' => $bookid], '*', MUST_EXIST);
 
-        if (!$book->readpercent) {
+        if (!$book->completionreadpercent) {
             return false;
         }
 
         $percentviewed = self::get_book_userview_progress($book->id, $userid);
 
-        if ($percentviewed >= $book->readpercent) {
+        if ($percentviewed >= $book->completionreadpercent) {
             return true;
         }
 
@@ -49,7 +68,7 @@ class helper {
     }
 
     /**
-     * Returns the user progress in a book based on their userviews
+     * Returns the user progress in a book based on their userviews.
      *
      * @param int $bookid
      * @param int $userid

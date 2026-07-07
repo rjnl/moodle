@@ -216,11 +216,10 @@ final class lib_test extends \advanced_testcase {
         $sink = $this->redirectEvents();
 
         // Check just opening the book.
-        book_view($book, $context, $course, $cm);
+        book_view($book, 0, false, $course, $cm, $context);
 
         $events = $sink->get_events();
-        // Now 2 additional events because of completion.
-        $this->assertCount(3, $events);
+        $this->assertCount(1, $events);
         $event = array_shift($events);
 
         // Checking that the event contains the expected values.
@@ -232,7 +231,7 @@ final class lib_test extends \advanced_testcase {
         $this->assertNotEmpty($event->get_name());
 
         // Check viewing one book chapter (the only one so it will be the first and last).
-        book_view($book, $context, $course, $cm, $chapter);
+        book_view($book, $chapter, true, $course, $cm, $context);
 
         $events = $sink->get_events();
         // We expect a total of 4 events. One for module viewed, one for chapter viewed and two belonging to completion.
@@ -251,48 +250,12 @@ final class lib_test extends \advanced_testcase {
 
         // Revisiting the same chapter again should not create a new record.
         $this->waitForSecond();
-        book_view($book, $context, $course, $cm, $chapter);
+        book_view($book, $chapter, true, $course, $cm, $context);
 
         $this->assertEquals(
             1,
             $DB->count_records('book_chapters_userviews', ['chapterid' => $chapter->id, 'userid' => $USER->id]),
         );
-    }
-
-    /**
-     * Test book completion only using completion view setting
-     *
-     * @covers ::book_view
-     * @return void
-     */
-    public function test_book_view_completion_with_chapter_view(): void {
-        global $CFG;
-
-        $CFG->enablecompletion = 1;
-
-        // Setup test data.
-        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $book = $this->getDataGenerator()->create_module(
-            'book',
-            ['course' => $course->id],
-            ['completion' => 2, 'completionview' => 1]
-        );
-        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
-        $chapter = $bookgenerator->create_chapter(['bookid' => $book->id]);
-
-        $context = \context_module::instance($book->cmid);
-        $cm = get_coursemodule_from_instance('book', $book->id);
-
-        // Trigger and capture the event.
-        $sink = $this->redirectEvents();
-
-        // Check just opening the book.
-        book_view($book, $context, $course, $cm, $chapter);
-
-        $events = $sink->get_events();
-
-        // We expect a total of 3 events. One for chapter viewed and two belonging to completion.
-        $this->assertCount(3, $events);
     }
 
     /**
@@ -302,7 +265,7 @@ final class lib_test extends \advanced_testcase {
      * @return void
      * @throws \coding_exception
      */
-    public function test_book_view_completion_view_with_readpercent(): void {
+    public function test_book_view_completion_with_readpercent(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
@@ -311,7 +274,7 @@ final class lib_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $book = $this->getDataGenerator()->create_module(
             'book',
-            ['course' => $course->id, 'readpercent' => 50],
+            ['course' => $course->id, 'completionreadpercent' => 50],
             ['completion' => 2, 'completionview' => 1]
         );
         $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
@@ -326,26 +289,26 @@ final class lib_test extends \advanced_testcase {
         $sink = $this->redirectEvents();
 
         // Check just opening the book.
-        book_view($book, $context, $course, $cm);
+        book_view($book, 0, false, $course, $cm, $context);
 
         $events = $sink->get_events();
 
         // Course module viewed and course module completion updated events.
-        $this->assertCount(2, $events);
+        $this->assertCount(1, $events);
 
         // Check that completion status is incomplete.
         $completion = new \completion_info($course);
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(0, $completiondata->completionstate);
 
-        book_view($book, $context, $course, $cm, $chapter1);
+        book_view($book, $chapter1, false, $course, $cm, $context);
 
         // Check that completion status still incomplete.
         // The user only read 1 chapter from 3. This not supply the required 50 percent of reading.
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(0, $completiondata->completionstate);
 
-        book_view($book, $context, $course, $cm, $chapter2);
+        book_view($book, $chapter2, true, $course, $cm, $context);
 
         $events = $sink->get_events();
 

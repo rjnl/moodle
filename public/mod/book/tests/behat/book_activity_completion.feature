@@ -17,13 +17,13 @@ Feature: View activity completion information in the book activity
       | student1 | C1 | student        |
       | teacher1 | C1 | editingteacher |
     And the following "activity" exists:
-      | activity       | book          |
-      | course         | C1            |
-      | idnumber       | mh1           |
-      | name           | Music history |
-      | completion     | 2             |
-      | completionview | 1             |
-      | readpercent    | 85            |
+      | activity              | book          |
+      | course                | C1            |
+      | idnumber              | mh1           |
+      | name                  | Music history |
+      | completion            | 2             |
+      | completionview        | 1             |
+      | completionreadpercent | 85            |
 
   Scenario: View automatic completion items
     Given the following "mod_book > chapter" exists:
@@ -53,6 +53,16 @@ Feature: View activity completion information in the book activity
       | Art history | Sub chapter 3  | Sub chapter    | 5       | 1          | 1      |
     When I am on the "Art history" "book activity" page logged in as student1
     And I should see "First chapter"
+    And the "View" completion condition of "Art history" is displayed as "todo"
+    And I follow "Next: Second chapter"
+    And I should see "Second chapter"
+    And the "View" completion condition of "Art history" is displayed as "todo"
+    And I follow "Next: Sub chapter 1"
+    And I should see "Sub chapter 1"
+    And the "View" completion condition of "Art history" is displayed as "todo"
+    And I follow "Next: Sub chapter 2"
+    And I should see "Sub chapter 2"
+    And I should not see "Next: Sub chapter 3"
     Then the "View" completion condition of "Art history" is displayed as "done"
 
   @javascript
@@ -99,11 +109,12 @@ Feature: View activity completion information in the book activity
     Then the "Read at least 85% of the book" completion condition of "Music history" is displayed as "todo"
     And I am on the "Music history" "book activity" page
     And I should see "Chapter 1"
-    And the "View" completion condition of "Music history" is displayed as "done"
+    And the "View" completion condition of "Music history" is displayed as "todo"
     And the "Read at least 85% of the book" completion condition of "Music history" is displayed as "todo"
     And I follow "Next: Chapter 2"
     And I should see "Chapter 2"
-    Then the "Read at least 85% of the book" completion condition of "Music history" is displayed as "done"
+    And the "View" completion condition of "Music history" is displayed as "done"
+    And the "Read at least 85% of the book" completion condition of "Music history" is displayed as "done"
 
   @javascript
   Scenario: Student is redirected to their last visited chapter when returning to a book

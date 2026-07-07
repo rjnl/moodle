@@ -52,7 +52,7 @@ class custom_completion extends activity_custom_completion {
      */
     public static function get_defined_custom_rules(): array {
         return [
-            'readpercent',
+            'completionreadpercent',
         ];
     }
 
@@ -62,10 +62,10 @@ class custom_completion extends activity_custom_completion {
      * @return array
      */
     public function get_custom_rule_descriptions(): array {
-        $readpercent = $this->cm->customdata['customcompletionrules']['readpercent'] ?? 0;
+        $completionreadpercent = $this->cm->customdata['customcompletionrules']['completionreadpercent'] ?? 0;
 
         return [
-            'readpercent' => get_string('readpercentstatus', 'book', $readpercent),
+            'completionreadpercent' => get_string('completionreadpercentstatus', 'book', $completionreadpercent),
         ];
     }
 
@@ -77,7 +77,7 @@ class custom_completion extends activity_custom_completion {
     public function get_sort_order(): array {
         return [
             'completionview',
-            'readpercent',
+            'completionreadpercent',
         ];
     }
 }
