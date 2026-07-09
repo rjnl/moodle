@@ -40,7 +40,7 @@ class custom_completion extends activity_custom_completion {
     public function get_state(string $rule): int {
         $this->validate_rule($rule);
 
-        $status = \mod_book\helper::is_book_read_completed($this->cm->instance, $this->userid);
+        $status = \mod_book\helper::is_book_read_completed((int) $this->cm->instance, (int) $this->userid);
 
         return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
@@ -65,7 +65,7 @@ class custom_completion extends activity_custom_completion {
         $completionreadpercent = $this->cm->customdata['customcompletionrules']['completionreadpercent'] ?? 0;
 
         return [
-            'completionreadpercent' => get_string('completionreadpercentstatus', 'book', $completionreadpercent),
+            'completionreadpercent' => get_string('completionreadpercentstatus', 'mod_book', $completionreadpercent),
         ];
     }
 

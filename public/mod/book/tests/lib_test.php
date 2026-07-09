@@ -602,4 +602,37 @@ final class lib_test extends \advanced_testcase {
         // User cannot see hidden chapters.
         $this->assertDoesNotMatchRegularExpression('/'.$chapter16->title.'/', $res->content);
     }
+
+    /**
+     * Resetting a course completion data must purge the chapter view history that backs completion.
+     *
+     * @covers ::book_reset_userdata
+     * @return void
+     */
+    public function test_book_reset_userdata_removes_userviews(): void {
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course();
+        $book = $this->getDataGenerator()->create_module('book', ['course' => $course->id]);
+        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter = $bookgenerator->create_chapter(['bookid' => $book->id]);
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $now = time();
+        $DB->insert_record('book_chapters_userviews', (object) [
+            'chapterid'   => $chapter->id,
+            'userid'      => $student->id,
+            'timecreated' => $now,
+            'timeviewed'  => $now,
+        ]);
+        $this->assertEquals(1, $DB->count_records('book_chapters_userviews'));
+
+        // Resetting without the completion option must keep the view history untouched.
+        book_reset_userdata((object) ['courseid' => $course->id]);
+        $this->assertEquals(1, $DB->count_records('book_chapters_userviews'));
+
+        // Resetting the completion data must remove the view history.
+        book_reset_userdata((object) ['courseid' => $course->id, 'reset_completion' => 1]);
+        $this->assertEquals(0, $DB->count_records('book_chapters_userviews'));
+    }
 }

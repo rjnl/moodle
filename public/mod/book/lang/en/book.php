@@ -118,6 +118,7 @@ $string['errorchapter'] = 'Error reading chapter of book.';
 $string['page-mod-book-x'] = 'Any book module page';
 
 $string['removeallbooktags'] = 'All book tags';
+$string['removeallbookviews'] = 'All book chapter view history';
 $string['requiredcompletionreadpercent'] = 'Required read percent';
 
 $string['subchapternotice'] = '(Only available once the first chapter has been created)';

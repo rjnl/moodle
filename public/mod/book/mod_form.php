@@ -113,12 +113,12 @@ class mod_book_mod_form extends moodleform_mod {
                 'checkbox',
                 $completionreadpercentactiveel,
                 '',
-                get_string('requiredcompletionreadpercent', 'book')
+                get_string('requiredcompletionreadpercent', 'mod_book')
             ),
             $mform->createElement(
                 'select',
                 $completionreadpercentel,
-                get_string('completionreadpercentselect', 'book'),
+                get_string('completionreadpercentselect', 'mod_book'),
                 $completionviews
             ),
         ];

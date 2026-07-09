@@ -167,6 +167,24 @@ function book_reset_userdata($data) {
         ];
     }
 
+    // Remove the per-user chapter view history.
+    if (!empty($data->reset_completion)) {
+        if ($bookids = $DB->get_fieldset('book', 'id', ['course' => $data->courseid])) {
+            [$booksql, $bookparams] = $DB->get_in_or_equal($bookids, SQL_PARAMS_NAMED);
+            $DB->delete_records_select(
+                'book_chapters_userviews',
+                "chapterid IN (SELECT id FROM {book_chapters} WHERE bookid $booksql)",
+                $bookparams
+            );
+        }
+
+        $status[] = [
+            'component' => get_string('modulenameplural', 'mod_book'),
+            'item' => get_string('removeallbookviews', 'mod_book'),
+            'error' => false,
+        ];
+    }
+
     return $status;
 }
 
@@ -673,7 +691,14 @@ function book_view($book, $chapter, $islastchapter, $course, $cm, $context) {
             $userview->userid      = $USER->id;
             $userview->timecreated = $now;
             $userview->timeviewed  = $now;
-            $DB->insert_record('book_chapters_userviews', $userview);
+            try {
+                $DB->insert_record('book_chapters_userviews', $userview);
+            } catch (\dml_write_exception $e) {
+                // A concurrent request already inserted this chapter view,
+                // so just refresh the last viewed time instead of failing the page load.
+                $DB->set_field('book_chapters_userviews', 'timeviewed', $now,
+                    ['chapterid' => $chapter->id, 'userid' => $USER->id]);
+            }
         }
 
         \mod_book\event\chapter_viewed::create_from_chapter($book, $context, $chapter)->trigger();

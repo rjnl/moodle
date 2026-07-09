@@ -49,7 +49,7 @@ class helper {
      * @param int $userid
      * @return bool
      */
-    public static function is_book_read_completed($bookid, $userid): bool {
+    public static function is_book_read_completed(int $bookid, int $userid): bool {
         global $DB;
 
         $book = $DB->get_record('book', ['id' => $bookid], '*', MUST_EXIST);
@@ -74,7 +74,7 @@ class helper {
      * @param int $userid
      * @return int
      */
-    public static function get_book_userview_progress($bookid, $userid): int {
+    public static function get_book_userview_progress(int $bookid, int $userid): int {
         global $DB;
 
         $chapters = $DB->get_records('book_chapters', ['bookid' => $bookid, 'hidden' => 0], 'id', 'id');
@@ -85,6 +85,8 @@ class helper {
             return 0;
         }
 
+        // Truncate rather than round so the "read at least X%" condition is never satisfied early (e.g. 2 of
+        // 3 chapters gives 66%, not 67%).
         return (int)((count($userviewedchapters) / count($chapters)) * 100);
     }
 
