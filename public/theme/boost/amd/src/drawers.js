@@ -43,6 +43,7 @@ const SELECTORS = {
     DRAWERS: '[data-region="fixed-drawer"]',
     DRAWERCONTENT: '.drawercontent',
     PAGECONTENT: '#page-content',
+    NAVBAR: '.navbar.fixed-top',
 };
 
 const CLASSES = {
@@ -748,6 +749,18 @@ const registerListeners = () => {
 
             drawerInstance.closeDrawer();
             focusLastUsedToggle(closeDrawerButton.dataset.target);
+        }
+
+        // On small screens the drawers open below the navbar (see MDL-89076),
+        // which remains visible and interactive while a drawer is open. Any
+        // interaction with the navbar (search, edit toggle, user menu, etc.),
+        // other than a drawer toggle button, should close the open drawer,
+        // just like clicking the backdrop over the page content does.
+        if (isSmall() && e.target.closest(SELECTORS.NAVBAR) && !e.target.closest(SELECTORS.BUTTONS)) {
+            const anyDrawerOpen = [...drawerMap.values()].some(drawerInstance => drawerInstance.isOpen);
+            if (anyDrawerOpen) {
+                Drawers.closeAllDrawers();
+            }
         }
     });
 
