@@ -26,10 +26,6 @@ defined('MOODLE_INTERNAL') || die;
 
 require_once(__DIR__ . '/deprecatedlib.php');
 
-// Minimum number of seconds between updates to a chapter's last viewed time to reduce unnecessary
-// database writes caused by repeated page refreshes.
-define('MOD_BOOK_CHAPTER_VIEW_DEBOUNCE_SECONDS', 5);
-
 /**
  * Returns list of available numbering types
  * @return array
@@ -690,7 +686,7 @@ function book_view($book, $chapter, $islastchapter, $course, $cm, $context) {
             ]);
             if ($existing) {
                 // Avoid unnecessary database writes when the user repeatedly refreshes the page.
-                if (($now - $existing->timeviewed) >= MOD_BOOK_CHAPTER_VIEW_DEBOUNCE_SECONDS) {
+                if (($now - $existing->timeviewed) >= \mod_book\helper::CHAPTER_VIEW_DEBOUNCE_SECONDS) {
                     $DB->set_field('book_chapters_userviews', 'timeviewed', $now, ['id' => $existing->id]);
                 }
             } else {

@@ -32,8 +32,6 @@ use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The mod_book module does not store any data.
  *
@@ -42,8 +40,8 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\metadata\provider,
     \core_privacy\local\request\plugin\provider {
     /**
      * Returns metadata.
@@ -200,7 +198,11 @@ class provider implements
             return;
         }
 
-        $bookid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid]);
+        if (!$cm = get_coursemodule_from_id('book', $context->instanceid)) {
+            return;
+        }
+
+        $bookid = (int) $cm->instance;
         if (!$bookid) {
             return;
         }
@@ -228,12 +230,16 @@ class provider implements
         $user = $contextlist->get_user();
 
         foreach ($contextlist as $context) {
+            // Get the book instance, ignoring any context which is not a book activity.
             if ($context->contextlevel !== CONTEXT_MODULE) {
                 continue;
             }
 
-            // Get the course module.
-            $bookid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid]);
+            if (!$cm = get_coursemodule_from_id('book', $context->instanceid)) {
+                continue;
+            }
+
+            $bookid = (int) $cm->instance;
             if (!$bookid) {
                 continue;
             }
@@ -260,7 +266,11 @@ class provider implements
             return;
         }
 
-        $bookid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid]);
+        if (!$cm = get_coursemodule_from_id('book', $context->instanceid)) {
+            return;
+        }
+
+        $bookid = (int) $cm->instance;
         if (!$bookid) {
             return;
         }

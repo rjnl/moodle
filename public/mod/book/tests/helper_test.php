@@ -16,6 +16,12 @@
 
 namespace mod_book;
 
+defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->dirroot . '/mod/book/lib.php');
+require_once($CFG->dirroot . '/mod/book/locallib.php');
+
 /**
  * Helper test class
  *
@@ -252,5 +258,85 @@ final class helper_test extends \advanced_testcase {
         $gen->create_chapter(['bookid' => $book->id]);
 
         $this->assertFalse(helper::is_book_read_completed($book->id, $user->id));
+    }
+
+    /**
+     * Hiding chapters changes the read percentage, so the stored completion state must be recalculated.
+     *
+     * @covers \mod_book\helper::reset_completion_state
+     */
+    public function test_reset_completion_state_after_chapters_hidden(): void {
+        global $DB, $CFG;
+
+        $CFG->enablecompletion = 1;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $book = $this->getDataGenerator()->create_module(
+            'book',
+            ['course' => $course->id, 'completionreadpercent' => 50],
+            ['completion' => COMPLETION_TRACKING_AUTOMATIC]
+        );
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter1 = $gen->create_chapter(['bookid' => $book->id]);
+        $chapter2 = $gen->create_chapter(['bookid' => $book->id]);
+        $chapter3 = $gen->create_chapter(['bookid' => $book->id]);
+
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+
+        $cm = get_coursemodule_from_instance('book', $book->id);
+        $context = \context_module::instance($book->cmid);
+
+        // Reading 1 of 3 chapters is 33%, which does not meet the 50% requirement.
+        book_view($book, $chapter1, false, $course, $cm, $context);
+        $completion = new \completion_info($course);
+        $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
+
+        // Hide the two unread chapters. The student has now read every visible chapter.
+        $DB->set_field('book_chapters', 'hidden', 1, ['id' => $chapter2->id]);
+        $DB->set_field('book_chapters', 'hidden', 1, ['id' => $chapter3->id]);
+        helper::reset_completion_state($book, $course);
+
+        // The student must not be left stranded as incomplete with nothing else to read.
+        rebuild_course_cache($course->id, true);
+        $completion = new \completion_info($course);
+        $cm = get_coursemodule_from_instance('book', $book->id);
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
+    }
+
+    /**
+     * Nothing is recalculated when the read percent condition is not in use.
+     *
+     * @covers \mod_book\helper::reset_completion_state
+     */
+    public function test_reset_completion_state_without_readpercent(): void {
+        global $CFG;
+
+        $CFG->enablecompletion = 1;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $book = $this->getDataGenerator()->create_module(
+            'book',
+            ['course' => $course->id],
+            ['completion' => COMPLETION_TRACKING_AUTOMATIC, 'completionview' => 1]
+        );
+        $gen = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter = $gen->create_chapter(['bookid' => $book->id]);
+
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+
+        $cm = get_coursemodule_from_instance('book', $book->id);
+        $context = \context_module::instance($book->cmid);
+
+        // Viewing the only chapter completes the activity through the view condition.
+        book_view($book, $chapter, true, $course, $cm, $context);
+        $completion = new \completion_info($course);
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
+
+        // The view based completion must survive a call for a book without the read percent condition.
+        helper::reset_completion_state($book, $course);
+        $completion = new \completion_info($course);
+        $this->assertEquals(COMPLETION_COMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
     }
 }

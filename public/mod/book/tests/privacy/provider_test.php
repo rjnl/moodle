@@ -173,4 +173,36 @@ final class provider_test extends provider_testcase {
 
         $this->assertEquals(0, $DB->count_records('book_chapters_userviews'));
     }
+
+    /**
+     * Contexts belonging to another module type must never delete book data.
+     *
+     * Core hands every module context to every component's provider, and module instance ids come from
+     * independent sequences, so a page instance id can be the same number as a book instance id.
+     */
+    public function test_delete_ignores_contexts_of_other_modules(): void {
+        global $DB;
+
+        $course  = $this->getDataGenerator()->create_course();
+        $book    = $this->getDataGenerator()->create_module('book', ['course' => $course->id]);
+        $page    = $this->getDataGenerator()->create_module('page', ['course' => $course->id]);
+        $gen     = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter = $gen->create_chapter(['bookid' => $book->id]);
+        $user    = $this->getDataGenerator()->create_user();
+
+        // Simulate the id collision between the two module types.
+        $DB->set_field('course_modules', 'instance', $book->id, ['id' => $page->cmid]);
+
+        $this->insert_userview($chapter->id, $user->id);
+        $pagecontext = \context_module::instance($page->cmid);
+
+        provider::delete_data_for_all_users_in_context($pagecontext);
+        $this->assertEquals(1, $DB->count_records('book_chapters_userviews'));
+
+        provider::delete_data_for_user(new approved_contextlist($user, 'mod_book', [$pagecontext->id]));
+        $this->assertEquals(1, $DB->count_records('book_chapters_userviews'));
+
+        provider::delete_data_for_users(new approved_userlist($pagecontext, 'mod_book', [$user->id]));
+        $this->assertEquals(1, $DB->count_records('book_chapters_userviews'));
+    }
 }

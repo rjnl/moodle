@@ -94,6 +94,9 @@ if ($confirm) {
     // Bump the book revision.
     $DB->set_field('book', 'revision', $book->revision + 1, ['id' => $book->id]);
 
+    // Removing chapters changes the read percentage of every user, so recalculate the activity completion.
+    \mod_book\helper::reset_completion_state($book, $course);
+
     if ($subchaptercount) {
         $message = get_string('chapterandsubchaptersdeleted', 'mod_book', (object) [
             'title' => format_string($chapter->title),

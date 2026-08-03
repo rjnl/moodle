@@ -144,7 +144,8 @@ class mod_book_mod_form extends moodleform_mod {
         $completionreadpercentel = 'completionreadpercent' . $suffix;
         $completionreadpercentgroupel = 'completionreadpercentgroup' . $suffix;
 
-        if (isset($data[$completionreadpercentactiveel]) && $data[$completionreadpercentel] == '0') {
+        // The select is disabled, and therefore not submitted, while the checkbox is unticked.
+        if (!empty($data[$completionreadpercentactiveel]) && empty($data[$completionreadpercentel])) {
             $errors[$completionreadpercentgroupel] = get_string('completionreadpercentvalidation', 'mod_book');
         }
 
@@ -168,10 +169,15 @@ class mod_book_mod_form extends moodleform_mod {
         // Turn off the readpercent completion setting if the checkbox is unticked.
         if (!empty($data->completionunlocked)) {
             $suffix = $this->get_suffix();
+            $completionel = 'completion' . $suffix;
             $completionreadpercentactiveel = 'completionreadpercentactive' . $suffix;
             $completionreadpercentel = 'completionreadpercent' . $suffix;
 
-            if (empty($data->{$completionreadpercentactiveel}) || empty($data->{$completionreadpercentel})) {
+            $completion = $data->{$completionel} ?? COMPLETION_TRACKING_NONE;
+            $autocompletion = !empty($completion) && $completion == COMPLETION_TRACKING_AUTOMATIC;
+
+            $ruleenabled = !empty($data->{$completionreadpercentactiveel}) && !empty($data->{$completionreadpercentel});
+            if (!$ruleenabled || !$autocompletion) {
                 $data->{$completionreadpercentel} = 0;
             }
         }

@@ -40,9 +40,16 @@ class custom_completion extends activity_custom_completion {
     public function get_state(string $rule): int {
         $this->validate_rule($rule);
 
-        $status = \mod_book\helper::is_book_read_completed((int) $this->cm->instance, (int) $this->userid);
+        // Read the requirement from the course module cache rather than the database. This method is called
+        // once per user when building completion reports, so an instance lookup here would be a query per user.
+        $requiredpercent = (int) ($this->cm->customdata['customcompletionrules']['completionreadpercent'] ?? 0);
+        if (!$requiredpercent) {
+            return COMPLETION_INCOMPLETE;
+        }
 
-        return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+        $viewedpercent = \mod_book\helper::get_book_userview_progress((int) $this->cm->instance, (int) $this->userid);
+
+        return $viewedpercent >= $requiredpercent ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
     /**

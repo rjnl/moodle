@@ -24,6 +24,13 @@ namespace mod_book;
  */
 class helper {
     /**
+     * Minimum number of seconds between updates to a chapter's last viewed time.
+     *
+     * This reduces unnecessary database writes caused by repeated page refreshes.
+     */
+    public const CHAPTER_VIEW_DEBOUNCE_SECONDS = 5;
+
+    /**
      * Check if we are on the last visible chapter of the book.
      *
      * @param int $chapterid
@@ -44,6 +51,8 @@ class helper {
 
     /**
      * Check if the user completed the book read based on its completion read percent requirement.
+     *
+     * Note: This method is unused, but it is kept for future use.
      *
      * @param int $bookid
      * @param int $userid
@@ -100,10 +109,10 @@ class helper {
     public static function get_book_userviews(int $bookid, int $userid): array {
         global $DB;
 
-        $userviewedchapterssql = "SELECT DISTINCT uv.chapterid
+        // The chapterid-userid unique index guarantees one row per chapter.
+        $userviewedchapterssql = "SELECT uv.chapterid
                                     FROM {book_chapters_userviews} uv
                                     JOIN {book_chapters} bc ON bc.id = uv.chapterid
-                                    JOIN {book} b ON b.id = bc.bookid
                                    WHERE bc.bookid = :bookid
                                          AND uv.userid = :userid
                                          AND bc.hidden = 0";
@@ -113,5 +122,41 @@ class helper {
         ];
 
         return $DB->get_records_sql($userviewedchapterssql, $parameters);
+    }
+
+    /**
+     * Recalculate the activity completion of every tracked user after the set of visible chapters changed.
+     *
+     * The completionreadpercent rule is relative to the number of visible chapters, so adding, deleting,
+     * hiding or showing a chapter invalidates the cached completion state of every user. Without this the
+     * stored state stays stale until the user happens to view another chapter, which may never happen.
+     *
+     * @param \stdClass $book The book instance record. Must include the completionreadpercent field.
+     * @param \stdClass|null $course The course record. Fetched from the book if not provided.
+     */
+    public static function reset_completion_state(\stdClass $book, ?\stdClass $course = null): void {
+        global $CFG;
+
+        if (empty($book->completionreadpercent)) {
+            // Read percent rule is not in use, so the chapter count does not affect completion.
+            return;
+        }
+
+        // The completion_info class is not autoloaded and callers do not all include completionlib.
+        require_once($CFG->libdir . '/completionlib.php');
+
+        $course = $course ?? get_course($book->course);
+
+        if (!$cm = get_coursemodule_from_instance('book', $book->id, $course->id)) {
+            return;
+        }
+
+        $cminfo = \cm_info::create($cm);
+        $completion = new \completion_info($course);
+        if (!$completion->is_enabled($cminfo)) {
+            return;
+        }
+
+        $completion->reset_all_state($cminfo);
     }
 }
