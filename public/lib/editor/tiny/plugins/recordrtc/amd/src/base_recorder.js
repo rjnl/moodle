@@ -541,19 +541,21 @@ export default class {
         // Show upload button, but only enable it if the file size is within the limit.
         this.setUploadButtonVisibility(true);
         this.setPlayerState(true);
-        if (this.getMaxUploadSize() !== -1 && this.data.blobSize >= this.getMaxUploadSize()) {
-            this.setUploadButtonState(false);
-            await this.displayFileLimitHitMessage();
-        } else {
-            this.setUploadButtonState(true);
-        }
-
         this.setDownloadButtonState(true);
+
+        // An over-sized recording cannot be uploaded, so downloading it is the only way to keep it.
+        // Enable that button before anything which could fail, and report the problem last.
+        const oversized = this.getMaxUploadSize() !== -1 && this.data.blobSize >= this.getMaxUploadSize();
+        this.setUploadButtonState(!oversized);
 
         // Hide the pause button.
         this.setPauseButtonVisibility(false);
         if (this.mediaRecorder.state === 'inactive') {
             this.setPauseButtonTextFromString('pause');
+        }
+
+        if (oversized) {
+            this.displayFileLimitHitMessage();
         }
     }
 
@@ -602,7 +604,6 @@ export default class {
 
         }
     }
-
 
     /**
      * Download the recording to the user's device.
