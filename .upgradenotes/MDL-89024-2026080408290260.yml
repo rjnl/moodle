@@ -1,0 +1,10 @@
+issueNumber: MDL-89024
+notes:
+  theme_boost:
+    - message: >-
+        The Noto Sans JP variable font (weights 100-900) has been added to
+        `theme/boost/fonts/noto-sans-jp/`. The Bootstrap font stack now includes
+        the `$mds-font-family-base-jp` MDS token in the second position, after
+        `$mds-font-family-base`. As a result, sites using Japanese text will now
+        render using Noto Sans JP.
+      type: improved
