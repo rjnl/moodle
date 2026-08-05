@@ -3,8 +3,16 @@ notes:
   theme_boost:
     - message: >-
         The Noto Sans JP variable font (weights 100-900) has been added to
-        `theme/boost/fonts/noto-sans-jp/`. The Bootstrap font stack now includes
-        the `$mds-font-family-base-jp` MDS token in the second position, after
-        `$mds-font-family-base`. As a result, sites using Japanese text will now
-        render using Noto Sans JP.
+        `theme/boost/fonts/noto-sans-jp/`. It is applied through a new
+        `$font-family-sans-serif-ja` stack, which places the
+        `$mds-font-family-base-jp` MDS token second, after
+        `$mds-font-family-base`. That stack is scoped to Japanese via a
+        `:lang(ja)` rule in the new `moodle/font-stack-lang` partial, which
+        overrides the `--bs-font-sans-serif` custom property and so must be
+        imported after Bootstrap. As a result, sites using Japanese text will
+        now render using Noto Sans JP, while all other languages keep the
+        default `$font-family-sans-serif` stack. Noto Sans JP is deliberately
+        kept out of the default stack because it draws the Han characters
+        shared with Chinese in Japanese regional forms and carries no Chinese
+        alternates.
       type: improved

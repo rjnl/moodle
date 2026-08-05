@@ -1,0 +1,21 @@
+// Language-specific font stacks.
+//
+// Must be imported AFTER Bootstrap. Bootstrap's _root.scss emits
+// --#{$prefix}font-sans-serif on :root, and :lang() carries the same specificity,
+// so these rules only take effect if they come later in the stylesheet.
+
+// Japanese.
+//
+// Noto Sans has no CJK coverage, so without a CJK family in the stack Japanese text
+// falls through to whatever the operating system provides. Noto Sans JP supplies it,
+// but it must not be named in the default stack: it renders the Han characters that
+// Japanese shares with Chinese in Japanese regional forms, and carries no Chinese
+// alternates (its GSUB "locl" feature registers the JAN language system only), so a
+// global stack would show Chinese readers Japanese letterforms.
+//
+// The custom property is overridden rather than font-family itself, so that rules
+// which set font-family explicitly keep working - :lang(ja) would otherwise outrank
+// single-element selectors such as `code`.
+:lang(ja) {
+    --#{$prefix}font-sans-serif: #{inspect($font-family-sans-serif-ja)};
+}

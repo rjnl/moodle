@@ -13,10 +13,16 @@ $code-color: #db1a74 !default;
 /* Give editor access to all of bootstrap. */
 @import "../../../../lib/bundles/bootstrap/scss/bootstrap.scss";
 
-/* Make the editor content use the theme's font stack. */
-body {
-    font-family: $font-family-sans-serif;
-}
+/*
+ * Import the language-specific font stacks.
+ * Must be imported after Bootstrap, which sets the default stack on :root.
+ *
+ * Bootstrap's reboot already applies that stack to the editor body via
+ * --bs-body-font-family, so no explicit body rule is needed here. Setting
+ * font-family on body directly would freeze the default stack in place and
+ * defeat the :lang() override below.
+ */
+@import "moodle/font-stack-lang";
 
 /**
  * Reset the Bootstrap _reboot.scss styles for tables.

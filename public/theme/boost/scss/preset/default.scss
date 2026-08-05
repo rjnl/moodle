@@ -126,6 +126,10 @@ $enable-smooth-scroll: not $behatsite !default;
 // Import All of Bootstrap
 @import "bootstrap";
 
+// Import the language-specific font stacks.
+// Must be imported after Bootstrap, which sets the default stack on :root.
+@import "moodle/font-stack-lang";
+
 // Import Core moodle CSS
 @import "moodle";
 
