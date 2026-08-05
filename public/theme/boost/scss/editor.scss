@@ -13,10 +13,8 @@ $code-color: #db1a74 !default;
 /* Give editor access to all of bootstrap. */
 @import "../../../../lib/bundles/bootstrap/scss/bootstrap.scss";
 
-/* Make the editor content use the theme's font stack. */
-body {
-    font-family: $font-family-sans-serif;
-}
+/* Import language-specific font stacks. Must be imported after Bootstrap. */
+@import "moodle/font-stack-lang";
 
 /**
  * Reset the Bootstrap _reboot.scss styles for tables.
