@@ -114,6 +114,10 @@ Feature: View activity completion information in the book activity
     And I follow "Next: Chapter 2"
     And I should see "Chapter 2"
     And the "View" completion condition of "Music history" is displayed as "done"
+    # Wait for the 5-second debounce to expire, allowing a few extra seconds for
+    # the chapter view to be recorded and the completion state to be recalculated
+    # and refreshed on the page.
+    And I wait "6" seconds
     And the "Read at least 85% of the book" completion condition of "Music history" is displayed as "done"
 
   @javascript
@@ -126,6 +130,7 @@ Feature: View activity completion information in the book activity
     When I am on the "Music history" "book activity" page logged in as student1
     And I follow "Next: Chapter 2"
     And I should see "Chapter 2"
+    And I wait "6" seconds
     And I am on "Course 1" course homepage
     And I am on the "Music history" "book activity" page
     Then I should see "Chapter 2" in the "region-main" "region"

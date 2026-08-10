@@ -122,6 +122,125 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
     }
 
     /**
+     * Updates an existing chapter user-view record through the external function.
+     *
+     * @covers \mod_book_external::update_chapter_view_time
+     */
+    public function test_update_chapter_view_time_updates_existing_view(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+        $book = $this->getDataGenerator()->create_module('book', ['course' => $course->id]);
+        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter = $bookgenerator->create_chapter(['bookid' => $book->id]);
+        $chapterhidden = $bookgenerator->create_chapter(['bookid' => $book->id, 'hidden' => 1]);
+
+        $context = \context_module::instance($book->cmid);
+        $cm = get_coursemodule_from_instance('book', $book->id);
+
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+
+        $basetime = time();
+        $clock = $this->mock_clock_with_frozen($basetime);
+
+        // Insert an existing user-view record so the external function updates its timeviewed value.
+        $DB->insert_record('book_chapters_userviews', (object) [
+            'chapterid'   => $chapter->id,
+            'userid'      => $student->id,
+            'timecreated' => $clock->time(),
+            'timeviewed'  => $clock->time(),
+        ]);
+
+        $clock->set_to($basetime + 10);
+
+        $result = mod_book_external::update_chapter_view_time($book->id, $chapter->id);
+        $result = external_api::clean_returnvalue(mod_book_external::update_chapter_view_time_returns(), $result);
+        $this->assertTrue($result['status']);
+        // Completion tracking is disabled for this module, so no completion data is returned.
+        $this->assertArrayNotHasKey('completion', $result);
+
+        $userview = $DB->get_record(
+            'book_chapters_userviews',
+            [
+                'chapterid' => $chapter->id,
+                'userid' => $student->id,
+            ],
+            '*',
+            MUST_EXIST
+        );
+        $this->assertEquals($basetime + 10, $userview->timeviewed);
+
+        // A user without permission to view hidden chapters cannot update its view time.
+        try {
+            mod_book_external::update_chapter_view_time($book->id, $chapterhidden->id);
+            $this->fail('Exception expected due to hidden chapter.');
+        } catch (\moodle_exception $e) {
+            $this->assertEquals('errorchapter', $e->errorcode);
+        }
+
+        // A user without the mod/book:read capability cannot call this endpoint.
+        $studentrole = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
+        assign_capability('mod/book:read', CAP_PROHIBIT, $studentrole->id, $context->id);
+        accesslib_clear_all_caches_for_unit_testing();
+
+        try {
+            mod_book_external::update_chapter_view_time($book->id, $chapter->id);
+            $this->fail('Exception expected due to missing capability.');
+        } catch (\moodle_exception $e) {
+            $this->assertEquals('nopermissions', $e->errorcode);
+        }
+    }
+
+    /**
+     * Test that update_chapter_view_time returns the updated automatic completion condition.
+     *
+     * The completion state is recalculated after the chapter view time is recorded.
+     * The response contains the updated completion condition so the client can refresh it without reloading.
+     *
+     * @covers \mod_book_external::update_chapter_view_time
+     */
+    public function test_update_chapter_view_time_returns_completion_conditions(): void {
+        $this->resetAfterTest(true);
+        $this->setAdminUser();
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $book = $this->getDataGenerator()->create_module(
+            'book',
+            ['course' => $course->id, 'completionreadpercent' => 100],
+            ['completion' => COMPLETION_TRACKING_AUTOMATIC]
+        );
+        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter1 = $bookgenerator->create_chapter(['bookid' => $book->id]);
+        $chapter2 = $bookgenerator->create_chapter(['bookid' => $book->id]);
+
+        $cm = get_coursemodule_from_instance('book', $book->id);
+        $context = \context_module::instance($book->cmid);
+
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+
+        // Record the first chapter view. The read percentage should remain incomplete.
+        $result = mod_book_external::update_chapter_view_time($book->id, $chapter1->id);
+        $result = external_api::clean_returnvalue(mod_book_external::update_chapter_view_time_returns(), $result);
+
+        $this->assertArrayHasKey('completion', $result);
+        $this->assertTrue($result['completion']['istrackeduser']);
+        $this->assertCount(1, $result['completion']['completiondetails']);
+        $this->assertTrue($result['completion']['completiondetails'][0]['statusincomplete']);
+
+        // Record the second chapter. All chapters have now been viewed, so the condition is complete.
+        $result = mod_book_external::update_chapter_view_time($book->id, $chapter2->id);
+        $result = external_api::clean_returnvalue(mod_book_external::update_chapter_view_time_returns(), $result);
+
+        $this->assertArrayHasKey('completion', $result);
+        $this->assertCount(1, $result['completion']['completiondetails']);
+        $this->assertTrue($result['completion']['completiondetails'][0]['statuscomplete']);
+    }
+
+    /**
      * Test get_books_by_courses
      */
     public function test_get_books_by_courses(): void {

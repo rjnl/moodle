@@ -30,6 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/book/lib.php');
+require_once($CFG->dirroot . '/mod/book/locallib.php');
 
 /**
  * Unit tests for (some of) mod/book/lib.php.
@@ -216,6 +217,7 @@ final class lib_test extends \advanced_testcase {
         $sink = $this->redirectEvents();
 
         // Check just opening the book.
+        helper::update_chapter_view_time($chapter->id, $USER->id);
         book_view($book, 0, false, $course, $cm, $context);
 
         $events = $sink->get_events();
@@ -231,6 +233,7 @@ final class lib_test extends \advanced_testcase {
         $this->assertNotEmpty($event->get_name());
 
         // Check viewing one book chapter (the only one so it will be the first and last).
+        helper::update_chapter_view_time($chapter->id, $USER->id);
         book_view($book, $chapter, true, $course, $cm, $context);
 
         $events = $sink->get_events();
@@ -249,7 +252,8 @@ final class lib_test extends \advanced_testcase {
         );
 
         // Revisiting the same chapter again should not create a new record.
-        $this->waitForSecond();
+        $this->mock_clock_with_incrementing();
+        helper::update_chapter_view_time($chapter->id, $USER->id);
         book_view($book, $chapter, true, $course, $cm, $context);
 
         $this->assertEquals(
@@ -266,7 +270,7 @@ final class lib_test extends \advanced_testcase {
      * @throws \coding_exception
      */
     public function test_book_view_completion_with_readpercent(): void {
-        global $CFG;
+        global $CFG, $USER;
 
         $CFG->enablecompletion = 1;
 
@@ -289,6 +293,7 @@ final class lib_test extends \advanced_testcase {
         $sink = $this->redirectEvents();
 
         // Check just opening the book.
+        helper::update_chapter_view_time($chapter1->id, $USER->id);
         book_view($book, 0, false, $course, $cm, $context);
 
         $events = $sink->get_events();
@@ -301,6 +306,7 @@ final class lib_test extends \advanced_testcase {
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(0, $completiondata->completionstate);
 
+        helper::update_chapter_view_time($chapter1->id, $USER->id);
         book_view($book, $chapter1, false, $course, $cm, $context);
 
         // Check that completion status still incomplete.
@@ -308,6 +314,7 @@ final class lib_test extends \advanced_testcase {
         $completiondata = $completion->get_data($cm);
         $this->assertEquals(0, $completiondata->completionstate);
 
+        helper::update_chapter_view_time($chapter2->id, $USER->id);
         book_view($book, $chapter2, true, $course, $cm, $context);
 
         $events = $sink->get_events();

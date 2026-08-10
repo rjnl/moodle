@@ -223,6 +223,7 @@ final class helper_test extends \advanced_testcase {
         $context = \context_module::instance($book->cmid);
 
         // Reading 1 of 3 chapters is 33%, which does not meet the 50% requirement.
+        helper::update_chapter_view_time($chapter1->id, $student->id);
         book_view($book, $chapter1, false, $course, $cm, $context);
         $completion = new \completion_info($course);
         $this->assertEquals(COMPLETION_INCOMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
@@ -265,6 +266,7 @@ final class helper_test extends \advanced_testcase {
         $context = \context_module::instance($book->cmid);
 
         // Viewing the only chapter completes the activity through the view condition.
+        helper::update_chapter_view_time($chapter->id, $student->id);
         book_view($book, $chapter, true, $course, $cm, $context);
         $completion = new \completion_info($course);
         $this->assertEquals(COMPLETION_COMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
@@ -273,5 +275,60 @@ final class helper_test extends \advanced_testcase {
         helper::reset_completion_state($book, $course);
         $completion = new \completion_info($course);
         $this->assertEquals(COMPLETION_COMPLETE, $completion->get_data($cm, false, $student->id)->completionstate);
+    }
+
+    /**
+     * Updates the stored timeviewed when a chapter view has survived the debounce window.
+     *
+     * @covers \mod_book\helper::update_chapter_view_time
+     */
+    public function test_update_chapter_view_time_updates_existing_row(): void {
+        global $DB;
+
+        [$book, $gen, $user] = $this->create_book_test_data();
+        $chapter = $gen->create_chapter(['bookid' => $book->id]);
+
+        $basetime = time();
+        $clock = $this->mock_clock_with_frozen($basetime);
+        $this->insert_userview($chapter->id, $user->id);
+
+        $clock->set_to($basetime + 10);
+        helper::update_chapter_view_time($chapter->id, $user->id);
+
+        $userview = $DB->get_record('book_chapters_userviews', [
+            'chapterid' => $chapter->id,
+            'userid' => $user->id,
+        ]);
+        $this->assertEquals($basetime + 10, $userview->timeviewed);
+    }
+
+    /**
+     * An older request must not overwrite a newer timeviewed value.
+     *
+     * @covers \mod_book\helper::update_chapter_view_time
+     */
+    public function test_update_chapter_view_time_is_monotonic(): void {
+        global $DB;
+
+        [$book, $gen, $user] = $this->create_book_test_data();
+        $chapter = $gen->create_chapter(['bookid' => $book->id]);
+
+        $basetime = time();
+        $clock = $this->mock_clock_with_frozen($basetime);
+        $this->insert_userview($chapter->id, $user->id);
+
+        // A newer request is processed first.
+        $clock->set_to($basetime + 100);
+        helper::update_chapter_view_time($chapter->id, $user->id);
+
+        // An older, delayed request arrives afterwards. It must not clobber the newer value.
+        $clock->set_to($basetime + 10);
+        helper::update_chapter_view_time($chapter->id, $user->id);
+
+        $userview = $DB->get_record('book_chapters_userviews', [
+            'chapterid' => $chapter->id,
+            'userid' => $user->id,
+        ]);
+        $this->assertEquals($basetime + 100, $userview->timeviewed);
     }
 }

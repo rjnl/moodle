@@ -152,6 +152,118 @@ class mod_book_external extends external_api {
     }
 
     /**
+     * Returns description of method parameters.
+     *
+     * @return external_function_parameters
+     */
+    public static function update_chapter_view_time_parameters() {
+        return new external_function_parameters(
+            [
+                'bookid' => new external_value(PARAM_INT, 'book instance id'),
+                'chapterid' => new external_value(PARAM_INT, 'chapter id'),
+            ]
+        );
+    }
+
+    /**
+     * Updates the last viewed time for a book chapter.
+     *
+     * Called from JavaScript after the chapter view debounce period has elapsed.
+     *
+     * @param int $bookid The book instance ID.
+     * @param int $chapterid The book chapter ID.
+     * @return array The status, warnings, and updated completion data when applicable.
+     */
+    public static function update_chapter_view_time($bookid, $chapterid) {
+        global $DB, $USER, $CFG, $PAGE;
+        require_once($CFG->dirroot . '/mod/book/locallib.php');
+
+        $params = self::validate_parameters(self::update_chapter_view_time_parameters(), [
+            'bookid' => $bookid,
+            'chapterid' => $chapterid,
+        ]);
+        $bookid = $params['bookid'];
+        $chapterid = $params['chapterid'];
+
+        $book = $DB->get_record('book', ['id' => $bookid], '*', MUST_EXIST);
+        [$course, $cm] = get_course_and_cm_from_instance($book, 'book');
+
+        $context = context_module::instance($cm->id);
+        self::validate_context($context);
+
+        require_capability('mod/book:read', $context);
+
+        $chapter = $DB->get_record('book_chapters', ['id' => $chapterid, 'bookid' => $book->id], '*', MUST_EXIST);
+        $viewhidden = has_capability('mod/book:viewhiddenchapters', $context);
+        if ($chapter->hidden && !$viewhidden) {
+            throw new moodle_exception('errorchapter', 'mod_book');
+        }
+
+        $result = [
+            'status' => true,
+            'warnings' => [],
+        ];
+
+        if (!isguestuser()) {
+            \mod_book\helper::update_chapter_view_time($chapterid, $USER->id);
+
+            $completion = new \completion_info($course);
+            if ($completion->is_enabled($cm) && (int)$cm->completion === COMPLETION_TRACKING_AUTOMATIC) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $USER->id);
+            }
+
+            $renderer = $PAGE->get_renderer('core');
+
+            $completiondata = (new \core_course\output\completion_status($cm, $USER->id))
+                ->export_for_template($renderer);
+
+            if ($completiondata['hascompletion'] && $completiondata['uservisible'] && $completiondata['isautomatic']) {
+                $result['completion'] = $completiondata;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns description of method result value.
+     *
+     * @return \core_external\external_description
+     */
+    public static function update_chapter_view_time_returns() {
+        return new external_single_structure(
+            [
+                'status' => new external_value(PARAM_BOOL, 'status: true if success'),
+                'warnings' => new external_warnings(),
+                'completion' => new external_single_structure(
+                    [
+                        'istrackeduser' => new external_value(PARAM_BOOL, 'whether completion is tracked for this user'),
+                        'completiondetails' => new external_multiple_structure(
+                            new external_single_structure(
+                                [
+                                    'description' => new external_value(PARAM_RAW, 'The condition description'),
+                                    'statuscomplete' => new external_value(PARAM_BOOL, 'Whether the condition is complete'),
+                                    'statuscompletefail' => new external_value(PARAM_BOOL, 'Whether the condition failed'),
+                                    'statusincomplete' => new external_value(PARAM_BOOL, 'Whether the condition is incomplete'),
+                                    'accessibledescription' => new external_value(
+                                        PARAM_RAW,
+                                        'The accessible description for the condition',
+                                        VALUE_DEFAULT,
+                                        ''
+                                    ),
+                                ]
+                            ),
+                            'The automatic completion conditions',
+                        ),
+                    ],
+                    'Updated automatic completion data, when applicable',
+                    VALUE_OPTIONAL
+                ),
+            ]
+        );
+    }
+
+    /**
      * Describes the parameters for get_books_by_courses.
      *
      * @return external_function_parameters

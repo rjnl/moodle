@@ -671,44 +671,10 @@ function book_export_contents($cm, $baseurl) {
  * @since Moodle 3.0
  */
 function book_view($book, $chapter, $islastchapter, $course, $cm, $context) {
-    global $DB, $USER;
-
     // First case, we are just opening the book.
     if (empty($chapter)) {
         \mod_book\event\course_module_viewed::create_from_book($book, $context)->trigger();
     } else {
-        if (!isguestuser()) {
-            $now = time();
-
-            $existing = $DB->get_record('book_chapters_userviews', [
-                'chapterid' => $chapter->id,
-                'userid'    => $USER->id,
-            ]);
-            if ($existing) {
-                // Avoid unnecessary database writes when the user repeatedly refreshes the page.
-                if (($now - $existing->timeviewed) >= \mod_book\helper::CHAPTER_VIEW_DEBOUNCE_SECONDS) {
-                    $DB->set_field('book_chapters_userviews', 'timeviewed', $now, ['id' => $existing->id]);
-                }
-            } else {
-                $userview = new \stdClass();
-                $userview->chapterid   = $chapter->id;
-                $userview->userid      = $USER->id;
-                $userview->timecreated = $now;
-                $userview->timeviewed  = $now;
-                try {
-                    $DB->insert_record('book_chapters_userviews', $userview);
-                } catch (\dml_write_exception $e) {
-                    // A concurrent request already inserted this chapter view,
-                    // so just refresh the last viewed time instead of failing the page load.
-                    $DB->set_field(
-                        'book_chapters_userviews',
-                        'timeviewed',
-                        $now,
-                        ['chapterid' => $chapter->id, 'userid' => $USER->id]
-                    );
-                }
-            }
-        }
         \mod_book\event\chapter_viewed::create_from_chapter($book, $context, $chapter)->trigger();
 
         $completion = new completion_info($course);
