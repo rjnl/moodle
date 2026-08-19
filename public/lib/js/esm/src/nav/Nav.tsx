@@ -290,10 +290,8 @@ function DropdownItems(
  * @param props.istablist Whether the toggle sits inside an `istablist` nav. When true,
  *                        the toggle gets `role="tab"` to be a valid tablist child; when false it
  *                        gets `role="menuitem"` to be a valid child of the top-level `<ul
- *                        role="menubar">`. (NavPill's plain leaf items can't carry an explicit role
- *                        themselves — @moodlehq/design-system's NavPillProps type omits it, and the
- *                        component always sets its own — so core/menu_navigation falls back to
- *                        treating any plain link in a menubar/tablist as navigable instead.)
+ *                        role="menubar">`. (Plain leaf items are NavPills, which cannot be given a
+ *                        role as a prop, so they get the same treatment from stampMenuItemRole.)
  * @param props.children The dropdown menu to render alongside the toggle.
  * @returns The rendered dropdown toggle and menu.
  */
@@ -391,6 +389,26 @@ function SubmenuTrigger({node, istablist = false}: {node: NavNode; istablist?: b
 }
 
 /**
+ * Ref callback stamping role="menuitem" onto a NavPill's anchor.
+ *
+ * A NavPill cannot be given a role: @moodlehq/design-system's NavPillProps omits `role`, and the
+ * component overwrites whatever is spread in with its own value, which is undefined unless the
+ * pill is disabled. Its <li> is role="none", so the roleless anchor is exposed as an owned child
+ * of the enclosing <ul role="menubar"> — a critical axe aria-required-children violation
+ * ("Element has children which are not allowed"), failing the accessibility Behat scenarios on
+ * every page with a navbar, and leaving the pills announced as plain links rather than as the
+ * menu items core/menu_navigation drives with the arrow keys.
+ *
+ * So set it on the DOM node instead, until NavPill accepts a role of its own. React never undoes
+ * this: `role` is undefined in both the previous and the next props, so it is never diffed.
+ *
+ * @param el The pill's anchor, or null once it is unmounted.
+ */
+const stampMenuItemRole = (el: HTMLAnchorElement | null): void => {
+    el?.setAttribute('role', 'menuitem');
+};
+
+/**
  * Render the appropriate pill for a visible top-level node.
  *
  * @param item The node to render.
@@ -406,6 +424,7 @@ const renderPill = (item: NavNode, istablist: boolean) => {
     }
     return (
         <NavPill
+            ref={stampMenuItemRole}
             label={item.text}
             href={item.href ?? '#'}
             title={item.title ?? undefined}

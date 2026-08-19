@@ -21,14 +21,18 @@
  */
 
 import {render, act} from '@testing-library/react';
+import {type Ref} from 'react';
 import Nav, {type NavNode} from '@moodle/lms/core/nav/Nav';
 
 // @moodlehq/design-system is ESM only, so Jest cannot resolve it from a CommonJS test bundle.
 // Stand NavPill in with markup carrying the classes these tests rely on: what is under test is
 // which items end up as pills and which end up in the "More" dropdown, not the pill's rendering.
+//
+// Two details of the real component are reproduced deliberately, because Nav works around them:
+// it forwards its ref to the anchor, and it drops any caller-supplied role.
 jest.mock('@moodlehq/design-system', () => ({
-    NavPill: ({label, href}: {label: string; href: string}) => (
-        <a className="mds-nav-pill" href={href}>
+    NavPill: ({label, href, ref}: {label: string; href: string; ref?: Ref<HTMLAnchorElement>}) => (
+        <a ref={ref} className="mds-nav-pill" href={href} role={undefined}>
             <span className="mds-nav-pill__label">{label}</span>
         </a>
     ),
@@ -315,6 +319,17 @@ describe('@moodle/lms/core/nav/Nav submenus in the More menu', () => {
         const collapsed = renderItems(items, 2);
         expect(collapsed.querySelector('[data-region="moredropdown"] > .dropdown-submenu > .dropdown-item'))
             .toHaveAttribute('title', 'Browse the course catalogue');
+    });
+
+    // Every item owned by the <ul role="menubar"> must be a menuitem: the <li> is role="none", so
+    // a roleless pill anchor is a critical axe aria-required-children violation, and
+    // core/menu_navigation keys its arrow-key handling off the role too.
+    it('gives every top-level pill a role, including the "More" toggle', () => {
+        const container = renderItems(makeItems(['Home', 'Dashboard', 'My courses']), 10);
+
+        const roles = Array.from(container.querySelectorAll('ul.more-nav > li > a'))
+            .map((node) => node.getAttribute('role'));
+        expect(roles).toEqual(['menuitem', 'menuitem', 'menuitem', 'menuitem']);
     });
 
     it('keeps a tooltip on a tab pill', () => {
