@@ -2013,6 +2013,48 @@ final class locallib_test extends \advanced_testcase {
         $this->assertFalse($customdata->blindmarking);
     }
 
+    /**
+     * Cron notifications for blind-marked assignments must resolve the unique id via the
+     * submitting student's own assign_user_mapping record, not via the grade id.
+     *
+     * @covers \assign::cron
+     */
+    public function test_cron_blindmarking_uses_correct_uniqueid(): void {
+        $this->resetAfterTest();
+
+        // First run cron so there are no messages waiting to be sent (from other tests).
+        \core\cron::setup_user();
+        \assign::cron();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $this->setUser($teacher);
+        $assign = $this->create_instance($course, [
+            'sendstudentnotifications' => 1,
+            'blindmarking' => 1,
+        ]);
+
+        $this->add_submission($student, $assign);
+        $this->submit_for_grading($student, $assign);
+        $this->grade_submission($teacher, $assign, $student, 50.0);
+
+        // Allocate (and remember) the student's own unique id ahead of cron running.
+        $expecteduniqueid = $assign->get_uniqueid_for_user($student->id);
+
+        $this->expectOutputRegex('/Done processing 1 assignment submissions/');
+        \core\cron::setup_user();
+        $sink = $this->redirectMessages();
+        \assign::cron();
+        $messages = $sink->get_messages();
+
+        $this->assertEquals(1, count($messages));
+        $customdata = json_decode($messages[0]->customdata);
+        $this->assertTrue($customdata->blindmarking);
+        $this->assertEquals($expecteduniqueid, $customdata->uniqueidforuser);
+    }
+
     public function test_cron_without_notifications(): void {
         $this->resetAfterTest();
 
