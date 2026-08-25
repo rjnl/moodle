@@ -242,5 +242,18 @@ function xmldb_assign_upgrade($oldversion) {
     // Automatically generated Moodle v5.2.0 release upgrade line.
     // Put any upgrade step following this.
 
+    if ($oldversion < 2026082600) {
+        $table = new xmldb_table('assign_grades');
+        $index = new xmldb_index(
+            'assignmentgradinglookup',
+            XMLDB_INDEX_NOTUNIQUE,
+            ['assignment', 'timemodified', 'grader', 'userid']
+        );
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        upgrade_mod_savepoint(true, 2026082600, 'assign');
+    }
+
     return true;
 }
