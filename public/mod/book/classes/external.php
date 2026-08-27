@@ -69,7 +69,7 @@ class mod_book_external extends external_api {
      * @throws moodle_exception
      */
     public static function view_book($bookid, $chapterid = 0) {
-        global $DB, $CFG;
+        global $CFG, $DB, $USER;
         require_once($CFG->dirroot . "/mod/book/lib.php");
         require_once($CFG->dirroot . "/mod/book/locallib.php");
 
@@ -124,6 +124,12 @@ class mod_book_external extends external_api {
 
             if (!$chapter or ($chapter->hidden and !$viewhidden)) {
                 throw new moodle_exception('errorchapter', 'mod_book');
+            }
+
+            if (!isguestuser()) {
+                // The mobile app has no equivalent of the web debounce timer, so record the view immediately:
+                // otherwise completionreadpercent could never be satisfied via this webservice.
+                \mod_book\helper::update_chapter_view_time($chapter->id, $USER->id);
             }
 
             // Trigger the chapter viewed event.

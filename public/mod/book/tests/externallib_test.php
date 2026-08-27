@@ -122,6 +122,58 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
     }
 
     /**
+     * The mobile app has no equivalent of the web debounce timer, so view_book() must record the chapter
+     * view time immediately. Otherwise a completionreadpercent condition could never be satisfied by users
+     * reading a book exclusively through the Mobile App.
+     *
+     * @covers \mod_book_external::view_book
+     */
+    public function test_view_book_records_chapter_view_time(): void {
+        global $DB;
+
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $book = $this->getDataGenerator()->create_module(
+            'book',
+            ['course' => $course->id, 'completionreadpercent' => 100],
+            ['completion' => COMPLETION_TRACKING_AUTOMATIC]
+        );
+        $bookgenerator = $this->getDataGenerator()->get_plugin_generator('mod_book');
+        $chapter1 = $bookgenerator->create_chapter(['bookid' => $book->id]);
+        $chapter2 = $bookgenerator->create_chapter(['bookid' => $book->id]);
+
+        $cm = get_coursemodule_from_instance('book', $book->id);
+        $completion = new \completion_info($course);
+
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $this->setUser($student);
+
+        mod_book_external::view_book($book->id, $chapter1->id);
+
+        $this->assertTrue($DB->record_exists('book_chapters_userviews', [
+            'chapterid' => $chapter1->id,
+            'userid' => $student->id,
+        ]));
+        $this->assertEquals(
+            COMPLETION_INCOMPLETE,
+            $completion->get_data($cm, false, $student->id)->completionstate
+        );
+
+        mod_book_external::view_book($book->id, $chapter2->id);
+
+        $this->assertTrue($DB->record_exists('book_chapters_userviews', [
+            'chapterid' => $chapter2->id,
+            'userid' => $student->id,
+        ]));
+        // All chapters have now been viewed via the webservice, so the read-percent condition is complete.
+        $this->assertEquals(
+            COMPLETION_COMPLETE,
+            $completion->get_data($cm, false, $student->id)->completionstate
+        );
+    }
+
+    /**
      * Updates an existing chapter user-view record through the external function.
      *
      * @covers \mod_book_external::update_chapter_view_time
