@@ -37,6 +37,15 @@ $functions = array(
         'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
     ),
 
+    'mod_book_update_chapter_view_time' => [
+        'classname'     => 'mod_book_external',
+        'methodname'    => 'update_chapter_view_time',
+        'description'   => 'Updates the last viewed time for the given chapter after the view debounce period.',
+        'type'          => 'write',
+        'capabilities'  => 'mod/book:read',
+        'ajax'          => true,
+    ],
+
     'mod_book_get_books_by_courses' => array(
         'classname'     => 'mod_book_external',
         'methodname'    => 'get_books_by_courses',

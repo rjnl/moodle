@@ -89,6 +89,11 @@ if ($chapterid == '0') { // Go to first chapter if no given.
             break;
         }
     }
+
+    // If a page was not set, then set the last visited page to display if it exists and is not hidden.
+    if (!$edit && ($lastuserviewedchapterid = book_get_chapter_to_display($book->id, $chapters)) !== null) {
+        $chapterid = $lastuserviewedchapterid;
+    }
 }
 
 // Prepare header.
@@ -119,6 +124,17 @@ if (!$chapterid) {
     }
     // Add the Book TOC block.
     book_add_fake_block($chapters, $chapter, $book, $cm, $edit);
+
+    if (!isguestuser()) {
+        // Debounce timeviewed updates so rapid navigation between chapters does not trigger a database
+        // write for every chapter, while ensuring the chapter the user remains on is timestamped.
+        // See mod_book/chapterview for details.
+        $PAGE->requires->js_call_amd('mod_book/chapterview', 'init', [
+            $book->id,
+            $chapter->id,
+            \mod_book\helper::CHAPTER_VIEW_DEBOUNCE_SECONDS * 1000,
+        ]);
+    }
     book_view($book, $chapter, \mod_book\helper::is_last_visible_chapter($chapter->id, $chapters), $course, $cm, $context);
 
     echo $OUTPUT->header();
