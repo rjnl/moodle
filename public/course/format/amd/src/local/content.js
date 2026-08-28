@@ -132,6 +132,18 @@ export default class Component extends BaseComponent {
                 collapseSelector: this.selectors.COLLAPSE,
                 onToggleAll,
             });
+
+            if (toogleAll.nodeName !== 'BUTTON') {
+                // Deprecated since Moodle 5.3. Formats and themes overriding the
+                // core_courseformat/local/content template with a version older than Moodle 5.3 still
+                // render the toggle as a link, which does not react to the Space key on its own.
+                this.addEventListener(toogleAll, 'keydown', e => {
+                    // Collapse/expand all sections when Space key is pressed on the toggle button.
+                    if (e.key === ' ') {
+                        this._allSectionToggler(e);
+                    }
+                });
+            }
             this._refreshAllSectionsToggler(state);
         }
 
