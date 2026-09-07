@@ -35544,6 +35544,10 @@ table.calendartable caption {
   margin-top: 0;
 }
 
+.section-list:not(.has-collapsemenu) .course-section .section-item .course-content-item-content [data-for=sectioninfo] {
+  padding-left: 1rem;
+}
+
 .section li.movehere a {
   display: block;
   width: 100%;

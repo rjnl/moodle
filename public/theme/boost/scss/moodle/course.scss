@@ -236,6 +236,15 @@ $divider-hover-color: $primary !default;
     margin-top: 0;
 }
 
+.section-list:not(.has-collapsemenu) {
+    .course-section .section-item .course-content-item-content {
+        // Adjust padding for section info when collapse menu is not present.
+        [data-for="sectioninfo"] {
+            padding-left: map-get($spacers, 3);
+        }
+    }
+}
+
 // Old movehere link styles.
 .section li.movehere a {
     display: block;
