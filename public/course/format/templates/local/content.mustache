@@ -176,7 +176,6 @@
     {{#collapsemenu}}
         <div class="d-flex justify-content-end mb-1">
             <button type="button"
-                    id="collapsesections"
                     class="section-collapsemenu aabtn"
                     aria-expanded="true"
                     data-toggle="toggleall"
@@ -224,7 +223,9 @@
         <ul class="{{format}} section-list">
         {{#singlesection}}
             {{$ core_courseformat/local/content/section }}
-                {{> core_courseformat/local/content/section }}
+                {{< core_courseformat/local/content/section }}
+                    {{$ core_courseformat/local/content/section/collapsemenu }}{{/ core_courseformat/local/content/section/collapsemenu }}
+                {{/ core_courseformat/local/content/section }}
             {{/ core_courseformat/local/content/section }}
         {{/singlesection}}
         </ul>

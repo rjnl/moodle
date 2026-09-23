@@ -14,3 +14,9 @@ notes:
         formats and themes overriding core_courseformat/local/content should
         update their copy to render the toggle above the section list.
       type: deprecated
+    - message: >-
+        The collapse/expand-all toggle rendered by the
+        core_courseformat/local/content template no longer has the
+        collapsesections id. Use the [data-toggle="toggleall"] selector to
+        target it instead.
+      type: changed
