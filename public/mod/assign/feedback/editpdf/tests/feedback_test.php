@@ -149,15 +149,16 @@ final class feedback_test extends \advanced_testcase {
      * Add a draft comment to page 0.
      *
      * @param int $gradeid
+     * @param int|null $markid
      */
-    protected function add_draft_comment(int $gradeid): void {
+    protected function add_draft_comment(int $gradeid, ?int $markid = null): void {
         $comment = new comment();
         $comment->rawtext = 'Draft comment';
         $comment->width = 100;
         $comment->x = 0;
         $comment->y = 0;
         $comment->colour = 'red';
-        page_editor::set_comments($gradeid, 0, [$comment]);
+        page_editor::set_comments($gradeid, 0, [$comment], $markid);
     }
 
     public function test_comments_quick_list(): void {
@@ -1060,6 +1061,79 @@ final class feedback_test extends \advanced_testcase {
         $this->assertTrue($assign->remove_submission($student->id));
 
         $this->assert_editpdf_areas_empty($assign, $areas, true);
+    }
+
+    /**
+     * Marker data is deleted, including for markers who are no longer allocated.
+     */
+    public function test_submission_removed_deletes_marker_data(): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+        $other = $this->getDataGenerator()->create_and_enrol($assign->get_course(), 'teacher');
+
+        // These markers are not allocated to the student, so get_mark_records() would not return them.
+        $markerfileareas = [
+            document_services::PAGE_IMAGE_FILEAREA_MARKER,
+            document_services::COMBINED_PDF_FILEAREA_MARKER,
+            document_services::PARTIAL_PDF_FILEAREA_MARKER,
+            document_services::IMPORT_HTML_FILEAREA_MARKER,
+            document_services::TMP_JPG_TO_PDF_FILEAREA,
+            document_services::TMP_ROTATED_JPG_FILEAREA,
+        ];
+        $areas = [];
+        $marks = [];
+        foreach ([$teacher, $other] as $marker) {
+            $mark = $assign->get_mark($grade->id, $marker->id, true);
+            foreach ($markerfileareas as $filearea) {
+                $areas[] = [$filearea, $mark->id];
+            }
+            $this->add_draft_comment($grade->id, $mark->id);
+            page_editor::set_page_rotation($grade->id, 0, true, 'abc', 90, $mark->id);
+            $marks[] = $mark;
+        }
+        $this->seed_editpdf_files($assign, $areas);
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+        foreach ($marks as $mark) {
+            $this->assertEmpty(page_editor::get_comments($grade->id, 0, true, $mark->id));
+            $this->assertFalse(page_editor::get_page_rotation($grade->id, 0, $mark->id));
+        }
+    }
+
+    /**
+     * Released marker feedback survives removal, and keeps the read-only pages it is shown on.
+     */
+    public function test_submission_removed_keeps_released_marker_feedback(): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+        $mark = $assign->get_mark($grade->id, $teacher->id, true);
+
+        // Only the marker has released feedback, not the overall grade.
+        $kept = [
+            [document_services::PAGE_IMAGE_READONLY_FILEAREA, $grade->id],
+            [document_services::FINAL_PDF_FILEAREA_MARKER, $mark->id],
+        ];
+        $deleted = [[document_services::PAGE_IMAGE_FILEAREA_MARKER, $mark->id]];
+        $this->seed_editpdf_files($assign, array_merge($kept, $deleted));
+        $this->add_draft_comment($grade->id, $mark->id);
+        page_editor::release_drafts($grade->id, $mark->id);
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $kept, false);
+        $this->assert_editpdf_areas_empty($assign, $deleted, true);
+        $this->assertTrue(page_editor::has_annotations_or_comments($grade->id, false, $mark->id));
+        $this->assertEmpty(page_editor::get_comments($grade->id, 0, true, $mark->id));
     }
 
     /**
