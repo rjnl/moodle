@@ -960,6 +960,57 @@ EOD;
     }
 
     /**
+     * Delete the data generated from the files of a removed submission.
+     *
+     * Removing a submission does not update its timemodified, so the stale checks in
+     * get_page_images_for_attempt() never notice it is gone (MDL-68693). This does what a stale
+     * conversion does (page images, draft annotations, rotations) plus the combined/partial PDFs and
+     * temporary conversion files.
+     *
+     * Released feedback is left alone: released annotations, comments and the final PDF. The read-only
+     * pages are only needed to display released annotations, so they are kept only in that case.
+     * As after a resubmission, the next grade save replaces the released feedback with the (empty) drafts.
+     *
+     * @param int|\assign $assignment
+     * @param int $userid
+     * @param int $attemptnumber The attempt that was removed. Not -1, that would create a submission.
+     * @param int $submissionid The removed submission.
+     */
+    public static function delete_submission_files_for_attempt($assignment, $userid, $attemptnumber, $submissionid): void {
+        global $DB;
+
+        $assignment = self::get_assignment_from_param($assignment);
+        $contextid = $assignment->get_context()->id;
+        $fs = get_file_storage();
+
+        // The converted HTML of online text is keyed by submission, not by grade.
+        $fs->delete_area_files($contextid, self::COMPONENT, self::IMPORT_HTML_FILEAREA, $submissionid);
+
+        // Do not create a grade record just to clean up.
+        $grade = $assignment->get_user_grade($userid, false, $attemptnumber);
+        if (!$grade) {
+            return;
+        }
+
+        $fileareas = [
+            self::PAGE_IMAGE_FILEAREA,
+            self::COMBINED_PDF_FILEAREA,
+            self::PARTIAL_PDF_FILEAREA,
+            self::TMP_JPG_TO_PDF_FILEAREA,
+            self::TMP_ROTATED_JPG_FILEAREA,
+        ];
+        if (!page_editor::has_annotations_or_comments($grade->id, false)) {
+            $fileareas[] = self::PAGE_IMAGE_READONLY_FILEAREA;
+        }
+        foreach ($fileareas as $filearea) {
+            $fs->delete_area_files($contextid, self::COMPONENT, $filearea, $grade->id);
+        }
+
+        page_editor::delete_draft_content($grade->id);
+        $DB->delete_records('assignfeedback_editpdf_rot', ['gradeid' => $grade->id]);
+    }
+
+    /**
      * Get All files in a File area
      * @param int|\assign $assignment Assignment
      * @param int $userid User ID
