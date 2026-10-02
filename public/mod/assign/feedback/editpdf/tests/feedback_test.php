@@ -16,8 +16,11 @@
 
 namespace assignfeedback_editpdf;
 
+use assignfeedback_editpdf\event\observer;
 use assignfeedback_editpdf\task\convert_submission;
 use mod_assign_test_generator;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -32,6 +35,11 @@ require_once($CFG->dirroot . '/mod/assign/tests/generator.php');
  * @copyright  2013 Damyon Wiese
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(page_editor::class)]
+#[CoversClass(document_services::class)]
+#[CoversClass(observer::class)]
+#[CoversClass(convert_submission::class)]
+#[CoversClass(\core_files\conversion::class)]
 final class feedback_test extends \advanced_testcase {
 
     // Use the generator helper.
@@ -78,6 +86,78 @@ final class feedback_test extends \advanced_testcase {
         $data = new \stdClass();
         $plugin = $assign->get_submission_plugin_by_type('file');
         $plugin->save($submission, $data);
+    }
+
+    /**
+     * Create an assignment with file submissions and editpdf enabled.
+     *
+     * @param array $extra Extra instance settings.
+     * @return array [assign, student, teacher]
+     */
+    protected function create_editpdf_assign(array $extra = []): array {
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $assign = $this->create_instance($course, $extra + [
+            'assignsubmission_file_enabled' => 1,
+            'assignsubmission_file_maxfiles' => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+            'assignfeedback_editpdf_enabled' => 1,
+        ]);
+        return [$assign, $student, $teacher];
+    }
+
+    /**
+     * Put a dummy file in each editpdf file area.
+     *
+     * @param \assign $assign
+     * @param array $areas List of [filearea, itemid] pairs.
+     */
+    protected function seed_editpdf_files(\assign $assign, array $areas): void {
+        $fs = get_file_storage();
+        foreach ($areas as [$filearea, $itemid]) {
+            $fs->create_file_from_string([
+                'contextid' => $assign->get_context()->id,
+                'component' => 'assignfeedback_editpdf',
+                'filearea' => $filearea,
+                'itemid' => $itemid,
+                'filepath' => '/',
+                'filename' => 'dummy.pdf',
+            ], 'dummy content');
+        }
+    }
+
+    /**
+     * Assert that each editpdf file area is empty (or not).
+     *
+     * @param \assign $assign
+     * @param array $areas List of [filearea, itemid] pairs.
+     * @param bool $empty Expected result.
+     */
+    protected function assert_editpdf_areas_empty(\assign $assign, array $areas, bool $empty): void {
+        $fs = get_file_storage();
+        foreach ($areas as [$filearea, $itemid]) {
+            $this->assertSame(
+                $empty,
+                $fs->is_area_empty($assign->get_context()->id, 'assignfeedback_editpdf', $filearea, $itemid),
+                "{$filearea}/{$itemid}",
+            );
+        }
+    }
+
+    /**
+     * Add a draft comment to page 0.
+     *
+     * @param int $gradeid
+     */
+    protected function add_draft_comment(int $gradeid): void {
+        $comment = new comment();
+        $comment->rawtext = 'Draft comment';
+        $comment->width = 100;
+        $comment->x = 0;
+        $comment->y = 0;
+        $comment->colour = 'red';
+        page_editor::set_comments($gradeid, 0, [$comment]);
     }
 
     public function test_comments_quick_list(): void {
@@ -344,8 +424,6 @@ final class feedback_test extends \advanced_testcase {
 
     /**
      * Test Convert submission ad-hoc task.
-     *
-     * @covers \assignfeedback_editpdf\task\convert_submission
      */
     public function test_conversion_task(): void {
         $this->require_ghostscript();
@@ -532,8 +610,6 @@ final class feedback_test extends \advanced_testcase {
 
     /**
      * Test that overwriting a submission file deletes any associated conversions.
-     *
-     * @covers \core_files\conversion::get_conversions_for_file
      */
     public function test_submission_file_overridden(): void {
         $this->resetAfterTest();
@@ -587,9 +663,311 @@ final class feedback_test extends \advanced_testcase {
     }
 
     /**
-     * Tests that when the plugin is not enabled for an assignment it does not create conversion tasks.
+     * Removing a submission deletes the data generated from it (MDL-68693).
+     */
+    public function test_submission_removed_deletes_generated_data(): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+
+        $areas = [
+            [document_services::PAGE_IMAGE_FILEAREA, $grade->id],
+            [document_services::PAGE_IMAGE_READONLY_FILEAREA, $grade->id],
+            [document_services::COMBINED_PDF_FILEAREA, $grade->id],
+            [document_services::PARTIAL_PDF_FILEAREA, $grade->id],
+            [document_services::TMP_JPG_TO_PDF_FILEAREA, $grade->id],
+            [document_services::TMP_ROTATED_JPG_FILEAREA, $grade->id],
+            [document_services::IMPORT_HTML_FILEAREA, $submission->id],
+        ];
+        $this->seed_editpdf_files($assign, $areas);
+        $this->add_draft_comment($grade->id);
+        page_editor::set_page_rotation($grade->id, 0, true, 'abc', 90);
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+        $this->assertEmpty(page_editor::get_comments($grade->id, 0, true));
+        $this->assertFalse(page_editor::get_page_rotation($grade->id, 0));
+    }
+
+    /**
+     * Released feedback survives removal of the submission.
+     */
+    public function test_submission_removed_keeps_released_feedback(): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+
+        $kept = [
+            [document_services::PAGE_IMAGE_READONLY_FILEAREA, $grade->id],
+            [document_services::FINAL_PDF_FILEAREA, $grade->id],
+        ];
+        $deleted = [[document_services::PAGE_IMAGE_FILEAREA, $grade->id]];
+        $this->seed_editpdf_files($assign, array_merge($kept, $deleted));
+        $this->add_draft_comment($grade->id);
+        page_editor::release_drafts($grade->id);
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $kept, false);
+        $this->assert_editpdf_areas_empty($assign, $deleted, true);
+        $this->assertTrue(page_editor::has_annotations_or_comments($grade->id, false));
+    }
+
+    /**
+     * Only the removed attempt is cleaned.
+     */
+    public function test_submission_removed_only_removed_attempt(): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign([
+            'attemptreopenmethod' => ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL,
+            'maxattempts' => -1,
+        ]);
+        $this->add_file_submission($student, $assign);
+        $teacher->ignoresesskey = true;
+        $this->setUser($teacher);
+        $first = $assign->get_user_grade($student->id, true);
+        $this->assertTrue($assign->testable_process_add_attempt($student->id));
+        $this->add_file_submission($student, $assign);
+        $this->setUser($teacher);
+        $second = $assign->get_user_grade($student->id, true);
+        $this->assertNotEquals($first->id, $second->id);
+
+        $firstareas = [[document_services::PAGE_IMAGE_FILEAREA, $first->id]];
+        $secondareas = [[document_services::PAGE_IMAGE_FILEAREA, $second->id]];
+        $this->seed_editpdf_files($assign, array_merge($firstareas, $secondareas));
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $firstareas, false);
+        $this->assert_editpdf_areas_empty($assign, $secondareas, true);
+    }
+
+    /**
+     * Removing a submission with nothing generated from it does nothing.
+     */
+    public function test_submission_removed_nothing_generated(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$assign, $student] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assertEquals(0, $DB->count_records('assign_grades'));
+    }
+
+    /**
+     * Team submission: every member is cleaned, including suspended ones, and no one else.
+     */
+    public function test_submission_removed_team_submission(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        // The student removing the submission cannot see suspended members.
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student', null, 'manual', 0, 0, ENROL_USER_SUSPENDED);
+        $outsider = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        // A member of the group who is also in another group submits in the default group instead.
+        $multigroup = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $group2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student1->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student2->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $multigroup->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group2->id, 'userid' => $multigroup->id]);
+        $assign = $this->create_instance($course, [
+            'teamsubmission' => 1,
+            'assignsubmission_file_enabled' => 1,
+            'assignsubmission_file_maxfiles' => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+            'assignfeedback_editpdf_enabled' => 1,
+        ]);
+        $this->setUser($student1);
+        $submission = $assign->get_group_submission($student1->id, 0, true);
+        $this->assertEquals($group->id, $submission->groupid);
+
+        $areas = [];
+        foreach ([$student1, $student2] as $student) {
+            $grade = $assign->get_user_grade($student->id, true);
+            $areas[] = [document_services::PAGE_IMAGE_FILEAREA, $grade->id];
+        }
+        $outsiderareas = [];
+        foreach ([$outsider, $multigroup] as $student) {
+            $outsiderareas[] = [document_services::PAGE_IMAGE_FILEAREA, $assign->get_user_grade($student->id, true)->id];
+        }
+        $this->seed_editpdf_files($assign, array_merge($areas, $outsiderareas));
+
+        $this->assertTrue($assign->remove_submission($student1->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+        $this->assert_editpdf_areas_empty($assign, $outsiderareas, false);
+    }
+
+    /**
+     * Team submission without groups (the default group): every member is cleaned, including suspended
+     * ones, and no one else.
+     */
+    public function test_submission_removed_team_submission_default_group(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        // The student removing the submission cannot see suspended members.
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student', null, 'manual', 0, 0, ENROL_USER_SUSPENDED);
+        $outsider = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $outsider->id]);
+        $assign = $this->create_instance($course, [
+            'teamsubmission' => 1,
+            'assignsubmission_file_enabled' => 1,
+            'assignsubmission_file_maxfiles' => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+            'assignfeedback_editpdf_enabled' => 1,
+        ]);
+        $this->setUser($student1);
+        $assign->get_group_submission($student1->id, 0, true);
+
+        $areas = [];
+        foreach ([$student1, $student2] as $student) {
+            $grade = $assign->get_user_grade($student->id, true);
+            $areas[] = [document_services::PAGE_IMAGE_FILEAREA, $grade->id];
+        }
+        $outsiderareas = [[document_services::PAGE_IMAGE_FILEAREA, $assign->get_user_grade($outsider->id, true)->id]];
+        $this->seed_editpdf_files($assign, array_merge($areas, $outsiderareas));
+
+        $this->assertTrue($assign->remove_submission($student1->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+        $this->assert_editpdf_areas_empty($assign, $outsiderareas, false);
+    }
+
+    /**
+     * Team submission by a member of several groups (the default group): the default group members
+     * are cleaned, and not the other members of their groups.
+     */
+    public function test_submission_removed_team_submission_multiple_groups(): void {
+        $this->resetAfterTest();
+        $course = $this->getDataGenerator()->create_course();
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $outsider = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $group1 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $group2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group1->id, 'userid' => $student1->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group2->id, 'userid' => $student1->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group1->id, 'userid' => $outsider->id]);
+        $assign = $this->create_instance($course, [
+            'teamsubmission' => 1,
+            'assignsubmission_file_enabled' => 1,
+            'assignsubmission_file_maxfiles' => 1,
+            'assignsubmission_file_maxsizebytes' => 1000000,
+            'assignfeedback_editpdf_enabled' => 1,
+        ]);
+        $this->setUser($student1);
+        $submission = $assign->get_group_submission($student1->id, 0, true);
+        $this->assertEquals(0, $submission->groupid);
+
+        $areas = [];
+        foreach ([$student1, $student2] as $student) {
+            $grade = $assign->get_user_grade($student->id, true);
+            $areas[] = [document_services::PAGE_IMAGE_FILEAREA, $grade->id];
+        }
+        $outsiderareas = [[document_services::PAGE_IMAGE_FILEAREA, $assign->get_user_grade($outsider->id, true)->id]];
+        $this->seed_editpdf_files($assign, array_merge($areas, $outsiderareas));
+
+        $this->assertTrue($assign->remove_submission($student1->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+        $this->assert_editpdf_areas_empty($assign, $outsiderareas, false);
+    }
+
+    /**
+     * Data provider for test_submission_removed_plugin_disabled.
      *
-     * @covers \assignfeedback_editpdf\event\observer
+     * @return array
+     */
+    public static function plugin_disabled_provider(): array {
+        return [
+            'Disabled in the assignment' => [false],
+            'Disabled on the site' => [true],
+        ];
+    }
+
+    /**
+     * A disabled plugin still cleans up, or re-enabling it would show the removed pages again.
+     *
+     * @param bool $site Whether the plugin is disabled on the site, rather than in the assignment.
+     */
+    #[DataProvider('plugin_disabled_provider')]
+    public function test_submission_removed_plugin_disabled(bool $site): void {
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+        $areas = [[document_services::PAGE_IMAGE_FILEAREA, $grade->id]];
+        $this->seed_editpdf_files($assign, $areas);
+
+        if ($site) {
+            set_config('disabled', 1, 'assignfeedback_editpdf');
+        } else {
+            $assign->get_feedback_plugin_by_type('editpdf')->disable();
+        }
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->assert_editpdf_areas_empty($assign, $areas, true);
+    }
+
+    /**
+     * No grade record: nothing to clean, and nothing created.
+     */
+    public function test_delete_submission_files_for_attempt_no_grade(): void {
+        global $DB;
+        $this->resetAfterTest();
+        [$assign, $student] = $this->create_editpdf_assign();
+
+        document_services::delete_submission_files_for_attempt($assign, $student->id, 0, 0);
+
+        $this->assertEquals(0, $DB->count_records('assign_grades'));
+        $this->assertEquals(0, $DB->count_records('assign_submission'));
+    }
+
+    /**
+     * End to end: after removal the grader gets the blank PDF, not the old pages.
+     */
+    public function test_removed_submission_pages_are_blank(): void {
+        $this->require_ghostscript();
+        $this->resetAfterTest();
+        [$assign, $student, $teacher] = $this->create_editpdf_assign();
+        $this->add_file_submission($student, $assign);
+
+        $this->setUser($teacher);
+        $before = document_services::get_combined_pdf_for_attempt($assign, $student->id, -1);
+        $this->assertNotSame(document_services::BLANK_PDF_HASH, $before->get_combined_file()->get_contenthash());
+        $pagesbefore = document_services::get_page_images_for_attempt($assign, $student->id, -1);
+        $this->assertGreaterThan(1, count($pagesbefore));
+
+        $this->setUser($student);
+        $this->assertTrue($assign->remove_submission($student->id));
+
+        $this->setUser($teacher);
+        $after = document_services::get_combined_pdf_for_attempt($assign, $student->id, -1);
+        $this->assertSame(document_services::BLANK_PDF_HASH, $after->get_combined_file()->get_contenthash());
+        $this->assertCount(1, document_services::get_page_images_for_attempt($assign, $student->id, -1));
+    }
+
+    /**
+     * Tests that when the plugin is not enabled for an assignment it does not create conversion tasks.
      */
     public function test_submission_not_enabled(): void {
         $this->require_ghostscript();

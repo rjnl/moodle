@@ -47,6 +47,61 @@ class observer {
     }
 
     /**
+     * Listen to events and delete the data generated from a submission when it is removed.
+     *
+     * @param \mod_assign\event\submission_removed $event
+     */
+    public static function submission_removed(\mod_assign\event\submission_removed $event) {
+        global $DB;
+
+        // Clean up even if the plugin is now disabled: removal does not update timemodified, so
+        // re-enabling the plugin would show the removed pages again. Nothing was generated without files.
+        if (!$DB->record_exists('files', ['contextid' => $event->contextid, 'component' => 'assignfeedback_editpdf'])) {
+            return;
+        }
+
+        $assign = $event->get_assign();
+
+        if (!empty($event->relateduserid)) {
+            $users = [$event->relateduserid];
+        } else {
+            // Team submission, clean up every member. Find them from their grades: get_submission_group_members()
+            // skips suspended members unless the current user can see them.
+            $params = [
+                'assignment' => $assign->get_instance()->id,
+                'attemptnumber' => $event->other['submissionattempt'],
+            ];
+            $join = '';
+            if (!empty($event->other['groupid'])) {
+                $join = 'JOIN {groups_members} gm ON gm.userid = g.userid AND gm.groupid = :groupid';
+                $params['groupid'] = $event->other['groupid'];
+            }
+            $sql = "SELECT g.id, g.userid
+                      FROM {assign_grades} g
+                           $join
+                     WHERE g.assignment = :assignment
+                       AND g.attemptnumber = :attemptnumber";
+            $users = [];
+            foreach ($DB->get_records_sql($sql, $params) as $grade) {
+                // Members of several groups submit in the default group.
+                $group = $assign->get_submission_group($grade->userid);
+                if (($group ? $group->id : 0) == $event->other['groupid']) {
+                    $users[] = $grade->userid;
+                }
+            }
+        }
+
+        foreach ($users as $userid) {
+            \assignfeedback_editpdf\document_services::delete_submission_files_for_attempt(
+                $assign,
+                $userid,
+                $event->other['submissionattempt'],
+                $event->other['submissionid'],
+            );
+        }
+    }
+
+    /**
      * Queue the submission for processing.
      * @param \mod_assign\event\base $event The submission created/updated event.
      */
