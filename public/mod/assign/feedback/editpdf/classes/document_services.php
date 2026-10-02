@@ -965,7 +965,7 @@ EOD;
      * Removing a submission does not update its timemodified, so the stale checks in
      * get_page_images_for_attempt() never notice it is gone (MDL-68693). This does what a stale
      * conversion does (page images, draft annotations, rotations) plus the combined/partial PDFs and
-     * temporary conversion files.
+     * temporary conversion files, for the overall feedback and for each marker.
      *
      * Released feedback is left alone: released annotations, comments and the final PDF. The read-only
      * pages are only needed to display released annotations, so they are kept only in that case.
@@ -999,7 +999,7 @@ EOD;
             self::TMP_JPG_TO_PDF_FILEAREA,
             self::TMP_ROTATED_JPG_FILEAREA,
         ];
-        if (!page_editor::has_annotations_or_comments($grade->id, false)) {
+        if (!page_editor::has_any_active_annotations_or_comments($grade->id)) {
             $fileareas[] = self::PAGE_IMAGE_READONLY_FILEAREA;
         }
         foreach ($fileareas as $filearea) {
@@ -1008,6 +1008,25 @@ EOD;
 
         page_editor::delete_draft_content($grade->id);
         $DB->delete_records('assignfeedback_editpdf_rot', ['gradeid' => $grade->id]);
+
+        // Multimarker files and drafts are keyed by mark id. Use all the marks of the grade, not just
+        // get_mark_records(), which skips markers that are no longer allocated.
+        $markids = $DB->get_fieldset_select('assign_mark', 'id', 'gradeid = ?', [$grade->id]);
+        $markerfileareas = [
+            self::PAGE_IMAGE_FILEAREA_MARKER,
+            self::COMBINED_PDF_FILEAREA_MARKER,
+            self::PARTIAL_PDF_FILEAREA_MARKER,
+            self::IMPORT_HTML_FILEAREA_MARKER,
+            // In marking mode get_file_area_and_id() keeps these area names but keys them by mark id.
+            self::TMP_JPG_TO_PDF_FILEAREA,
+            self::TMP_ROTATED_JPG_FILEAREA,
+        ];
+        foreach ($markids as $markid) {
+            foreach ($markerfileareas as $filearea) {
+                $fs->delete_area_files($contextid, self::COMPONENT, $filearea, $markid);
+            }
+            page_editor::delete_draft_content($grade->id, $markid);
+        }
     }
 
     /**
