@@ -57,6 +57,9 @@ Feature: View the grading status of an assignment
     And I am on the "Test assignment name" "assign activity" page logged in as student1
     And I should see "In review" in the "Grading status" "table_row"
     And I should not see "Great job! Lol, not really."
+    # Marking has started, so the student can no longer change the submission.
+    And "Edit submission" "button" should not exist
+    And "Remove submission" "button" should not exist
     And I log out
     # Mark the submission again but set the marking workflow to 'Released'.
     And I am on the "Test assignment name" "assign activity" page logged in as teacher1
@@ -140,36 +143,52 @@ Feature: View the grading status of an assignment
     And I am on the "Test assignment name" "assign activity" page logged in as student1
     And I should see "Graded" in the "Grading status" "table_row"
     And I should see "Great job! Lol, not really."
-    And I log out
-    # Student makes a subsequent submission.
+    # The graded submission can no longer be changed or removed by the student.
+    And "Edit submission" "button" should not exist
+    And "Remove submission" "button" should not exist
+
+  @javascript
+  Scenario: A graded submission can be changed again once the teacher reverts it to draft
+    Given the following "activity" exists:
+      | activity                            | assign                  |
+      | course                              | C1                      |
+      | name                                | Test assignment name    |
+      | submissiondrafts                    | 1                       |
+      | assignsubmission_onlinetext_enabled | 1                       |
+    And the following "mod_assign > submissions" exist:
+      | assign                | user      | onlinetext                        |
+      | Test assignment name  | student1  | I'm the student first submission  |
+    # The student submits the draft for grading.
     And I am on the "Test assignment name" "assign activity" page logged in as student1
-    And I press "Edit submission"
-    And I set the following fields to these values:
-      | Online text | I'm the student's second submission |
+    And I press "Submit assignment"
+    And I press "Continue"
+    And I should see "Submitted for grading" in the "Submission status" "table_row"
+    And I log out
+    # The teacher grades the submission.
+    And I am on the "Test assignment name" "assign activity" page logged in as teacher1
+    And I go to "Student 1" "Test assignment name" activity advanced grading page
+    And I set the field "Grade out of 100" to "50"
     And I press "Save changes"
     And I log out
-    # Teacher marks the submission again after noticing the 'Graded - resubmitted'.
+    # The graded submission cannot be changed by the student.
+    And I am on the "Test assignment name" "assign activity" page logged in as student1
+    And "Edit submission" "button" should not exist
+    And I log out
+    # The teacher reverts the submission to draft.
     And I am on the "Test assignment name" "assign activity" page logged in as teacher1
     And I navigate to "Submissions" in current page administration
-    And I should see "Graded - resubmitted" in the "Student 1" "table_row"
-    And I wait "10" seconds
-    And I change window size to "large"
-    And I click on "Grade actions" "actionmenu" in the "Student 1" "table_row"
-    And I choose "Grade" in the open action menu
-    And I change window size to "medium"
-    And I should see "1 of 1"
-    And I set the field "Grade out of 100" to "99.99"
-    And I set the field "Feedback comments" to "Even better job! Really."
-    And I press "Save changes"
-    And I click on "Edit settings" "link"
-    And I am on the "Test assignment name" "assign activity" page
-    And I navigate to "Submissions" in current page administration
-    And I should see "Graded" in the "Student 1" "table_row"
+    And I open the action menu in "Student 1" "table_row"
+    And I follow "Revert the submission to draft"
     And I log out
-    # View the grading status as a student again.
-    And I am on the "Test assignment name" "assign activity" page logged in as student1
-    And I should see "Graded" in the "Grading status" "table_row"
-    And I should see "Even better job! Really."
+    # The student can change it again.
+    When I am on the "Test assignment name" "assign activity" page logged in as student1
+    Then I should see "Draft (not submitted)" in the "Submission status" "table_row"
+    And "Edit submission" "button" should exist
+    And I press "Edit submission"
+    And I set the following fields to these values:
+      | Online text | I'm the student's corrected submission |
+    And I press "Save changes"
+    And I should see "I'm the student's corrected submission"
 
   @javascript
   Scenario: The grade is read-only once released, and is preserved when the workflow state is changed

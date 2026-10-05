@@ -218,6 +218,48 @@ Feature: Group assignment submissions
     Then "Student 1" row "Status" column of "generaltable" table should contain "Reopened"
     And "Student 2" row "Status" column of "generaltable" table should contain "Reopened"
 
+  @javascript
+  Scenario: Grading one member of a team prevents all team members from changing the submission
+    Given the following "groups" exist:
+      | name    | course | idnumber |
+      | Group 2 | C1     | G2       |
+    And the following "group members" exist:
+      | user     | group |
+      | student1 | G1    |
+      | student2 | G1    |
+      | student3 | G2    |
+    And the following "activity" exists:
+      | activity                            | assign                      |
+      | course                              | C1                          |
+      | name                                | Test assignment name        |
+      | submissiondrafts                    | 0                           |
+      | assignsubmission_onlinetext_enabled | 1                           |
+      | assignsubmission_file_enabled       | 0                           |
+      | teamsubmission                      | 1                           |
+      | requireallteammemberssubmit         | 0                           |
+    And the following "mod_assign > submissions" exist:
+      | assign                | user      | onlinetext                          |
+      | Test assignment name  | student1  | I'm the first team's submission     |
+      | Test assignment name  | student3  | I'm the second team's submission    |
+    # Grade only one member of the first team.
+    And I am on the "Test assignment name" Activity page logged in as teacher1
+    And I go to "Student 1" "Test assignment name" activity advanced grading page
+    And I set the following fields to these values:
+      | Grade out of 100 | 50.0 |
+      | Apply grades and feedback to entire group | 0 |
+    And I press "Save changes"
+    And I log out
+    # Both members of the first team are prevented from changing the submission.
+    When I am on the "Test assignment name" Activity page logged in as student1
+    Then "Edit submission" "button" should not exist
+    And I log out
+    And I am on the "Test assignment name" Activity page logged in as student2
+    And "Edit submission" "button" should not exist
+    And I log out
+    # The second team has not been graded and can still change its submission.
+    And I am on the "Test assignment name" Activity page logged in as student3
+    And "Edit submission" "button" should exist
+
   Scenario: Confirm groups and submission counts are correct
     Given the following "groups" exist:
       | name    | course | idnumber |

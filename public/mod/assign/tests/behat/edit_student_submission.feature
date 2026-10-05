@@ -46,6 +46,31 @@ Feature: In an assignment, the administrator can edit students' submissions
     And I should see "I have seen the movie chef."
 
   @javascript
+  Scenario: Admin can edit a submission after it has been graded
+    Given I am on the "Test assignment name" "assign activity" page logged in as teacher1
+    And I navigate to "Submissions" in current page administration
+    And I click on "Grade actions" "actionmenu" in the "Student 1" "table_row"
+    And I choose "Grade" in the open action menu
+    And I set the field "Grade out of 100" to "50"
+    And I press "Save changes"
+    And I log out
+    # The student cannot change the graded submission.
+    And I am on the "Test assignment name" "assign activity" page logged in as student1
+    And "Edit submission" "button" should not exist
+    And I log out
+    # An administrator still can.
+    And I am on the "Test assignment name" "assign activity" page logged in as admin
+    And I navigate to "Submissions" in current page administration
+    And I change window size to "large"
+    And I open the action menu in "Student 1" "table_row"
+    And I change window size to "medium"
+    When I choose "Edit submission" in the open action menu
+    And I set the following fields to these values:
+      | Online text | Edited after grading |
+    And I press "Save changes"
+    Then I should see "Edited after grading"
+
+  @javascript
   Scenario: Admin can edit a submission after cutoff date but only if user is allowed to via extension or override
     # Make an assignment with a cutoff date in the past (5 days ago), and two more students.
     Given the following "activity" exists:

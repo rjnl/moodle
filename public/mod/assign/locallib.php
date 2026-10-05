@@ -6946,6 +6946,12 @@ class assign {
                 // Drafts are tracked and the student has submitted the assignment.
                 return false;
             }
+
+            if ($userid == $USER->id && $this->is_submission_marking_started($userid, $submission)) {
+                // Students must not change their submission once it has been graded or is being marked.
+                // Users who can edit on behalf of the student are not restricted.
+                return false;
+            }
         }
 
         // See if this user grade is locked in the gradebook.
@@ -6965,6 +6971,59 @@ class assign {
         }
 
         return true;
+    }
+
+    /**
+     * Check whether marking has started on the latest attempt of a submission.
+     *
+     * Marking has started on a submitted attempt when it has been graded, or when the marking
+     * workflow state has moved beyond 'Not marked'. For team submissions this applies if any member
+     * of the team has been marked. Both are only considered once a grade record exists for the
+     * attempt, because the marking workflow state is held per user rather than per attempt and must
+     * not carry over to a newly opened attempt. Attempts that are not in the submitted status
+     * (drafts, reopened and new attempts) are ignored.
+     *
+     * @param int $userid The user whose submission is being checked
+     * @param stdClass $submission The latest submission (may be a group submission)
+     * @return bool
+     */
+    protected function is_submission_marking_started(int $userid, stdClass $submission): bool {
+        global $DB;
+
+        if (($submission->status ?? null) !== ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+            return false;
+        }
+
+        $instance = $this->get_instance($userid);
+        $userids = [$userid];
+        if ($instance->teamsubmission) {
+            $group = $this->get_submission_group($userid);
+            $members = $group ? groups_get_members($group->id, 'u.id') : $this->get_submission_group_members(0, true, true);
+            $userids = array_unique(array_merge($userids, array_map(fn($member) => (int) $member->id, $members)));
+        }
+
+        // Marking can only have started for members with a grade record for this attempt.
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $records = $DB->get_records_sql(
+            "SELECT g.userid, g.grade, uf.workflowstate
+               FROM {assign_grades} g
+          LEFT JOIN {assign_user_flags} uf ON uf.assignment = g.assignment AND uf.userid = g.userid
+              WHERE g.assignment = :assignment AND g.attemptnumber = :attemptnumber AND g.userid $insql",
+            ['assignment' => $instance->id, 'attemptnumber' => $submission->attemptnumber] + $inparams,
+        );
+        foreach ($records as $record) {
+            if ($record->grade !== null && $record->grade >= 0) {
+                return true;
+            }
+            if (
+                $instance->markingworkflow
+                && !empty($record->workflowstate)
+                && $record->workflowstate !== ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

@@ -2659,6 +2659,369 @@ You can see it appended to your <a href="' . $assignurl .
         $this->assertTrue($assign->testable_submissions_open($student->id));
     }
 
+    /**
+     * Tests {@see \assign::submissions_open()} once a submission has been graded.
+     *
+     * @covers \assign::submissions_open
+     * @covers \assign::remove_submission
+     */
+    public function test_submissions_open_graded_submission(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+        ]);
+
+        $this->add_submission($student, $assign);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+
+        $this->grade_submission($teacher, $assign, $student);
+
+        // The graded submission can no longer be changed or removed by the student.
+        $this->setUser($student);
+        $this->assertFalse($assign->testable_submissions_open($student->id));
+        $this->assertFalse($assign->can_edit_submission($student->id));
+        $this->assertFalse($assign->remove_submission($student->id));
+
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->assertEquals(ASSIGN_SUBMISSION_STATUS_SUBMITTED, $submission->status);
+        $plugin = $assign->get_submission_plugin_by_type('onlinetext');
+        $this->assertFalse($plugin->is_empty($submission));
+    }
+
+    /**
+     * Tests {@see \assign::submissions_open()} for a graded draft submission and one submitted for grading.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_graded_draft_submission(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 1,
+            'assignsubmission_onlinetext_enabled' => 1,
+        ]);
+
+        $this->add_submission($student, $assign);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+
+        // A draft stays editable after it is graded, for example once the teacher reverts it to draft.
+        $this->grade_submission($teacher, $assign, $student);
+        $this->setUser($student);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+
+        // Once the draft is submitted for grading it is closed.
+        $this->submit_for_grading($student, $assign, [], false);
+        $this->assertFalse($assign->testable_submissions_open($student->id));
+
+        // Reverting to draft reopens it for the student.
+        $this->setUser($teacher);
+        $assign->revert_to_draft($student->id);
+        $this->setUser($student);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+    }
+
+    /**
+     * Tests {@see \assign::submissions_open()} when another member of the team has been graded.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_graded_team_member(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $student3 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $othergroup = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student1->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student2->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $othergroup->id, 'userid' => $student3->id]);
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'teamsubmission' => 1,
+        ]);
+
+        $this->add_submission($student1, $assign);
+        $this->add_submission($student3, $assign);
+        $this->setUser($student2);
+        $this->assertTrue($assign->testable_submissions_open($student2->id));
+
+        // Grading only one member of the team closes the submission for all members of that team.
+        $this->grade_submission($teacher, $assign, $student1);
+        $this->setUser($student1);
+        $this->assertFalse($assign->testable_submissions_open($student1->id));
+        $this->setUser($student2);
+        $this->assertFalse($assign->testable_submissions_open($student2->id));
+
+        // Other teams are not affected.
+        $this->setUser($student3);
+        $this->assertTrue($assign->testable_submissions_open($student3->id));
+    }
+
+    /**
+     * Tests that a user editing on behalf of the student can still change and remove a graded submission.
+     *
+     * @covers \assign::submissions_open
+     * @covers \assign::save_submission
+     * @covers \assign::remove_submission
+     */
+    public function test_graded_submission_edited_on_behalf(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+        ]);
+
+        $this->add_submission($student, $assign, 'Student text');
+        $this->grade_submission($teacher, $assign, $student);
+
+        // Students cannot edit it.
+        $this->setUser($student);
+        $this->assertFalse($assign->can_edit_submission($student->id, $student->id));
+
+        // Users able to edit on behalf of the student can.
+        $this->setAdminUser();
+        $this->assertTrue($assign->can_edit_submission($student->id));
+        $this->add_submission($student, $assign, 'Admin edited text', false);
+        $plugin = $assign->get_submission_plugin_by_type('onlinetext');
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->assertStringContainsString('Admin edited text', $plugin->get_editor_text('onlinetext', $submission->id));
+
+        $this->assertTrue($assign->remove_submission($student->id));
+        $this->assertTrue($plugin->is_empty($assign->get_user_submission($student->id, false)));
+    }
+
+    /**
+     * Tests that the marking workflow state of any team member closes the submission for the team.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_marking_workflow_team_member(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student1->id]);
+        $this->getDataGenerator()->create_group_member(['groupid' => $group->id, 'userid' => $student2->id]);
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'teamsubmission' => 1,
+            'markingworkflow' => 1,
+        ]);
+        $this->add_submission($student1, $assign);
+
+        $this->setAdminUser();
+        $assign->get_user_grade($student1->id, true);
+        $flags = $assign->get_user_flags($student1->id, true);
+        $flags->workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_INMARKING;
+        $assign->update_user_flags($flags);
+
+        $this->setUser($student2);
+        $this->assertFalse($assign->testable_submissions_open($student2->id));
+    }
+
+    /**
+     * Tests that a team submission with no group is closed when any member of the default team is graded.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_graded_default_team(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'teamsubmission' => 1,
+        ]);
+        $this->add_submission($student1, $assign);
+        $this->setUser($student2);
+        $this->assertTrue($assign->testable_submissions_open($student2->id));
+
+        $this->grade_submission($teacher, $assign, $student1);
+        $this->setUser($student2);
+        $this->assertFalse($assign->testable_submissions_open($student2->id));
+    }
+
+    /**
+     * Tests {@see \assign::submissions_open()} for a student who is graded before submitting.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_graded_without_submission(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+        ]);
+
+        // There is no submitted work to protect, so the student can still submit.
+        $this->grade_submission($teacher, $assign, $student, 0.0);
+        $this->setUser($student);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+    }
+
+    /**
+     * Tests {@see \assign::submissions_open()} for a new attempt added after grading.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_graded_submission_reopened(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'attemptreopenmethod' => ASSIGN_ATTEMPT_REOPEN_METHOD_AUTOMATIC,
+            'maxattempts' => ASSIGN_UNLIMITED_ATTEMPTS,
+        ]);
+
+        $this->add_submission($student, $assign);
+        $this->grade_submission($teacher, $assign, $student);
+
+        // The new attempt has not been graded, so the student can submit to it.
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->assertEquals(1, $submission->attemptnumber);
+        $this->assertEquals(ASSIGN_SUBMISSION_STATUS_REOPENED, $submission->status);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+
+        // Once the new attempt is submitted it remains editable until it is graded.
+        $this->add_submission($student, $assign);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+    }
+
+    /**
+     * Data provider for {@see test_submissions_open_marking_workflow}.
+     *
+     * @return array
+     */
+    public static function submissions_open_marking_workflow_provider(): array {
+        return [
+            'No workflow state' => [null, true],
+            'Not marked' => [ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED, true],
+            'In marking' => [ASSIGN_MARKING_WORKFLOW_STATE_INMARKING, false],
+            'Ready for review' => [ASSIGN_MARKING_WORKFLOW_STATE_READYFORREVIEW, false],
+            'In review' => [ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW, false],
+            'Ready for release' => [ASSIGN_MARKING_WORKFLOW_STATE_READYFORRELEASE, false],
+            'Released' => [ASSIGN_MARKING_WORKFLOW_STATE_RELEASED, false],
+        ];
+    }
+
+    /**
+     * Tests {@see \assign::submissions_open()} with the marking workflow states.
+     *
+     * @dataProvider submissions_open_marking_workflow_provider
+     * @covers \assign::submissions_open
+     * @param string|null $workflowstate The marking workflow state of the submission.
+     * @param bool $expected Whether submissions are expected to be open.
+     */
+    public function test_submissions_open_marking_workflow(?string $workflowstate, bool $expected): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'markingworkflow' => 1,
+        ]);
+
+        $this->add_submission($student, $assign);
+
+        $this->setAdminUser();
+        $assign->get_user_grade($student->id, true);
+        $flags = $assign->get_user_flags($student->id, true);
+        $flags->workflowstate = $workflowstate;
+        $assign->update_user_flags($flags);
+
+        // The workflow state only restricts the student, not a user editing on their behalf.
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+        $this->setUser($student);
+        $this->assertEquals($expected, $assign->testable_submissions_open($student->id));
+    }
+
+    /**
+     * Tests that the marking workflow state of an earlier attempt does not close a new attempt.
+     *
+     * @covers \assign::submissions_open
+     */
+    public function test_submissions_open_marking_workflow_reopened(): void {
+        $this->resetAfterTest();
+
+        $course = $this->getDataGenerator()->create_course();
+        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = $this->getDataGenerator()->create_and_enrol($course, 'student');
+
+        $assign = $this->create_instance($course, [
+            'submissiondrafts' => 0,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'markingworkflow' => 1,
+            'attemptreopenmethod' => ASSIGN_ATTEMPT_REOPEN_METHOD_MANUAL,
+            'maxattempts' => ASSIGN_UNLIMITED_ATTEMPTS,
+        ]);
+
+        $this->add_submission($student, $assign);
+        $this->grade_submission($teacher, $assign, $student);
+        $flags = $assign->get_user_flags($student->id, true);
+        $flags->workflowstate = ASSIGN_MARKING_WORKFLOW_STATE_RELEASED;
+        $assign->update_user_flags($flags);
+
+        $this->setUser($student);
+        $this->assertFalse($assign->testable_submissions_open($student->id));
+
+        // The teacher allows another attempt; the released state still applies to the user flags.
+        $this->setUser($teacher);
+        $_POST['sesskey'] = sesskey();
+        $assign->testable_process_add_attempt($student->id);
+        $this->assertEquals(
+            ASSIGN_MARKING_WORKFLOW_STATE_RELEASED,
+            $assign->get_user_flags($student->id, false)->workflowstate,
+        );
+
+        $this->add_submission($student, $assign);
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->assertEquals(1, $submission->attemptnumber);
+        $this->assertEquals(ASSIGN_SUBMISSION_STATUS_SUBMITTED, $submission->status);
+        $this->assertTrue($assign->testable_submissions_open($student->id));
+    }
+
     public function test_get_graders(): void {
         global $DB;
 
