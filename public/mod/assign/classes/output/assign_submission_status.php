@@ -54,6 +54,8 @@ class assign_submission_status implements \renderable {
     public $submissionsenabled = false;
     /** @var bool locked */
     public $locked = false;
+    /** @var bool gradedlocked - the student can no longer change the submission because marking has started */
+    public $gradedlocked = false;
     /** @var bool graded */
     public $graded = false;
     /** @var int duedate */

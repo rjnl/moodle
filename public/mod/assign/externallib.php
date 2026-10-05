@@ -2508,7 +2508,8 @@ class mod_assign_external extends \mod_assign\external\external_api {
 
             // Can edit its own submission?
             $lastattempt->caneditowner = has_capability('mod/assign:submit', $context, $user, false)
-                && $assign->submissions_open($user->id) && $assign->is_any_submission_plugin_enabled();
+                && $assign->submissions_open($user->id) && $assign->is_any_submission_plugin_enabled()
+                && !$assign->is_user_submission_graded_or_marked($user->id);
 
             $result['lastattempt'] = $lastattempt;
         }

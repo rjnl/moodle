@@ -4552,7 +4552,8 @@ class assign {
             if ($flags) {
                 $extensionduedate = $flags->extensionduedate;
             }
-            $showedit = $this->submissions_open($userid) && ($this->is_any_submission_plugin_enabled());
+            $showedit = $this->submissions_open($userid) && ($this->is_any_submission_plugin_enabled())
+                && !$this->is_user_submission_graded_or_marked($userid);
             $viewfullnames = has_capability('moodle/site:viewfullnames', $this->get_context());
             $usergroups = $this->get_all_groups($user->id);
 
@@ -4759,7 +4760,8 @@ class assign {
             if ($flags) {
                 $extensionduedate = $flags->extensionduedate;
             }
-            $showedit = $this->submissions_open($userid) && ($this->is_any_submission_plugin_enabled());
+            $showedit = $this->submissions_open($userid) && ($this->is_any_submission_plugin_enabled())
+                && !$this->is_user_submission_graded_or_marked($userid);
             $viewfullnames = has_capability('moodle/site:viewfullnames', $this->get_context());
             $usergroups = $this->get_all_groups($user->id);
             $submissionstatus = new assign_submission_status($instance->allowsubmissionsfromdate,
@@ -5890,7 +5892,7 @@ class assign {
      * @return assign_submission_status renderable object
      */
     public function get_assign_submission_status_renderable($user, $showlinks) {
-        global $PAGE;
+        global $PAGE, $USER;
 
         $instance = $this->get_instance();
         $flags = $this->get_user_flags($user->id, false);
@@ -5967,6 +5969,11 @@ class assign {
                                                           $instance->preventsubmissionnotingroup,
                                                           $usergroups,
                                                           $instance->timelimit);
+
+        // Tell the student why they can no longer change their submission.
+        if ($user->id == $USER->id && !$submissionlocked) {
+            $submissionstatus->gradedlocked = $this->is_submission_graded_or_marked($teamsubmission ?: $submission);
+        }
         return $submissionstatus;
     }
 
@@ -6964,7 +6971,82 @@ class assign {
             return false;
         }
 
+        // Users must not change the submission that a grade was awarded for. Graders are not restricted.
+        if ($userid == $USER->id && $this->is_submission_graded_or_marked($submission)) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Has the submitted work of the current attempt been graded, or has marking of it started?
+     *
+     * Only submitted work is checked. A new or reopened attempt has no work to protect, so a student who was
+     * graded without submitting can still submit. A submission reverted to draft by a grader is handed back.
+     *
+     * For team submissions, a grade or marking state for any member of the team counts.
+     *
+     * @param stdClass|false|null $submission The submission (may be a group submission).
+     * @return bool
+     */
+    protected function is_submission_graded_or_marked($submission): bool {
+        global $DB;
+
+        if (!$submission || $submission->status !== ASSIGN_SUBMISSION_STATUS_SUBMITTED) {
+            return false;
+        }
+
+        $instance = $this->get_instance();
+        if ($instance->teamsubmission) {
+            $userids = array_column($this->get_submission_group_members($submission->groupid, true), 'id');
+        } else {
+            $userids = [$submission->userid];
+        }
+        if (!$userids) {
+            return false;
+        }
+
+        // Grades belong to an attempt, so a grade for an earlier attempt must not close a new one.
+        [$insql, $params] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        $params['assignment'] = $instance->id;
+        $params['attemptnumber'] = $submission->attemptnumber;
+
+        // A grade, or a mark from any one of multiple markers, means the work has been graded.
+        $graded = "g.grade >= 0 OR EXISTS (SELECT 1 FROM {assign_mark} m WHERE m.gradeid = g.id AND m.mark >= 0)";
+        if ($instance->markingworkflow) {
+            // The workflow state is per user and not reset for a new attempt, so it only counts with a grade for this attempt.
+            $params['notmarked'] = ASSIGN_MARKING_WORKFLOW_STATE_NOTMARKED;
+            $graded .= " OR (" . $DB->sql_isnotempty('assign_user_flags', 'uf.workflowstate', true, false) . "
+                             AND uf.workflowstate <> :notmarked)";
+        }
+        $sql = "SELECT 1
+                  FROM {assign_grades} g
+             LEFT JOIN {assign_user_flags} uf ON uf.assignment = g.assignment AND uf.userid = g.userid
+                 WHERE g.assignment = :assignment
+                   AND g.attemptnumber = :attemptnumber
+                   AND g.userid $insql
+                   AND ($graded)";
+
+        return $DB->record_exists_sql($sql, $params);
+    }
+
+    /**
+     * Has the user's latest submission been graded, or has marking of it started?
+     *
+     * {@see self::submissions_open()} does not apply this restriction for graders, so use this to tell graders
+     * whether the student can still change their own submission.
+     *
+     * @param int $userid The user whose submission is checked.
+     * @return bool
+     */
+    public function is_user_submission_graded_or_marked(int $userid): bool {
+        if ($this->get_instance($userid)->teamsubmission) {
+            $submission = $this->get_group_submission($userid, 0, false);
+        } else {
+            $submission = $this->get_user_submission($userid, false);
+        }
+        return $this->is_submission_graded_or_marked($submission);
     }
 
     /**

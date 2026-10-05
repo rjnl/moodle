@@ -679,6 +679,7 @@ $string['submissioncopiedsms'] = 'You have made a copy of your previous submissi
 $string['submissiondrafts'] = 'Require students to click the submit button';
 $string['submissiondrafts_help'] = 'Should students have a submit button to indicate when they have finished making changes to their submission and it is ready for grading?';
 $string['submissioneditable'] = 'Student can edit this submission';
+$string['submissionlockedgraded'] = 'You can no longer change this submission because marking has started.';
 $string['submissionlog'] = 'Student: {$a->fullname}, Status: {$a->status}';
 $string['submissionnotcopiedinvalidstatus'] = 'The submission was not copied because it has been edited since it was reopened.';
 $string['submissionnoteditable'] = 'Student cannot edit this submission';

@@ -1322,6 +1322,76 @@ final class externallib_test extends \mod_assign\externallib_advanced_testcase {
     }
 
     /**
+     * Test a student cannot save or restart their submission once it is graded, and graders are told so.
+     *
+     * @covers \mod_assign_external::save_submission
+     * @covers \mod_assign_external::get_submission_status
+     */
+    public function test_save_submission_graded(): void {
+        $this->resetAfterTest();
+
+        $course = self::getDataGenerator()->create_course();
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = self::getDataGenerator()->create_and_enrol($course, 'student');
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $instance = $generator->create_instance([
+            'course' => $course->id,
+            'assignsubmission_onlinetext_enabled' => 1,
+            'submissiondrafts' => 0,
+        ]);
+        $cm = get_coursemodule_from_instance('assign', $instance->id);
+        $assign = new \assign(\context_module::instance($cm->id), $cm, $course);
+
+        $plugindata = ['onlinetext_editor' => ['text' => '<p>First</p>', 'format' => FORMAT_HTML, 'itemid' => 0]];
+        $this->setUser($student);
+        $result = external_api::clean_returnvalue(
+            mod_assign_external::save_submission_returns(),
+            mod_assign_external::save_submission($instance->id, $plugindata),
+        );
+        $this->assertCount(0, $result);
+
+        $this->setUser($teacher);
+        $grade = $assign->get_user_grade($student->id, true);
+        $grade->grade = 50;
+        $assign->update_grade($grade);
+
+        $this->setUser($student);
+        $plugindata['onlinetext_editor']['text'] = '<p>Second</p>';
+        $result = external_api::clean_returnvalue(
+            mod_assign_external::save_submission_returns(),
+            mod_assign_external::save_submission($instance->id, $plugindata),
+        );
+        $this->assertCount(1, $result);
+        $this->assertEquals('couldnotsavesubmission', $result[0]['warningcode']);
+
+        $plugin = $assign->get_submission_plugin_by_type('onlinetext');
+        $submission = $assign->get_user_submission($student->id, false);
+        $this->assertStringContainsString('First', $plugin->get_editor_text('onlinetext', $submission->id));
+
+        // The student cannot start a new submission either.
+        $result = external_api::clean_returnvalue(
+            \mod_assign\external\start_submission::execute_returns(),
+            \mod_assign\external\start_submission::execute($instance->id),
+        );
+        $this->assertEquals('submissionnotopen', $result['warnings'][0]['warningcode']);
+
+        // The submission status tells both the student and the grader that the student cannot change it.
+        $result = mod_assign_external::get_submission_status($instance->id);
+        // We expect debugging because of the $PAGE object, this won't happen in a normal WS request.
+        $this->assertDebuggingCalled();
+        $result = external_api::clean_returnvalue(mod_assign_external::get_submission_status_returns(), $result);
+        $this->assertFalse($result['lastattempt']['caneditowner']);
+
+        $this->setUser($teacher);
+        $result = external_api::clean_returnvalue(
+            mod_assign_external::get_submission_status_returns(),
+            mod_assign_external::get_submission_status($instance->id, $student->id),
+        );
+        $this->assertFalse($result['lastattempt']['caneditowner']);
+    }
+
+    /**
      * Test save_grade
      */
     public function test_save_grade(): void {

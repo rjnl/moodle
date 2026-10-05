@@ -140,19 +140,12 @@ Feature: View the grading status of an assignment
     And I am on the "Test assignment name" "assign activity" page logged in as student1
     And I should see "Graded" in the "Grading status" "table_row"
     And I should see "Great job! Lol, not really."
+    # The student can no longer change the graded submission.
+    And "Edit submission" "button" should not exist
     And I log out
-    # Student makes a subsequent submission.
-    And I am on the "Test assignment name" "assign activity" page logged in as student1
-    And I press "Edit submission"
-    And I set the following fields to these values:
-      | Online text | I'm the student's second submission |
-    And I press "Save changes"
-    And I log out
-    # Teacher marks the submission again after noticing the 'Graded - resubmitted'.
+    # Teacher marks the submission again.
     And I am on the "Test assignment name" "assign activity" page logged in as teacher1
     And I navigate to "Submissions" in current page administration
-    And I should see "Graded - resubmitted" in the "Student 1" "table_row"
-    And I wait "10" seconds
     And I change window size to "large"
     And I click on "Grade actions" "actionmenu" in the "Student 1" "table_row"
     And I choose "Grade" in the open action menu

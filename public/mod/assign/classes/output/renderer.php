@@ -776,6 +776,9 @@ class renderer extends \plugin_renderer_base {
             $cell2content = get_string('submissionslocked', 'assign');
             $cell2attributes = array('class' => 'submissionlocked');
             $this->add_table_row_tuple($t, $cell1content, $cell2content, [], $cell2attributes);
+        } else if ($status->gradedlocked) {
+            $cell2content = get_string('submissionlockedgraded', 'assign');
+            $this->add_table_row_tuple($t, '', $cell2content, [], ['class' => 'submissionlocked']);
         }
 
         // Grading status.
