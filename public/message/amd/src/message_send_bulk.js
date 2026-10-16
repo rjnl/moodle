@@ -95,19 +95,52 @@ export const sendMessage = (messageText, users) => {
         methodname: 'core_message_send_instant_messages',
         args: {messages: messages}
     }])[0]
-    .then(function(messageIds) {
-        if (messageIds.length == 1) {
-            return get_string('sendbulkmessagesentsingle', 'core_message');
-        } else {
-            return get_string('sendbulkmessagesent', 'core_message', messageIds.length);
+    .then(async(messageIds) => {
+        // The web service reports per-message failures in the response rather than throwing.
+        const failures = messageIds.filter(msg => msg.errormessage);
+        await notifyFailures(failures);
+
+        const sent = messageIds.length - failures.length;
+        if (failures.length === 0) {
+            const message = sent == 1 ?
+                await get_string('sendbulkmessagesentsingle', 'core_message') :
+                await get_string('sendbulkmessagesent', 'core_message', sent);
+            Notification.addNotification({message, type: 'success'});
+        } else if (sent > 0) {
+            const message = await get_string(
+                'sendbulkmessagesentwitherrors',
+                'core_message',
+                {sent, total: messageIds.length}
+            );
+            Notification.addNotification({message, type: 'warning'});
         }
-    })
-    .then(function(msg) {
-        Notification.addNotification({
-            message: msg,
-            type: "success"
-        });
-        return true;
+
+        return failures.length === 0;
     })
     .catch(Notification.exception);
+};
+
+/**
+ * Show an error notification for the messages which could not be sent.
+ *
+ * @param {Object[]} failures The failed items from the core_message_send_instant_messages response.
+ * @returns {Promise}
+ */
+const notifyFailures = async(failures) => {
+    const cantSendToUsers = failures.filter(msg => msg.cantsendtouser);
+    const messages = [];
+
+    if (cantSendToUsers.length > 1) {
+        const names = cantSendToUsers.map(msg => msg.cantsendtouser).join(', ');
+        messages.push(await get_string('usercantbemessagedbulk', 'core_message', names));
+    } else if (cantSendToUsers.length === 1) {
+        // The singular 'usercantbemessaged' string is already built in PHP.
+        messages.push(cantSendToUsers[0].errormessage);
+    }
+
+    // Other errors (e.g. message too long) are likely the same for every recipient, so only show each once.
+    const otherErrors = failures.filter(msg => !msg.cantsendtouser).map(msg => msg.errormessage);
+    messages.push(...new Set(otherErrors));
+
+    messages.forEach(message => Notification.addNotification({message, type: 'error'}));
 };

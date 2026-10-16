@@ -59,6 +59,116 @@ Feature: Message users in the summary report
     And I should not see "1" in the "Toggle messaging drawer" "button"
 
   @javascript
+  Scenario: Message some users when one of them cannot be messaged
+    Given the following "users" exist:
+      | username | firstname | lastname | email                |
+      | student3 | Student   | 3        | student3@example.com |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student3 | C1     | student |
+    And the following "role capabilities" exist:
+      | role           | moodle/site:messageanyuser |
+      | editingteacher | prevent                    |
+    And the following "user preferences" exist:
+      | user     | preference               | value |
+      | student1 | message_blocknoncontacts | 1     |
+    When I am on the forum1 "forum activity" page logged in as teacher1
+    And I navigate to "Reports" in current page administration
+    And I click on "Select 'Student 1'" "checkbox"
+    And I click on "Select 'Student 3'" "checkbox"
+    And I set the field "With selected users..." to "Send a message"
+    And I set the field "bulk-message" to "blah blah"
+    And I click on "Send message to 2 people" "button"
+    Then I should see "You can't message Student 1 due to their message preferences"
+    And I should see "Message sent to 1 of 2 people"
+    And I should not see "Message sent to 2 people"
+
+  @javascript
+  Scenario: Message a user who cannot be messaged
+    Given the following "role capabilities" exist:
+      | role           | moodle/site:messageanyuser |
+      | editingteacher | prevent                    |
+    And the following "user preferences" exist:
+      | user     | preference               | value |
+      | student1 | message_blocknoncontacts | 1     |
+    When I am on the forum1 "forum activity" page logged in as teacher1
+    And I navigate to "Reports" in current page administration
+    And I click on "Select 'Student 1'" "checkbox"
+    And I set the field "With selected users..." to "Send a message"
+    And I set the field "bulk-message" to "blah blah"
+    And I click on "Send message to 1 person" "button"
+    Then I should see "You can't message Student 1 due to their message preferences"
+    And I should not see "Message sent to"
+
+  @javascript
+  Scenario: Message some users with a message that is too long
+    Given the following "users" exist:
+      | username | firstname | lastname | email                |
+      | student3 | Student   | 3        | student3@example.com |
+    And the following "course enrolments" exist:
+      | user     | course | role    |
+      | student3 | C1     | student |
+    When I am on the forum1 "forum activity" page logged in as teacher1
+    And I navigate to "Reports" in current page administration
+    And I click on "Select 'Student 1'" "checkbox"
+    And I click on "Select 'Student 3'" "checkbox"
+    And I set the field "With selected users..." to "Send a message"
+    # Messages are limited to 4096 characters, so the text below has to be longer than that.
+    And I set the field "bulk-message" to multiline:
+      """
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      This message is intentionally far too long. It only repeats filler text to exceed the 4096 character limit.
+      """
+    And I click on "Send message to 2 people" "button"
+    # The error applies to every recipient, but it must only be shown once.
+    Then I should see "1" occurrences of "The message is longer than the maximum allowed." in the "#user-notifications" "css_element"
+    And I should not see "Message sent to"
+    And I log out
+    And I log in as "student1"
+    And I should not see "1" in the "Toggle messaging drawer" "button"
+    And I log out
+    And I log in as "student3"
+    And I should not see "1" in the "Toggle messaging drawer" "button"
+
+  @javascript
   Scenario: Message all users
     When I am on the forum1 "forum activity" page logged in as teacher1
     And I navigate to "Reports" in current page administration
