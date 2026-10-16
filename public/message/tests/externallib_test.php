@@ -196,6 +196,62 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
     }
 
     /**
+     * Test send_instant_messages reports each failure (msgid = -1) rather than throwing, and only stores valid messages.
+     *
+     * The bulk message UI relies on this to tell which messages could not be sent.
+     */
+    public function test_send_instant_messages_long_text_mixed_results(): void {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Transactions used in tests, tell phpunit use alternative reset method.
+        $this->preventResetByRollback();
+
+        $user1 = self::getDataGenerator()->create_user();
+        $recipients = [
+            self::getDataGenerator()->create_user(),
+            self::getDataGenerator()->create_user(),
+            self::getDataGenerator()->create_user(),
+        ];
+
+        $this->setUser($user1);
+
+        // Make the recipients contacts, so the message length is the only reason for a failure.
+        foreach ($recipients as $recipient) {
+            \core_message\api::add_contact($user1->id, $recipient->id);
+        }
+
+        $toolong = str_repeat('M', \core_message\api::MESSAGE_MAX_LENGTH + 1);
+        $messages = [
+            ['touserid' => $recipients[0]->id, 'text' => $toolong, 'clientmsgid' => 1],
+            ['touserid' => $recipients[1]->id, 'text' => 'the message.', 'clientmsgid' => 2],
+            ['touserid' => $recipients[2]->id, 'text' => $toolong, 'clientmsgid' => 3],
+        ];
+
+        $sentmessages = core_message_external::send_instant_messages($messages);
+        $sentmessages = external_api::clean_returnvalue(core_message_external::send_instant_messages_returns(), $sentmessages);
+        $this->assertCount(3, $sentmessages);
+        $sentmessages = array_column($sentmessages, null, 'clientmsgid');
+
+        // The messages which are too long are reported as failed, with the reason.
+        foreach ([1, 3] as $clientmsgid) {
+            $this->assertSame(-1, $sentmessages[$clientmsgid]['msgid']);
+            $this->assertSame(get_string('errormessagetoolong', 'message'), $sentmessages[$clientmsgid]['errormessage']);
+            // This is not a "user can't be messaged" failure.
+            $this->assertEmpty($sentmessages[$clientmsgid]['cantsendtouser']);
+        }
+
+        // The valid message is sent.
+        $this->assertGreaterThan(0, $sentmessages[2]['msgid']);
+        $this->assertArrayNotHasKey('errormessage', $sentmessages[2]);
+
+        // Only the valid message has been stored.
+        $this->assertEquals(1, $DB->count_records('messages'));
+        $this->assertEquals('the message.', $DB->get_field('messages', 'smallmessage', ['id' => $sentmessages[2]['msgid']]));
+    }
+
+    /**
      * Test send_instant_messages to a user who has blocked you.
      */
     public function test_send_instant_messages_blocked_user(): void {
