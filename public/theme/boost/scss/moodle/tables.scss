@@ -49,6 +49,40 @@ table {
     }
 }
 
+// Inline code in table cells.
+//
+// The body cells above inherit the row background, so a coloured row or cell only shows its tint where Bootstrap
+// paints it as a box shadow: on striped, hovered and active cells. Anywhere else it shows the normal table background
+// and inline code keeps the global colour. Header and footer cells are not affected and always show the tint.
+$table-shaded-cells: (
+    ".table-striped > tbody > tr:nth-of-type(#{$table-striped-order}) > *",
+    ".table-striped-columns > :not(caption) > tr > :nth-child(#{$table-striped-columns-order})",
+    ".table-hover > tbody > tr:hover > *",
+    ".table-active",
+    ".table-active > *",
+);
+
+// In dark mode the shading makes a cell lighter than the surface behind it. On a raised surface, such as the question
+// bank table, a hovered cell is too light for the global pink-200, so use pink-100 instead. Use it on all body cells too,
+// so inline code keeps the same colour on striped and non-striped rows and does not change on hover.
+.table > tbody > tr > *,
+:is(#{$table-shaded-cells}) {
+    @include dark-mode {
+        --#{$prefix}code-color: #{$mds-color-pink-100};
+    }
+}
+
+// The tints stay light in both colour modes and get darker on hover and active, so inline code on them needs a darker
+// colour than the global one.
+@each $color, $value in $table-variants {
+    @if $color != "dark" {
+        :is(#{$table-shaded-cells}):is(.table-#{$color}, .table-#{$color} *),
+        .table > :is(thead, tfoot) :is(.table-#{$color}, .table-#{$color} *) {
+            --#{$prefix}code-color: #{$mds-color-pink-700};
+        }
+    }
+}
+
 .table-responsive {
     @include thin-scrolls($gray-100);
     // Fix dropdown menu position inside responsive tables.

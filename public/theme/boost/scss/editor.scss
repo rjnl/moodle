@@ -7,8 +7,9 @@
 /* Import Noto Sans font face declarations. */
 @import "moodle/fonts";
 
-/* Override the code-color to increase the contrast. */
-$code-color: #db1a74 !default;
+/* Override the code-color to increase the contrast, matching the one on default.scss. */
+$code-color: $mds-color-pink-600 !default;
+$code-color-dark: $mds-color-pink-200 !default;
 
 /* Give editor access to all of bootstrap. */
 @import "../../../../lib/bundles/bootstrap/scss/bootstrap.scss";
