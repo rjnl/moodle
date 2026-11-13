@@ -1,0 +1,10 @@
+issueNumber: MDL-XXXXX
+notes:
+  core:
+    - message: >-
+        `core/reactAutoinit` now commits the components that become ready in
+        the same tick together, in one synchronous batch. Each component's
+        pending JS (`reactAutoInit:<component>`) now resolves after the
+        component has rendered, not when its render is scheduled. Components
+        mounted directly with `mountReactApp()` are not affected.
+      type: changed

@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "sources": ["../src/dynamicImport.ts"],
+  "sourceRoot": "../../../../../../sources/public/lib/js/esm/build",
+  "sourcesContent": ["// This file is part of Moodle - http://moodle.org/\n//\n// Moodle is free software: you can redistribute it and/or modify\n// it under the terms of the GNU General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n//\n// Moodle is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY; without even the implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n// GNU General Public License for more details.\n//\n// You should have received a copy of the GNU General Public License\n// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.\n\n/**\n * Native dynamic import of an ES module resolved through the Moodle import map.\n *\n * This lives in its own module so that callers can be unit tested: Jest cannot\n * run a native `import()`, but it can mock this module.\n *\n * @module     core/dynamicImport\n * @copyright  2026 Rajneel Totaram <rajneel.totaram@moodle.com>\n * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later\n */\n\n/**\n * Import an ES module by its specifier.\n *\n * @param specifier The module specifier, e.g. `@moodle/lms/core_course/ActivityIcon`.\n * @returns The imported module namespace.\n */\nexport const dynamicImport = async <T>(specifier: string): Promise<T> => import(specifier) as Promise<T>;\n"],
+  "mappings": ";;AAeA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAiBO,MAAM,gBAAgB,8BAAU,cAAkC,OAAO,YAAnD;",
+  "names": []
+}

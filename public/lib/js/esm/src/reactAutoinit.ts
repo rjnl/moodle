@@ -35,6 +35,8 @@
  */
 
 import {type ComponentType} from 'react';
+import {flushSync} from 'react-dom';
+import {dynamicImport} from '@moodle/lms/core/dynamicImport';
 import {isProfilerEnabled} from '@moodle/lms/core/profiler';
 import {mountReactApp, unmountReactApp} from '@moodle/lms/core/mount';
 import Pending from '@moodle/lms/core/pending';
@@ -47,8 +49,18 @@ type ComponentModule = {
     default?: ComponentType<ReactProps>;
 };
 
+/** An element whose component has loaded and is waiting for the next batch. */
+type QueuedMount = {
+    element: HTMLElement;
+    component: ComponentType<ReactProps>;
+    pendingPromise: Pending;
+};
+
 const SELECTOR = '[data-react-component]';
+const BATCH_SIZE = 200;
 const reactUnmountMap = new WeakMap<Element, () => void>();
+const componentModules = new Map<string, Promise<ComponentModule | undefined>>();
+const mountQueue: QueuedMount[] = [];
 const isProfilingEnabled = isProfilerEnabled();
 
 /**
@@ -118,7 +130,7 @@ const resolveComponent = async (componentName: string): Promise<ComponentModule 
             console.log(`[reactAutoinit] Loading: ${componentName}`);
         }
 
-        return await (import(componentName) as Promise<ComponentModule>);
+        return await dynamicImport<ComponentModule>(componentName);
     } catch (error) {
         console.error(`[reactAutoinit] Failed to import: ${componentName}`, error);
         return undefined;
@@ -143,6 +155,64 @@ const mountReactComponent = (
 };
 
 /**
+ * Mount a queued element, unless it was removed or unmounted while it waited.
+ *
+ * @param queued The queued element and its component.
+ */
+const mountQueued = ({element, component}: QueuedMount): void => {
+    const componentName = element.dataset.reactComponent;
+
+    if (element.isConnected && element.dataset.reactMounting !== undefined) {
+        try {
+            mountReactComponent(element, component, parseProps(element));
+            element.dataset.reactMounted = '1';
+
+            if (isProfilingEnabled) {
+                console.log(`[reactAutoinit] Mounted via default: ${componentName}`);
+            }
+        } catch (error) {
+            console.error('[reactAutoinit] Mount failed:', componentName, error);
+        }
+    }
+
+    delete element.dataset.reactMounting;
+};
+
+/**
+ * Mount the next chunk of the queue in one synchronous React commit, then yield before the rest.
+ */
+const drainMountQueue = (): void => {
+    const batch = mountQueue.splice(0, BATCH_SIZE);
+
+    flushSync(() => {
+        for (const queued of batch) {
+            mountQueued(queued);
+        }
+    });
+
+    for (const {pendingPromise} of batch) {
+        pendingPromise.resolve();
+    }
+
+    if (mountQueue.length > 0) {
+        setTimeout(drainMountQueue, 0);
+    }
+};
+
+/**
+ * Add an element to the queue, and schedule a batch if none is scheduled yet.
+ *
+ * @param queued The queued element and its component.
+ */
+const queueMount = (queued: QueuedMount): void => {
+    mountQueue.push(queued);
+
+    if (mountQueue.length === 1) {
+        queueMicrotask(drainMountQueue);
+    }
+};
+
+/**
  * Mount an element with the `data-react-component` attribute.
  *
  * @param element The element to mount.
@@ -162,33 +232,26 @@ const mountOne = async (element: HTMLElement): Promise<void> => {
 
     const pendingPromise = new Pending(`reactAutoInit:${componentName}`);
 
-    try {
-        const module = await resolveComponent(componentName);
-
-        if (!module) {
-            console.warn('[reactAutoinit] Component not found:', componentName);
-            return;
-        }
-
-        const component = module.default;
-
-        if (!component) {
-            console.warn('[reactAutoinit] Module has no default export:', componentName);
-            return;
-        }
-
-        mountReactComponent(element, component, parseProps(element));
-        element.dataset.reactMounted = '1';
-
-        if (isProfilingEnabled) {
-            console.log(`[reactAutoinit] Mounted via default: ${componentName}`);
-        }
-    } catch (error) {
-        console.error('[reactAutoinit] Mount failed:', componentName, error);
-    } finally {
-        delete element.dataset.reactMounting;
-        pendingPromise.resolve();
+    if (!componentModules.has(componentName)) {
+        componentModules.set(componentName, resolveComponent(componentName));
     }
+
+    const module = await componentModules.get(componentName);
+    const component = module?.default;
+
+    if (component) {
+        queueMount({element, component, pendingPromise});
+        return;
+    }
+
+    if (module) {
+        console.warn('[reactAutoinit] Module has no default export:', componentName);
+    } else {
+        console.warn('[reactAutoinit] Component not found:', componentName);
+    }
+
+    delete element.dataset.reactMounting;
+    pendingPromise.resolve();
 };
 
 /**

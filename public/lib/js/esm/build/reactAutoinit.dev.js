@@ -20,11 +20,16 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
  * @copyright  Meirza <meirza.arson@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+import { flushSync } from "react-dom";
+import { dynamicImport } from "@moodle/lms/core/dynamicImport";
 import { isProfilerEnabled } from "@moodle/lms/core/profiler";
 import { mountReactApp, unmountReactApp } from "@moodle/lms/core/mount";
 import Pending from "@moodle/lms/core/pending";
 const SELECTOR = "[data-react-component]";
+const BATCH_SIZE = 200;
 const reactUnmountMap = /* @__PURE__ */ new WeakMap();
+const componentModules = /* @__PURE__ */ new Map();
+const mountQueue = [];
 const isProfilingEnabled = isProfilerEnabled();
 const domReady = /* @__PURE__ */ __name(async () => {
   if (document.readyState !== "loading") {
@@ -64,7 +69,7 @@ const resolveComponent = /* @__PURE__ */ __name(async (componentName) => {
     if (isProfilingEnabled) {
       console.log(`[reactAutoinit] Loading: ${componentName}`);
     }
-    return await import(componentName);
+    return await dynamicImport(componentName);
   } catch (error) {
     console.error(`[reactAutoinit] Failed to import: ${componentName}`, error);
     return void 0;
@@ -75,6 +80,41 @@ const mountReactComponent = /* @__PURE__ */ __name((element, component, props) =
   const unmount = mountReactApp(element, component, props, { id: componentName });
   reactUnmountMap.set(element, unmount);
 }, "mountReactComponent");
+const mountQueued = /* @__PURE__ */ __name(({ element, component }) => {
+  const componentName = element.dataset.reactComponent;
+  if (element.isConnected && element.dataset.reactMounting !== void 0) {
+    try {
+      mountReactComponent(element, component, parseProps(element));
+      element.dataset.reactMounted = "1";
+      if (isProfilingEnabled) {
+        console.log(`[reactAutoinit] Mounted via default: ${componentName}`);
+      }
+    } catch (error) {
+      console.error("[reactAutoinit] Mount failed:", componentName, error);
+    }
+  }
+  delete element.dataset.reactMounting;
+}, "mountQueued");
+const drainMountQueue = /* @__PURE__ */ __name(() => {
+  const batch = mountQueue.splice(0, BATCH_SIZE);
+  flushSync(() => {
+    for (const queued of batch) {
+      mountQueued(queued);
+    }
+  });
+  for (const { pendingPromise } of batch) {
+    pendingPromise.resolve();
+  }
+  if (mountQueue.length > 0) {
+    setTimeout(drainMountQueue, 0);
+  }
+}, "drainMountQueue");
+const queueMount = /* @__PURE__ */ __name((queued) => {
+  mountQueue.push(queued);
+  if (mountQueue.length === 1) {
+    queueMicrotask(drainMountQueue);
+  }
+}, "queueMount");
 const mountOne = /* @__PURE__ */ __name(async (element) => {
   if (element.dataset.reactMounted !== void 0 || element.dataset.reactMounting !== void 0) {
     return;
@@ -86,28 +126,22 @@ const mountOne = /* @__PURE__ */ __name(async (element) => {
     return;
   }
   const pendingPromise = new Pending(`reactAutoInit:${componentName}`);
-  try {
-    const module = await resolveComponent(componentName);
-    if (!module) {
-      console.warn("[reactAutoinit] Component not found:", componentName);
-      return;
-    }
-    const component = module.default;
-    if (!component) {
-      console.warn("[reactAutoinit] Module has no default export:", componentName);
-      return;
-    }
-    mountReactComponent(element, component, parseProps(element));
-    element.dataset.reactMounted = "1";
-    if (isProfilingEnabled) {
-      console.log(`[reactAutoinit] Mounted via default: ${componentName}`);
-    }
-  } catch (error) {
-    console.error("[reactAutoinit] Mount failed:", componentName, error);
-  } finally {
-    delete element.dataset.reactMounting;
-    pendingPromise.resolve();
+  if (!componentModules.has(componentName)) {
+    componentModules.set(componentName, resolveComponent(componentName));
   }
+  const module = await componentModules.get(componentName);
+  const component = module?.default;
+  if (component) {
+    queueMount({ element, component, pendingPromise });
+    return;
+  }
+  if (module) {
+    console.warn("[reactAutoinit] Module has no default export:", componentName);
+  } else {
+    console.warn("[reactAutoinit] Component not found:", componentName);
+  }
+  delete element.dataset.reactMounting;
+  pendingPromise.resolve();
 }, "mountOne");
 const unmountOne = /* @__PURE__ */ __name((element) => {
   const unmount = reactUnmountMap.get(element) ?? (() => {
