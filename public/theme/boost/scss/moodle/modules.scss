@@ -119,8 +119,8 @@ select {
     }
     .automatic-completion-conditions {
         li {
-            &:has(.automatic-completion-is-complete),
-            &:has(.automatic-completion-is-failed) {
+            &.automatic-completion-item-complete,
+            &.automatic-completion-item-failed {
                 &::before {
                     content: "";
                 }
@@ -128,7 +128,7 @@ select {
         }
 
         li {
-            &:has(.automatic-completion-is-complete) {
+            &.automatic-completion-item-complete {
                 color: $success;
                 padding-left: map-get($spacers, 1);
                 .icon {
@@ -138,7 +138,7 @@ select {
         }
 
         li {
-            &:has(.automatic-completion-is-failed) {
+            &.automatic-completion-item-failed {
                 color: $danger;
                 padding-left: map-get($spacers, 1);
             }

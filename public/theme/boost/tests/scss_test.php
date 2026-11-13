@@ -41,7 +41,7 @@ final class scss_test extends \advanced_testcase {
     }
 
     /**
-     * Test that no :has() selector depends on the drawer state or the drawer toggles.
+     * Test that no :has() selector depends on the drawer state, the drawer toggles or the completion state.
      *
      * Such selectors make the browser restyle the whole page on every DOM change.
      */
@@ -50,7 +50,7 @@ final class scss_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         $css = \theme_config::load('boost')->get_css_content_debug('scss', null, null);
-        $pattern = '/[^{}]*:has\([^)]*(?:show-drawer-|drawer-(?:left|right)-toggle)[^{]*/';
+        $pattern = '/[^{}]*:has\([^)]*(?:show-drawer-|drawer-(?:left|right)-toggle|automatic-completion-is-)[^{]*/';
         preg_match_all($pattern, $css, $matches);
 
         $this->assertSame([], array_values(array_unique(array_map('trim', $matches[0]))));

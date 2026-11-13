@@ -1,0 +1,9 @@
+issueNumber: MDL-XXXXX
+notes:
+  core_course:
+    - message: >-
+        In the `core_course/completion_automatic` template, the `li` of a
+        completed or failed condition now has the `automatic-completion-item-complete`
+        or `automatic-completion-item-failed` class. Themes must select on these
+        classes instead of `li:has(.automatic-completion-is-*)`.
+      type: changed

@@ -41393,17 +41393,17 @@ select {
 .path-mod .automatic-completion-conditions .badge:first-child {
   margin-top: 0;
 }
-.path-mod .automatic-completion-conditions li:has(.automatic-completion-is-complete)::before, .path-mod .automatic-completion-conditions li:has(.automatic-completion-is-failed)::before {
+.path-mod .automatic-completion-conditions li.automatic-completion-item-complete::before, .path-mod .automatic-completion-conditions li.automatic-completion-item-failed::before {
   content: "";
 }
-.path-mod .automatic-completion-conditions li:has(.automatic-completion-is-complete) {
+.path-mod .automatic-completion-conditions li.automatic-completion-item-complete {
   color: #357a32;
   padding-left: 0.25rem;
 }
-.path-mod .automatic-completion-conditions li:has(.automatic-completion-is-complete) .icon {
+.path-mod .automatic-completion-conditions li.automatic-completion-item-complete .icon {
   font-size: 0.8rem;
 }
-.path-mod .automatic-completion-conditions li:has(.automatic-completion-is-failed) {
+.path-mod .automatic-completion-conditions li.automatic-completion-item-failed {
   color: #ca3120;
   padding-left: 0.25rem;
 }

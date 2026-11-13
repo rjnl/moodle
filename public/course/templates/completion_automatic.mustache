@@ -29,7 +29,7 @@
 }}
 {{#istrackeduser}}
     {{#statuscomplete}}
-    <li>
+    <li class="automatic-completion-item-complete">
         <div class="automatic-completion-is-complete" {{!
             }}{{#accessibledescription}}{{!
                 }}title="{{.}}" {{!
@@ -41,7 +41,7 @@
     </li>
     {{/statuscomplete}}
     {{#statuscompletefail}}
-    <li>
+    <li class="automatic-completion-item-failed">
         <div class="automatic-completion-is-failed" {{!
             }}{{#accessibledescription}}{{!
                 }}title="{{.}}" {{!
