@@ -952,3 +952,19 @@ registerListeners();
 
 const drawers = document.querySelectorAll(SELECTORS.DRAWERS);
 drawers.forEach(drawerNode => Drawers.getDrawerInstanceForNode(drawerNode));
+
+const pageNode = document.getElementById('page');
+
+/**
+ * Mirror the open drawers from the page to the body, so that selectors do not need :has().
+ *
+ * @private
+ */
+const syncBodyClasses = () => {
+    ['left', 'right'].forEach(side => {
+        document.body.classList.toggle(`page-drawer-${side}-open`, pageNode.classList.contains(`show-drawer-${side}`));
+    });
+};
+
+syncBodyClasses();
+new MutationObserver(syncBodyClasses).observe(pageNode, {attributes: true, attributeFilter: ['class']});

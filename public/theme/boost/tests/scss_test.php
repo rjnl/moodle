@@ -39,4 +39,20 @@ final class scss_test extends \advanced_testcase {
             \theme_config::load('boost')->get_css_content_debug('scss', null, null)
         );
     }
+
+    /**
+     * Test that no :has() selector depends on the drawer state or the drawer toggles.
+     *
+     * Such selectors make the browser restyle the whole page on every DOM change.
+     */
+    #[\PHPUnit\Framework\Attributes\CoversNothing]
+    public function test_no_page_wide_has_selectors(): void {
+        $this->resetAfterTest();
+
+        $css = \theme_config::load('boost')->get_css_content_debug('scss', null, null);
+        $pattern = '/[^{}]*:has\([^)]*(?:show-drawer-|drawer-(?:left|right)-toggle)[^{]*/';
+        preg_match_all($pattern, $css, $matches);
+
+        $this->assertSame([], array_values(array_unique(array_map('trim', $matches[0]))));
+    }
 }

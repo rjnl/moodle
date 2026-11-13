@@ -1,0 +1,14 @@
+issueNumber: MDL-XXXXX
+notes:
+  theme_boost:
+    - message: >-
+        The drawer styles no longer use `:has()` on `<body>`, because it made
+        the browser restyle the whole page on every DOM change. The `drawers`
+        layout now adds the `page-drawer-left` and `page-drawer-right` classes
+        to `<body>` for the drawers the page has, and the `page-drawer-left-open`
+        and `page-drawer-right-open` classes for the drawers that are open.
+        `theme_boost/drawers` keeps the open classes in sync with the
+        `show-drawer-left` and `show-drawer-right` classes of `#page`. Themes
+        with their own drawer styles must select on these classes instead of
+        `body:has(#page.show-drawer-*)` and `:has(.drawer-*-toggle)`.
+      type: changed

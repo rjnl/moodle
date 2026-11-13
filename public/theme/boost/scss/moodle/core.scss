@@ -2135,7 +2135,7 @@ $footer-link-color: $bg-inverse-link-color !default;
         z-index: $zindex-dropdown;
     }
     .jsenabled .maintenancewarning,
-    .jsenabled.hasstickyfooter:has(.drawer-right-toggle) .maintenancewarning {
+    .jsenabled.hasstickyfooter.page-drawer-right .maintenancewarning {
         right: 5rem;
     }
 }

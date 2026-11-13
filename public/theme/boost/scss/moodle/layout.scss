@@ -149,10 +149,10 @@
             visibility: hidden;
         }
     }
-    .hasstickyfooter:has(.drawer-right-toggle) .maintenancewarning {
+    .hasstickyfooter.page-drawer-right .maintenancewarning {
         right: 2rem;
     }
-    .hasstickyfooter:has(.drawer-left-toggle) .maintenancewarning {
+    .hasstickyfooter.page-drawer-left .maintenancewarning {
         margin-left: 3.5rem;
     }
 }
@@ -232,7 +232,7 @@
             right: calc(#{$drawer-right-width} + 2rem);
         }
 
-        &:has(#page.drawers.show-drawer-right) .maintenancewarning {
+        &.page-drawer-right-open .maintenancewarning {
             right: calc(#{$drawer-right-width} + 5rem);
         }
     }
@@ -266,7 +266,7 @@
         }
 
         // Single right drawer open: both toggles shift to track the moved main-inner.
-        &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
+        &.page-drawer-right-open:not(.page-drawer-left-open) {
             .drawer-toggles .drawer-left-toggle {
                 right: Min(#{$drawer-anchor-right-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
             }
@@ -277,7 +277,7 @@
         }
 
         // Single left drawer open: both toggles shift to track the moved main-inner.
-        &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
+        &.page-drawer-left-open:not(.page-drawer-right-open) {
             .drawer-toggles .drawer-left-toggle {
                 right: Min(#{$drawer-anchor-xxl-left-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
             }
@@ -289,7 +289,7 @@
 
         // Both drawers open: toggles hidden (handled by show-drawer-* display:none rules).
         // Included for completeness — tracks same offset as drawer-both formulas.
-        &:has(#page.drawers.show-drawer-left.show-drawer-right) {
+        &.page-drawer-left-open.page-drawer-right-open {
             .drawer-toggles .drawer-left-toggle {
                 right: $drawer-both-left-anchor;
             }

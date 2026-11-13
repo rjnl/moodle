@@ -56,6 +56,18 @@ $courseindex = core_course_drawer();
 if (!$courseindex) {
     $courseindexopen = false;
 }
+if ($courseindex) {
+    $extraclasses[] = 'page-drawer-left';
+}
+if ($hasblocks) {
+    $extraclasses[] = 'page-drawer-right';
+}
+if ($courseindexopen) {
+    $extraclasses[] = 'page-drawer-left-open';
+}
+if ($blockdraweropen) {
+    $extraclasses[] = 'page-drawer-right-open';
+}
 
 $bodyattributes = $OUTPUT->body_attributes($extraclasses);
 $forceblockdraweropen = $OUTPUT->firstview_fakeblocks();

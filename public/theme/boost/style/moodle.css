@@ -32133,7 +32133,7 @@ dd:after {
     z-index: 1000;
   }
   .jsenabled .maintenancewarning,
-  .jsenabled.hasstickyfooter:has(.drawer-right-toggle) .maintenancewarning {
+  .jsenabled.hasstickyfooter.page-drawer-right .maintenancewarning {
     right: 5rem;
   }
 }
@@ -37633,56 +37633,56 @@ body.drawer-ease {
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-left,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-left {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-left,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-left {
     right: min(calc(50% + 830px / 2 - 285px / 2 + calc(0.5rem + 20px)), calc(100% - 285px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-left.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-left.show {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-left.show,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-left.show {
     right: min(calc(50% + 830px / 2 - 285px / 2 + calc(0.5rem + 20px)), calc(100% - 285px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-right,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-right {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-right,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-right {
     left: calc(50% + 830px / 2 + calc(0.5rem + 20px) + 285px / 2);
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-right.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer.drawer-right.show {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-right.show,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer.drawer-right.show {
     left: calc(50% + 830px / 2 + calc(0.5rem + 20px) + 285px / 2);
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-left,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-left {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-left,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-left {
     right: calc(50% + 830px / 2 + calc(0.5rem + 20px) + 315px / 2);
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-left.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-left.show {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-left.show,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-left.show {
     right: calc(50% + 830px / 2 + calc(0.5rem + 20px) + 315px / 2);
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-right,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-right {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-right,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-right {
     left: min(calc(50% + 830px / 2 - 315px / 2 + calc(0.5rem + 20px)), calc(100% - 315px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-right.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer.drawer-right.show {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-right.show,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer.drawer-right.show {
     left: min(calc(50% + 830px / 2 - 315px / 2 + calc(0.5rem + 20px)), calc(100% - 315px));
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-left,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-left {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer.drawer-left,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer.drawer-left {
     right: min(calc(50% + 830px / 2 + calc((315px - 285px) / 2) + calc(0.5rem + 20px)), calc(100% - 285px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-left.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-left.show {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer.drawer-left.show,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer.drawer-left.show {
     right: min(calc(50% + 830px / 2 + calc((315px - 285px) / 2) + calc(0.5rem + 20px)), calc(100% - 285px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-right,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-right {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer.drawer-right,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer.drawer-right {
     left: min(calc(50% + 830px / 2 - calc((315px - 285px) / 2) + calc(0.5rem + 20px)), calc(100% - 315px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-right.show,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer.drawer-right.show {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer.drawer-right.show,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer.drawer-right.show {
     left: min(calc(50% + 830px / 2 - calc((315px - 285px) / 2) + calc(0.5rem + 20px)), calc(100% - 315px));
   }
 }
@@ -45426,10 +45426,10 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
     pointer-events: auto;
     visibility: hidden;
   }
-  .hasstickyfooter:has(.drawer-right-toggle) .maintenancewarning {
+  .hasstickyfooter.page-drawer-right .maintenancewarning {
     right: 2rem;
   }
-  .hasstickyfooter:has(.drawer-left-toggle) .maintenancewarning {
+  .hasstickyfooter.page-drawer-left .maintenancewarning {
     margin-left: 3.5rem;
   }
 }
@@ -45505,7 +45505,7 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
   body:not(.pagelayout-standard):not(.limitedwidth) #page.drawers.show-drawer-right .btn-footer-communication {
     right: calc(315px + 2rem);
   }
-  body:not(.pagelayout-standard):not(.limitedwidth):has(#page.drawers.show-drawer-right) .maintenancewarning {
+  body:not(.pagelayout-standard):not(.limitedwidth).page-drawer-right-open .maintenancewarning {
     right: calc(315px + 5rem);
   }
 }
@@ -45546,32 +45546,32 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer-toggles .drawer-left-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer-toggles .drawer-left-toggle {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer-toggles .drawer-left-toggle,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer-toggles .drawer-left-toggle {
     right: min(calc(50% + 830px / 2 + calc(0.5rem + 20px) + 315px / 2), calc(100% - 40px - 2 * 16px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer-toggles .drawer-right-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) .drawer-toggles .drawer-right-toggle {
+  .pagelayout-standard.page-drawer-right-open:not(.page-drawer-left-open) .drawer-toggles .drawer-right-toggle,
+  body.limitedwidth.page-drawer-right-open:not(.page-drawer-left-open) .drawer-toggles .drawer-right-toggle {
     left: min(calc(50% + 830px / 2 - 315px / 2 + calc(0.5rem + 20px)), calc(100% - 40px - 2 * 16px));
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer-toggles .drawer-left-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer-toggles .drawer-left-toggle {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer-toggles .drawer-left-toggle,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer-toggles .drawer-left-toggle {
     right: min(calc(50% + 830px / 2 - 285px / 2 + calc(0.5rem + 20px)), calc(100% - 40px - 2 * 16px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer-toggles .drawer-right-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) .drawer-toggles .drawer-right-toggle {
+  .pagelayout-standard.page-drawer-left-open:not(.page-drawer-right-open) .drawer-toggles .drawer-right-toggle,
+  body.limitedwidth.page-drawer-left-open:not(.page-drawer-right-open) .drawer-toggles .drawer-right-toggle {
     left: min(calc(50% + 830px / 2 + calc(0.5rem + 20px) + 285px / 2), calc(100% - 40px - 2 * 16px));
   }
 }
 @media (min-width: 992px) {
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer-toggles .drawer-left-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer-toggles .drawer-left-toggle {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer-toggles .drawer-left-toggle,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer-toggles .drawer-left-toggle {
     right: calc(50% + 830px / 2 + calc((315px - 285px) / 2) + calc(0.5rem + 20px));
   }
-  .pagelayout-standard:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer-toggles .drawer-right-toggle,
-  body.limitedwidth:has(#page.drawers.show-drawer-left.show-drawer-right) .drawer-toggles .drawer-right-toggle {
+  .pagelayout-standard.page-drawer-left-open.page-drawer-right-open .drawer-toggles .drawer-right-toggle,
+  body.limitedwidth.page-drawer-left-open.page-drawer-right-open .drawer-toggles .drawer-right-toggle {
     left: calc(50% + 830px / 2 - calc((315px - 285px) / 2) + calc(0.5rem + 20px));
   }
 }

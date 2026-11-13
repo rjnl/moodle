@@ -387,7 +387,7 @@ $right-drawer-width: 320px;
             }
         }
 
-        &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
+        &.page-drawer-left-open:not(.page-drawer-right-open) {
             .drawer.drawer-left {
                 right: $drawer-anchor-solo-left-open;
 
@@ -404,7 +404,7 @@ $right-drawer-width: 320px;
             }
         }
 
-        &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
+        &.page-drawer-right-open:not(.page-drawer-left-open) {
             .drawer.drawer-left {
                 right: $drawer-anchor-right-open;
 
@@ -422,7 +422,7 @@ $right-drawer-width: 320px;
         }
 
         // Both drawers open: anchor to main-inner edges, clamped so drawers don't clip the viewport.
-        &:has(#page.drawers.show-drawer-left.show-drawer-right) {
+        &.page-drawer-left-open.page-drawer-right-open {
             .drawer.drawer-left {
                 right: $drawer-anchor-both-left;
 
