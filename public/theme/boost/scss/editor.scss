@@ -21,6 +21,12 @@ $code-color-dark: $mds-color-pink-200 !default;
    editor_tiny repeats the data-bs-theme attribute on that document's root for these to take effect. */
 @import "moodle/colour-mode";
 
+/* Inline code in table cells, so that it has the same colours as it does on the page. Unlike on the page, Bootstrap
+   paints the tint of a coloured row on every cell here, so the darker code colour is needed on all of them. */
+$table-tint-on-all-cells: true;
+
+@import "moodle/table-code";
+
 /**
  * Reset the Bootstrap _reboot.scss styles for tables.
  * That reboot is breaking non-BS tables in the editor.

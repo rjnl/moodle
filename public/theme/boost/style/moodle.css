@@ -43228,8 +43228,54 @@ table .sticky-column {
   background-color: rgba(var(--bs-emphasis-color-rgb), 0.075);
 }
 
-[data-bs-theme=dark] .table > tbody > tr > *, [data-bs-theme=dark] :is(.table-striped > tbody > tr:nth-of-type(odd) > *, .table-striped-columns > :not(caption) > tr > :nth-child(even), .table-hover > tbody > tr:hover > *, .table-active, .table-active > *) {
-  --bs-code-color: #f8d1e3;
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-gray-600) #f8f9fa;
+}
+.table-responsive::-webkit-scrollbar {
+  width: 12px;
+}
+.table-responsive::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background-color: var(--bs-gray-600);
+  border-radius: 20px;
+  border: 3px solid #f8f9fa;
+}
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background-color: var(--bs-gray-700);
+}
+.table-responsive .dropdown {
+  position: static !important; /* stylelint-disable-line declaration-no-important */
+}
+.table-responsive .table {
+  margin-bottom: 0;
+}
+.table-responsive .table .visually-hidden,
+.table-responsive .table .accesshide {
+  position: relative !important; /* stylelint-disable-line declaration-no-important */
+  display: block;
+}
+
+/**
+ * Inline code in table cells.
+ *
+ * Shared by the page (moodle.scss) and by the editor content (editor.scss), so that code reads the same while it is
+ * being edited as it does once it is published.
+ */
+:root,
+[data-bs-theme=light] {
+  --bs-table-code-color: var(--bs-code-color);
+}
+
+[data-bs-theme=dark] {
+  --bs-table-code-color: #f8d1e3;
+}
+
+.table > tbody > tr > *,
+:is(.table-striped > tbody > tr:nth-of-type(odd) > *, .table-striped-columns > :not(caption) > tr > :nth-child(even), .table-hover > tbody > tr:hover > *, .table-active, .table-active > *) {
+  --bs-code-color: var(--bs-table-code-color);
 }
 
 :is(.table-striped > tbody > tr:nth-of-type(odd) > *, .table-striped-columns > :not(caption) > tr > :nth-child(even), .table-hover > tbody > tr:hover > *, .table-active, .table-active > *):is(.table-primary, .table-primary *),
@@ -43267,34 +43313,9 @@ table .sticky-column {
   --bs-code-color: #831046;
 }
 
-.table-responsive {
-  scrollbar-width: thin;
-  scrollbar-color: var(--bs-gray-600) #f8f9fa;
-}
-.table-responsive::-webkit-scrollbar {
-  width: 12px;
-}
-.table-responsive::-webkit-scrollbar-track {
-  background: #f8f9fa;
-}
-.table-responsive::-webkit-scrollbar-thumb {
-  background-color: var(--bs-gray-600);
-  border-radius: 20px;
-  border: 3px solid #f8f9fa;
-}
-.table-responsive::-webkit-scrollbar-thumb:hover {
-  background-color: var(--bs-gray-700);
-}
-.table-responsive .dropdown {
-  position: static !important; /* stylelint-disable-line declaration-no-important */
-}
-.table-responsive .table {
-  margin-bottom: 0;
-}
-.table-responsive .table .visually-hidden,
-.table-responsive .table .accesshide {
-  position: relative !important; /* stylelint-disable-line declaration-no-important */
-  display: block;
+:is(.table-striped > tbody > tr:nth-of-type(odd) > *, .table-striped-columns > :not(caption) > tr > :nth-child(even), .table-hover > tbody > tr:hover > *, .table-active, .table-active > *):is(.table-dark, .table-dark *),
+.table > :is(thead, tfoot) :is(.table-dark, .table-dark *) {
+  --bs-code-color: #f8d1e3;
 }
 
 /**
