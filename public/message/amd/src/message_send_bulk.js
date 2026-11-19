@@ -20,7 +20,7 @@
  * @copyright  2019 Shamim Rezaie <shamim@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-import {get_string} from 'core/str';
+import {get_string, getString} from 'core/str';
 import ModalSaveCancel from 'core/modal_save_cancel';
 import Templates from 'core/templates';
 import ModalEvents from 'core/modal_events';
@@ -79,7 +79,8 @@ export const showModal = (users, callback = null) => {
  * @method sendMessage
  * @param {String} messageText
  * @param {Number[]} users
- * @returns {Promise}
+ * @returns {Promise<boolean|undefined>} Resolves true if every message was sent, false if at least one failed
+ *     (the failures are shown to the user), or undefined if the request itself failed.
  */
 export const sendMessage = (messageText, users) => {
     let messages = [];
@@ -96,18 +97,18 @@ export const sendMessage = (messageText, users) => {
         args: {messages: messages}
     }])[0]
     .then(async(messageIds) => {
-        // The web service reports per-message failures in the response rather than throwing.
-        const failures = messageIds.filter(msg => msg.errormessage);
+        // The web service reports per-message failures in the response (msgid = -1) rather than throwing.
+        const failures = messageIds.filter(msg => msg.msgid < 1);
         await notifyFailures(failures);
 
         const sent = messageIds.length - failures.length;
         if (failures.length === 0) {
-            const message = sent == 1 ?
-                await get_string('sendbulkmessagesentsingle', 'core_message') :
-                await get_string('sendbulkmessagesent', 'core_message', sent);
+            const message = sent === 1 ?
+                await getString('sendbulkmessagesentsingle', 'core_message') :
+                await getString('sendbulkmessagesent', 'core_message', sent);
             Notification.addNotification({message, type: 'success'});
         } else if (sent > 0) {
-            const message = await get_string(
+            const message = await getString(
                 'sendbulkmessagesentwitherrors',
                 'core_message',
                 {sent, total: messageIds.length}
@@ -123,23 +124,25 @@ export const sendMessage = (messageText, users) => {
 /**
  * Show an error notification for the messages which could not be sent.
  *
- * @param {Object[]} failures The failed items from the core_message_send_instant_messages response.
+ * Users who cannot be messaged are listed together, and any other error is only shown once.
+ *
+ * @param {Object[]} failures The failed items (msgid = -1) from the core_message_send_instant_messages response.
  * @returns {Promise}
  */
-const notifyFailures = async(failures) => {
+export const notifyFailures = async(failures) => {
     const cantSendToUsers = failures.filter(msg => msg.cantsendtouser);
     const messages = [];
 
     if (cantSendToUsers.length > 1) {
         const names = cantSendToUsers.map(msg => msg.cantsendtouser).join(', ');
-        messages.push(await get_string('usercantbemessagedbulk', 'core_message', names));
+        messages.push(await getString('usercantbemessagedbulk', 'core_message', names));
     } else if (cantSendToUsers.length === 1) {
         // The singular 'usercantbemessaged' string is already built in PHP.
         messages.push(cantSendToUsers[0].errormessage);
     }
 
     // Other errors (e.g. message too long) are likely the same for every recipient, so only show each once.
-    const otherErrors = failures.filter(msg => !msg.cantsendtouser).map(msg => msg.errormessage);
+    const otherErrors = failures.filter(msg => !msg.cantsendtouser && msg.errormessage).map(msg => msg.errormessage);
     messages.push(...new Set(otherErrors));
 
     messages.forEach(message => Notification.addNotification({message, type: 'error'}));
