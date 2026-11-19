@@ -28,6 +28,7 @@ import SaveCancelModal from 'core/modal_save_cancel';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
 import {add as notifyUser} from 'core/toast';
+import {notifyFailures} from 'core_message/message_send_bulk';
 
 /**
  * Show the add note popup
@@ -179,70 +180,25 @@ const submitSendMessage = (modal, users, text) => {
         };
     });
     return Repository.sendMessagesToUsers(messages)
-    .then(messageIds => {
-        // To help teachers know which users could not be sent to, let's build a notification.
-        const cantSendToUsers = messageIds.filter(msg => msg.cantsendtouser && msg.cantsendtouser !== '');
-        if (cantSendToUsers.length > 1) {
-            // If there are multiple users who can't be sent to, extract their names and build an error message.
-            const users = cantSendToUsers.map(user => user.cantsendtouser).join(', ');
-            const stringPromise = Str.get_string('usercantbemessagedbulk', 'core_message', users);
-            stringPromise.done(msg => {
-                Notification.addNotification({
-                    message: msg,
-                    type: 'error',
-                });
-            });
-        } else if (cantSendToUsers.length === 1) {
-            // If there was only one error, just notify with the singular 'usercantbemessaged' string (already built in PHP).
-            Notification.addNotification({
-                message: cantSendToUsers[0].errormessage,
-                type: 'error',
-            });
-        }
-        // Always handle other errors independently.
-        const otherErrors = messageIds.filter(msg => msg.errormessage && (!msg.cantsendtouser || msg.cantsendtouser === ''));
-        otherErrors.forEach(error => {
-            Notification.addNotification({
-                message: error.errormessage,
-                type: 'error',
-            });
-        });
+    .then(async(messageIds) => {
+        // The web service reports per-message failures in the response (msgid = -1) rather than throwing.
+        // To help teachers know which messages could not be sent, show the reasons.
+        const failures = messageIds.filter(msg => msg.msgid < 1);
+        await notifyFailures(failures);
 
-        // Determine appropriate success/error toast message based on send results.
-        let toastMessage = '';
-        const errorMessages = messageIds.filter(msg => msg.errormessage);
-        const successCount = messageIds.length - errorMessages.length;
-        if (successCount == 1 && errorMessages.length == 0) {
-            toastMessage = Str.get_string('sendbulkmessagesentsingle', 'core_message');
-        } else if (successCount > 1 && errorMessages.length == 0) {
-            toastMessage = Str.get_string('sendbulkmessagesent', 'core_message', messageIds.length);
-        } else {
-            toastMessage = Str.get_string(
-                'sendbulkmessagesentwitherrors',
-                'core_message',
-                {
-                    sent: successCount,
-                    total: messageIds.length
-                }
+        const sent = messageIds.length - failures.length;
+        if (failures.length === 0) {
+            notifyUser(sent === 1 ?
+                await Str.getString('sendbulkmessagesentsingle', 'core_message') :
+                await Str.getString('sendbulkmessagesent', 'core_message', sent));
+        } else if (sent > 0) {
+            // Customise the toast message to indicate there was an issue with sending.
+            notifyUser(
+                await Str.getString('sendbulkmessagesentwitherrors', 'core_message', {sent, total: messageIds.length}),
+                {type: 'warning', closeButton: true, autohide: false}
             );
         }
-        return {
-            message: toastMessage,
-            errors: errorMessages.length,
-        };
-    })
-    .then(({message, errors}) => {
-        if (errors > 0) {
-            // Customise the toast message to indicate there was an issue with sending.
-            const config = {
-                type: 'warning',
-                closeButton: true,
-                autohide: false,
-            };
-            notifyUser(message, config);
-        } else {
-            notifyUser(message);
-        }
+        // When nothing was sent, the error notifications are enough.
         return;
     })
     .catch(Notification.exception);
